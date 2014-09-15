@@ -3,7 +3,7 @@
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
-*.iml
+/*.iml
 
 ## Directory-based project format:
 .idea/
@@ -47,27 +47,6 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 
 
-### Windows ###
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
-
-# Folder config file
-Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# Windows shortcuts
-*.lnk
-
-
 ### OSX ###
 .DS_Store
 .AppleDouble
@@ -92,6 +71,27 @@ Temporary Items
 .apdisk
 
 
+### Windows ###
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+
 ### Java ###
 *.class
 
@@ -100,6 +100,7 @@ Temporary Items
 
 # Package Files #
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 !demo/framework/bundle/*.jar
 *.war
 *.ear
@@ -107,8 +108,11 @@ Temporary Items
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-!doc/*
 
+### Gradle ###
+.gradle
+build/
 
-!licenses/*
+# Ignore Gradle GUI config
+gradle-app.setting
 
