@@ -102,7 +102,13 @@ $RECYCLE.BIN/
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
 !demo/framework/bundle/*.jar
-!*dependencies/*.jar
+!dependencies/*.jar
+!projects/driver/canopen/dependencies/*.jar
+!projects/driver/dlms/dependencies/*.jar
+!projects/driver/ehz/dependencies/*.jar
+!projects/driver/iec62056p21/dependencies/*.jar
+!projects/driver/knx/dependencies/*.jar
+!projects/driver/s7plc/dependencies/*.jar
 *.war
 *.ear
 
