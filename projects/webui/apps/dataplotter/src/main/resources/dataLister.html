@@ -1,0 +1,313 @@
+<h2>Data Lister</h2>
+
+<table class="conf_table_style" style="margin-bottom: 20px; table-layout: fixed;">
+    <thead style="position: relative; display: block;" id="pseudoHead"></thead>
+    <tbody style="display: block; height: 400px; overflow: auto;">
+    <tr class="hide" id="listHead">
+        <th id="time" width=185>Time</th>
+    </tr>
+    <tr id="pseudo"></tr>
+    </tbody>
+</table>
+
+
+<fieldset class=field>
+    <legend>Options</legend>
+
+    <table class="invisible_table_style" summary="Options">
+        <tr>
+            <td>Startdate:</td>
+            <td><input id="startListDate" type="text"></td>
+            <td><input id="startListH" type="text" size="3" value="0"> :
+                <input id="startListM" type="text" size="3" value="0"></td>
+        </tr>
+        <tr>
+            <td>Enddate:</td>
+            <td><input id="endListDate" type="text"></td>
+            <td><input id="endListH" type="text" size="3" value="0"> :
+                <input id="endListM" type="text" size="3" value="0"></td>
+        </tr>
+        <tr>
+            <td>Rounding</td>
+            <td><input id="rounding" type="text" size="5" value="2"></td>
+            <td><i>Decimal places to show.</i></td>
+        </tr>
+        <tr>
+            <td>Resolution:</td>
+            <td><input id="resolutionList" type="text" size="5" value="500"></td>
+            <td><i>Resolution 0 will plot all data, might take some time or crash the browser.</i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <nobr>Label:</nobr>
+                <br>
+            </td>
+            <td colspan="2">
+                <div style="max-height:150px; overflow: auto">
+                    #foreach ( $label in $labels )
+                    <div id="divLabelList$velocityCount">
+                        <input type="checkbox" name="LabelList$velocityCount"
+                               id="LabelList$velocityCount" value="$label">
+                        <label for="LabelList$velocityCount">$label</label>
+                    </div>
+                    #end
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button id="resetList">Reset Data</button>
+            </td>
+            <td align="right">
+                <button id="submitList" accesskey=enter>List Data...</button>
+            </td>
+        </tr>
+    </table>
+
+</fieldset>
+
+
+<script type="text/javascript">
+
+$('#startListH').spinner({
+    min: 0,
+    max: 23
+});
+
+$('#startListM').spinner({
+    min: 0,
+    max: 59
+});
+
+$('#endListH').spinner({
+    min: 0,
+    max: 23
+});
+
+$('#endListM').spinner({
+    min: 0,
+    max: 59
+});
+
+$('#rounding').spinner({
+    min: 1
+})
+
+$('#resolutionList').spinner({
+    min: 0
+});
+
+$("#startListDate").datepicker({
+    dateFormat: 'd-M-yy'
+});
+
+$("#endListDate").datepicker({
+    dateFormat: 'd-M-yy'
+});
+
+$('#submitList').click(function () {
+    listData();
+});
+
+$('#resetList').click(function () {
+    resetList();
+});
+
+resetList();
+listData();
+
+function resetList() {
+    var time = new Date();
+    $('#endListH').val(time.getHours());
+    $('#endListM').val(time.getMinutes());
+    $('#endListDate').datepicker("setDate", time);
+
+    $('#listHead').hide();
+
+    time.setDate(time.getDate() - 1);
+
+    $('#startListH').val(time.getHours());
+    $('#startListM').val(time.getMinutes());
+    $('#startListDate').datepicker("setDate", time);
+
+    $('#rounding').val("2");
+    $('#resolutionList').val("500");
+
+    $(':checkbox:checked').each(function (i) {
+        $(this).prop("checked", false);
+    });
+    $("#LabelList1").prop("checked", true);
+
+    window.clearTimeout(timeout);
+}
+
+function listData() {
+    var start;
+    var end;
+    var label = [];
+
+    $(':checkbox:checked').each(function (i) {
+        label[i] = $(this).val();
+    });
+
+    var resolution = parseInt($("#resolutionList").val(), 10);
+
+    start = $('#startListDate').datepicker("getDate");				//Get Start Time from Datepicker
+    if (start == null || start == undefined) {
+        start = new Date();
+        start.setDate(start.getDate() - 1);
+    }
+    else {
+        start.setHours(start.getHours() + $('#startListH').val());
+        start.setMinutes(start.getMinutes() + $('#startListM').val());
+    }
+    var startStamp = start.getTime();								//Get the UNIX Timestamp
+
+    end = $('#endListDate').datepicker("getDate");
+    if (end == null || end == undefined) {
+        end = new Date();
+    }
+    else {
+        end.setHours(end.getHours() + $('#endListH').val());
+        end.setMinutes(end.getMinutes() + $('#endListM').val());
+    }
+    var endStamp = end.getTime();
+
+    var points = [];
+    getList(label.length, 0, points, startStamp, endStamp, label, resolution);
+}
+
+
+function getList(requests, index, points, startStamp, endStamp, label, resolution) {
+    $.getJSON("dataplotter/getData", {
+        start: startStamp,
+        end: endStamp,
+        label: label[index],
+        resolution: resolution
+    }, function (data) {
+        points[index] = new Array();
+        $.each(data, function (i, value) {
+            if (value.flag == "VALID") {
+                points[index].push([value.timestamp, value.value]);
+            }
+        });
+        if (points[index].length == 0) {
+            points.splice(index, 1);
+            index--;
+        }
+        requests--;
+        index++;
+        if (requests > 0) {
+            getList(requests, index, points, startStamp, endStamp, label, resolution)
+        }
+        else {
+            printList(points, label);
+        }
+    });
+}
+
+function printList(points, label) {
+    var yaxisLabel = getyaxisLabel(label);
+    var rounding = parseInt($("#rounding").val(), 10) * 10;
+
+
+    $('.dynamic').remove();
+    $('#pseudoHead').empty();
+    $('#listHead').show();
+
+    var str = '';
+    $.each(yaxisLabel, function (i, value) {
+        str = str + '<th class="dynamic" id="label' + i + '">' + value + '</th>'
+    });
+
+    $('#time').after(str);
+
+
+    try {
+        var length = [];
+        var index = []
+        var last;
+
+        $.each(points, function (i, value) {
+            length[i] = value.length;
+            index[i] = 0;
+        });
+
+
+        last = points[0][length[0] - 1][0];
+        $.each(length, function (i, value) {
+            if (points[i][value - 1][0] > last) {
+                last = points[i][value - 1][0];
+            }
+        });
+
+        var ready = false;
+        while (!ready) {
+            var print = [];
+            print[0] = last;
+
+            $.each(index, function (i, value) {
+                if (points[i][value][0] <= print[0]) {
+                    print[0] = points[i][value][0];
+                }
+            });
+            $.each(index, function (i, value) {
+                if (points[i][value][0] == print[0]) {
+                    print[i + 1] = points[i][value][1];
+                    index[i]++;
+                }
+            });
+
+            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+                "Aug", "Sep", "Oct", "Nov", "Dece"];
+
+            var time = new Date(print[0])
+            var stime = time.getDate() + '-' + monthNames[time.getMonth()] + '-' + time.getFullYear();
+            stime = stime + ' ' + time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
+
+            var str = '<tr class="dynamic"><td class=dynamicT>' + stime + '</td>';
+
+            for (var i = 0; i < points.length; i++) {
+                var val = (Math.round(rounding * print[i + 1]) / rounding);
+                if (isNaN(val))    val = '';
+                str = str + '<td class=dynamic' + i + '>' + val + '</td>';
+            }
+            str = str + '</tr>';
+            $('#pseudo').before(str);
+
+            ready = true;
+            $.each(index, function (i, value) {
+                if (length[i] > value) {
+                    ready = false;
+                }
+                else {
+                    points[i].push([last + 1, 0]);
+                }
+            });
+
+        }
+    }
+    catch (err) {
+        console.log(err);
+        $('#pseudo').before('<tr class="dynamic"><td colspan=3>Sorry, no Data!</td></tr>');
+    }
+
+    $('.dynamicT').attr('width', $('#time').width());
+
+    for (var i = 0; i < points.length; i++) {
+        var width = $('#label' + i).width();
+        $('#label' + i).attr('width', width);
+        $('.dynamic' + i).attr('width', width);
+    }
+
+    $('#listHead').hide();
+
+    $('#listHead').clone().appendTo('#pseudoHead');
+    $('#listHead').show();
+    $('#listHead').attr('class', 'dynamic');
+    $('#time').attr('width', $('#time').width() - 16)
+
+}
+
+</script>

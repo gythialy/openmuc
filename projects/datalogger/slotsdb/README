@@ -1,0 +1,42 @@
+README
+-------
+
+in case of Error: "Too many open files." increase your open-files-limit by:
+
+1.) Change limits
+> vim /etc/security/limits.conf
+root soft nofile 32768			(if you are running OpenMUC as root)
+root hard nofile 32768
+
+or:
+
+* soft nofile 32768				(if your running OpenMUC as any other user.)
+* hard nofile 32768
+
+2.) Require libs
+> vim /etc/pam.d/login
+session    required   pam_limits.so
+
+> vim /etc/pam.d/su
+session    required   pam_limits.so				(if you login as root and use su, to switch to specified user)
+
+3.)
+Restart linux.
+
+5.)
+Check
+> ulimit -aH
+open files                      (-n) 32768
+
+4.)
+Change max_open_folders JVM Flag in init.xargs to 16384
+-Dorg.openmuc.mux.dbprovider.slotsdb.max_open_folders=16384
+
+5.)
+Specify size limit (in MB) of the SLOTSDB and maximum storage period (in days) if you like.
+-Dorg.openmuc.mux.dbprovider.slotsdb.limit_days=100
+-Dorg.openmuc.mux.dbprovider.slotsdb.limit_size=50
+As soon as one of these limits is exceeded(!), the oldest data will be deleted. (Limits are checked once(!) a day, so size_limit will be exceeded by the amount of data you store within one day(!). Choose a slightly smaller size_limit than your actual available disc-space!)
+
+6.)
+start OpenMUC

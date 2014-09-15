@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':openmuc-core-spi')
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Core - Data Manager"
+        instruction 'Service-Component', 'OSGI-INF/components.xml', 'OSGI-INF/authentication.xml'
+        instruction 'Export-Package', ''
+    }
+}

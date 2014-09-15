@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="org.openmuc.framework.driver.dummy">
+  <implementation class="org.openmuc.framework.driver.dummy.DummyDriver" /> 
+  <service>
+    <provide interface="org.openmuc.framework.driver.spi.DriverService" />
+  </service>
+</component> 

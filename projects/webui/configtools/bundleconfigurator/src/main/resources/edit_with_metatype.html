@@ -1,0 +1,14 @@
+<h1 class="content_header">Configure component $bundle.SymbolicName</h1>
+<form method="POST" action="EditProperties">
+
+    #foreach ( $configuration in $configurations)
+    <fieldset>
+        <legend>$configuration.Name</legend>
+        <p>
+            <label for="$property.name">$property.name: </label>
+            <input name="$property.name" id="$property.name" type="text">
+        </p>
+        <input type="submit" class="submitButton" value="Update configuration"/>
+    </fieldset>
+    #end
+</form>

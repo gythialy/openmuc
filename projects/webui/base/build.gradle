@@ -1,0 +1,29 @@
+configurations.create('embed')
+
+dependencies {
+    compile project(':openmuc-core-api')
+    compile project(':openmuc-webui-spi')
+    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+    compile group: 'velocity-tools', name: 'velocity-tools-generic', version: '1.2'
+
+    embed group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+    embed group: 'commons-lang', name: 'commons-lang', version: '2.4'
+    embed group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
+    embed group: 'velocity-tools', name: 'velocity-tools-generic', version: '1.2'
+}
+
+jar {
+    manifest {
+        name = "OpenMUC WebUI - Base"
+        instruction 'Bundle-ClassPath', '.,lib/velocity-1.7.jar,lib/commons-lang-2.4.jar,lib/commons-collections-3.2.1.jar,lib/velocity-tools-generic-1.2.jar'
+        instruction 'Import-Package', '!org.apache.velocity*,*'
+        instruction 'Export-Package', ''
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
+}
+
+jar {
+    into('lib') {
+        from configurations.embed
+    }
+}

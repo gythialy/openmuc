@@ -1,0 +1,21 @@
+Problem: Wenn mehr als 460 Byte ausgelesen werden sollen tritt ein Fehler auf.
+
+Anfrage bei der ein Fehler auftritt:
+
+32:01:00:00:00:00:00:0e:00:00:04:01:12:0a:10:02:01:d0:01:90:84:00:00:00
+
+Anfrage die funktioniert:
+
+32:01:00:00:a9:0b:00:0e:00:00:04:01:12:0a:10:02:01:cc:01:90:84:00:00:00
+
+
+32:01:00:00:00:00:00:0e:00:00:04:01:12:0a:10:02:01:d0:01:90:84:00:00:00
+32:01:00:00:a9:0b:00:0e:00:00:04:01:12:0a:10:02:01:cc:01:90:84:00:00:00
+   __ Type
+            _____ Seq Num.
+                  _____ Len of params = 14
+                        _____ Len of data = 0
+                              __ Function no = 4
+_____________________________    __ Items to read = 1
+          Header                             __ Unit size 2 = byte
+                                                _____ length in byte = 460 / 464

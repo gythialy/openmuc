@@ -1,0 +1,53 @@
+README
+------
+
+JNI-Header erstellen:
+
+cd bin
+javah -jni org.com.libnodave.Interface
+
+
+bzw.
+
+gradle javah
+
+BUILD FOR LINUX
+----------------
+
+gcc -DLINUX -c native/wrapper/src/main/cpp/libnodave-jni.c -I/usr/lib/jvm/java-6-openjdk-i386/include -Inative/libnodave/ -Ibuild/classes/main
+
+
+gcc -DLINUX -DDAVE_LITTLE_ENDIAN -DARM_FIX  -c -o nodave.o native/libnodave/nodave.c
+
+gcc -DLINUX -DDAVE_LITTLE_ENDIAN -DARM_FIX  -c -o openSocket.o native/libnodave/openSocket.c 
+
+gcc --shared -o libnodave-native.so libnodave-jni.o nodave.o openSocket.o
+
+BUILD FOR WINDOWS (cross MINGW)
+--------------------------------
+
+gradle javah
+
+i586-mingw32msvc-gcc -c native/wrapper/src/main/cpp/libnodave-jni.c -I/usr/lib/jvm/java-6-openjdk-i386/include -Inative/libnodave/ -Ibuild/classes/main 
+
+i586-mingw32msvc-gcc -DBCCWIN -DDAVE_LITTLE_ENDIAN -c -o nodave.o native/libnodave/nodave.c
+
+i586-mingw32msvc-gcc -DBCCWIN -DDAVE_LITTLE_ENDIAN -c -o openSocketw.o native/libnodave/openSocketw.c
+
+i586-mingw32msvc-gcc -DBCCWIN -DDAVE_LITTLE_ENDIAN -c -o setportw.o native/libnodave/setportw.c 
+
+i586-mingw32msvc-gcc --shared -o libnodave-native.dll libnodave-jni.o -Lnative/libnodave/win/ -lnodave
+
+BUILD FOR WINDOWS (Visual Studio)
+----------------------------------
+
+Tested with Visual Studio C++ 10.0 Express
+
+- open a shell that is prepared for the command line tools of Visual Studio
+- edit Makefile.vc (adjust pathes for Visual Studio and Java JDK).
+- nmake -f Makefile.vc
+
+
+
+
+

@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':openmuc-core-spi')
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Data Logger - SlotsDB"
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+        instruction 'Export-Package', ''
+    }
+}

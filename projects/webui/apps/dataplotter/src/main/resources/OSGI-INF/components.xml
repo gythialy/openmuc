@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="org.openmuc.framework.webui.dataplotter">
+    <implementation class="org.openmuc.framework.webui.dataplotter.DataPlotter"/>
+    <service>
+        <provide interface="org.openmuc.framework.webui.spi.WebUiPluginService"/>
+    </service>
+    <reference name="dataAccessService"
+               interface="org.openmuc.framework.dataaccess.DataAccessService"
+               bind="setDataAccessService"
+               unbind="unsetDataAccessService"/>
+</component>

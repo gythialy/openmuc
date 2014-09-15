@@ -1,0 +1,129 @@
+<h2>Live Plotter Flot</h2>
+
+
+<table style="text-align:center;height:600px;width:100%;">
+    <tr>
+        <td>
+            <div id="plotLive" style="height:500px;width:95%;text-align:left"></div>
+        </td>
+    </tr>
+</table>
+
+<fieldset class=field>
+    <legend>Plot options</legend>
+
+    <table class="invisible_table_style" summary="Plot Options">
+        <tr>
+            <td> show legend</td>
+            <td><input id="showLegend" type="checkbox"></td>
+        </tr>
+        <tr>
+            <td> y-axis fixed range</td>
+            <td><input id="fixedRange" type="checkbox"></td>
+            <td> min <input id="yAxisMin" type="text" size="5" value="0"></td>
+            <td> max <input id="yAxisMax" type="text" size="5" value="1"></td>
+        </tr>
+        <tr>
+            <td> x-axis enable</td>
+            <td><input id="xAxisEnable" type="checkbox"></td>
+        </tr>
+        <tr>
+            <td>x-axis print last:</td>
+            <td>
+                <nobr><input id="lastS" type="text" size="3" value="10"> seconds</nobr>
+            </td>
+        </tr>
+        <tr>
+            <td>refresh interval:</td>
+            <td><input id="refresh" type="text" size="5" value="100"> ms</td>
+        </tr>
+        <tr>
+            <td>
+                <nobr>Select Label:</nobr>
+                <br>
+                <i>(Max 3)</i>
+            </td>
+            <td colspan="2">
+                <div style="max-height:150px; overflow: auto">
+                    #foreach ( $label in $labels )
+                    <div id="divLabelLive$velocityCount">
+                        <input type="checkbox" name="LabelLive$velocityCount"
+                               id="LabelLive$velocityCount" value="$label">
+                        <label for="LabelLive$velocityCount">$label</label>
+                    </div>
+                    #end
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <!-- <td colspan="3"><button id=resetLive>Reset Data</button></td> -->
+            <td colspan="3" align="right">
+                <button id=stopPlot>Stop Plot</button>
+                <button id=submitLivePlot accesskey=enter>Plot Data...</button>
+            </td>
+        </tr>
+    </table>
+
+</fieldset>
+
+<script type="text/javascript">
+
+    //when is this called?
+    #
+    foreach($label in $labels)
+    if (labelList[1][$velocityCount - 1] != "$des") {
+        $('#divLabelLive$velocityCount').append(" (" + labelList[1][$velocityCount - 1] + ")");
+    }
+    #
+    end
+
+    $('#submitLivePlot').click(function () {
+        setPlotterActiveFlag(true);
+        submitLiveFlotClicked();
+    });
+
+    $('#stopPlot').click(function () {
+        setPlotterActiveFlag(false);
+        disableControls(false);
+    });
+
+    // called when a checkbox is clicked
+    $(':checkbox').click(function () {
+
+        // limit selection of channels
+        var counterSelectedChannels = 0;
+        $(':checkbox:checked').each(function () {
+            var checkboxId = $(this).attr("id");
+
+
+            //if(checkboxId.startsWith("LabelLive")){
+            if (checkboxId.indexOf("LabelLive") == 0) {
+                counterSelectedChannels++;
+                if (counterSelectedChannels > 11) {
+                    $(this).prop("checked", false);
+                }
+            }
+        });
+
+        // default selection when user didn't mark a channel
+        if (counterSelectedChannels == 0) {
+            $("#LabelLive1").prop("checked", true);
+        }
+    });
+
+
+    $('#fixedRange').click(function () {
+        if ($('#fixedRange').is(':checked')) {
+            $('#yAxisMin').prop('disabled', false);
+            $('#yAxisMax').prop('disabled', false);
+        } else {
+            $('#yAxisMin').prop('disabled', true);
+            $('#yAxisMax').prop('disabled', true);
+        }
+    });
+
+
+    resetFlotLive();
+
+</script>

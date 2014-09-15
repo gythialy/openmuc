@@ -1,0 +1,38 @@
+<table class="conf_table_style">
+    <tr>
+        <th>Driver ID</th>
+        <th>Action</th>
+        <th>Running</th>
+    </tr>
+    #foreach ( $driver in $drivers )
+    <tr>
+        <td>$driver.id</td>
+        <td>
+            <a class="ui-icon ui-icon-folder-open" style="float: left; margin-right: 10px;"
+               href="${applicationPath}/devices#$driver.id" title="Show devices"></a>
+            <a class="ui-icon ui-icon-wrench" style="float: left; margin-right: 10px;"
+               href="${applicationPath}/drivers/edit?driverId=$driver.id" title="Edit"></a>
+            <a class="ui-icon ui-icon-trash" style="float: left; margin-right: 10px;"
+               href="${applicationPath}/drivers/delete?driverId=$driver.id" title="Delete"></a>
+            #set($running = "no")
+            #foreach ( $runningDriver in $runningDrivers )
+            #if ($runningDriver == $driver.id)
+            #set($running = "yes")
+            #end
+            #end
+            #if ($running == "yes")
+            <a class="ui-icon ui-icon-search" style="float: left;"
+               href="${applicationPath}/drivers/scan?driverId=$driver.Id"
+               title="Scan for devices"></a>
+            #end
+        </td>
+        <td align="center">
+            $running
+        </td>
+    </tr>
+    #end
+</table>
+<br>
+<form method="POST" action="${applicationPath}/drivers/edit">
+    <input type="submit" class="submitButton" value="Add new driver configuration..."/>
+</form>

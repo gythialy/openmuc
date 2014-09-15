@@ -1,0 +1,28 @@
+configurations.create('embed')
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':openmuc-core-spi')
+    compile files('../../../dependencies/snmp4j-2.2.5.jar')
+    embed files('../../../dependencies/snmp4j-2.2.5.jar')
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Snmp Driver"
+        instruction 'Bundle-ClassPath', '.,lib/snmp4j-2.2.5.jar'
+        instruction 'Import-Package', '!org.snmp4j*,*'
+        instruction 'Export-Package', ''
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
+}
+
+jar {
+    into('lib') {
+        from configurations.embed
+    }
+}

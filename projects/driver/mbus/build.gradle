@@ -1,0 +1,25 @@
+configurations.create('embed')
+
+def jmbusversion = "1.3"
+
+dependencies {
+    compile group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+    embed group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+    compile project(':openmuc-core-spi')
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Driver - M-Bus"
+        instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar'
+        instruction 'Import-Package', '!org.openmuc.jmbus*,gnu.io,*'
+        instruction 'Export-Package', ''
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
+}
+
+jar {
+    into('lib') {
+        from configurations.embed
+    }
+}

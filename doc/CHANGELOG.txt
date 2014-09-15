@@ -1,0 +1,80 @@
+v0.13.0 08-Sep-2014
+-------------------
+- changed license from LGPLv2.1 to GPLv3, OpenMUC can be bought under
+  an individual license
+- added drivers: CANopen, IEC 62056-21, Siemens S7, SNMP
+- Modbus driver now support RTU also
+- many improvements to existing drivers
+- scanning for devices and channels is possible with several drivers now
+- many improvements in ChannelConfigurator and other WebUI bundles
+- the configuration syntax was changed, e.g. drivers, devices and
+  channels all have IDs now
+- ASCII Logger improved
+- improved REST Server: more capabilities + dependecies removed
+- introduced Server API
+- many smaller bug fixes
+- improved documentation
+
+v0.12.3 01-Aug-2013
+-------------------
+- the M-Bus driver was fit to the new driver service interface and is
+  now part of the distribution again
+- fix in build file to include rxtx dependency, rxtx-comm was replaced
+  by newest version
+- fixed some bugs when dynamically reconfiguring OpenMUC
+- DLMS driver can now write
+- RestWS uses more light weight Jackson-Core
+- ChannelAccessTool was improved
+- scanning for devices and channels was improved
+
+v0.12.1 19-Jun-2013
+-------------------
+- use of SSL for WebUI and REST server documented
+- log source and log sink interfaces were combined
+- data logger that is used as log source is now selectable via configuration
+- channel scan possible via channel configuration webui
+- Channel.read() function implemented
+- second live plotter was added to WebUI for better performance
+- lots of smaller bug fixes
+
+v0.12.0 17-May-2013
+-------------------
+- Modified DriverInterface to ease driver development:
+  - connections
+  - sampling (using blocking read function) listening (using non-blocking startListeningFor function)
+- Configuration Interface:
+  - Copy of a configuration can be edited and then committed to the framework
+  - added driver config layer, now there are three layers: driver, device and channel
+  - introduced read & connect timeouts
+  - disabling of devices and channels is possible, disabling turns of sampling, listening & logging
+  - introduced channelID in addition to label so that the label can be changed later on
+- DataAccessInterface (formerly DataManager):
+  - Reading & writing several channels at one is possible
+- Value Interface can be Double, Long, ByteString etc.
+- Added DemoApp & DummyDriver to ease learning to develop for OpenMUC
+- replaced Equinox in the demo by Apache Felix because it is better suited for console use and better documented
+- Changed all framework bundles to use Declarative Services
+- added RESTful Web Service Server
+- added some drivers: IEC61850, DLMS/COSEM, KNX, ModbusTCP
+- other drivers such as M-Bus are temporarily removed, they still have to be adjusted to the new driver interface
+
+v0.10.1 11-Sep-2012
+-------------------
+- fixed some junit bugs when running them on Windows
+
+v0.10.0 23-Apr-2012
+-------------------
+- this is just a bugfix release
+- all web interface plugins now work with gradle
+- the new version sheme is X.Y.Z where X is the main version, Y is a version with new features and Z is a minor bugfix release number.
+
+
+v0.9.5 10-Apr-2012
+------------------
+- changed build system to gradle
+- numerous bug fixed
+- refactoring
+
+v0.9.0 28-Mar-2011
+------------------
+- first version

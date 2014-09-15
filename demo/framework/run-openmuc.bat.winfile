@@ -1,0 +1,4 @@
+::BATCH file for windows
+ECHO will run the OpenMUC framework
+
+java -jar felix\felix.jar

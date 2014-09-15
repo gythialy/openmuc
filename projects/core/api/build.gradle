@@ -1,0 +1,12 @@
+dependencies {
+    compile group: 'org.osgi', name: 'org.osgi.core', version: '4.3.1'
+    compile group: 'org.osgi', name: 'org.osgi.compendium', version: '4.3.1'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.7'
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Core - API"
+        instruction 'Export-Package', '*'
+    }
+}

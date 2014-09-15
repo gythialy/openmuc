@@ -1,0 +1,253 @@
+/*
+ * light gray: #f0f0f0
+ * green: #c7f08f
+ * green hover: #a8ce73
+ * green border: #039933
+ */
+
+body {
+    text-align: center;
+    font-family: "Helvetica Neue", "DejaVu Sans", "Verdana", sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: #039933;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#wrapper {
+    width: 1000px;
+    margin: 0 auto;
+    text-align: left;
+    border: solid 2px gray;
+}
+
+#header {
+    height: 80px;
+    margin-left: 20px;
+    background: #fff url(../images/openmuc-logo.png) no-repeat right top;
+}
+
+#content {
+    clear: both;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-height: 500px;
+}
+
+#navigation {
+    text-align: center;
+    padding-bottom: 40px;
+}
+
+.menu {
+    float: left;
+    width: 1000px;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    background: #c7f08f;
+    border-top: 1px solid #039933;
+    border-bottom: 1px solid #039933;
+}
+
+.menu > li {
+    float: left;
+    position: relative;
+}
+
+.menu > li > a {
+    float: left;
+    display: block;
+    width: 250px;
+    height: 40px;
+    line-height: 40px;
+    color: #000000;
+    text-decoration: none;
+}
+
+.menuClosed > a {
+    background: #c7f08f url(../images/arrow_right_small.png) no-repeat left;
+}
+
+.menuActive > a {
+    background: #c7f08f url(../images/arrow_down_small.png) no-repeat left;
+    font-weight: bold;
+}
+
+.menuEndNode > a:hover {
+    background: #a8ce73;
+}
+
+.menuClosed > a:hover, .menuActive > a:hover {
+    background: #a8ce73 url(../images/arrow_down_small.png) no-repeat left;
+}
+
+#menuhover {
+    background: #a8ce73 url(../images/arrow_down_small.png) no-repeat left;
+}
+
+.submenu {
+    float: left;
+    position: absolute;
+    z-index: 100; /*Put in the foreground*/
+    top: 40px;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    display: none;
+    border-top: 1px solid #039933;
+}
+
+.submenu > li {
+    margin: 0;
+    padding: 0;
+    clear: both;
+}
+
+.submenu > li > a {
+    float: left;
+    display: block;
+    width: 248px;
+    height: 35px;
+    line-height: 35px;
+    color: #000000;
+    text-decoration: none;
+    background: #ffffff;
+    border-left: 1px solid #039933;
+    border-right: 1px solid #039933;
+    border-bottom: 1px solid #039933;
+}
+
+.submenu > li > a:hover {
+    background: #f0f0f0;
+}
+
+#activePlugin {
+    background: #f0f0f0;
+}
+
+.menuURL {
+    clear: both;
+    text-align: left;
+    padding: 10px 20px;
+}
+
+.navinfo {
+}
+
+.navinfo > li {
+    margin-top: 10px;
+
+}
+
+.navinfo > li > div {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 40px;
+}
+
+/* Tab Menu, like UI tab */
+.tab-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tab-menu > li > a {
+    margin: 0 .2em 0 0;
+}
+
+.tab-menu-active > a {
+    float: left;
+    background: #f0f0f0;
+    border: 1px solid #f0f0f0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    cursor: text;
+    text-decoration: none;
+    color: black;
+    padding: 0 1em
+}
+
+.tab-menu-state > a {
+    float: left;
+    background: gray;
+    border: 1px solid gray;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    text-decoration: none;
+    color: white;
+    padding: 0 1em
+}
+
+.tab-menu-state > a:hover {
+    background: #f0f0f0;
+    border: 1px solid #f0f0f0;
+    color: black;
+}
+
+.tab-menu-content {
+    clear: both;
+    padding: 1em 0.5em;
+    background: #f0f0f0;
+    min-height: 350px;
+}
+
+#footer {
+    clear: both;
+    text-align: center;
+    background: #c7f08f url(../images/footer.png) no-repeat right 4px;
+    height: 50px;
+    padding-top: 10px;
+    border-top: 1px solid #039933;
+}
+
+.conf_table_style {
+    border-collapse: collapse;
+}
+
+.conf_table_style tr {
+    background: white;
+    margin: 0;
+    text-align: left;
+    border: 1px solid gray;
+}
+
+.conf_table_style th {
+    background: gray;
+    color: white;
+    text-align: center;
+}
+
+.conf_table_style td {
+    border: 1px solid gray;
+}
+
+.conf_table_style tr:nth-child(odd) {
+    background: #f0f0f0;
+}
+
+.conf_table_style tr:nth-child(even) {
+    background: white;
+}
+
+.conf_table_style th, td {
+    border: 1px solid gray;
+    padding: 5px;
+}
+
+table.invisible_table_style td {
+    border-style: none;
+}
+
+

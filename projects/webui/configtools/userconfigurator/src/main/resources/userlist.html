@@ -1,0 +1,23 @@
+<h2>User Configuration</h2>
+
+<p id="message">$!message &nbsp;</p>
+
+<table class="conf_table_style" style="margin-bottom: 20px;">
+    <tr>
+        <th>User Name</th>
+        <th>Action</th>
+    </tr>
+    #foreach ( $user in $users)
+    <tr>
+        <td>$user</td>
+        <td>
+            <a class="ui-icon ui-icon-close" style="margin: 0 auto;"
+               href="${applicationPath}/remove?id=$user" title="Remove"></a>
+        </td>
+    </tr>
+    #end
+</table>
+
+<form method="POST" action="${applicationPath}/add">
+    <input type="submit" class="submitButton" value="Add new user..."/>
+</form>

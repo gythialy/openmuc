@@ -1,0 +1,88 @@
+<h2>Channel Access Tool</h2>
+
+The latest record is updated roughly every second.
+
+<table class="conf_table_style">
+    #foreach ($device in $devices)
+    <tr style="background: white; height: 60px; border-style: none;">
+        <td colspan="3" style="border-style: none;">
+            <h3 style="margin:0;">$device.Id</h3>
+        </td>
+    </tr>
+    <tr>
+        <th>Channel ID</th>
+        <th>Latest Record</th>
+        <th>Write</th>
+        <th>Description</th>
+    </tr>
+    #foreach ($channel in $device.getChannels())
+    <tr>
+        <td>$channel.Id</td>
+        <td>
+            Value: <span id="$channel.Id"></span> $!channel.getUnit()<br>
+            Time: <span id="${channel.Id}timestamp"></span><br>
+            Flag: <span id="${channel.Id}flag"></span></td>
+        <td>
+            <form style="margin:0">
+                <input id="${channel.Id}val" class="mono" size="8">
+                <input id="${channel.Id}send" type="submit" value="Write value">
+            </form>
+
+            <script type="text/javascript">
+                $('#${channel.Id}send').click(function (event) {
+                    event.preventDefault();
+                    $.post('${applicationPath}/setValue', {
+                        id: '$channel.Id',
+                        value: $('#${channel.Id}val').val()
+                    }, function () {
+                        $('#${channel.Id}val').val('')
+                    });
+                });
+            </script>
+        </td>
+        <td>$!channel.getDescription()</td>
+    </tr>
+    #end
+    #end
+</table>
+<p>
+    <a href="${applicationPath}">Go back to selection.</a>
+</p>
+<script type="text/javascript">
+
+    var ids = [];
+
+    #
+    foreach($device in $devices)
+    #
+    foreach($channel in $device.getChannels())
+    ids.push('$channel.Id');
+    #
+    end
+    #
+    end
+
+    function update() {
+        $.each(ids, function (i, val) {
+            $.getJSON("${applicationPath}/getValue?id=" + val, function (data) {
+                var id = '#' + val;
+
+                if (data.value != null) {
+                    var d = new Date(data.timestamp);
+                    $(id).text(Math.round(100 * data.value) / 100);
+                    $(id + "flag").text(data.flag);
+                    $(id + "timestamp").text(d.toLocaleString());
+                }
+                else {
+                    $(id).text('--');
+                    $(id + "flag").text(data.flag);
+                    $(id + "timestamp").text('--');
+                }
+            });
+
+        });
+    }
+
+    window.setInterval('update()', 1000);
+
+</script>

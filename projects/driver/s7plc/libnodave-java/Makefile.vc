@@ -1,0 +1,38 @@
+
+#ifndef VC_HOME
+VC_HOME="c:\program files\microsoft visual Studio 10.0\vc"
+#endif
+
+#ifndef JDK_HOME
+JDK_HOME="C:\Program Files\Java\jdk1.7.0_04"
+#endif
+
+VC_INCLUDE=$(VC_HOME)\include
+
+JDK_INCLUDE=$(JDK_HOME)\include
+
+JNI_WIN_INCLUDE=$(JDK_HOME)\include\win32
+
+CC=cl
+
+CP=copy
+
+JAVAH=$(JDK_HOME)\bin\javah
+
+CFLAGS=-DBCCWIN -DDAVE_LITTLE_ENDIAN
+
+all:	libnodave-native.dll
+
+com_libnodave_Interface.h:	build/classes/main/com/libnodave/Interface.class
+	$(JAVAH) -classpath build/classes/main -jni com.libnodave.Interface
+
+libnodave-jni.obj:	native\wrapper\src\main\cpp\libnodave-jni.c com_libnodave_Interface.h
+	$(CC) $(CFLAGS) -c native\wrapper\src\main\cpp\libnodave-jni.c /I$(VC_INCLUDE) /I$(JDK_INCLUDE) /I$(JNI_WIN_INCLUDE) /I"native\libnodave" /I.
+
+libnodave-native.dll:	libnodave-jni.obj
+	$(CC) $(CFLAGS) /I$(JDK_INCLUDE) /I$(JNI_WIN_INCLUDE) /I"native\libnodave" /I. -LD libnodave-jni.obj -Felibnodave-native.dll native\libnodave\libnodave.lib
+	$(CP) libnodave-native.dll src\main\resources\lib\x86
+
+clean:
+	del *.obj *.dll *.exp *.lib com_libnodave_Interface.h
+

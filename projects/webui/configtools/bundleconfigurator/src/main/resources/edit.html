@@ -1,0 +1,82 @@
+<h2>$bundle.SymbolicName</h2>
+
+<form method="POST" action="${applicationPath}/changebundle?id=$bundle.BundleId">
+    <table class="conf_table_style" style="margin-bottom: 20px;">
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+        #foreach($key in $bundleProperties.keySet())
+        #if(!$key.contains("service"))
+        #set($keyid = $key.replace('.','-'))
+        <tr id="$keyid">
+            <td>$key</td>
+            <td><input name="${key}Property" size="40" value="$!bundleProperties.get($key).get("
+                       value")">
+            </td>
+            <td>$!bundleProperties.get($key).get("description")</td>
+            <td>
+                <div id="remove-$keyid">
+                    <input id="check-$keyid" type="checkbox" name="keyList" checked="true"
+                           value="$key">
+                </div>
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $('#check-$keyid').hide();
+                        $('#remove-$keyid').append('<a class="ui-icon ui-icon-close" id="a-remove-$keyid" href="#" title="Remove"></a>');
+
+                        $('#a-remove-$keyid').click(function (event) {
+                            event.preventDefault();
+                            $('#$keyid').remove();
+                        });
+                    });
+                </script>
+
+            </td>
+        </tr>
+        #end
+        #end
+        <tr id="new">
+            <td><input size="40" id="newkey" name="newkey"></td>
+            <td><input size="40" id="newkeyProperty" name="newkeyProperty"></td>
+            <td>A new value</td>
+            <td width="16px;"></td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+        var iter = 0;
+        $('#newkey').bind('blur', function () {
+            if ($('#newkey').val() != '') {
+                $('.conf_table_style').append('<tr id="pseudo"><td><input size="40"></td><td><input size="40"></td><td>A new value</td><td></td></tr>');
+            }
+        });
+        $('#newkeyProperty').bind('blur', function () {
+            if ($('#newkey').val() != '') {
+                var key = $('#newkey').val();
+                var keyid = "remove" + iter
+                var val = $('#newkeyProperty').val();
+                $('#new').before('<tr id="' + keyid + '"><td>' + key + '</td><td>'
+                + '<input name="' + key + 'Property" size="40" value="' + val + '"></td><td></td><td>'
+                + '<input type="checkbox" name="keyList" checked="true" value="' + key
+                + '" style="display: none;">'
+                + '<a class="ui-icon ui-icon-close" id="click-' + keyid + '" href="#" title="Remove"></a>'
+                + '</td></tr>');
+
+                $('#click-' + keyid).click(function () {
+                    $('#' + keyid).remove();
+                });
+                $('#pseudo').remove();
+                $('#newkey').val('');
+                $('#newkeyProperty').val('');
+                $('#newkey').focus();
+                iter++;
+            }
+        });
+    </script>
+    <input type="submit" class="submitButton" value="Save">
+</form>
+
+<a href="${applicationPath}">Go back to Bundle Configuration</a>
+

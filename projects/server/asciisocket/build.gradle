@@ -1,0 +1,10 @@
+dependencies {
+    compile project(':openmuc-core-api')
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Server - ASCII Socket"
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
+}

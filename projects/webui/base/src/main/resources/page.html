@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>OpenMUC Framework - $application - $page</title>
+    <meta http-equiv="content-type" content="text/html;charset=ISO-8859-1"/>
+    #foreach ( $style in $stylesheets)
+    <link href="$style" rel="stylesheet" type="text/css"/>
+    #end
+    #foreach ( $javascript in $javascripts)
+    <script type="text/javascript" src="$javascript"></script>
+    #end
+</head>
+<body>
+
+<div id="wrapper">
+    <div id="header">
+        <a href="/openmuc/logout">Logout</a> | <a href="/openmuc/account">$!user</a>
+    </div>
+
+    #parse ("navigation.html")
+
+    <div id="content">
+        #evaluate ($content_template)
+    </div>
+
+
+    #parse ("footer.html")
+
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+configurations.create('embed')
+
+
+dependencies {
+    compile project(':openmuc-core-spi')
+    compile files('../../../dependencies/rxtxcomm_api-2.2pre2.jar')
+
+    compile files('dependencies/jsml-1.0.14.jar')
+    embed files('dependencies/jsml-1.0.14.jar')
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Driver - EHZ"
+        instruction 'Bundle-ClassPath', '.,lib/jsml-1.0.14.jar'
+        instruction 'Import-Package', '!org.openmuc.jsml*,*'
+        instruction 'Export-Package', ''
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
+}
+
+jar {
+    into('lib') {
+        from configurations.embed
+    }
+}

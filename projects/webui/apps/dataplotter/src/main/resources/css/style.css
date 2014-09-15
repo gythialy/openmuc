@@ -1,0 +1,16 @@
+table, td, tr {
+    /*Fix the border in the table*/
+    border: 0px;
+}
+
+.ui-spinner {
+    position: relative
+}
+
+.ui-spinner-buttons {
+    position: absolute
+}
+
+.ui-spinner-button {
+    overflow: hidden
+}

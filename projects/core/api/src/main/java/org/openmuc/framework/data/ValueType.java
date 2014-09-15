@@ -1,0 +1,52 @@
+/*
+ * Copyright 2011-14 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+package org.openmuc.framework.data;
+
+public enum ValueType {
+    DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING;
+
+    public static Value newValue(ValueType fromType, byte[] fromBytes)
+            throws TypeConversionException {
+        switch (fromType) {
+        case BOOLEAN:
+            return new BooleanValue(fromBytes);
+        case DOUBLE:
+            return new DoubleValue(fromBytes);
+        case FLOAT:
+            return new FloatValue(fromBytes);
+        case LONG:
+            return new LongValue(fromBytes);
+        case INTEGER:
+            return new IntValue(fromBytes);
+        case SHORT:
+            return new ShortValue(fromBytes);
+        case BYTE:
+            return new ByteValue(fromBytes);
+        case BYTE_ARRAY:
+            return new ByteArrayValue(fromBytes);
+        case STRING:
+            return new StringValue(fromBytes);
+        default:
+            return null;
+        }
+    }
+}

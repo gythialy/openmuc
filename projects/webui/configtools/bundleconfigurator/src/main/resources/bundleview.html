@@ -1,0 +1,69 @@
+<h2>Bundle Configuration</h2>
+
+<p id="message">$!message &nbsp;</p>
+
+<table class="conf_table_style" style="margin-bottom: 20px;">
+    <tr>
+        <th>ID</th>
+        <th style="min-width: 500px;">Symbolic Name</th>
+        <th>State</th>
+        <th>Action</th>
+    </tr>
+    #foreach ( $bundle in $bundles)
+    <tr
+    #if($bundle.state != "active") style="color: gray;" #end>
+    <td>$bundle.BundleId</td>
+    <td style="min-width: 500px;">$bundle.SymbolicName</td>
+    <td>$bundle.State</td>
+    <td width="100px">
+        #if($bundle.state != "active")
+        <a class="ui-icon ui-icon-play" style="float:left; margin-right:10px;"
+           href="${applicationPath}/start?id=$bundle.BundleId" title="Start"></a>
+        #else
+        <a class="ui-icon ui-icon-stop" style="float:left; margin-right:10px;"
+           href="${applicationPath}/stop?id=$bundle.BundleId" title="Stop"></a>
+        #end
+        <a class="ui-icon ui-icon-arrowrefresh-1-w" style="float:left; margin-right:10px;"
+           href="${applicationPath}/update?id=$bundle.BundleId" title="Update"></a>
+        <a class="ui-icon ui-icon-wrench" style="float:left; margin-right:10px;"
+           href="${applicationPath}/edit?id=$bundle.BundleId" title="Edit"></a>
+        <a class="ui-icon ui-icon-close"
+           href="${applicationPath}/uninstall?id=$bundle.BundleId" title="Uninstall"></a>
+    </td>
+    </tr>
+    #end
+</table>
+
+<button id="install">Install new bundle...</button>
+
+<form id="installForm" method="post" enctype="multipart/form-data"
+      action="${applicationPath}/install">
+    <fieldset>
+        <legend>Install new bundle</legend>
+        <p><input name="file" type="file" size="80"></p>
+
+        <p><input type="submit" class="submitButton" value="Install"></p>
+    </fieldset>
+</form>
+
+<!-- <input type="hidden" name="scroll" id="scroll" value="$scroll"> -->
+
+<script type="text/javascript">
+
+    $('#installForm').hide();
+
+    $('#install').click(function () {
+        $('#installForm').toggle('fast');
+    });
+    /*
+     $(window).scrollTop($('#scroll').val());
+
+     $('.ui-icon').click(function(event) {
+     event.preventDefault();
+     window.location = $(this).attr('href') + '&scroll=' + $(window).scrollTop();
+     });
+     */
+
+</script>
+
+

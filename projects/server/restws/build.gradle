@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':openmuc-core-api')
+    compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
+}
+
+jar {
+    manifest {
+        name = "OpenMUC Server - RESTful Web Service"
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
+}
