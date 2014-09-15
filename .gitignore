@@ -102,6 +102,7 @@ $RECYCLE.BIN/
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
 !demo/framework/bundle/*.jar
+!*dependencies/*.jar
 *.war
 *.ear
 
