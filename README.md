@@ -45,9 +45,10 @@ All boxes seen in the picture are implemented as software modules called OSGi bu
 
 ## Authors
 The OpenMUC framework is developed by:
-Stefan Feuerhahn
-Michael Zillgith
-Marco Mittelsdorf
+
+- Stefan Feuerhahn
+- Michael Zillgith
+- Marco Mittelsdorf
 
 Simon Fey
 Frederic Robra
