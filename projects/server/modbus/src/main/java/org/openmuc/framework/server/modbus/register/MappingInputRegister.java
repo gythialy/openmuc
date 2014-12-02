@@ -33,7 +33,7 @@ public abstract class MappingInputRegister implements InputRegister {
     @Override
     public int getValue() {
         int toReturn = ByteBuffer.wrap(toBytes()).getShort(); /*
-															 * toBytes always only contains two bytes. So cast from
+                                                             * toBytes always only contains two bytes. So cast from
 															 * short.
 															 */
         return toReturn;

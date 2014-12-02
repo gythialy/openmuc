@@ -247,7 +247,7 @@ public class CanopenDriver implements DriverService {
         listener.newRecords(errors);
 
 		/*
-		 * sort the list of objects for each PDO by its position and create a PDO mapping.
+         * sort the list of objects for each PDO by its position and create a PDO mapping.
 		 */
         PDOMapping[] mappings = new PDOMapping[datas.size()];
         Iterator<Entry<Integer, List<PDOObjectImpl>>> entries = datas.entrySet().iterator();

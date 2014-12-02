@@ -94,7 +94,7 @@ public final class CsvDataExport {
         BitSet bs = new BitSet(allValues.size());
 
         int pointer[] = new int[allValues.size()]; /*
-													 * pointer to current field in each list
+                                                     * pointer to current field in each list
 													 */
         for (int i = 0; i < pointer.length; i++) {
             pointer[i] = 0; /* starting at 0 */

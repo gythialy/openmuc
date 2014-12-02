@@ -1,69 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
-  <driver id="dummy">
-    <device id="dummy-device1">
-      <deviceAddress>dummy/device/address/1</deviceAddress>
-      <connectRetryInterval>5m</connectRetryInterval>
-      <channel id="VoltageChannel">
-        <channelAddress>dummy/channel/address/voltage</channelAddress>
-        <unit>V</unit>
-        <samplingInterval>100ms</samplingInterval>
-        <loggingInterval>5s</loggingInterval>
-      </channel>
-      <channel id="CurrentChannel">
-        <channelAddress>dummy/channel/address/current</channelAddress>
-        <unit>kW</unit>
-        <samplingInterval>100ms</samplingInterval>
-        <loggingInterval>5s</loggingInterval>
-      </channel>
-      <channel id="listeningChannel">
-        <channelAddress>dummy</channelAddress>
-        <listening>true</listening>
-        <loggingInterval>5s</loggingInterval>
-      </channel>
-      <channel id="StringChannel">
-        <valueType length="10">STRING</valueType>
-        <channelAddress>dummy</channelAddress>
-        <loggingInterval>5s</loggingInterval>
-      </channel>
-      <channel id="ByteArrayChannel">
-        <valueType length="26">BYTE_ARRAY</valueType>
-        <channelAddress>dummy</channelAddress>
-        <loggingInterval>5s</loggingInterval>
-      </channel>
-    </device>
-  </driver>
-  <driver id="virtual">
-    <samplingTimeout>3s</samplingTimeout>
-    <device id="virtual">
-      <deviceAddress>dummy/device/address/1</deviceAddress>
-      <channel id="PowerChannel">
-        <description>virtual channel for power (calculated by demo app)</description>
-        <channelAddress>dummy/channel/address/power</channelAddress>
-        <unit>POWER</unit>
-      </channel>
-    </device>
-  </driver>
-  <driver id="aggregator">
-    <device id="aggregatordevice">
-      <channel id="VoltageChannelAVG">
-        <channelAddress>VoltageChannel:AVG</channelAddress>
-        <valueType>DOUBLE</valueType>
-        <samplingInterval>15s</samplingInterval>
-        <loggingInterval>15s</loggingInterval>
-      </channel>
-      <channel id="VoltageChannelLAST">
-        <channelAddress>VoltageChannel:LAST</channelAddress>
-        <valueType>DOUBLE</valueType>
-        <samplingInterval>15s</samplingInterval>
-        <loggingInterval>15s</loggingInterval>
-      </channel>
-      <channel id="VoltageChannelDIFF">
-        <channelAddress>VoltageChannel:DIFF</channelAddress>
-        <valueType>DOUBLE</valueType>
-        <samplingInterval>15s</samplingInterval>
-        <loggingInterval>15s</loggingInterval>
-      </channel>
-    </device>
-  </driver>
+    <driver id="dummy">
+        <device id="dummy-device1">
+            <deviceAddress>dummy/device/address/1</deviceAddress>
+            <connectRetryInterval>5m</connectRetryInterval>
+            <channel id="VoltageChannel">
+                <channelAddress>dummy/channel/address/voltage</channelAddress>
+                <unit>V</unit>
+                <samplingInterval>100ms</samplingInterval>
+                <loggingInterval>5s</loggingInterval>
+            </channel>
+            <channel id="CurrentChannel">
+                <channelAddress>dummy/channel/address/current</channelAddress>
+                <unit>kW</unit>
+                <samplingInterval>100ms</samplingInterval>
+                <loggingInterval>5s</loggingInterval>
+            </channel>
+            <channel id="listeningChannel">
+                <channelAddress>dummy</channelAddress>
+                <listening>true</listening>
+                <loggingInterval>5s</loggingInterval>
+            </channel>
+            <channel id="StringChannel">
+                <valueType length="10">STRING</valueType>
+                <channelAddress>dummy</channelAddress>
+                <loggingInterval>5s</loggingInterval>
+            </channel>
+            <channel id="ByteArrayChannel">
+                <valueType length="26">BYTE_ARRAY</valueType>
+                <channelAddress>dummy</channelAddress>
+                <loggingInterval>5s</loggingInterval>
+            </channel>
+        </device>
+    </driver>
+    <driver id="virtual">
+        <samplingTimeout>3s</samplingTimeout>
+        <device id="virtual">
+            <deviceAddress>dummy/device/address/1</deviceAddress>
+            <channel id="PowerChannel">
+                <description>virtual channel for power (calculated by demo app)</description>
+                <channelAddress>dummy/channel/address/power</channelAddress>
+                <unit>POWER</unit>
+            </channel>
+        </device>
+    </driver>
+    <driver id="aggregator">
+        <device id="aggregatordevice">
+            <channel id="VoltageChannelAVG">
+                <channelAddress>VoltageChannel:AVG</channelAddress>
+                <valueType>DOUBLE</valueType>
+                <samplingInterval>15s</samplingInterval>
+                <loggingInterval>15s</loggingInterval>
+            </channel>
+            <channel id="VoltageChannelLAST">
+                <channelAddress>VoltageChannel:LAST</channelAddress>
+                <valueType>DOUBLE</valueType>
+                <samplingInterval>15s</samplingInterval>
+                <loggingInterval>15s</loggingInterval>
+            </channel>
+            <channel id="VoltageChannelDIFF">
+                <channelAddress>VoltageChannel:DIFF</channelAddress>
+                <valueType>DOUBLE</valueType>
+                <samplingInterval>15s</samplingInterval>
+                <loggingInterval>15s</loggingInterval>
+            </channel>
+        </device>
+    </driver>
 </configuration>

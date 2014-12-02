@@ -23,4 +23,8 @@ package org.openmuc.framework.data;
 
 public enum ValueType {
     DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING;
+
+    public static Value newValue(ValueType valueType, byte[] concatenate) {
+        return null;
+    }
 }

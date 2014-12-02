@@ -20,49 +20,52 @@
  */
 package org.openmuc.framework.demo.restclient;
 
-import java.util.ArrayList;
-
 import org.openmuc.framework.demo.restclient.json.JsonObject;
+
+import java.util.ArrayList;
 
 public class JsonHelper {
 
-	public static String StringValueToJson(String value) {
-		JsonObject jso = new JsonObject();
+    public static String StringValueToJson(String value) {
+        JsonObject jso = new JsonObject();
 
-		jso.writeStartObject();
-		jso.writeObjectField("value");
-		try {
-			jso.writeObjectValue(Double.valueOf(value));
-		} catch (NumberFormatException e) {
-			System.out.println("No valid double as argument for option -w (--write)\nRequest will fail:");
-		}
+        jso.writeStartObject();
+        jso.writeObjectField("value");
+        try {
+            jso.writeObjectValue(Double.valueOf(value));
+        }
+        catch (NumberFormatException e) {
+            System.out.println(
+                    "No valid double as argument for option -w (--write)\nRequest will fail:");
+        }
 
-		jso.writeEndObject();
+        jso.writeEndObject();
 
-		return jso.getJsonText();
-	}
+        return jso.getJsonText();
+    }
 
-	public static String ChannelValuesToJson(ArrayList<String> wParam) {
-		JsonObject jso = new JsonObject();
-		jso.writeStartObject();
-		int i = 0;
-		for (String param : wParam) {
-			if ((i & 01) == 0) {
-				jso.writeObjectField(param);
+    public static String ChannelValuesToJson(ArrayList<String> wParam) {
+        JsonObject jso = new JsonObject();
+        jso.writeStartObject();
+        int i = 0;
+        for (String param : wParam) {
+            if ((i & 01) == 0) {
+                jso.writeObjectField(param);
 
-			}
-			else {
-				try {
-					jso.writeObjectValue(Double.valueOf(param));
-				} catch (NumberFormatException e) {
-					System.out.println("No valid double as argument for option -w (--write)\nRequest will fail:");
-				}
-			}
-			++i;
-		}
+            } else {
+                try {
+                    jso.writeObjectValue(Double.valueOf(param));
+                }
+                catch (NumberFormatException e) {
+                    System.out.println(
+                            "No valid double as argument for option -w (--write)\nRequest will fail:");
+                }
+            }
+            ++i;
+        }
 
-		jso.writeEndObject();
+        jso.writeEndObject();
 
-		return jso.getJsonText();
-	}
+        return jso.getJsonText();
+    }
 }

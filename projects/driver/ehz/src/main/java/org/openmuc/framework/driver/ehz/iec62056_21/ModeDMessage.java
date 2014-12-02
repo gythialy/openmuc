@@ -73,7 +73,7 @@ public class ModeDMessage {
 
             position = 5;
             int i = 0;
-			/* Search for CRLF to extract identifier */
+            /* Search for CRLF to extract identifier */
             while (!((frame[position + i] == 0x0d) && (frame[position + i + 1] == 0x0a))) {
                 if (frame[position + i] == '!') {
                     throw new ParseException("Invalid end character", position + i);

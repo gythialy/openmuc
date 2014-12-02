@@ -1,4 +1,3 @@
-
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'osgi'
@@ -14,23 +13,23 @@ mainClassName = "org.openmuc.framework.demo.restclient.ClientStarter"
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-repositories { 
-  mavenCentral() 
+repositories {
+    mavenCentral()
 }
 
 dependencies {
 }
 
 jar {
-  manifest { 
-    version = project.version.replace('-','.');
-    name = bundleName
-  }    
+    manifest {
+        version = project.version.replace('-', '.');
+        name = bundleName
+    }
 }
 
 installApp {
-  destinationDir = file('deploy');
+    destinationDir = file('deploy');
 }
 
-eclipse.pathVariables([GRADLE_USER_HOME:file(gradle.gradleUserHomeDir)])
+eclipse.pathVariables([GRADLE_USER_HOME: file(gradle.gradleUserHomeDir)])
 tasks.eclipse.dependsOn(cleanEclipse)

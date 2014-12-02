@@ -209,7 +209,7 @@ public final class FileObjectProxy {
                                     + " Days. Will be deleted.");
                         deleteRecursiveFolder(curElement);
                     } else {
-						/* oldest existing Folder is not to be deleted yet */
+                        /* oldest existing Folder is not to be deleted yet */
                         break;
                     }
                 }

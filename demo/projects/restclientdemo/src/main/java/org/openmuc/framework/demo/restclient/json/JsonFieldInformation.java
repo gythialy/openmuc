@@ -22,42 +22,42 @@ package org.openmuc.framework.demo.restclient.json;
 
 public class JsonFieldInformation {
 
-	int level;
-	String fieldName;
-	JsonTextType type;
+    int level;
+    String fieldName;
+    JsonTextType type;
 
-	JsonFieldInformation() {
+    JsonFieldInformation() {
 
-	}
+    }
 
-	JsonFieldInformation(int level, String fieldName, JsonTextType type) {
-		this.level = level;
-		/**
-		 * TODO handle case if json text is null, false, true
-		 */
-		this.fieldName = fieldName;
-		this.type = type;
-	}
+    JsonFieldInformation(int level, String fieldName, JsonTextType type) {
+        this.level = level;
+        /**
+         * TODO handle case if json text is null, false, true
+         */
+        this.fieldName = fieldName;
+        this.type = type;
+    }
 
-	public int getFieldLevel() {
-		return this.level;
-	}
+    public int getFieldLevel() {
+        return this.level;
+    }
 
-	public String getFieldName() {
-		return this.fieldName;
-	}
+    public String getFieldName() {
+        return this.fieldName;
+    }
 
-	public JsonTextType getFieldJsonTextType() {
-		return this.type;
-	}
+    public JsonTextType getFieldJsonTextType() {
+        return this.type;
+    }
 
-	public String getFieldJsonTextTypeString() {
-		return this.type.toString();
-	}
+    public String getFieldJsonTextTypeString() {
+        return this.type.toString();
+    }
 
-	@Override
-	public String toString() {
-		return "(" + this.level + "," + this.fieldName + "," + this.type + ")";
-	}
+    @Override
+    public String toString() {
+        return "(" + this.level + "," + this.fieldName + "," + this.type + ")";
+    }
 
 }

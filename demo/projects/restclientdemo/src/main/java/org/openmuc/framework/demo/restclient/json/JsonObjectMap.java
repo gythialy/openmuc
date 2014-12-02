@@ -25,26 +25,26 @@ import java.util.LinkedHashMap;
 
 public class JsonObjectMap {
 
-	LinkedHashMap<JsonFieldInformation, String> JsonMap = new LinkedHashMap<JsonFieldInformation, String>();
+    LinkedHashMap<JsonFieldInformation, String> JsonMap = new LinkedHashMap<JsonFieldInformation, String>();
 
-	JsonObjectMap() {
+    JsonObjectMap() {
 
-	}
+    }
 
-	public LinkedHashMap<JsonFieldInformation, String> getJsonObjectMap() {
-		return this.JsonMap;
-	}
+    public LinkedHashMap<JsonFieldInformation, String> getJsonObjectMap() {
+        return this.JsonMap;
+    }
 
-	public void put(JsonFieldInformation jfi, String tmpValue) {
-		getJsonObjectMap().put(jfi, tmpValue);
-	}
+    public void put(JsonFieldInformation jfi, String tmpValue) {
+        getJsonObjectMap().put(jfi, tmpValue);
+    }
 
-	public String get(JsonFieldInformation jfi) {
-		return getJsonObjectMap().get(jfi);
-	}
+    public String get(JsonFieldInformation jfi) {
+        return getJsonObjectMap().get(jfi);
+    }
 
-	public Collection<? extends JsonFieldInformation> keySet() {
+    public Collection<? extends JsonFieldInformation> keySet() {
 
-		return getJsonObjectMap().keySet();
-	}
+        return getJsonObjectMap().keySet();
+    }
 }

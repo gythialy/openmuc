@@ -55,7 +55,7 @@ public final class FileObject {
         length = dataFile.length();
         if (dataFile.exists() && length >= 16) {
             /*
-			 * File already exists -> get file Header (startTime and step-frequency) TODO: compare to starttime and
+             * File already exists -> get file Header (startTime and step-frequency) TODO: compare to starttime and
 			 * frequency in constructor! new file needed? update to file-array!
 			 */
             try {

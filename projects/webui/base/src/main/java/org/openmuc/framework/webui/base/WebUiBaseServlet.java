@@ -150,7 +150,7 @@ public final class WebUiBaseServlet extends HttpServlet {
                                                    vc,
                                                    writer);
                             /*
-							 * Important for SSL, without '\n' and flush() the content will be wrong
+                             * Important for SSL, without '\n' and flush() the content will be wrong
 							 */
                             PrintWriter out = resp.getWriter();
                             out.append('\n');

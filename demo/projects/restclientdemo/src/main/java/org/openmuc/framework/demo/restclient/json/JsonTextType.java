@@ -22,6 +22,6 @@ package org.openmuc.framework.demo.restclient.json;
 
 public enum JsonTextType {
 
-	JsonObject, JsonArray, JsonString, JsonNumber, JsonFalse, JsonTrue, JsonNull;
+    JsonObject, JsonArray, JsonString, JsonNumber, JsonFalse, JsonTrue, JsonNull;
 
 }

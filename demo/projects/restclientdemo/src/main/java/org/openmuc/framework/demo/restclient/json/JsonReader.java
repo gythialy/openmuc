@@ -27,267 +27,255 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JsonReader {
-	static String text;
-	static String tmpText;
-	static LinkedHashMap<JsonFieldInformation, Integer> tmpMap = new LinkedHashMap<JsonFieldInformation, Integer>();
+    static String text;
+    static String tmpText;
+    static LinkedHashMap<JsonFieldInformation, Integer> tmpMap = new LinkedHashMap<JsonFieldInformation, Integer>();
 
-	private static JsonObjectMap FieldValueReader() {
+    private static JsonObjectMap FieldValueReader() {
 
-		JsonObjectMap finalMap = new JsonObjectMap();
-		Pattern FieldValueStringPattern = Pattern.compile("((\\[)|(:)|(,))\".*?\"((\\])|(})|(,))");
-		Pattern FieldValueObjetPattern = Pattern.compile("((\\[)|(:)|(,))\\{.*?\\}((\\])|(})|(,))");
-		Pattern FieldValueArrayPattern = Pattern.compile("((\\[)|(:)|(,))\\[.*?\\]((\\])|(})|(,))");
-		Pattern FieldValueNumberPattern = Pattern
-				.compile("((\\[)|(:)|(,))(((-)|(\\+)){0,1})([0-9]{0,})([.eE]{0,1})([0-9]+)((\\])|(})|(,))");
-		Matcher matcher;
+        JsonObjectMap finalMap = new JsonObjectMap();
+        Pattern FieldValueStringPattern = Pattern.compile("((\\[)|(:)|(,))\".*?\"((\\])|(})|(,))");
+        Pattern FieldValueObjetPattern = Pattern.compile("((\\[)|(:)|(,))\\{.*?\\}((\\])|(})|(,))");
+        Pattern FieldValueArrayPattern = Pattern.compile("((\\[)|(:)|(,))\\[.*?\\]((\\])|(})|(,))");
+        Pattern FieldValueNumberPattern = Pattern
+                .compile(
+                        "((\\[)|(:)|(,))(((-)|(\\+)){0,1})([0-9]{0,})([.eE]{0,1})([0-9]+)((\\])|(})|(,))");
+        Matcher matcher;
 
-		ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(tmpMap.keySet());
-		ListIterator<JsonFieldInformation> iter = arrayList.listIterator();
-		while (iter.hasNext()) {
-			iter.next();
-		}
+        ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(tmpMap.keySet());
+        ListIterator<JsonFieldInformation> iter = arrayList.listIterator();
+        while (iter.hasNext()) {
+            iter.next();
+        }
 
-		while (iter.hasPrevious()) {
-			JsonFieldInformation jfi = iter.previous();
-			int beginIndex = tmpMap.get(jfi);
-			if (jfi.getFieldJsonTextType() == JsonTextType.JsonString) {
-				matcher = FieldValueStringPattern.matcher(text.substring(beginIndex - 1));
-				if (matcher.find()) {
-					String tmpValue = matcher.group(0);
-					tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
-					finalMap.put(jfi, tmpValue);
-					// System.out.println(tmpValue);
-					tmpText = tmpText.replace(tmpValue, "");
-				}
-				else {
-					return null;
-				}
-			}
-			else if (jfi.getFieldJsonTextType() == JsonTextType.JsonObject) {
-				matcher = FieldValueObjetPattern.matcher(text.substring(beginIndex - 1));
-				if (matcher.find()) {
-					String tmpValue = matcher.group(0);
-					tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
-					// System.out.println(tmpValue);
-					finalMap.put(jfi, "-OBJ-");
-				}
-				else {
-					return null;
-				}
-			}
-			else if (jfi.getFieldJsonTextType() == JsonTextType.JsonNumber) {
-				matcher = FieldValueNumberPattern.matcher(text.substring(beginIndex - 1));
-				if (matcher.find()) {
-					String tmpValue = matcher.group(0);
-					tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
-					// System.out.println(tmpValue);
-					finalMap.put(jfi, tmpValue);
-					tmpText = tmpText.replace(tmpValue, "");
-				}
-				else {
-					return null;
-				}
-			}
-			else if (jfi.getFieldJsonTextType() == JsonTextType.JsonNull) {
-				String expectedNull = text.substring(beginIndex - 1, beginIndex + 4);
-				expectedNull = expectedNull.substring(1);
-				if (expectedNull.equals("null")) {
-					finalMap.put(jfi, "null");
-					tmpText = tmpText.replace(expectedNull, "");
-				}
-				else {
-					System.out.println("NOJSON");
-					return null;
-				}
-			}
-			else if (jfi.getFieldJsonTextType() == JsonTextType.JsonTrue) {
-				String expectedTrue = text.substring(beginIndex - 1, beginIndex + 4);
-				expectedTrue = expectedTrue.substring(1);
-				if (expectedTrue.equals("true")) {
-					finalMap.put(jfi, "true");
-					tmpText = tmpText.replace(expectedTrue, "");
-				}
-				else {
-					System.out.println("NOJSON");
-					return null;
-				}
-			}
-			else if (jfi.getFieldJsonTextType() == JsonTextType.JsonFalse) {
-				String expectedFalse = text.substring(beginIndex - 1, beginIndex + 5);
-				expectedFalse = expectedFalse.substring(1);
-				if (expectedFalse.equals("false")) {
-					finalMap.put(jfi, "false");
-					tmpText = tmpText.replace(expectedFalse, "");
-				}
-				else {
-					System.out.println("NOJSON");
-					return null;
-				}
-			}
-			else if (jfi.getFieldJsonTextType() == JsonTextType.JsonArray) {
-				matcher = FieldValueArrayPattern.matcher(text.substring(beginIndex - 1));
-				if (matcher.find()) {
-					String tmpValue = matcher.group(0);
-					tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
-					// System.out.println(tmpValue);
-					finalMap.put(jfi, tmpValue);
-					tmpText = tmpText.replace(tmpValue, "");
-				}
-				else {
-					System.out.println("NOJSON");
-					return null;
-				}
-			}
-			else {
-				return null;
+        while (iter.hasPrevious()) {
+            JsonFieldInformation jfi = iter.previous();
+            int beginIndex = tmpMap.get(jfi);
+            if (jfi.getFieldJsonTextType() == JsonTextType.JsonString) {
+                matcher = FieldValueStringPattern.matcher(text.substring(beginIndex - 1));
+                if (matcher.find()) {
+                    String tmpValue = matcher.group(0);
+                    tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
+                    finalMap.put(jfi, tmpValue);
+                    // System.out.println(tmpValue);
+                    tmpText = tmpText.replace(tmpValue, "");
+                } else {
+                    return null;
+                }
+            } else if (jfi.getFieldJsonTextType() == JsonTextType.JsonObject) {
+                matcher = FieldValueObjetPattern.matcher(text.substring(beginIndex - 1));
+                if (matcher.find()) {
+                    String tmpValue = matcher.group(0);
+                    tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
+                    // System.out.println(tmpValue);
+                    finalMap.put(jfi, "-OBJ-");
+                } else {
+                    return null;
+                }
+            } else if (jfi.getFieldJsonTextType() == JsonTextType.JsonNumber) {
+                matcher = FieldValueNumberPattern.matcher(text.substring(beginIndex - 1));
+                if (matcher.find()) {
+                    String tmpValue = matcher.group(0);
+                    tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
+                    // System.out.println(tmpValue);
+                    finalMap.put(jfi, tmpValue);
+                    tmpText = tmpText.replace(tmpValue, "");
+                } else {
+                    return null;
+                }
+            } else if (jfi.getFieldJsonTextType() == JsonTextType.JsonNull) {
+                String expectedNull = text.substring(beginIndex - 1, beginIndex + 4);
+                expectedNull = expectedNull.substring(1);
+                if (expectedNull.equals("null")) {
+                    finalMap.put(jfi, "null");
+                    tmpText = tmpText.replace(expectedNull, "");
+                } else {
+                    System.out.println("NOJSON");
+                    return null;
+                }
+            } else if (jfi.getFieldJsonTextType() == JsonTextType.JsonTrue) {
+                String expectedTrue = text.substring(beginIndex - 1, beginIndex + 4);
+                expectedTrue = expectedTrue.substring(1);
+                if (expectedTrue.equals("true")) {
+                    finalMap.put(jfi, "true");
+                    tmpText = tmpText.replace(expectedTrue, "");
+                } else {
+                    System.out.println("NOJSON");
+                    return null;
+                }
+            } else if (jfi.getFieldJsonTextType() == JsonTextType.JsonFalse) {
+                String expectedFalse = text.substring(beginIndex - 1, beginIndex + 5);
+                expectedFalse = expectedFalse.substring(1);
+                if (expectedFalse.equals("false")) {
+                    finalMap.put(jfi, "false");
+                    tmpText = tmpText.replace(expectedFalse, "");
+                } else {
+                    System.out.println("NOJSON");
+                    return null;
+                }
+            } else if (jfi.getFieldJsonTextType() == JsonTextType.JsonArray) {
+                matcher = FieldValueArrayPattern.matcher(text.substring(beginIndex - 1));
+                if (matcher.find()) {
+                    String tmpValue = matcher.group(0);
+                    tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
+                    // System.out.println(tmpValue);
+                    finalMap.put(jfi, tmpValue);
+                    tmpText = tmpText.replace(tmpValue, "");
+                } else {
+                    System.out.println("NOJSON");
+                    return null;
+                }
+            } else {
+                return null;
 
-			}
+            }
 
-		}
-		return finalMap;
+        }
+        return finalMap;
 
-	}
+    }
 
-	private static LinkedHashMap<JsonFieldInformation, Integer> FieldNameReader() {
-		Pattern FieldNamePattern = Pattern.compile("((\\[)|(\\{)|(,))\"[a-zA-Z_0-9.-]*?\":");
-		Matcher matcher;
-		Boolean found = false;
-		LinkedHashMap<JsonFieldInformation, Integer> tmpMap = new LinkedHashMap<JsonFieldInformation, Integer>();
+    private static LinkedHashMap<JsonFieldInformation, Integer> FieldNameReader() {
+        Pattern FieldNamePattern = Pattern.compile("((\\[)|(\\{)|(,))\"[a-zA-Z_0-9.-]*?\":");
+        Matcher matcher;
+        Boolean found = false;
+        LinkedHashMap<JsonFieldInformation, Integer> tmpMap = new LinkedHashMap<JsonFieldInformation, Integer>();
 
-		while ((matcher = FieldNamePattern.matcher(tmpText)).find()) {
-			found = true;
-			String foundField = matcher.group(0).substring(1);
-			// Level
-			int index = text.indexOf(foundField);
-			int endIndex = index + foundField.length();
-			// System.out.println("Index of: " + foundField + " is: " + index);
-			int level = levelToIndex(text, index);
-			if (level <= 0) {
-				return null;
-			}
-			// Type
-			char next = text.charAt(endIndex);
-			JsonTextType type = expectedType(next);
-			// System.out.println("Handing over next char: " + next);
-			if (type == null) {
-				return null;
-			}
-			// System.out.println("Expecting type: " + expectedType(next));
-			// foundField
-			tmpText = tmpText.replace(foundField, "");
-			foundField = foundField.replace("\"", "").replace(":", "");
+        while ((matcher = FieldNamePattern.matcher(tmpText)).find()) {
+            found = true;
+            String foundField = matcher.group(0).substring(1);
+            // Level
+            int index = text.indexOf(foundField);
+            int endIndex = index + foundField.length();
+            // System.out.println("Index of: " + foundField + " is: " + index);
+            int level = levelToIndex(text, index);
+            if (level <= 0) {
+                return null;
+            }
+            // Type
+            char next = text.charAt(endIndex);
+            JsonTextType type = expectedType(next);
+            // System.out.println("Handing over next char: " + next);
+            if (type == null) {
+                return null;
+            }
+            // System.out.println("Expecting type: " + expectedType(next));
+            // foundField
+            tmpText = tmpText.replace(foundField, "");
+            foundField = foundField.replace("\"", "").replace(":", "");
 
-			JsonFieldInformation jfi = new JsonFieldInformation(level, foundField, expectedType(next));
+            JsonFieldInformation jfi = new JsonFieldInformation(level,
+                                                                foundField,
+                                                                expectedType(next));
 
-			tmpMap.put(jfi, endIndex);
+            tmpMap.put(jfi, endIndex);
 
-			// System.out.println(tmpText);
+            // System.out.println(tmpText);
 
-		}
-		if (!found) {
-			return null;
-		}
-		return tmpMap;
+        }
+        if (!found) {
+            return null;
+        }
+        return tmpMap;
 
-	}
+    }
 
-	public static JsonObjectMap JsonStreamToMap(String jsontext) {
+    public static JsonObjectMap JsonStreamToMap(String jsontext) {
 
-		text = cleanLine(jsontext);
-		tmpText = text;
+        text = cleanLine(jsontext);
+        tmpText = text;
 
-		tmpMap = FieldNameReader();
-		if (tmpMap == null) {
-			return null;
-		}
-		JsonObjectMap fMap = FieldValueReader();
-		if (fMap == null) {
-			return null;
-		}
-		if (!isValidJsonStructure(tmpText)) {
-			return null;
-		}
-		return fMap;
+        tmpMap = FieldNameReader();
+        if (tmpMap == null) {
+            return null;
+        }
+        JsonObjectMap fMap = FieldValueReader();
+        if (fMap == null) {
+            return null;
+        }
+        if (!isValidJsonStructure(tmpText)) {
+            return null;
+        }
+        return fMap;
 
-	}
+    }
 
-	private static String cleanLine(String line) {
-		line = line.replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "");
-		return line;
-	}
+    private static String cleanLine(String line) {
+        line = line.replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "");
+        return line;
+    }
 
-	private static int levelToIndex(String line, int index) {
-		line = line.substring(0, index);
-		return determineNbrTab(line);
+    private static int levelToIndex(String line, int index) {
+        line = line.substring(0, index);
+        return determineNbrTab(line);
 
-	}
+    }
 
-	private static int determineNbrTab(String text) {
-		int nbrTabs = 0;
-		nbrTabs = text.length() - text.replace("{", "").length();
-		nbrTabs += text.length() - text.replace("[", "").length();
-		nbrTabs -= text.length() - text.replace("}", "").length();
-		nbrTabs -= text.length() - text.replace("]", "").length();
+    private static int determineNbrTab(String text) {
+        int nbrTabs = 0;
+        nbrTabs = text.length() - text.replace("{", "").length();
+        nbrTabs += text.length() - text.replace("[", "").length();
+        nbrTabs -= text.length() - text.replace("}", "").length();
+        nbrTabs -= text.length() - text.replace("]", "").length();
 
-		return nbrTabs;
-	}
+        return nbrTabs;
+    }
 
-	private static JsonTextType expectedType(char next) {
-		switch (next) {
-		case '\"':
-			return JsonTextType.JsonString;
-		case '{':
-			return JsonTextType.JsonObject;
-		case '[':
-			return JsonTextType.JsonArray;
-		case 'f':
-			return JsonTextType.JsonFalse;
-		case 't':
-			return JsonTextType.JsonTrue;
-		case 'n':
-			return JsonTextType.JsonNull;
-		default:
-			if (Character.isDigit(next)) {
-				return JsonTextType.JsonNumber;
-			}
-			else {
-				return null;
-			}
-		}
-	}
+    private static JsonTextType expectedType(char next) {
+        switch (next) {
+        case '\"':
+            return JsonTextType.JsonString;
+        case '{':
+            return JsonTextType.JsonObject;
+        case '[':
+            return JsonTextType.JsonArray;
+        case 'f':
+            return JsonTextType.JsonFalse;
+        case 't':
+            return JsonTextType.JsonTrue;
+        case 'n':
+            return JsonTextType.JsonNull;
+        default:
+            if (Character.isDigit(next)) {
+                return JsonTextType.JsonNumber;
+            } else {
+                return null;
+            }
+        }
+    }
 
-	private static Boolean isValidJsonStructure(String txt) {
-		if (!txt.matches("[{},]+")) {
-			return false;
-		}
-		char firstChar = txt.charAt(0);
-		char lastChar = txt.charAt(txt.length() - 1);
-		if (firstChar == ',' || lastChar == ',') {
-			return false;
-		}
+    private static Boolean isValidJsonStructure(String txt) {
+        if (!txt.matches("[{},]+")) {
+            return false;
+        }
+        char firstChar = txt.charAt(0);
+        char lastChar = txt.charAt(txt.length() - 1);
+        if (firstChar == ',' || lastChar == ',') {
+            return false;
+        }
 
-		String tmp = txt.replace(",", "");
-		if (determineNbrTab(txt) != 0) {
-			return false;
-		}
-		String tmp2 = tmp;
-		int i = 0;
-		int nbrTabs = tmp.length() / 2;
-		int nbrOpen = 0;
-		int nbrClos = 0;
-		do {
-			i++;
-			tmp2 = tmp.substring(0, i);
-			nbrOpen = tmp2.length() - tmp2.replace("{", "").length();
-			nbrClos = tmp2.length() - tmp2.replace("}", "").length();
-		} while ((nbrOpen != nbrClos) && (nbrTabs * 2 != i));
-		if (nbrOpen != nbrTabs || nbrClos != nbrTabs) {
-			return false;
-		}
-		if (nbrTabs * 2 != i) {
-			return false;
-		}
-		return true;
-	}
+        String tmp = txt.replace(",", "");
+        if (determineNbrTab(txt) != 0) {
+            return false;
+        }
+        String tmp2 = tmp;
+        int i = 0;
+        int nbrTabs = tmp.length() / 2;
+        int nbrOpen = 0;
+        int nbrClos = 0;
+        do {
+            i++;
+            tmp2 = tmp.substring(0, i);
+            nbrOpen = tmp2.length() - tmp2.replace("{", "").length();
+            nbrClos = tmp2.length() - tmp2.replace("}", "").length();
+        } while ((nbrOpen != nbrClos) && (nbrTabs * 2 != i));
+        if (nbrOpen != nbrTabs || nbrClos != nbrTabs) {
+            return false;
+        }
+        if (nbrTabs * 2 != i) {
+            return false;
+        }
+        return true;
+    }
 
 }

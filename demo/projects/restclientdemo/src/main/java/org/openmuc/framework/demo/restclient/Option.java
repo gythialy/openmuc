@@ -21,62 +21,67 @@
 package org.openmuc.framework.demo.restclient;
 
 public class Option {
-	long id;
-	char optionName;
-	String optionFullName;
-	String description;
-	int nbrOfParameters;
+    long id;
+    char optionName;
+    String optionFullName;
+    String description;
+    int nbrOfParameters;
 
-	public Option(char optName, String optFName, String des) {
-		this.id = 0;
-		this.optionName = optName;
-		this.optionFullName = optFName;
-		this.description = des;
-		this.nbrOfParameters = 0;
-	}
+    public Option(char optName, String optFName, String des) {
+        this.id = 0;
+        this.optionName = optName;
+        this.optionFullName = optFName;
+        this.description = des;
+        this.nbrOfParameters = 0;
+    }
 
-	@Override
-	public String toString() {
-		return "short name: " + this.optionName + " full name: " + this.optionFullName + " id: " + this.id;
-	}
+    @Override
+    public String toString() {
+        return "short name: "
+               + this.optionName
+               + " full name: "
+               + this.optionFullName
+               + " id: "
+               + this.id;
+    }
 
-	public Boolean equals(Option opt) {
-		if (this.optionName == opt.getName()) {
-			return true;
-		}
-		if (this.optionFullName.equals(opt.getFullName())) {
-			return true;
-		}
-		return false;
-	}
+    public Boolean equals(Option opt) {
+        if (this.optionName == opt.getName()) {
+            return true;
+        }
+        if (this.optionFullName.equals(opt.getFullName())) {
+            return true;
+        }
+        return false;
+    }
 
-	public char getName() {
-		return this.optionName;
-	}
+    public char getName() {
+        return this.optionName;
+    }
 
-	public String getFullName() {
-		return this.optionFullName;
-	}
+    public String getFullName() {
+        return this.optionFullName;
+    }
 
-	public void setNbrOfParamaters(int nbr) {
-		this.nbrOfParameters = nbr;
-	}
+    public void setNbrOfParamaters(int nbr) {
+        this.nbrOfParameters = nbr;
+    }
 
-	public void setID(long i) {
-		this.id = i;
-	}
+    public void setID(long i) {
+        this.id = i;
+    }
 
-	public long getID() {
+    public long getID() {
 
-		return this.id;
-	}
+        return this.id;
+    }
 
-	public int getParameterNbr() {
-		return this.nbrOfParameters;
-	}
+    public int getParameterNbr() {
+        return this.nbrOfParameters;
+    }
 
-	public String getDescription() {
-		return this.description;
-	}
+    public String getDescription() {
+        return this.description;
+    }
 
 }

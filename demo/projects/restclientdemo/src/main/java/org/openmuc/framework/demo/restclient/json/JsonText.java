@@ -22,32 +22,32 @@ package org.openmuc.framework.demo.restclient.json;
 
 public abstract class JsonText implements JsonWriter {
 
-	protected String jsonText;
+    protected String jsonText;
 
-	public JsonText() {
-		this.jsonText = "";
-	}
+    public JsonText() {
+        this.jsonText = "";
+    }
 
-	public String getJsonText() {
-		return this.jsonText;
-	}
+    public String getJsonText() {
+        return this.jsonText;
+    }
 
-	public void setJsonText(String jText) {
-		this.jsonText = jText;
-	}
+    public void setJsonText(String jText) {
+        this.jsonText = jText;
+    }
 
-	public void appendJsonText(String jText) {
-		this.jsonText += jText;
-	}
+    public void appendJsonText(String jText) {
+        this.jsonText += jText;
+    }
 
-	public int determineNbrTab() {
-		int nbrTabs = 0;
-		nbrTabs = this.jsonText.length() - this.jsonText.replace("{", "").length();
-		nbrTabs += this.jsonText.length() - this.jsonText.replace("[", "").length();
-		nbrTabs -= this.jsonText.length() - this.jsonText.replace("}", "").length();
-		nbrTabs -= this.jsonText.length() - this.jsonText.replace("]", "").length();
+    public int determineNbrTab() {
+        int nbrTabs = 0;
+        nbrTabs = this.jsonText.length() - this.jsonText.replace("{", "").length();
+        nbrTabs += this.jsonText.length() - this.jsonText.replace("[", "").length();
+        nbrTabs -= this.jsonText.length() - this.jsonText.replace("}", "").length();
+        nbrTabs -= this.jsonText.length() - this.jsonText.replace("]", "").length();
 
-		return nbrTabs;
-	}
+        return nbrTabs;
+    }
 
 }

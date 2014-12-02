@@ -22,31 +22,31 @@ package org.openmuc.framework.demo.restclient.json;
 
 public interface JsonWriter {
 
-	public final String SPACING = "";
+    public final String SPACING = "";
 
-	// public void setSpacing(String spc);
+    // public void setSpacing(String spc);
 
-	public void writeStartObject();
+    public void writeStartObject();
 
-	public void writeEndObject();
+    public void writeEndObject();
 
-	public void writeObjectField(String field);
+    public void writeObjectField(String field);
 
-	public void writeObjectValue(String value);
+    public void writeObjectValue(String value);
 
-	public void writeObjectValue(String value, boolean isLastValue);
+    public void writeObjectValue(String value, boolean isLastValue);
 
-	public void writeObjectValue(long value);
+    public void writeObjectValue(long value);
 
-	public void writeObjectValue(long value, boolean isLastValue);
+    public void writeObjectValue(long value, boolean isLastValue);
 
-	public void writeObjectMember(String memberName);
+    public void writeObjectMember(String memberName);
 
-	public void writeStartArray();
+    public void writeStartArray();
 
-	public void writeEndArray();
+    public void writeEndArray();
 
-	public void writeArrayValue(String value);
+    public void writeArrayValue(String value);
 
-	public void writeArrayValue(JsonObject jObj);
+    public void writeArrayValue(JsonObject jObj);
 }
