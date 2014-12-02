@@ -99,4 +99,9 @@ public class ByteArrayValue implements Value {
     public String toString() {
         return new String(value);
     }
+
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

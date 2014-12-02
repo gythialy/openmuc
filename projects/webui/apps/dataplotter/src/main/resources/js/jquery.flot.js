@@ -88,7 +88,8 @@
     B.color.parse = function (F) {
         var E, C = B.color.make;
         if (E = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(F)) {
-            return C(parseInt(E[1], 10), parseInt(E[2], 10), parseInt(E[3], 10))
+            return C(parseInt(E[1]
+                , 10), parseInt(E[2], 10), parseInt(E[3], 10))
         }
         if (E = /rgba\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*\)/.exec(F)) {
             return C(parseInt(E[1], 10), parseInt(E[2], 10), parseInt(E[3], 10), parseFloat(E[4]))

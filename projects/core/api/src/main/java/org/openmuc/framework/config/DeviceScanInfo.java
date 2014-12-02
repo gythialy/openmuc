@@ -32,11 +32,6 @@ public class DeviceScanInfo {
     private final String settings;
     private final String description;
 
-    /**
-     * @param interfaceAddress
-     * @param deviceAddress
-     * @param description
-     */
     public DeviceScanInfo(String interfaceAddress,
                           String deviceAddress,
                           String settings,

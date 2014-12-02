@@ -54,67 +54,83 @@ public interface Channel {
     public String getId();
 
     /**
-     * Returns the address of this channel.
+     * Returns the address of this channel. Returns the empty string if not configured.
      *
-     * @return the address of this channel. The empty string if not configured.
+     * @return the address of this channel.
      */
     public String getChannelAddress();
 
     /**
-     * Returns the description of this channel.
+     * Returns the description of this channel. Returns the empty string if not configured.
      *
-     * @return the description of this channel. The empty string if not configured.
+     * @return the description of this channel.
      */
     public String getDescription();
 
     /**
-     * Returns the unit of this channel. The unit is used for informational purposes only. Neither the framework nor any
-     * driver does value conversions based on the configured unit.
+     * Returns the unit of this channel. Returns the empty string if not configured. The unit is used for informational
+     * purposes only. Neither the framework nor any driver does value conversions based on the configured unit.
      *
      * @return the unit of this channel.
      */
     public String getUnit();
 
     /**
-     * Returns the value type of this channel. The value type is for informational purposes only. A data base is
-     * encouraged to store values using the configured value type if it supports that value type. There is no guarantee
-     * that the driver and data base that provide the values for this channel actually use a <code>Value</code>
-     * implementation that corresponds to the configured value type.
+     * Returns the value type of this channel. The value type specifies how the value of the latest record of a channel
+     * is stored. A data logger is encouraged to store values using the configured value type if it supports that value
+     * type.
      * <p/>
-     * But usually an application does not need to know the value type of the channel because it can use the value type
-     * of its choice by using the corresponding function of the <code>Value</code> interface. Conversion is done
-     * transparently.
+     * Usually an application does not need to know the value type of the channel because it can use the value type of
+     * its choice by using the corresponding function of {@link Value} (e.g. {@link Value#asDouble()}). Necessary
+     * conversions will be done transparently.
+     * <p/>
+     * If no value type was configured, the default {@link ValueType#DOUBLE} is used.
      *
      * @return the value type of this channel.
      */
     public ValueType getValueType();
 
     /**
-     * Returns the channel's configured sampling interval in milliseconds.
+     * Returns the scaling factor. Returns 1.0 if the scaling factor is not configured.
+     * <p/>
+     * The scaling factor is applied in the following cases:
+     * <ul>
+     * <li>Values received by this channel's driver or from apps through {@link #setLatestRecord(Record)} are multiplied
+     * with the scaling factor before they are stored in the latest record.</li>
+     * <li>Values written (e.g. using {@link #write(Value)}) are divided by the scaling factor before they are handed to
+     * the driver for transmission.</li>
+     * </ul>
      *
-     * @return the channel's configured sampling interval in milliseconds. Returns -1 if not configured.
+     * @return the scaling factor
+     */
+    public double getScalingFactor();
+
+    /**
+     * Returns the channel's configured sampling interval in milliseconds. Returns -1 if not configured.
+     *
+     * @return the channel's configured sampling interval in milliseconds.
      */
     public int getSamplingInterval();
 
     /**
-     * Returns the channel's configured sampling time offset in milliseconds.
-     *
-     * @return the channel's configured sampling time offset in milliseconds. Returns the default of 0 if not
+     * Returns the channel's configured sampling time offset in milliseconds. Returns the default of 0 if not
      * configured.
+     *
+     * @return the channel's configured sampling time offset in milliseconds.
      */
     public int getSamplingTimeOffset();
 
     /**
-     * Returns the channel's configured logging interval in milliseconds.
+     * Returns the channel's configured logging interval in milliseconds. Returns -1 if not configured.
      *
-     * @return the channel's configured logging interval in milliseconds. Returns -1 if not configured.
+     * @return the channel's configured logging interval in milliseconds.
      */
     public int getLoggingInterval();
 
     /**
-     * Returns the channel's configured logging time offset in milliseconds.
+     * Returns the channel's configured logging time offset in milliseconds. Returns the default of 0 if not configured.
      *
-     * @return the channel's configured logging time offset in milliseconds. Returns the default of 0 if not configured.
+     * @return the channel's configured logging time offset in milliseconds.
      */
     public int getLoggingTimeOffset();
 
@@ -126,9 +142,9 @@ public interface Channel {
     public String getDriverName();
 
     /**
-     * Returns the channel's interface address.
+     * Returns the channel's interface address. May be <code>null</code> if not configured.
      *
-     * @return the channel's interface address. May be <code>null</code> if not configured.
+     * @return the channel's interface address.
      */
     public String getInterfaceAddress();
 
@@ -140,17 +156,17 @@ public interface Channel {
     public String getDeviceAddress();
 
     /**
-     * Returns the name of the communication device that this channel belongs to.
+     * Returns the name of the communication device that this channel belongs to. The empty string if not configured.
      *
-     * @return the name of the communication device that this channel belongs to. The empty string if not configured.
+     * @return the name of the communication device that this channel belongs to.
      */
     public String getDeviceName();
 
     /**
-     * Returns the description of the communication device that this channel belongs to.
-     *
-     * @return the description of the communication device that this channel belongs to. The empty string if not
+     * Returns the description of the communication device that this channel belongs to. The empty string if not
      * configured.
+     *
+     * @return the description of the communication device that this channel belongs to.
      */
     public String getDeviceDescription();
 
@@ -232,7 +248,7 @@ public interface Channel {
     public Flag write(Value value);
 
     /**
-     * Schedules a List<Records> with future timestamps as write tasks <br>
+     * Schedules a List&lt;records&gt; with future timestamps as write tasks <br>
      * This function will schedule single write tasks to the provided timestamps.<br>
      * Once this function is called, previously scheduled write tasks will be erased.<br>
      *

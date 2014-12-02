@@ -29,6 +29,7 @@ import org.openmuc.j62056.DataSet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public final class Iec62056Driver implements DriverService {
 
@@ -126,6 +127,11 @@ public final class Iec62056Driver implements DriverService {
 
         }
         catch (IOException e) {
+            e.printStackTrace();
+            throw new ScanException(e);
+        }
+        catch (TimeoutException e) {
+            e.printStackTrace();
             throw new ScanException(e);
         }
         finally {
@@ -148,7 +154,12 @@ public final class Iec62056Driver implements DriverService {
             dataSets = ((Connection) connection.getConnectionHandle()).read();
         }
         catch (IOException e1) {
+            e1.printStackTrace();
             throw new ScanException(e1);
+        }
+        catch (TimeoutException e) {
+            e.printStackTrace();
+            throw new ScanException(e);
         }
 
         if (dataSets == null) {
@@ -231,6 +242,10 @@ public final class Iec62056Driver implements DriverService {
                                           + e.getMessage(),
                                           e);
         }
+        catch (TimeoutException e) {
+            e.printStackTrace();
+            throw new ConnectionException("Read timed out: " + e.getMessage());
+        }
         return connection;
 
     }
@@ -256,6 +271,10 @@ public final class Iec62056Driver implements DriverService {
                 container.setRecord(new Record(Flag.DRIVER_ERROR_READ_FAILURE));
             }
             return null;
+        }
+        catch (TimeoutException e) {
+            e.printStackTrace();
+            throw new ConnectionException("Read timed out: " + e.getMessage());
         }
 
         if (dataSets == null) {

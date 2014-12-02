@@ -29,14 +29,6 @@ public class BooleanValue implements Value {
         this.value = value;
     }
 
-    public BooleanValue(byte[] fromBytes) {
-        if (fromBytes[0] == 0x00) {
-            this.value = false;
-        } else {
-            this.value = true;
-        }
-    }
-
     @Override
     public double asDouble() {
         if (value) {
@@ -110,4 +102,8 @@ public class BooleanValue implements Value {
         return Boolean.toString(value);
     }
 
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

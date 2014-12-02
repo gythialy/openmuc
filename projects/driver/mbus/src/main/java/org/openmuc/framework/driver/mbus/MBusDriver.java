@@ -83,9 +83,9 @@ public class MBusDriver implements DriverService {
 
         MBusSap mBusSap;
         if (!connections.containsKey(args[0])) {
-            mBusSap = new MBusSap(args[0]);
+            mBusSap = new MBusSap(args[0], baudRate);
             try {
-                mBusSap.open(baudRate);
+                mBusSap.open();
             }
             catch (IllegalArgumentException e) {
                 throw new ArgumentSyntaxException();
@@ -144,50 +144,48 @@ public class MBusDriver implements DriverService {
         List<ChannelScanInfo> chanScanInf = new ArrayList<ChannelScanInfo>();
 
         try {
-            List<VariableDataBlock> vdb = conHandle.getMBusSap().read(conHandle.getDeviceAddres())
-                                                   .getVariableDataBlocks();
+            MBusMessage msg = conHandle.getMBusSap().read(conHandle.getDeviceAddress());
+            msg.decodeDeep();
+
+            List<VariableDataBlock> vdb = msg.getVariableDataResponse().getVariableDataBlocks();
+
             for (VariableDataBlock block : vdb) {
-                try {
-                    block.decode();
 
-                    String vib = bytesToHexString(block.getVIB());
-                    String dib = bytesToHexString(block.getDIB());
+                block.decode();
 
-                    ValueType valueType;
-                    Integer valueLength;
+                String vib = bytesToHexString(block.getVIB());
+                String dib = bytesToHexString(block.getDIB());
 
-                    switch (block.getDataValueType()) {
-                    case DATE:
-                        valueType = ValueType.BYTE_ARRAY;
-                        valueLength = 250;
-                        break;
-                    case STRING:
-                        valueType = ValueType.BYTE_ARRAY;
-                        valueLength = 250;
-                        break;
-                    case LONG:
-                        valueType = ValueType.LONG;
-                        valueLength = null;
-                        break;
-                    case DOUBLE:
-                        valueType = ValueType.DOUBLE;
-                        valueLength = null;
-                        break;
-                    default:
-                        valueType = ValueType.BYTE_ARRAY;
-                        valueLength = 250;
-                        break;
-                    }
+                ValueType valueType;
+                Integer valueLength;
 
-                    chanScanInf.add(new ChannelScanInfo(dib + ":" + vib,
-                                                        block.getDescription().toString(),
-                                                        valueType,
-                                                        valueLength));
+                switch (block.getDataValueType()) {
+                case DATE:
+                    valueType = ValueType.BYTE_ARRAY;
+                    valueLength = 250;
+                    break;
+                case STRING:
+                    valueType = ValueType.BYTE_ARRAY;
+                    valueLength = 250;
+                    break;
+                case LONG:
+                    valueType = ValueType.LONG;
+                    valueLength = null;
+                    break;
+                case DOUBLE:
+                    valueType = ValueType.DOUBLE;
+                    valueLength = null;
+                    break;
+                default:
+                    valueType = ValueType.BYTE_ARRAY;
+                    valueLength = 250;
+                    break;
                 }
-                catch (DecodingException e) {
-                    logger.debug("Skipped invalid or unsupported M-Bus VariableDataBlock:"
-                                 + e.getMessage());
-                }
+
+                chanScanInf.add(new ChannelScanInfo(dib + ":" + vib,
+                                                    block.getDescription().toString(),
+                                                    valueType,
+                                                    valueLength));
             }
         }
         catch (IOException e) {
@@ -195,6 +193,11 @@ public class MBusDriver implements DriverService {
         }
         catch (TimeoutException e) {
             return null;
+        }
+        catch (DecodingException e) {
+            e.printStackTrace();
+            logger.debug("Skipped invalid or unsupported M-Bus VariableDataBlock:"
+                         + e.getMessage());
         }
 
         return chanScanInf;
@@ -208,8 +211,6 @@ public class MBusDriver implements DriverService {
 
         if (connectionHandle == null) {
 
-            MBusSap mBusSap = new MBusSap(interfaceAddress);
-
             int baudrate = 2400;
 
             if (!settings.isEmpty()) {
@@ -221,8 +222,10 @@ public class MBusDriver implements DriverService {
                 }
             }
 
+            MBusSap mBusSap = new MBusSap(interfaceAddress, baudrate);
+
             try {
-                mBusSap.open(baudrate);
+                mBusSap.open();
             }
             catch (IOException e1) {
                 throw new ConnectionException("Unable to bind local interface: "
@@ -280,9 +283,10 @@ public class MBusDriver implements DriverService {
 
         MBusSap mBusSap = connectionHandle.getMBusSap();
 
-        VariableDataResponse response;
+        MBusMessage response = null;
         try {
             response = mBusSap.read(connection.getDeviceAddress());
+            response.decodeDeep();
         }
         catch (IOException e1) {
             connectionHandle.close();
@@ -296,10 +300,13 @@ public class MBusDriver implements DriverService {
             }
             return null;
         }
+        catch (DecodingException e) {
+            e.printStackTrace();
+        }
 
         long timestamp = System.currentTimeMillis();
 
-        List<VariableDataBlock> vdbs = response.getVariableDataBlocks();
+        List<VariableDataBlock> vdbs = response.getVariableDataResponse().getVariableDataBlocks();
         String[] dibvibs = new String[vdbs.size()];
 
         int i = 0;
@@ -310,7 +317,7 @@ public class MBusDriver implements DriverService {
         for (ChannelRecordContainer container : containers) {
 
             i = 0;
-            for (VariableDataBlock dataBlock : response.getVariableDataBlocks()) {
+            for (VariableDataBlock dataBlock : vdbs) {
 
                 if (dibvibs[i++].equalsIgnoreCase(container.getChannelAddress())) {
 

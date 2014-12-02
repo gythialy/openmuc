@@ -27,7 +27,7 @@ import com.libnodave.Connection;
  * <p/>
  * Object locator format:
  * <p/>
- * DB<data block no>.<byte offset>.<data type>
+ * DB&lt;data block no&gt;.&lt;byte offset&gt;.&lt;data type&gt;
  * <p/>
  * examples DB20.2.uint16 means data block 20, byte offset 2, variable type 16bit unsigned integer
  * <p/>

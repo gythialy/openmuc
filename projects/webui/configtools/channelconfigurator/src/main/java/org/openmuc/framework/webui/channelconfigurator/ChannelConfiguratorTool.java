@@ -119,8 +119,7 @@ public final class ChannelConfiguratorTool implements WebUiPluginService {
 
         }
         catch (Exception e) {
-            e.printStackTrace();
-            logger.warn(e.toString() + ": " + e.getMessage());
+            logger.warn("Exception getting content", e);
             content = Content.createErrorMessage(e, null);
         }
 

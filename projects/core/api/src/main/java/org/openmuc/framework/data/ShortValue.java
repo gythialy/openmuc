@@ -31,10 +31,6 @@ public class ShortValue implements Value {
         this.value = value;
     }
 
-    public ShortValue(byte[] fromBytes) {
-        this(ByteBuffer.wrap(fromBytes).getShort());
-    }
-
     @Override
     public double asDouble() {
         return value;
@@ -80,6 +76,11 @@ public class ShortValue implements Value {
     @Override
     public String toString() {
         return Short.toString(value);
+    }
+
+    @Override
+    public String asString() {
+        return toString();
     }
 
 }

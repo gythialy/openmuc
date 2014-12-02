@@ -13,7 +13,7 @@
       <channel id="CurrentChannel">
         <channelAddress>dummy/channel/address/current</channelAddress>
         <unit>kW</unit>
-        <samplingInterval>105ms</samplingInterval>
+        <samplingInterval>100ms</samplingInterval>
         <loggingInterval>5s</loggingInterval>
       </channel>
       <channel id="listeningChannel">

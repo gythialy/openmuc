@@ -58,17 +58,20 @@ The ID that uniquely identifies the driver you want to configure. The driver ID 
                 <td>
                     <select name="disabled">
                         <option value=""
-                        #if ( $!driver.Disabled == "" )
+                                #if ( $!driver.Disabled==
+                        "" )
                         selected
                         #end
                         ></option>
                         <option value="true"
-                        #if ( $!driver.Disabled == "true" )
+                                #if ( $!driver.Disabled==
+                        "true" )
                         selected
                         #end
                         >true</option>
                         <option value="false"
-                        #if ( $!driver.Disabled == "false" )
+                                #if ( $!driver.Disabled==
+                        "false" )
                         selected
                         #end
                         >false</option>

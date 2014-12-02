@@ -97,7 +97,7 @@ public class ModbusTCPDevice extends ModbusDevice {
      *
      * @param channel
      * @return a single Value for the ModbusTcpChannel
-     * @throws Exception
+     * @throws ModbusException
      */
     @Override
     public Value readChannel(ModbusChannel channel, int timeout) throws ModbusException {

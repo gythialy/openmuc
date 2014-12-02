@@ -53,7 +53,6 @@ public class ModbusDriverUtil {
      * @param registers
      * @param datatype
      * @return the corresponding Value Object
-     * @throws Exception
      */
     public Value getRegistersValue(InputRegister[] registers, EDatatype datatype) {
         Value registerValue = null;

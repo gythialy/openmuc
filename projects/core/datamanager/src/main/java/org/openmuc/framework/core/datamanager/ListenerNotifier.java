@@ -22,24 +22,21 @@
 package org.openmuc.framework.core.datamanager;
 
 import org.openmuc.framework.data.Record;
-import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.RecordListener;
 
 public final class ListenerNotifier extends Thread {
 
     RecordListener listener;
-    Channel channel;
     Record record;
 
-    public ListenerNotifier(RecordListener listener, Channel channel, Record record) {
+    public ListenerNotifier(RecordListener listener, Record record) {
         this.listener = listener;
-        this.channel = channel;
         this.record = record;
     }
 
     @Override
     public void run() {
-        listener.newRecord(channel, record);
+        listener.newRecord(record);
     }
 
 }

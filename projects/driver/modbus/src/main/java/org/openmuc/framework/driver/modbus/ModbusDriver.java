@@ -27,7 +27,6 @@ import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
-import org.openmuc.framework.driver.modbus.rtu.ModbusConfigurationException;
 import org.openmuc.framework.driver.modbus.rtu.ModbusRTUDevice;
 import org.openmuc.framework.driver.modbus.tcp.ModbusTCPDevice;
 import org.openmuc.framework.driver.spi.*;
@@ -102,14 +101,7 @@ public final class ModbusDriver implements DriverService {
             String[] settingsArray = settings.split(":");
             String mode = settingsArray[0];
             if (mode.equals("RTU")) {
-                try {
-                    device = new ModbusRTUDevice(deviceAddress, settingsArray, timeout);
-                }
-                catch (ModbusConfigurationException e) {
-                    e.printStackTrace();
-                    throw new ConnectionException(
-                            "Unable to connect due to wrong configuration. Check configuration file.");
-                }
+                device = new ModbusRTUDevice(deviceAddress, settingsArray, timeout);
             } else if (mode.equals("TCP")) {
                 device = new ModbusTCPDevice(deviceAddress);
             } else {

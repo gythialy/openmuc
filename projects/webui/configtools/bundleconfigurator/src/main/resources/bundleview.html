@@ -10,26 +10,25 @@
         <th>Action</th>
     </tr>
     #foreach ( $bundle in $bundles)
-    <tr
-    #if($bundle.state != "active") style="color: gray;" #end>
-    <td>$bundle.BundleId</td>
-    <td style="min-width: 500px;">$bundle.SymbolicName</td>
-    <td>$bundle.State</td>
-    <td width="100px">
-        #if($bundle.state != "active")
-        <a class="ui-icon ui-icon-play" style="float:left; margin-right:10px;"
-           href="${applicationPath}/start?id=$bundle.BundleId" title="Start"></a>
-        #else
-        <a class="ui-icon ui-icon-stop" style="float:left; margin-right:10px;"
-           href="${applicationPath}/stop?id=$bundle.BundleId" title="Stop"></a>
-        #end
-        <a class="ui-icon ui-icon-arrowrefresh-1-w" style="float:left; margin-right:10px;"
-           href="${applicationPath}/update?id=$bundle.BundleId" title="Update"></a>
-        <a class="ui-icon ui-icon-wrench" style="float:left; margin-right:10px;"
-           href="${applicationPath}/edit?id=$bundle.BundleId" title="Edit"></a>
-        <a class="ui-icon ui-icon-close"
-           href="${applicationPath}/uninstall?id=$bundle.BundleId" title="Uninstall"></a>
-    </td>
+    <tr #if($bundle.state !="active" ) style="color: gray;" #end>
+        <td>$bundle.BundleId</td>
+        <td style="min-width: 500px;">$bundle.SymbolicName</td>
+        <td>$bundle.State</td>
+        <td width="100px">
+            #if($bundle.state != "active")
+            <a class="ui-icon ui-icon-play" style="float:left; margin-right:10px;"
+               href="${applicationPath}/start?id=$bundle.BundleId" title="Start"></a>
+            #else
+            <a class="ui-icon ui-icon-stop" style="float:left; margin-right:10px;"
+               href="${applicationPath}/stop?id=$bundle.BundleId" title="Stop"></a>
+            #end
+            <a class="ui-icon ui-icon-arrowrefresh-1-w" style="float:left; margin-right:10px;"
+               href="${applicationPath}/update?id=$bundle.BundleId" title="Update"></a>
+            <a class="ui-icon ui-icon-wrench" style="float:left; margin-right:10px;"
+               href="${applicationPath}/edit?id=$bundle.BundleId" title="Edit"></a>
+            <a class="ui-icon ui-icon-close"
+               href="${applicationPath}/uninstall?id=$bundle.BundleId" title="Uninstall"></a>
+        </td>
     </tr>
     #end
 </table>

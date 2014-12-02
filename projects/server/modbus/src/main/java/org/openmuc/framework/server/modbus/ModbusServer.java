@@ -22,9 +22,13 @@ package org.openmuc.framework.server.modbus;
 
 import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.net.ModbusTCPListener;
-import net.wimpi.modbus.procimg.*;
+import net.wimpi.modbus.procimg.Register;
+import net.wimpi.modbus.procimg.SimpleInputRegister;
+import net.wimpi.modbus.procimg.SimpleProcessImage;
+import net.wimpi.modbus.procimg.SimpleRegister;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.server.modbus.register.*;
 import org.openmuc.framework.server.spi.ServerMappingContainer;
 import org.openmuc.framework.server.spi.ServerService;
 import org.osgi.service.component.ComponentContext;
@@ -34,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,43 +144,118 @@ public class ModbusServer implements ServerService {
 
         switch (valueType) {
         case DOUBLE:
+            Register eightByteDoubleRegister3 = new LinkedMappingHoldingRegister(new DoubleMappingInputRegister(
+                    channel, 6, 7), channel, null, valueType, 6, 7);
+            Register eightByteDoubleRegister2 = new LinkedMappingHoldingRegister(new DoubleMappingInputRegister(
+                    channel, 4, 5),
+                                                                                 channel,
+                                                                                 (LinkedMappingHoldingRegister) eightByteDoubleRegister3,
+                                                                                 valueType,
+                                                                                 4,
+                                                                                 5);
+            Register eightByteDoubleRegister1 = new LinkedMappingHoldingRegister(new DoubleMappingInputRegister(
+                    channel, 2, 3),
+                                                                                 channel,
+                                                                                 (LinkedMappingHoldingRegister) eightByteDoubleRegister2,
+                                                                                 valueType,
+                                                                                 2,
+                                                                                 3);
+            Register eightByteDoubleRegister0 = new LinkedMappingHoldingRegister(new DoubleMappingInputRegister(
+                    channel, 0, 1),
+                                                                                 channel,
+                                                                                 (LinkedMappingHoldingRegister) eightByteDoubleRegister1,
+                                                                                 valueType,
+                                                                                 0,
+                                                                                 1);
+            spi.setRegister(modbusAddress, eightByteDoubleRegister0);
+            spi.setRegister(modbusAddress + 1, eightByteDoubleRegister1);
+            spi.setRegister(modbusAddress + 2, eightByteDoubleRegister2);
+            spi.setRegister(modbusAddress + 3, eightByteDoubleRegister3);
+            break;
         case LONG:
-            Register eightByteRegister3 = new LinkedHoldingRegister(channel, null, valueType, 6, 7);
-            Register eightByteRegister2 = new LinkedHoldingRegister(channel,
-                                                                    (LinkedHoldingRegister) eightByteRegister3,
-                                                                    valueType,
-                                                                    4,
-                                                                    5);
-            Register eightByteRegister1 = new LinkedHoldingRegister(channel,
-                                                                    (LinkedHoldingRegister) eightByteRegister2,
-                                                                    valueType,
-                                                                    2,
-                                                                    3);
-            Register eightByteRegister0 = new LinkedHoldingRegister(channel,
-                                                                    (LinkedHoldingRegister) eightByteRegister1,
-                                                                    valueType,
-                                                                    0,
-                                                                    1);
-            spi.setRegister(modbusAddress, eightByteRegister0);
-            spi.setRegister(modbusAddress + 1, eightByteRegister1);
-            spi.setRegister(modbusAddress + 2, eightByteRegister2);
-            spi.setRegister(modbusAddress + 3, eightByteRegister3);
+            Register eightByteLongRegister3 = new LinkedMappingHoldingRegister(new LongMappingInputRegister(
+                    channel,
+                    6,
+                    7), channel, null, valueType, 6, 7);
+            Register eightByteLongRegister2 = new LinkedMappingHoldingRegister(new LongMappingInputRegister(
+                    channel,
+                    4,
+                    5),
+                                                                               channel,
+                                                                               (LinkedMappingHoldingRegister) eightByteLongRegister3,
+                                                                               valueType,
+                                                                               4,
+                                                                               5);
+            Register eightByteLongRegister1 = new LinkedMappingHoldingRegister(new LongMappingInputRegister(
+                    channel,
+                    2,
+                    3),
+                                                                               channel,
+                                                                               (LinkedMappingHoldingRegister) eightByteLongRegister2,
+                                                                               valueType,
+                                                                               2,
+                                                                               3);
+            Register eightByteLongRegister0 = new LinkedMappingHoldingRegister(new LongMappingInputRegister(
+                    channel,
+                    0,
+                    1),
+                                                                               channel,
+                                                                               (LinkedMappingHoldingRegister) eightByteLongRegister1,
+                                                                               valueType,
+                                                                               0,
+                                                                               1);
+            spi.setRegister(modbusAddress, eightByteLongRegister0);
+            spi.setRegister(modbusAddress + 1, eightByteLongRegister1);
+            spi.setRegister(modbusAddress + 2, eightByteLongRegister2);
+            spi.setRegister(modbusAddress + 3, eightByteLongRegister3);
             break;
         case INTEGER:
+            Register fourByteIntRegister1 = new LinkedMappingHoldingRegister(new IntegerMappingInputRegister(
+                    channel,
+                    2,
+                    3), channel, null, valueType, 2, 3);
+            Register fourByteIntRegister0 = new LinkedMappingHoldingRegister(new IntegerMappingInputRegister(
+                    channel,
+                    0,
+                    1),
+                                                                             channel,
+                                                                             (LinkedMappingHoldingRegister) fourByteIntRegister1,
+                                                                             valueType,
+                                                                             0,
+                                                                             1);
+            spi.setRegister(modbusAddress, fourByteIntRegister0);
+            spi.setRegister(modbusAddress + 1, fourByteIntRegister1);
+            break;
         case FLOAT:
-            Register fourByteRegister1 = new LinkedHoldingRegister(channel, null, valueType, 2, 3);
-            Register fourByteRegister0 = new LinkedHoldingRegister(channel,
-                                                                   (LinkedHoldingRegister) fourByteRegister1,
-                                                                   valueType,
-                                                                   0,
-                                                                   1);
-            spi.setRegister(modbusAddress, fourByteRegister0);
-            spi.setRegister(modbusAddress + 1, fourByteRegister1);
+            Register fourByteFloatRegister1 = new LinkedMappingHoldingRegister(new FloatMappingInputRegister(
+                    channel,
+                    2,
+                    3), channel, null, valueType, 2, 3);
+            Register fourByteFloatRegister0 = new LinkedMappingHoldingRegister(new FloatMappingInputRegister(
+                    channel,
+                    0,
+                    1),
+                                                                               channel,
+                                                                               (LinkedMappingHoldingRegister) fourByteFloatRegister1,
+                                                                               valueType,
+                                                                               0,
+                                                                               1);
+            spi.setRegister(modbusAddress, fourByteFloatRegister0);
+            spi.setRegister(modbusAddress + 1, fourByteFloatRegister1);
             break;
         case SHORT:
+            Register twoByteShortRegister = new LinkedMappingHoldingRegister(new ShortMappingInputRegister(
+                    channel,
+                    0,
+                    1), channel, null, valueType, 0, 1);
+            spi.setRegister(modbusAddress, twoByteShortRegister);
+            break;
         case BOOLEAN:
-            Register twoByteRegister = new LinkedHoldingRegister(channel, null, valueType, 0, 1);
-            spi.setRegister(modbusAddress, twoByteRegister);
+            Register twoByteBooleanRegister = new LinkedMappingHoldingRegister(new BooleanMappingInputRegister(
+                    channel,
+                    0,
+                    1), channel, null, valueType, 0, 1);
+            spi.setRegister(modbusAddress, twoByteBooleanRegister);
             break;
         default:
             // TODO
@@ -194,60 +272,38 @@ public class ModbusServer implements ServerService {
 
         switch (valueType) {
         case DOUBLE:
+            for (int i = 0; i < 4; i++) {
+                spi.setInputRegister(modbusAddress + i,
+                                     new DoubleMappingInputRegister(channel, 2 * i, 2 * i + 1));
+            }
+            break;
         case LONG:
             for (int i = 0; i < 4; i++) {
                 spi.setInputRegister(modbusAddress + i,
-                                     createInputRegister(channel, 2 * i, 2 * i + 1));
+                                     new LongMappingInputRegister(channel, 2 * i, 2 * i + 1));
             }
             break;
         case INTEGER:
+            for (int i = 0; i < 2; i++) {
+                spi.setInputRegister(modbusAddress + i,
+                                     new IntegerMappingInputRegister(channel, 2 * i, 2 * i + 1));
+            }
+            break;
         case FLOAT:
             for (int i = 0; i < 2; i++) {
                 spi.setInputRegister(modbusAddress + i,
-                                     createInputRegister(channel, 2 * i, 2 * i + 1));
+                                     new FloatMappingInputRegister(channel, 2 * i, 2 * i + 1));
             }
             break;
         case SHORT:
+            spi.setInputRegister(modbusAddress, new ShortMappingInputRegister(channel, 0, 1));
+            break;
         case BOOLEAN:
-            spi.setInputRegister(modbusAddress, createInputRegister(channel, 0, 1));
+            spi.setInputRegister(modbusAddress, new BooleanMappingInputRegister(channel, 0, 1));
             break;
         default:
             // TODO
         }
-    }
-
-    private InputRegister createInputRegister(final Channel channel,
-                                              final int bytesFrom,
-                                              final int bytesTo) {
-        // TODO: Differ between InputRegisters (for read) and HoldingRegisters (for write)
-        return new InputRegister() {
-
-            @Override
-            public int toUnsignedShort() {
-                short shortVal = ByteBuffer.wrap(toBytes()).getShort();
-                int toReturn = shortVal & 0xFFFF;
-                return toReturn;
-            }
-
-            @Override
-            public short toShort() {
-                short toReturn = ByteBuffer.wrap(toBytes()).getShort();
-                return toReturn;
-            }
-
-            @Override
-            public byte[] toBytes() {
-                byte[] bytes = channel.getLatestRecord().getValue().asByteArray();
-                byte[] toReturn = {bytes[bytesFrom], bytes[bytesTo]};
-                return toReturn;
-            }
-
-            @Override
-            public int getValue() {
-                int toReturn = ByteBuffer.wrap(toBytes()).getInt();
-                return toReturn;
-            }
-        };
     }
 
     public enum EPrimaryTable {

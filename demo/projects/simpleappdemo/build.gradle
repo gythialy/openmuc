@@ -4,7 +4,7 @@ apply plugin: 'eclipse'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 
-version = '0.13.0'
+version = '0.13.1'
 group = 'org.openmuc.framework'
 def bundleSymbolicName = 'org.openmuc.framework.demo.simpleapp'
 def bundleName = 'Simple App Demo'
@@ -24,7 +24,7 @@ dependencies {
   compile group: 'org.osgi', name: 'org.osgi.core', version: '4.3.1'
   compile group: 'org.osgi', name: 'org.osgi.compendium', version: '4.3.1'
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
-  compile group: 'org.openmuc.framework', name: 'openmuc-core-api', version: '0.13.0'
+  compile group: 'org.openmuc.framework', name: 'openmuc-core-api', version: '0.13.1'
 }
 
 jar {

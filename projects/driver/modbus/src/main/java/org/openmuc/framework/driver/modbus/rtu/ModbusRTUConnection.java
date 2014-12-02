@@ -20,6 +20,7 @@
  */
 package org.openmuc.framework.driver.modbus.rtu;
 
+import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusSerialTransaction;
@@ -28,6 +29,8 @@ import net.wimpi.modbus.util.SerialParameters;
 import org.openmuc.framework.driver.modbus.ModbusConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Enumeration;
 
 /**
  * TODO
@@ -59,29 +62,25 @@ public class ModbusRTUConnection extends ModbusConnection {
             throws ModbusConfigurationException {
 
         SerialParameters params = setParameters(addr, settings, timeout);
-
-        logger.debug("connection params: " + params.getPortName());
-
         connection = new SerialConnection(params);
+
         try {
             connection.open();
-
             transaction = new ModbusSerialTransaction(connection);
             transaction.setSerialConnection(connection);
             setTransaction(transaction);
 
         }
         catch (Exception e) {
-
             e.printStackTrace();
+            throw new ModbusConfigurationException(
+                    "Wrong Modbus RTU configuration. Check configuration file");
         }
 
     }
 
     @Override
     public void connect() throws Exception {
-
-        logger.debug("connect for Modbus RTU called");
 
         if (!connection.isOpen()) {
             connection.open();
@@ -106,6 +105,7 @@ public class ModbusRTUConnection extends ModbusConnection {
 
         SerialParameters params = new SerialParameters();
 
+        checkIfAddressIsAvailbale(address);
         params.setPortName(address);
 
         if (settings.length == 9) {
@@ -123,6 +123,48 @@ public class ModbusRTUConnection extends ModbusConnection {
         }
 
         return params;
+    }
+
+    /**
+     * Checks if the gnu.io.rxtx is able to find the specified address e.g. /dev/ttyUSB0
+     *
+     * @param address
+     * @throws ModbusConfigurationException
+     */
+    private void checkIfAddressIsAvailbale(String address) throws ModbusConfigurationException {
+        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
+
+        boolean result = false;
+
+        while (ports.hasMoreElements()) {
+            CommPortIdentifier cpi = (CommPortIdentifier) ports.nextElement();
+            if (cpi.getName().equalsIgnoreCase(address)) {
+                result = true;
+                break;
+            }
+        }
+
+        if (!result) {
+            String availablePorts = getAvailablePorts();
+            throw new ModbusConfigurationException("gnu.io.rxtx is unable to detect address: "
+                                                   + address
+                                                   + ". Available addresses are: '"
+                                                   + availablePorts
+                                                   + "'");
+        }
+    }
+
+    private String getAvailablePorts() {
+
+        String availablePorts = "";
+
+        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
+        while (ports.hasMoreElements()) {
+            CommPortIdentifier cpi = (CommPortIdentifier) ports.nextElement();
+            availablePorts += cpi.getName() + "; ";
+        }
+
+        return availablePorts;
     }
 
     private void setFlowControlIn(SerialParameters params, String flowControlIn)

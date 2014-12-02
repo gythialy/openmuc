@@ -52,7 +52,6 @@ public enum EDatatype {
     /**
      * @param enumAsString
      * @return the EDatatype
-     * @throws Exception
      */
     public static EDatatype getEnumFromString(String enumAsString) {
         EDatatype returnValue = null;

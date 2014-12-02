@@ -33,10 +33,6 @@ public class StringValue implements Value {
         this.value = value;
     }
 
-    public StringValue(byte[] fromBytes) {
-        this(new String(fromBytes));
-    }
-
     @Override
     public double asDouble() {
         try {
@@ -115,6 +111,11 @@ public class StringValue implements Value {
     @Override
     public String toString() {
         return value;
+    }
+
+    @Override
+    public String asString() {
+        return toString();
     }
 
 }

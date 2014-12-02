@@ -36,12 +36,6 @@ import java.util.Vector;
 /**
  * Client connection handler. For each connected client a Connection object will be created. Handles the client
  * requests.<br>
- * <p/>
- * The following commands are currently supported: <li>
- * ?org.openmuc.core.datamanager.dataserver <li>?get [label] <li>?get_age [label] <li>
- * ?get_value <li>?set_value <li>?get_values <li>?configure_report <li>
- * ?get_directory <li>?disconnect
- * <p/>
  * <br>
  * <br>
  * FIXME Reporting doesn't work with the current version!

@@ -15,8 +15,11 @@
     </encoder>
   </appender>
 
-  <root level="info">
+  <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>
+  
+  <logger name="org.eclipse.jetty" level="INFO" />
+  <logger name="org.openmuc.framework.driver.modbus" level="INFO" />
 
 </configuration>

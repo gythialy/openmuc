@@ -125,17 +125,23 @@ public final class DummyDriver implements DriverService {
 
 	@Override
 	public Object connect(String interfaceAddress, String deviceAddress, String settings) throws ConnectionException {
-		logger.info("Connecting to interface:" + interfaceAddress + ", device:" + deviceAddress);
+		String deviceAndInterfaceAddress;
 
-		// create you connection object:
-		// Object newConnection = new Object();
+		if (interfaceAddress.isEmpty()) {
+			deviceAndInterfaceAddress = deviceAddress;
+		}
+		else {
+			deviceAndInterfaceAddress = deviceAddress + " at " + interfaceAddress;
 
-		return interfaceAddress + "#" + deviceAddress;
+		}
+		logger.info("Connecting to device: " + deviceAndInterfaceAddress);
+
+		return deviceAndInterfaceAddress;
 	}
 
 	@Override
 	public void disconnect(DeviceConnection connection) {
-		logger.info("Disconnecting from interface#device:" + (String) connection.getConnectionHandle());
+		logger.info("Disconnecting from device: " + (String) connection.getConnectionHandle());
 	}
 
 	@Override

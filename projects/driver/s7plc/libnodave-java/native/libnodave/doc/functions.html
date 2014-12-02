@@ -1,6 +1,6 @@
 <H1>List of functions, structures and constants
-<H1>
-<H2>Constants</H2>
+    <H1>
+        <H2>Constants</H2>
 <Pre>
 /* 
     This is a wrapper for the serial or ethernet interface. This is here to make porting easier.
@@ -14,109 +14,110 @@ typedef struct {
     HANDLE wfd;
 } _daveOSserialType;
 </Pre>
-<H3>some frequently used ASCII control codes:</H3>
+        <H3>some frequently used ASCII control codes:</H3>
 <Pre>
 DLE
 ETX
 STX
 SYN
 </Pre>
-<H3>Protocol types to be used with <a href=daveInterface.html>newInterface</a>:</H3>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Meaning</th>
-    </tr>
-    <tr>
-        <td>daveProtoMPI</td>
-        <td>MPI for S7 300/400</td>
-    </tr>
-    <tr>
-        <td>daveProtoMPI2</td>
-        <td>MPI for S7 300/400, "Andrew's version"</td>
-    </tr>
-    <tr>
-        <td>daveProtoMPI3</td>
-        <td>MPI for S7 300/400, The version Step7 uses. Not yet implemented.</td>
-    </tr>
-    <tr>
-        <td>daveProtoPPI</td>
-        <td>PPI for S7 200</td>
-    </tr>
-    <tr>
-        <td>daveProtoISOTCP</td>
-        <td>ISO over TCP</td>
-    </tr>
-    <tr>
-        <td>daveProtoISOTCP243</td>
-        <td>ISO over TCP with CP243</td>
-    </tr>
-    <tr>
-        <td>daveProtoIBH</td>
-        <td>MPI with IBH NetLink MPI to ethernet gateway</td>
-    </tr>
-</table>
-<H3>ProfiBus/MPI speed constants to be used with <a href=daveInterface.html>newInterface</a>:</H3>
-<table>
-    <tr>
-        <td>daveSpeed9k</td>
-    </tr>
-    <tr>
-        <td>daveSpeed19k</td>
-    </tr>
-    <tr>
-        <td>daveSpeed187k</td>
-    </tr>
-    <tr>
-        <td>daveSpeed500k</td>
-    </tr>
-    <tr>
-        <td>daveSpeed1500k</td>
-    </tr>
-    <tr>
-        <td>daveSpeed45k</td>
-    </tr>
-    <tr>
-        <td>daveSpeed93k</td>
-    </tr>
-</table>
-<H3>Some S7 Communication function codes (yet unused ones may be incorrect).</H3>
-These codes are used as the first byte of parameters in a <a href=pdu.html>PDU</a>.
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Meaning</th>
-    </tr>
-    <tr>
-        <td>daveFuncOpenS7Connection</td>
-        <td>connect to a PLC, negotiate PDU length</td>
-    </tr>
-    <tr>
-        <td>daveFuncRead</td>
-        <td>marks a read requeast</td>
-    </tr>
-    <tr>
-        <td>daveFuncWrite</td>
-        <td>marks a write requeast</td>
-    </tr>
-    <tr>
-        <td>daveFuncStartUpload</td>
-        <td>initiates the transmission of a code block from PLC to programmer</td>
-    </tr>
-    <tr>
-        <td>daveFuncUpload</td>
-        <td>continues the transmission of a part of a code block from PLC to programmer</td>
-    </tr>
-    <tr>
-        <td>daveFuncEndUpload</td>
-        <td
-        <td>ends the transmission of a part of a code block from PLC to programmer</td>
-    </tr>
-</table>
-<H3> S7 specific constants:</H3>
-<H4>Block Type codes</H4>
+        <H3>Protocol types to be used with <a href=daveInterface.html>newInterface</a>:</H3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Meaning</th>
+            </tr>
+            <tr>
+                <td>daveProtoMPI</td>
+                <td>MPI for S7 300/400</td>
+            </tr>
+            <tr>
+                <td>daveProtoMPI2</td>
+                <td>MPI for S7 300/400, "Andrew's version"</td>
+            </tr>
+            <tr>
+                <td>daveProtoMPI3</td>
+                <td>MPI for S7 300/400, The version Step7 uses. Not yet implemented.</td>
+            </tr>
+            <tr>
+                <td>daveProtoPPI</td>
+                <td>PPI for S7 200</td>
+            </tr>
+            <tr>
+                <td>daveProtoISOTCP</td>
+                <td>ISO over TCP</td>
+            </tr>
+            <tr>
+                <td>daveProtoISOTCP243</td>
+                <td>ISO over TCP with CP243</td>
+            </tr>
+            <tr>
+                <td>daveProtoIBH</td>
+                <td>MPI with IBH NetLink MPI to ethernet gateway</td>
+            </tr>
+        </table>
+        <H3>ProfiBus/MPI speed constants to be used with <a href=daveInterface.html>newInterface</a>:
+        </H3>
+        <table>
+            <tr>
+                <td>daveSpeed9k</td>
+            </tr>
+            <tr>
+                <td>daveSpeed19k</td>
+            </tr>
+            <tr>
+                <td>daveSpeed187k</td>
+            </tr>
+            <tr>
+                <td>daveSpeed500k</td>
+            </tr>
+            <tr>
+                <td>daveSpeed1500k</td>
+            </tr>
+            <tr>
+                <td>daveSpeed45k</td>
+            </tr>
+            <tr>
+                <td>daveSpeed93k</td>
+            </tr>
+        </table>
+        <H3>Some S7 Communication function codes (yet unused ones may be incorrect).</H3>
+        These codes are used as the first byte of parameters in a <a href=pdu.html>PDU</a>.
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Meaning</th>
+            </tr>
+            <tr>
+                <td>daveFuncOpenS7Connection</td>
+                <td>connect to a PLC, negotiate PDU length</td>
+            </tr>
+            <tr>
+                <td>daveFuncRead</td>
+                <td>marks a read requeast</td>
+            </tr>
+            <tr>
+                <td>daveFuncWrite</td>
+                <td>marks a write requeast</td>
+            </tr>
+            <tr>
+                <td>daveFuncStartUpload</td>
+                <td>initiates the transmission of a code block from PLC to programmer</td>
+            </tr>
+            <tr>
+                <td>daveFuncUpload</td>
+                <td>continues the transmission of a part of a code block from PLC to programmer</td>
+            </tr>
+            <tr>
+                <td>daveFuncEndUpload</td>
+                <td
+                <td>ends the transmission of a part of a code block from PLC to programmer</td>
+            </tr>
+        </table>
+        <H3> S7 specific constants:</H3>
+        <H4>Block Type codes</H4>
 
-S7 specific constants:
+        S7 specific constants:
 <Pre>
 	daveBlockType_OB
 	daveBlockType_DB
@@ -542,110 +543,114 @@ void  _daveConstructReadRequest(PDU *p, int area, int DBnum, int start, int byte
 </H3>
 <pre> void  _daveConstructBitWriteRequest(PDU *p, int area, int DBnum, int start, int bytes,void * values);</pre>
 <H3>
-set up pointers to the fields of a received message
-<H3>
-<pre> int  _daveSetupReceivedPDU(daveConnection * dc,PDU * p);</pre>
-<H3>
-    send PDU to PLC and retrieves the answer
-</H3>
-<pre> int  _daveExchange(daveConnection * dc,PDU *p);</pre>
-<H2>Utilities:
-<H2>
-<H3>Hex dump PDU:</H3>
-<pre> void  _daveDumpPDU(PDU * p);</pre>
-<H3>Compare blocks:</H3>
-This is an extended memory compare routine. It can handle don't care and stop flags
-in the sample data. A stop flag lets it return success, if there were no mismatches
-up to this point.
-<pre> int  _daveMemcmp(us * a, uc *b, size_t len);</pre>
-<H3>Hex dump:</H3>
-Writes the name followed by len bytes written in hex and a newline.
-<pre> void  _daveDump(char * name,uc*b,int len);</pre>
-<H2>names for Objects</H2>
-<pre> char *  daveBlockName(uc bn);</pre>
-<pre> char *  daveAreaName(uc n);</pre>
-<H2>
-    Data conversion convenience functions:
-</H2>
+    set up pointers to the fields of a received message
+    <H3>
+        <pre> int  _daveSetupReceivedPDU(daveConnection * dc,PDU * p);</pre>
+        <H3>
+            send PDU to PLC and retrieves the answer
+        </H3>
+        <pre> int  _daveExchange(daveConnection * dc,PDU *p);</pre>
+        <H2>Utilities:
+            <H2>
+                <H3>Hex dump PDU:</H3>
+                <pre> void  _daveDumpPDU(PDU * p);</pre>
+                <H3>Compare blocks:</H3>
+                This is an extended memory compare routine. It can handle don't care and stop flags
+                in the sample data. A stop flag lets it return success, if there were no mismatches
+                up to this point.
+                <pre> int  _daveMemcmp(us * a, uc *b, size_t len);</pre>
+                <H3>Hex dump:</H3>
+                Writes the name followed by len bytes written in hex and a newline.
+                <pre> void  _daveDump(char * name,uc*b,int len);</pre>
+                <H2>names for Objects</H2>
+                <pre> char *  daveBlockName(uc bn);</pre>
+                <pre> char *  daveAreaName(uc n);</pre>
+                <H2>
+                    Data conversion convenience functions:
+                </H2>
 
-<pre> int  daveGetByte(daveConnection * dc);</pre>
+                <pre> int  daveGetByte(daveConnection * dc);</pre>
 
-<pre> float  daveGetFloat(daveConnection * dc);</pre>
+                <pre> float  daveGetFloat(daveConnection * dc);</pre>
 
-<pre> int  daveGetInteger(daveConnection * dc);</pre>
+                <pre> int  daveGetInteger(daveConnection * dc);</pre>
 
-<pre> unsigned int  daveGetDWORD(daveConnection * dc);</pre>
+                <pre> unsigned int  daveGetDWORD(daveConnection * dc);</pre>
 
-<pre> unsigned int  daveGetUnsignedInteger(daveConnection * dc);</pre>
+                <pre> unsigned int  daveGetUnsignedInteger(daveConnection * dc);</pre>
 
-<pre> unsigned int  daveGetWORD(daveConnection * dc);</pre>
+                <pre> unsigned int  daveGetWORD(daveConnection * dc);</pre>
 
-<pre> int  daveGetByteat(daveConnection * dc, int pos);</pre>
+                <pre> int  daveGetByteat(daveConnection * dc, int pos);</pre>
 
-<pre> unsigned int  daveGetWORDat(daveConnection * dc, int pos);</pre>
+                <pre> unsigned int  daveGetWORDat(daveConnection * dc, int pos);</pre>
 
-<pre> unsigned int  daveGetDWORDat(daveConnection * dc, int pos);</pre>
+                <pre> unsigned int  daveGetDWORDat(daveConnection * dc, int pos);</pre>
 
-<pre> float  daveGetFloatat(daveConnection * dc, int pos);</pre>
+                <pre> float  daveGetFloatat(daveConnection * dc, int pos);</pre>
 
-<pre> float  toPLCfloat(float ff);</pre>
+                <pre> float  toPLCfloat(float ff);</pre>
 
-<pre> short  daveSwapIed_16(short ff);</pre>
+                <pre> short  daveSwapIed_16(short ff);</pre>
 
-<pre> int  daveSwapIed_32(int ff);</pre>
-<H2>Newer data conversion convenience functions:</H2>
-Newer conversion routines. As the terms WORD, INT, INTEGER etc have different meanings
-for users of different programming languages and compilers, I choose to provide a new
-set of conversion routines named according to the bit length of the value used. The 'U'
-or 'S' stands for unsigned or signed.
-<H3>Get a value from the position b points to</h3>
-B is typically a pointer to a buffer that has
-been filled with daveReadBytes:
-<pre> int  daveGetS8from(uc *b);</pre>
-<pre> int  daveGetU8from(uc *b);</pre>
-<pre> int  daveGetS16from(uc *b);</pre>
-<pre> int  daveGetU16from(uc *b);</pre>
-<pre> int  daveGetS32from(uc *b);</pre>
-<pre> unsigned int  daveGetU32from(uc *b);</pre>
-<pre> float  daveGetFloatfrom(uc *b);</pre>
-<H3>Get a value from the current position</H3>
-in the last result read on the connection dc.
-This will increment an internal pointer, so the next value is read from the position
-following this value.
+                <pre> int  daveSwapIed_32(int ff);</pre>
+                <H2>Newer data conversion convenience functions:</H2>
+                Newer conversion routines. As the terms WORD, INT, INTEGER etc have different
+                meanings
+                for users of different programming languages and compilers, I choose to provide a
+                new
+                set of conversion routines named according to the bit length of the value used. The
+                'U'
+                or 'S' stands for unsigned or signed.
+                <H3>Get a value from the position b points to</h3>
+                B is typically a pointer to a buffer that has
+                been filled with daveReadBytes:
+                <pre> int  daveGetS8from(uc *b);</pre>
+                <pre> int  daveGetU8from(uc *b);</pre>
+                <pre> int  daveGetS16from(uc *b);</pre>
+                <pre> int  daveGetU16from(uc *b);</pre>
+                <pre> int  daveGetS32from(uc *b);</pre>
+                <pre> unsigned int  daveGetU32from(uc *b);</pre>
+                <pre> float  daveGetFloatfrom(uc *b);</pre>
+                <H3>Get a value from the current position</H3>
+                in the last result read on the connection dc.
+                This will increment an internal pointer, so the next value is read from the position
+                following this value.
 
-<pre> int  daveGetS8(daveConnection * dc);</pre>
-<pre> int  daveGetU8(daveConnection * dc);</pre>
-<pre> int  daveGetS16(daveConnection * dc);</pre>
-<pre> int  daveGetU16(daveConnection * dc);</pre>
-<pre> int  daveGetS32(daveConnection * dc);</pre>
-<pre> unsigned int  daveGetU32(daveConnection * dc);</pre>
-<H2>
-    Get a value from a given position in the last result read on the connection dc.</h2>
-<pre> int  daveGetS8at(daveConnection * dc, int pos);</pre>
-<pre> int  daveGetU8at(daveConnection * dc, int pos);</pre>
-<pre> int  daveGetS16at(daveConnection * dc, int pos);</pre>
-<pre> int  daveGetU16at(daveConnection * dc, int pos);</pre>
-<pre> int  daveGetS32at(daveConnection * dc, int pos);</pre>
-<pre> unsigned int  daveGetU32at(daveConnection * dc, int pos);</pre>
-<H3>put one byte into buffer b:</H3>
-<pre> uc *  davePut8(uc *b,int v);</pre>
-<pre> uc *  davePut16(uc *b,int v);</pre>
-<pre> uc *  davePut32(uc *b,int v);</pre>
-<pre> uc *  davePutFloat(uc *b,float v);</pre>
-<pre> void  davePut8at(uc *b, int pos, int v);</pre>
-<pre> void  davePut16at(uc *b, int pos, int v);</pre>
-<pre> void  davePut32at(uc *b, int pos, int v);</pre>
-<pre> void  davePutFloatat(uc *b,int pos, float v);</pre>
-/**
-Timer and Counter conversion functions:
-**/
-/*
-get time in seconds from current read position:
-*/
-<pre> float  daveGetSeconds(daveConnection * dc);</pre>
-/*
-get time in seconds from random position:
-*/
+                <pre> int  daveGetS8(daveConnection * dc);</pre>
+                <pre> int  daveGetU8(daveConnection * dc);</pre>
+                <pre> int  daveGetS16(daveConnection * dc);</pre>
+                <pre> int  daveGetU16(daveConnection * dc);</pre>
+                <pre> int  daveGetS32(daveConnection * dc);</pre>
+                <pre> unsigned int  daveGetU32(daveConnection * dc);</pre>
+                <H2>
+                    Get a value from a given position in the last result read on the connection
+                    dc.</h2>
+                <pre> int  daveGetS8at(daveConnection * dc, int pos);</pre>
+                <pre> int  daveGetU8at(daveConnection * dc, int pos);</pre>
+                <pre> int  daveGetS16at(daveConnection * dc, int pos);</pre>
+                <pre> int  daveGetU16at(daveConnection * dc, int pos);</pre>
+                <pre> int  daveGetS32at(daveConnection * dc, int pos);</pre>
+                <pre> unsigned int  daveGetU32at(daveConnection * dc, int pos);</pre>
+                <H3>put one byte into buffer b:</H3>
+                <pre> uc *  davePut8(uc *b,int v);</pre>
+                <pre> uc *  davePut16(uc *b,int v);</pre>
+                <pre> uc *  davePut32(uc *b,int v);</pre>
+                <pre> uc *  davePutFloat(uc *b,float v);</pre>
+                <pre> void  davePut8at(uc *b, int pos, int v);</pre>
+                <pre> void  davePut16at(uc *b, int pos, int v);</pre>
+                <pre> void  davePut32at(uc *b, int pos, int v);</pre>
+                <pre> void  davePutFloatat(uc *b,int pos, float v);</pre>
+                /**
+                Timer and Counter conversion functions:
+                **/
+                /*
+                get time in seconds from current read position:
+                */
+                <pre> float  daveGetSeconds(daveConnection * dc);</pre>
+                /*
+                get time in seconds from random position:
+                */
 <pre> float  daveGetSecondsAt(daveConnection * dc, int pos);
 /*	
     get counter value from current read position:

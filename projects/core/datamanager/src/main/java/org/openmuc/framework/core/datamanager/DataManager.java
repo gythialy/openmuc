@@ -176,7 +176,45 @@ public final class DataManager extends Thread
             long sleepTime = 0;
             Action currentAction = actions.get(0);
 
-            sleepTime = currentAction.startTime - System.currentTimeMillis();
+            long currentTime = System.currentTimeMillis();
+
+            if ((currentTime - currentAction.startTime) > 1000l) {
+                actions.remove(0);
+                logger.error("Action was scheduled for unix time "
+                             + currentAction.startTime
+                             + ". But current time is already "
+                             + currentTime
+                             + ". Will calculate new action time because the action has timed out. Has the system clock jumped?");
+                if (currentAction.timeouts != null && currentAction.timeouts.size() > 0) {
+                    for (SamplingTask samplingTask : currentAction.timeouts) {
+                        samplingTask.timeout();
+                    }
+                }
+                if (currentAction.loggingCollections != null) {
+                    for (ChannelCollection loggingCollection : currentAction.loggingCollections) {
+                        addLoggingCollectionToActions(loggingCollection,
+                                                      loggingCollection.calculateNextActionTime(
+                                                              currentTime));
+                    }
+                }
+                if (currentAction.samplingCollections != null) {
+                    for (ChannelCollection samplingCollection : currentAction.samplingCollections) {
+                        addSamplingCollectionToActions(samplingCollection,
+                                                       samplingCollection.calculateNextActionTime(
+                                                               currentTime));
+                    }
+                }
+                if (currentAction.connectionRetryDevices != null) {
+                    for (Device device : currentAction.connectionRetryDevices) {
+                        addReconnectDeviceToActions(device,
+                                                    currentTime
+                                                    + device.deviceConfig.getConnectRetryInterval());
+                    }
+                }
+                continue;
+            }
+
+            sleepTime = currentAction.startTime - currentTime;
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
@@ -518,8 +556,11 @@ public final class DataManager extends Thread
 
         synchronized (connectionFailures) {
             if (connectionFailures.size() != 0) {
+                if (currentTime == 0) {
+                    currentTime = System.currentTimeMillis();
+                }
                 for (Device connectionFailureDevice : connectionFailures) {
-                    connectionFailureDevice.connectFailureSignal();
+                    connectionFailureDevice.connectFailureSignal(currentTime);
                 }
                 connectionFailures.clear();
             }
@@ -527,6 +568,9 @@ public final class DataManager extends Thread
 
         synchronized (connected) {
             if (connected.size() != 0) {
+                if (currentTime == 0) {
+                    currentTime = System.currentTimeMillis();
+                }
                 for (Device connectedDevice : connected) {
                     connectedDevice.connectedSignal(currentTime);
                 }

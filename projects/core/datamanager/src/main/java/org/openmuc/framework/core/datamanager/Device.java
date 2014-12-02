@@ -482,15 +482,15 @@ public final class Device {
         }
     }
 
-    void connectFailureSignal() {
+    void connectFailureSignal(long currentTime) {
         taskList.remove(0);
         if (eventList.size() == 0) {
             setStates(DeviceState.WAITING_FOR_CONNECTION_RETRY,
                       ChannelState.WAITING_FOR_CONNECTION_RETRY,
                       Flag.WAITING_FOR_CONNECTION_RETRY);
-            long startTimestamp = System.currentTimeMillis()
-                                  + deviceConfig.getConnectRetryInterval();
-            dataManager.addReconnectDeviceToActions(this, startTimestamp);
+            dataManager.addReconnectDeviceToActions(this,
+                                                    currentTime
+                                                    + deviceConfig.getConnectRetryInterval());
             removeAllTasksOfThisDevice();
         } else {
             handleEventQueueWhenDisconnected();
@@ -608,9 +608,6 @@ public final class Device {
                     channelConfig.channel.setFlag(Flag.NO_VALUE_RECEIVED_YET);
                 } else if (channelConfig.samplingInterval
                            != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
-                    if (currentTime == 0) {
-                        currentTime = System.currentTimeMillis();
-                    }
                     dataManager.addToSamplingCollections(channelConfig.channel, currentTime);
                     channelConfig.state = ChannelState.SAMPLING;
                     channelConfig.channel.setFlag(Flag.NO_VALUE_RECEIVED_YET);

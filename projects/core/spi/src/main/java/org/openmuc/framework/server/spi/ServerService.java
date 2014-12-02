@@ -18,14 +18,16 @@ public interface ServerService {
 
     /**
      * This method is called when configuration is updated.
+     *
+     * @param mappings the channels configured be mapped to the server
      */
     public void updatedConfiguration(List<ServerMappingContainer> mappings);
 
     /**
      * This method is called after registering as a server. It provides access to the channels that are configured to be
-     * mapped on a server
+     * mapped to a server
      *
-     * @param mappings
+     * @param mappings the channels configured be mapped to the server
      */
     public void serverMappings(List<ServerMappingContainer> mappings);
 }

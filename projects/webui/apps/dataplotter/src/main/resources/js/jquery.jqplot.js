@@ -5763,9 +5763,9 @@
      * and use it accordingly.
      */
 
-        // A good format string depends on the interval. If the interval is greater 
-        // than 1 then there is no need to show any decimal digits. If it is < 1.0, then
-        // use the magnitude of the interval to determine the number of digits to show.
+    // A good format string depends on the interval. If the interval is greater 
+    // than 1 then there is no need to show any decimal digits. If it is < 1.0, then
+    // use the magnitude of the interval to determine the number of digits to show.
     function bestFormatString(interval) {
         interval = Math.abs(interval);
         if (interval > 1) {
@@ -7228,7 +7228,8 @@
                     if (deep && copy && typeof copy === "object" && !copy.nodeType) {
                         target[name] = $.jqplot.extend(deep,
                             // Never move original objects, clone them
-                            src || ( copy.length != null ? [] : {} ), copy);
+                            src || ( copy.length != null ? [] : {} )
+                            , copy);
                     }
                     // Don't bring in undefined values
                     else if (copy !== undefined) {

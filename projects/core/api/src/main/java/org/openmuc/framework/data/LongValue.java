@@ -31,10 +31,6 @@ public class LongValue implements Value {
         this.value = value;
     }
 
-    public LongValue(byte[] fromBytes) {
-        this(ByteBuffer.wrap(fromBytes).getLong());
-    }
-
     @Override
     public double asDouble() {
         return value;
@@ -80,6 +76,11 @@ public class LongValue implements Value {
     @Override
     public String toString() {
         return Long.toString(value);
+    }
+
+    @Override
+    public String asString() {
+        return toString();
     }
 
 }

@@ -5,7 +5,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'application'
 
-version = '0.13.0'
+version = '0.13.1'
 group = 'org.openmuc.framework'
 def bundleName = 'OpenMUC RESTful Client Demo'
 

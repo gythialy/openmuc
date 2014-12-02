@@ -23,30 +23,4 @@ package org.openmuc.framework.data;
 
 public enum ValueType {
     DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING;
-
-    public static Value newValue(ValueType fromType, byte[] fromBytes)
-            throws TypeConversionException {
-        switch (fromType) {
-        case BOOLEAN:
-            return new BooleanValue(fromBytes);
-        case DOUBLE:
-            return new DoubleValue(fromBytes);
-        case FLOAT:
-            return new FloatValue(fromBytes);
-        case LONG:
-            return new LongValue(fromBytes);
-        case INTEGER:
-            return new IntValue(fromBytes);
-        case SHORT:
-            return new ShortValue(fromBytes);
-        case BYTE:
-            return new ByteValue(fromBytes);
-        case BYTE_ARRAY:
-            return new ByteArrayValue(fromBytes);
-        case STRING:
-            return new StringValue(fromBytes);
-        default:
-            return null;
-        }
-    }
 }

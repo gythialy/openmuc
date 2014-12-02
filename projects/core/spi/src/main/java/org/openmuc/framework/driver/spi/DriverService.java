@@ -147,7 +147,7 @@ public interface DriverService {
      * @param containers          the containers hold the information of what channels are to be read. They will be filled by this
      *                            function with the records read.
      * @param containerListHandle the containerListHandle returned by the last read call for this exact list of containers. Will be
-     *                            equal to <cod>null</code> if this is the first read call for this container list after a connection
+     *                            equal to <code>null</code> if this is the first read call for this container list after a connection
      *                            has been established. Driver implementations can optionally use this object to improve the read
      *                            performance.
      * @param samplingGroup       the samplingGroup that was configured for this list of channels that are to be read. Sometimes it may
@@ -188,7 +188,7 @@ public interface DriverService {
      *                            written. They will be filled by this function with a flag stating whether the write process was
      *                            successful or not.
      * @param containerListHandle the containerListHandle returned by the last write call for this exact list of containers. Will be
-     *                            equal to <cod>null</code> if this is the first read call for this container list after a connection
+     *                            equal to <code>null</code> if this is the first read call for this container list after a connection
      *                            has been established. Driver implementations can optionally use this object to improve the write
      *                            performance.
      * @return the containerListHandle Object that will passed the next time the same list of channels is to be written.

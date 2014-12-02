@@ -217,4 +217,9 @@ public class SnmpChannel implements Channel {
         return null;
     }
 
+    @Override
+    public double getScalingFactor() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

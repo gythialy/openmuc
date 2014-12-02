@@ -31,10 +31,6 @@ public class FloatValue implements Value {
         this.value = value;
     }
 
-    public FloatValue(byte[] fromBytes) {
-        this(ByteBuffer.wrap(fromBytes).getFloat());
-    }
-
     @Override
     public double asDouble() {
         return value;
@@ -82,4 +78,8 @@ public class FloatValue implements Value {
         return Float.toString(value);
     }
 
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

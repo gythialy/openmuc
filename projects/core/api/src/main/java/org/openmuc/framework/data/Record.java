@@ -40,8 +40,8 @@ public class Record {
     /**
      * Creates a valid record.
      *
-     * @param value
-     * @param timestamp
+     * @param value     the value of the record
+     * @param timestamp the timestamp of the record
      */
     public Record(Value value, Long timestamp) {
         this(value, timestamp, Flag.VALID);

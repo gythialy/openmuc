@@ -49,8 +49,8 @@ public interface WebUiPluginService extends HttpContext {
     public PluginCategory getCategory();
 
     /**
-     * Function is called when a HTTP request arrives at the WebUI-Plugin. /openmuc/applications/<Plugin.getAlias>XXX ->
-     * XXX is part of context parameter.
+     * Function is called when a HTTP request arrives at the WebUI-Plugin.
+     * /openmuc/applications/&lt;Plugin.getAlias&gt;XXX -&gt; XXX is part of context parameter.
      *
      * @param request properties of HTTP request
      * @param context content of HTTP request
@@ -60,6 +60,8 @@ public interface WebUiPluginService extends HttpContext {
 
     /**
      * add additional resources if needed
+     *
+     * @return the resources as a hash table.
      */
     public Hashtable<String, String> getResources();
 }

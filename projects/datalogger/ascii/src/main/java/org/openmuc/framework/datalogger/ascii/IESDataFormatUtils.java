@@ -57,14 +57,10 @@ public class IESDataFormatUtils {
             throws WrongScalingException {
         String ret;
         String format = "###0.000";
-        if (value > 0.0) {
+        if (value >= 0.0) {
             format = "+" + format;
         }
         DecimalFormat df = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
-
-        // df.setMaximumFractionDigits(maxLength - (Double.toString(value).indexOf(".") + 1));
-        // df.setMaximumFractionDigits(1);
-
         ret = df.format(value);
 
         if (ret.length() > maxLength) {

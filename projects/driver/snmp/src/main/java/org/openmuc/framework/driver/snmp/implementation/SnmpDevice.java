@@ -131,8 +131,8 @@ public abstract class SnmpDevice implements DeviceConnection {
      * a blocking method. It waits for response.
      *
      * @param OIDs list of OIDs that should be read from target
-     * @return Map<String, String> returns a Map of OID as Key and received value corresponding to that OID from the
-     * target as Value
+     * @return Map&lt;String, String&gt; returns a Map of OID as Key and received value corresponding to that OID from
+     * the target as Value
      * @throws SnmpTimeoutException
      * @throws ConnectionException
      */
@@ -261,7 +261,7 @@ public abstract class SnmpDevice implements DeviceConnection {
      * Helper function in order to parse response vector to map structure
      *
      * @param responseVector
-     * @return HashMap<String, String>
+     * @return HashMap&lt;String, String&gt;
      */
     public static HashMap<String, String> parseResponseVectorToHashMap(Vector<VariableBinding> responseVector) {
 

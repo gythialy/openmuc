@@ -34,33 +34,52 @@ import org.openmuc.framework.driver.modbus.ModbusDevice;
 import org.openmuc.framework.driver.modbus.ModbusDriverUtil;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class ModbusRTUDevice extends ModbusDevice {
 
-    private ModbusRTUConnection connection = null;
-    private final String slaveAddress;
-    ModbusDriverUtil util;
+    private final static Logger logger = LoggerFactory.getLogger(ModbusRTUDevice.class);
 
-    public ModbusRTUDevice(String deviceAddress, String[] settings, int timeout)
-            throws ModbusConfigurationException {
-        slaveAddress = deviceAddress;
-        connection = new ModbusRTUConnection(slaveAddress, settings, timeout);
+    private ModbusRTUConnection connection = null;
+    private final ModbusDriverUtil util;
+    private final String deviceAddress;
+    private final String[] settings;
+    private final int timeout;
+
+    public ModbusRTUDevice(String deviceAddress, String[] settings, int timeout) {
+        this.deviceAddress = deviceAddress;
+        this.settings = settings;
+        this.timeout = timeout;
         util = new ModbusDriverUtil();
     }
 
     @Override
     public void connect() throws ConnectionException {
 
+        logger.info("Modbus RTU connect called for device: '" + deviceAddress + "'");
+
         try {
+            connection = new ModbusRTUConnection(deviceAddress, settings, timeout);
             connection.connect();
+            logger.info("Device connected");
+
         }
-        catch (Exception e) {
+        catch (ModbusConfigurationException e) {
             e.printStackTrace();
-            // throw new ConnectionException("Unable to open Modbus connection for device with address " + slaveAddress
-            // + " and port " + port);
+            throw new ConnectionException(
+                    "Unable to open Modbus RTU connection for device with address "
+                    + deviceAddress);
         }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            throw new ConnectionException(
+                    "Unable to open Modbus RTU connection for device with address "
+                    + deviceAddress);
+        }
+
     }
 
     @Override
@@ -73,7 +92,7 @@ public class ModbusRTUDevice extends ModbusDevice {
      *
      * @param channel
      * @return a single Value for the ModbusTcpChannel
-     * @throws Exception
+     * @throws ModbusException
      */
     @Override
     public Value readChannel(ModbusChannel channel, int timeout) throws ModbusException {

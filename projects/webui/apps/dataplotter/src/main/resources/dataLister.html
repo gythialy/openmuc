@@ -70,244 +70,244 @@
 
 <script type="text/javascript">
 
-$('#startListH').spinner({
-    min: 0,
-    max: 23
-});
+    $('#startListH').spinner({
+        min: 0,
+        max: 23
+    });
 
-$('#startListM').spinner({
-    min: 0,
-    max: 59
-});
+    $('#startListM').spinner({
+        min: 0,
+        max: 59
+    });
 
-$('#endListH').spinner({
-    min: 0,
-    max: 23
-});
+    $('#endListH').spinner({
+        min: 0,
+        max: 23
+    });
 
-$('#endListM').spinner({
-    min: 0,
-    max: 59
-});
+    $('#endListM').spinner({
+        min: 0,
+        max: 59
+    });
 
-$('#rounding').spinner({
-    min: 1
-})
+    $('#rounding').spinner({
+        min: 1
+    })
 
-$('#resolutionList').spinner({
-    min: 0
-});
+    $('#resolutionList').spinner({
+        min: 0
+    });
 
-$("#startListDate").datepicker({
-    dateFormat: 'd-M-yy'
-});
+    $("#startListDate").datepicker({
+        dateFormat: 'd-M-yy'
+    });
 
-$("#endListDate").datepicker({
-    dateFormat: 'd-M-yy'
-});
+    $("#endListDate").datepicker({
+        dateFormat: 'd-M-yy'
+    });
 
-$('#submitList').click(function () {
-    listData();
-});
+    $('#submitList').click(function () {
+        listData();
+    });
 
-$('#resetList').click(function () {
+    $('#resetList').click(function () {
+        resetList();
+    });
+
     resetList();
-});
+    listData();
 
-resetList();
-listData();
+    function resetList() {
+        var time = new Date();
+        $('#endListH').val(time.getHours());
+        $('#endListM').val(time.getMinutes());
+        $('#endListDate').datepicker("setDate", time);
 
-function resetList() {
-    var time = new Date();
-    $('#endListH').val(time.getHours());
-    $('#endListM').val(time.getMinutes());
-    $('#endListDate').datepicker("setDate", time);
+        $('#listHead').hide();
 
-    $('#listHead').hide();
+        time.setDate(time.getDate() - 1);
 
-    time.setDate(time.getDate() - 1);
+        $('#startListH').val(time.getHours());
+        $('#startListM').val(time.getMinutes());
+        $('#startListDate').datepicker("setDate", time);
 
-    $('#startListH').val(time.getHours());
-    $('#startListM').val(time.getMinutes());
-    $('#startListDate').datepicker("setDate", time);
+        $('#rounding').val("2");
+        $('#resolutionList').val("500");
 
-    $('#rounding').val("2");
-    $('#resolutionList').val("500");
-
-    $(':checkbox:checked').each(function (i) {
-        $(this).prop("checked", false);
-    });
-    $("#LabelList1").prop("checked", true);
-
-    window.clearTimeout(timeout);
-}
-
-function listData() {
-    var start;
-    var end;
-    var label = [];
-
-    $(':checkbox:checked').each(function (i) {
-        label[i] = $(this).val();
-    });
-
-    var resolution = parseInt($("#resolutionList").val(), 10);
-
-    start = $('#startListDate').datepicker("getDate");				//Get Start Time from Datepicker
-    if (start == null || start == undefined) {
-        start = new Date();
-        start.setDate(start.getDate() - 1);
-    }
-    else {
-        start.setHours(start.getHours() + $('#startListH').val());
-        start.setMinutes(start.getMinutes() + $('#startListM').val());
-    }
-    var startStamp = start.getTime();								//Get the UNIX Timestamp
-
-    end = $('#endListDate').datepicker("getDate");
-    if (end == null || end == undefined) {
-        end = new Date();
-    }
-    else {
-        end.setHours(end.getHours() + $('#endListH').val());
-        end.setMinutes(end.getMinutes() + $('#endListM').val());
-    }
-    var endStamp = end.getTime();
-
-    var points = [];
-    getList(label.length, 0, points, startStamp, endStamp, label, resolution);
-}
-
-
-function getList(requests, index, points, startStamp, endStamp, label, resolution) {
-    $.getJSON("dataplotter/getData", {
-        start: startStamp,
-        end: endStamp,
-        label: label[index],
-        resolution: resolution
-    }, function (data) {
-        points[index] = new Array();
-        $.each(data, function (i, value) {
-            if (value.flag == "VALID") {
-                points[index].push([value.timestamp, value.value]);
-            }
+        $(':checkbox:checked').each(function (i) {
+            $(this).prop("checked", false);
         });
-        if (points[index].length == 0) {
-            points.splice(index, 1);
-            index--;
-        }
-        requests--;
-        index++;
-        if (requests > 0) {
-            getList(requests, index, points, startStamp, endStamp, label, resolution)
+        $("#LabelList1").prop("checked", true);
+
+        window.clearTimeout(timeout);
+    }
+
+    function listData() {
+        var start;
+        var end;
+        var label = [];
+
+        $(':checkbox:checked').each(function (i) {
+            label[i] = $(this).val();
+        });
+
+        var resolution = parseInt($("#resolutionList").val(), 10);
+
+        start = $('#startListDate').datepicker("getDate");				//Get Start Time from Datepicker
+        if (start == null || start == undefined) {
+            start = new Date();
+            start.setDate(start.getDate() - 1);
         }
         else {
-            printList(points, label);
+            start.setHours(start.getHours() + $('#startListH').val());
+            start.setMinutes(start.getMinutes() + $('#startListM').val());
         }
-    });
-}
+        var startStamp = start.getTime();								//Get the UNIX Timestamp
 
-function printList(points, label) {
-    var yaxisLabel = getyaxisLabel(label);
-    var rounding = parseInt($("#rounding").val(), 10) * 10;
+        end = $('#endListDate').datepicker("getDate");
+        if (end == null || end == undefined) {
+            end = new Date();
+        }
+        else {
+            end.setHours(end.getHours() + $('#endListH').val());
+            end.setMinutes(end.getMinutes() + $('#endListM').val());
+        }
+        var endStamp = end.getTime();
 
-
-    $('.dynamic').remove();
-    $('#pseudoHead').empty();
-    $('#listHead').show();
-
-    var str = '';
-    $.each(yaxisLabel, function (i, value) {
-        str = str + '<th class="dynamic" id="label' + i + '">' + value + '</th>'
-    });
-
-    $('#time').after(str);
+        var points = [];
+        getList(label.length, 0, points, startStamp, endStamp, label, resolution);
+    }
 
 
-    try {
-        var length = [];
-        var index = []
-        var last;
-
-        $.each(points, function (i, value) {
-            length[i] = value.length;
-            index[i] = 0;
-        });
-
-
-        last = points[0][length[0] - 1][0];
-        $.each(length, function (i, value) {
-            if (points[i][value - 1][0] > last) {
-                last = points[i][value - 1][0];
+    function getList(requests, index, points, startStamp, endStamp, label, resolution) {
+        $.getJSON("dataplotter/getData", {
+            start: startStamp,
+            end: endStamp,
+            label: label[index],
+            resolution: resolution
+        }, function (data) {
+            points[index] = new Array();
+            $.each(data, function (i, value) {
+                if (value.flag == "VALID") {
+                    points[index].push([value.timestamp, value.value]);
+                }
+            });
+            if (points[index].length == 0) {
+                points.splice(index, 1);
+                index--;
+            }
+            requests--;
+            index++;
+            if (requests > 0) {
+                getList(requests, index, points, startStamp, endStamp, label, resolution)
+            }
+            else {
+                printList(points, label);
             }
         });
+    }
 
-        var ready = false;
-        while (!ready) {
-            var print = [];
-            print[0] = last;
+    function printList(points, label) {
+        var yaxisLabel = getyaxisLabel(label);
+        var rounding = parseInt($("#rounding").val(), 10) * 10;
 
-            $.each(index, function (i, value) {
-                if (points[i][value][0] <= print[0]) {
-                    print[0] = points[i][value][0];
+
+        $('.dynamic').remove();
+        $('#pseudoHead').empty();
+        $('#listHead').show();
+
+        var str = '';
+        $.each(yaxisLabel, function (i, value) {
+            str = str + '<th class="dynamic" id="label' + i + '">' + value + '</th>'
+        });
+
+        $('#time').after(str);
+
+
+        try {
+            var length = [];
+            var index = []
+            var last;
+
+            $.each(points, function (i, value) {
+                length[i] = value.length;
+                index[i] = 0;
+            });
+
+
+            last = points[0][length[0] - 1][0];
+            $.each(length, function (i, value) {
+                if (points[i][value - 1][0] > last) {
+                    last = points[i][value - 1][0];
                 }
             });
-            $.each(index, function (i, value) {
-                if (points[i][value][0] == print[0]) {
-                    print[i + 1] = points[i][value][1];
-                    index[i]++;
+
+            var ready = false;
+            while (!ready) {
+                var print = [];
+                print[0] = last;
+
+                $.each(index, function (i, value) {
+                    if (points[i][value][0] <= print[0]) {
+                        print[0] = points[i][value][0];
+                    }
+                });
+                $.each(index, function (i, value) {
+                    if (points[i][value][0] == print[0]) {
+                        print[i + 1] = points[i][value][1];
+                        index[i]++;
+                    }
+                });
+
+                var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+                    "Aug", "Sep", "Oct", "Nov", "Dece"];
+
+                var time = new Date(print[0])
+                var stime = time.getDate() + '-' + monthNames[time.getMonth()] + '-' + time.getFullYear();
+                stime = stime + ' ' + time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
+
+                var str = '<tr class="dynamic"><td class=dynamicT>' + stime + '</td>';
+
+                for (var i = 0; i < points.length; i++) {
+                    var val = (Math.round(rounding * print[i + 1]) / rounding);
+                    if (isNaN(val))    val = '';
+                    str = str + '<td class=dynamic' + i + '>' + val + '</td>';
                 }
-            });
+                str = str + '</tr>';
+                $('#pseudo').before(str);
 
-            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-                "Aug", "Sep", "Oct", "Nov", "Dece"];
+                ready = true;
+                $.each(index, function (i, value) {
+                    if (length[i] > value) {
+                        ready = false;
+                    }
+                    else {
+                        points[i].push([last + 1, 0]);
+                    }
+                });
 
-            var time = new Date(print[0])
-            var stime = time.getDate() + '-' + monthNames[time.getMonth()] + '-' + time.getFullYear();
-            stime = stime + ' ' + time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
-
-            var str = '<tr class="dynamic"><td class=dynamicT>' + stime + '</td>';
-
-            for (var i = 0; i < points.length; i++) {
-                var val = (Math.round(rounding * print[i + 1]) / rounding);
-                if (isNaN(val))    val = '';
-                str = str + '<td class=dynamic' + i + '>' + val + '</td>';
             }
-            str = str + '</tr>';
-            $('#pseudo').before(str);
-
-            ready = true;
-            $.each(index, function (i, value) {
-                if (length[i] > value) {
-                    ready = false;
-                }
-                else {
-                    points[i].push([last + 1, 0]);
-                }
-            });
-
         }
+        catch (err) {
+            console.log(err);
+            $('#pseudo').before('<tr class="dynamic"><td colspan=3>Sorry, no Data!</td></tr>');
+        }
+
+        $('.dynamicT').attr('width', $('#time').width());
+
+        for (var i = 0; i < points.length; i++) {
+            var width = $('#label' + i).width();
+            $('#label' + i).attr('width', width);
+            $('.dynamic' + i).attr('width', width);
+        }
+
+        $('#listHead').hide();
+
+        $('#listHead').clone().appendTo('#pseudoHead');
+        $('#listHead').show();
+        $('#listHead').attr('class', 'dynamic');
+        $('#time').attr('width', $('#time').width() - 16)
+
     }
-    catch (err) {
-        console.log(err);
-        $('#pseudo').before('<tr class="dynamic"><td colspan=3>Sorry, no Data!</td></tr>');
-    }
-
-    $('.dynamicT').attr('width', $('#time').width());
-
-    for (var i = 0; i < points.length; i++) {
-        var width = $('#label' + i).width();
-        $('#label' + i).attr('width', width);
-        $('.dynamic' + i).attr('width', width);
-    }
-
-    $('#listHead').hide();
-
-    $('#listHead').clone().appendTo('#pseudoHead');
-    $('#listHead').show();
-    $('#listHead').attr('class', 'dynamic');
-    $('#time').attr('width', $('#time').width() - 16)
-
-}
 
 </script>

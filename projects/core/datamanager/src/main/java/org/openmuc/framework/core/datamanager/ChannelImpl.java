@@ -101,6 +101,14 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
+    public double getScalingFactor() {
+        if (config.scalingFactor == null) {
+            return 1;
+        }
+        return config.scalingFactor;
+    }
+
+    @Override
     public int getSamplingInterval() {
         return config.samplingInterval;
     }
@@ -302,7 +310,6 @@ public final class ChannelImpl implements Channel {
                 for (RecordListener listener : listeners) {
                     config.deviceParent.device.dataManager.executor.execute(new ListenerNotifier(
                             listener,
-                            this,
                             currentSample));
                 }
             }

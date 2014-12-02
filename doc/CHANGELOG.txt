@@ -1,3 +1,11 @@
+v0.13.1 17-Oct-2014
+-------------------
+- improvements to some drivers (M-Bus, IEC 62056-21 Modbus RTU)
+- minor fixes in demo app and driver
+- javadoc can now be created  with java8 doclint
+- if the system time jumps significantly then tasks are now omitted
+  and rescheduled
+
 v0.13.0 08-Sep-2014
 -------------------
 - changed license from LGPLv2.1 to GPLv3, OpenMUC can be bought under

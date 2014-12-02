@@ -31,10 +31,6 @@ public class IntValue implements Value {
         this.value = value;
     }
 
-    public IntValue(byte[] fromBytes) {
-        this(ByteBuffer.wrap(fromBytes).getInt());
-    }
-
     @Override
     public double asDouble() {
         return value;
@@ -82,4 +78,8 @@ public class IntValue implements Value {
         return Integer.toString(value);
     }
 
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

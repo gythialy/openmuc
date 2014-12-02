@@ -4,7 +4,7 @@ def projectNameLowerCase = 'openmuc'
 
 configure(allprojects) {
   apply plugin: 'java'
-  version = '0.13.0'
+  version = '0.13.1'
   group = 'org.openmuc.framework'
 }
 
@@ -44,8 +44,6 @@ project.ext {
     it.getPath() == ':openmuc-webui-spi'
   }
 }
-
-
 
 configure(subprojects) {
 
@@ -112,15 +110,9 @@ configure(subprojects) {
     classifier = 'sources'
     from sourceSets.main.allSource
   }
-
-  task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-  }
   
   artifacts {
     archives sourcesJar
-    archives javadocJar
   }
 
 }
@@ -129,6 +121,16 @@ jar.enabled = false
 uploadArchives.enabled = false
 
 configure(docProjects) {
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
+
+  artifacts {
+    archives javadocJar
+  }
+
   task copySrc(type: Copy) {
     dependsOn(sourcesJar)
     into rootDir.getPath() + "/build/libs"

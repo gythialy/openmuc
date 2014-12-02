@@ -200,13 +200,13 @@ public final class SimpleDemoApp extends Thread implements RecordListener {
 			}
 		}
 
-		if (channel1 != null) {
-			channel1.removeListener(this);
+		if (channel4 != null) {
+			channel4.removeListener(this);
 		}
 	}
 
 	@Override
-	public void newRecord(Channel channel, Record record) {
-		logger.info("Record listener got new record for channel: " + channel.getId() + " : " + record);
+	public void newRecord(Record record) {
+		logger.info("Record listener got new record: " + record);
 	}
 }

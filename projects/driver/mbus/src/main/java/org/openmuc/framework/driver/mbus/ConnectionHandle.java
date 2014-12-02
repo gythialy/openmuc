@@ -42,7 +42,7 @@ public class ConnectionHandle {
         return mBusSap;
     }
 
-    public String getDeviceAddres() {
+    public String getDeviceAddress() {
         return deviceAddress;
     }
 

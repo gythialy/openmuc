@@ -29,10 +29,6 @@ public class ByteValue implements Value {
         this.value = value;
     }
 
-    public ByteValue(byte[] fromBytes) {
-        this(fromBytes[0]);
-    }
-
     @Override
     public double asDouble() {
         return value;
@@ -78,4 +74,8 @@ public class ByteValue implements Value {
         return Byte.toString(value);
     }
 
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

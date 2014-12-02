@@ -29,7 +29,7 @@ public interface DeviceScanListener {
     /**
      * Called immediately when a new device has been found.
      *
-     * @param scanInfo
+     * @param scanInfo the information of the device found
      */
     public void deviceFound(DeviceScanInfo scanInfo);
 
