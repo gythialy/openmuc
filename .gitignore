@@ -102,17 +102,7 @@ $RECYCLE.BIN/
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
 !demo/framework/bundle/*.jar
-!dependencies/*.jar
-!projects/driver/canopen/dependencies/*.jar
-!projects/driver/dlms/dependencies/*.jar
-!projects/driver/ehz/dependencies/*.jar
-!projects/driver/iec61850/dependencies/*.jar
-!projects/driver/iec62056p21/dependencies/*.jar
-!projects/driver/knx/dependencies/*.jar
-!projects/driver/mbus/dependencies/*.jar
-!projects/driver/modbus/dependencies/*.jar
-!projects/driver/s7plc/dependencies/*.jar
-!projects/driver/snmp/dependencies/*.jar
+!**/dependencies/*.jar
 *.war
 *.ear
 
