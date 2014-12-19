@@ -32,12 +32,7 @@ public class LinkedMappingHoldingRegister extends MappingInputRegister implement
     private final ValueType valueType;
     private final InputRegister inputRegister;
 
-    public LinkedMappingHoldingRegister(MappingInputRegister inputRegister,
-                                        Channel channel,
-                                        LinkedMappingHoldingRegister nextRegister,
-                                        ValueType valueType,
-                                        int byteHigh,
-                                        int byteLow) {
+    public LinkedMappingHoldingRegister(MappingInputRegister inputRegister, Channel channel, LinkedMappingHoldingRegister nextRegister, ValueType valueType, int byteHigh, int byteLow) {
         super(channel, byteHigh, byteLow);
         this.nextRegister = nextRegister;
         this.valueType = valueType;
@@ -50,10 +45,7 @@ public class LinkedMappingHoldingRegister extends MappingInputRegister implement
 
     @Override
     public void setValue(int v) {
-        byte[] fromBytes = {(byte) ((v >> 24) & 0xFF),
-                            (byte) ((v >> 16) & 0xFF),
-                            (byte) ((v >> 8) & 0xFF),
-                            (byte) (v & 0xFF)};
+        byte[] fromBytes = {(byte) ((v >> 24) & 0xFF), (byte) ((v >> 16) & 0xFF), (byte) ((v >> 8) & 0xFF), (byte) (v & 0xFF)};
 
         setValue(fromBytes);
     }
@@ -79,8 +71,7 @@ public class LinkedMappingHoldingRegister extends MappingInputRegister implement
         } else {
             if (hasLeadingRegister) {
                 if (leadingBytes != null) {
-                    writeChannel(newValue(valueType,
-                                          concatenate(leadingBytes, thisRegisterContent)));
+                    writeChannel(newValue(valueType, concatenate(leadingBytes, thisRegisterContent)));
                 } /* else wait for leadingBytes from submit */
             } else {
                 writeChannel(newValue(valueType, thisRegisterContent));
@@ -99,33 +90,32 @@ public class LinkedMappingHoldingRegister extends MappingInputRegister implement
         } /* else wait for thisRegisterContent from setValue */
     }
 
-    public static Value newValue(ValueType fromType, byte[] fromBytes)
-            throws TypeConversionException {
+    public static Value newValue(ValueType fromType, byte[] fromBytes) throws TypeConversionException {
         switch (fromType) {
-        case BOOLEAN:
-            if (fromBytes[0] == 0x00) {
-                return new BooleanValue(false);
-            } else {
-                return new BooleanValue(true);
-            }
-        case DOUBLE:
-            return new DoubleValue(ByteBuffer.wrap(fromBytes).getDouble());
-        case FLOAT:
-            return new FloatValue(ByteBuffer.wrap(fromBytes).getFloat());
-        case LONG:
-            return new LongValue(ByteBuffer.wrap(fromBytes).getLong());
-        case INTEGER:
-            return new IntValue(ByteBuffer.wrap(fromBytes).getInt());
-        case SHORT:
-            return new ShortValue(ByteBuffer.wrap(fromBytes).getShort());
-        case BYTE:
-            return new ByteValue(fromBytes[0]);
-        case BYTE_ARRAY:
-            return new ByteArrayValue(fromBytes);
-        case STRING:
-            return new StringValue(new String(fromBytes));
-        default:
-            return null;
+            case BOOLEAN:
+                if (fromBytes[0] == 0x00) {
+                    return new BooleanValue(false);
+                } else {
+                    return new BooleanValue(true);
+                }
+            case DOUBLE:
+                return new DoubleValue(ByteBuffer.wrap(fromBytes).getDouble());
+            case FLOAT:
+                return new FloatValue(ByteBuffer.wrap(fromBytes).getFloat());
+            case LONG:
+                return new LongValue(ByteBuffer.wrap(fromBytes).getLong());
+            case INTEGER:
+                return new IntValue(ByteBuffer.wrap(fromBytes).getInt());
+            case SHORT:
+                return new ShortValue(ByteBuffer.wrap(fromBytes).getShort());
+            case BYTE:
+                return new ByteValue(fromBytes[0]);
+            case BYTE_ARRAY:
+                return new ByteArrayValue(fromBytes);
+            case STRING:
+                return new StringValue(new String(fromBytes));
+            default:
+                return null;
         }
     }
 

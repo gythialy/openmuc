@@ -21,11 +21,9 @@ public abstract class MappingInputRegister implements InputRegister {
         this.lowByte = byteLow;
 
         try {
-            String scalingProperty = System.getProperty(
-                    "org.openmuc.framework.server.modbus.useUnscaledValues");
+            String scalingProperty = System.getProperty("org.openmuc.framework.server.modbus.useUnscaledValues");
             useUnscaledValues = Boolean.parseBoolean(scalingProperty);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             /* will stick to default setting. */
         }
     }

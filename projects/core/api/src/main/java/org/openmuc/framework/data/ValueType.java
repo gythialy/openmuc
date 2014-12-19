@@ -21,44 +21,7 @@
 
 package org.openmuc.framework.data;
 
-import java.nio.ByteBuffer;
 
 public enum ValueType {
-    DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING;
-
-    public static Value newValue(ValueType valueType, byte[] concatenate) {
-        if (valueType == DOUBLE)
-            return new DoubleValue(ByteBuffer.wrap(concatenate).getDouble());
-
-        if (valueType == FLOAT)
-            return new FloatValue(ByteBuffer.wrap(concatenate).getFloat());
-
-        if (valueType == LONG)
-            return new LongValue(ByteBuffer.wrap(concatenate).getLong());
-
-        if (valueType == INTEGER)
-            return new IntValue(ByteBuffer.wrap(concatenate).getInt());
-
-        if (valueType == SHORT)
-            return new ShortValue(ByteBuffer.wrap(concatenate).getShort());
-
-        if (valueType == BYTE)
-            return new ByteValue(concatenate[0]);
-
-        if (valueType == BOOLEAN) {
-            boolean value = (concatenate == null || concatenate.length == 0) ?
-                            false :
-                            concatenate[0] != 0x00;
-            return new BooleanValue(value);
-        }
-
-        if (valueType == BYTE_ARRAY)
-            return new ByteArrayValue(concatenate);
-
-        if (valueType == STRING)
-            return new StringValue(new String(concatenate));
-
-        return null;
-    }
-
+    DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING
 }

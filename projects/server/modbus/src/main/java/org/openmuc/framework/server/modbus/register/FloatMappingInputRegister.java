@@ -15,8 +15,7 @@ public class FloatMappingInputRegister extends MappingInputRegister {
         byte[] bytes;
         if (useUnscaledValues) {
             Value value = channel.getLatestRecord().getValue();
-            bytes = new FloatValue(value.asFloat()
-                                   / (float) channel.getScalingFactor()).asByteArray();
+            bytes = new FloatValue(value.asFloat() / (float) channel.getScalingFactor()).asByteArray();
         } else {
             bytes = new FloatValue(channel.getLatestRecord().getValue().asFloat()).asByteArray();
         }

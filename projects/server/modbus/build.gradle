@@ -1,28 +1,28 @@
 configurations.create('embed')
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    compile project(':openmuc-core-api')
-    compile project(':openmuc-core-spi')
-    compile group: 'net.wimpi', name: 'jamod', version: '1.2'
-    embed group: 'net.wimpi', name: 'jamod', version: '1.2'
+  compile project(':openmuc-core-api')
+  compile project(':openmuc-core-spi')
+  compile group: 'net.wimpi', name: 'jamod', version: '1.2'
+  embed group: 'net.wimpi', name: 'jamod', version: '1.2'
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Server - Modbus"
-        instruction 'Bundle-ClassPath', '.,lib/jamod-1.2.jar'
-        instruction 'Import-Package', '!net.wimpi*,gnu.io,*'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Server - Modbus"
+    instruction 'Bundle-ClassPath', '.,lib/jamod-1.2.jar'
+    instruction 'Import-Package', '!net.wimpi*,gnu.io,*'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }
