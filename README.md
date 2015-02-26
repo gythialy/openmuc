@@ -20,9 +20,13 @@ In summary OpenMUC features the following highlights:
 	- KNX
 	- M-Bus (wired)
 	- eHz meters
+	- CANopen
+	- IEC 62056-21
+	- S7 PLC protocol
+	- SNMP
 	
 - Data logging: Data can be logged in two formats (ASCII & binary). New data loggers can easily be added through a plug-in interface.
-Web interface: Convenient user interface for configuration and visualization.
+- Web interface: Convenient user interface for configuration and visualization.
 - Data servers: Remote applications (e.g. smart phone apps, cloud applications) or local non-Java applications can access OpenMUC through one of the available data servers (e.g. a RESTful Web Service).
 - Modularity: Drivers, data loggers etc. are all individual components. By selecting only the components you need you can create a very light weight system.
 - Embedded systems: The framework is designed to run on low-power embedded devices. It is currently being used on embedded x86 and ARM systems. Because OpenMUC is based on Java and OSGi it is platform independent.
@@ -44,11 +48,15 @@ OpenMUC framework overview
 All boxes seen in the picture are implemented as software modules called OSGi bundles that run independently in the OSGi environment. All modules except for the Data Manager are optional. Thus by selecting the modules you need you can easily create your own customized and light weight system. An explanation of these modules can be found in the user guide.
 
 ## Authors
-The OpenMUC framework is developed by:
+### Developers:
 
 - Stefan Feuerhahn
-- Michael Zillgith
 - Marco Mittelsdorf
+- Dirk Zimmermann
+- Simon Fey
 
-Simon Fey
-Frederic Robra
+### Former developers:
+
+- Michael Zillgith
+- Frederic Robra
+- Karsten Müller-Bier
