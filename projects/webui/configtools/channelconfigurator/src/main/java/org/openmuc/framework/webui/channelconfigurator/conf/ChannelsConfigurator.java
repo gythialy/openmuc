@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,9 +44,7 @@ public class ChannelsConfigurator extends Configurator {
     }
 
     @Override
-    public Content getContent(String localPath, HttpServletRequest request)
-            throws ProcessRequestException,
-            IdCollisionException {
+    public Content getContent(String localPath, HttpServletRequest request) throws ProcessRequestException, IdCollisionException {
 
         Content content = new Content();
         ConfigService configService = config.getConfigService();
@@ -62,9 +60,7 @@ public class ChannelsConfigurator extends Configurator {
             if (channelId != null) {
                 channel = rootConfig.getChannel(channelId);
                 if (channel == null) {
-                    throw new ProcessRequestException("Channel with ID \""
-                                                      + channelId
-                                                      + "\" not found.");
+                    throw new ProcessRequestException("Channel with ID \"" + channelId + "\" not found.");
                 }
                 title = "Edit channel \"" + channelId + "\"";
             } else {
@@ -76,8 +72,7 @@ public class ChannelsConfigurator extends Configurator {
             try {
                 String driverId = rootConfig.getDevice(deviceId).getDriver().getId();
                 content.addToContext("driverInfo", configService.getDriverInfo(driverId));
-            }
-            catch (DriverNotAvailableException e) {
+            } catch (DriverNotAvailableException e) {
                 logger.debug(e.getMessage());
             }
             content.addToContext("deviceId", deviceId);
@@ -115,8 +110,7 @@ public class ChannelsConfigurator extends Configurator {
 
             if (samplingInterval != null && samplingInterval > 0) {
                 if ("true".equals(listening)) {
-                    throw new ProcessRequestException(
-                            "Listening and sampling may not be enabled at the same time.");
+                    throw new ProcessRequestException("Listening and sampling may not be enabled at the same time.");
                 } else {
                     if ("false".equals(listening)) {
                         newChannel.setListening(false);
@@ -162,9 +156,7 @@ public class ChannelsConfigurator extends Configurator {
 
             ChannelConfig channel = rootConfig.getChannel(channelId);
             if (channel == null) {
-                throw new ProcessRequestException("Channel with ID \""
-                                                  + channelId
-                                                  + "\" not found.");
+                throw new ProcessRequestException("Channel with ID \"" + channelId + "\" not found.");
             }
 
             channel.delete();

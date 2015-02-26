@@ -1,8 +1,7 @@
 <H1>_daveOSserialType </H1>
 A wrapper type that contains variables representing the incoming (rfd) and outgoing (wfd) communication
 channels on OS level. For LINUX and UNIX like systems, these are file descriptors, for Windows, they are handles.
-For bidirectional channels, rfd and wfd are identical. The reasons for having separate in and out channels are:
-<br>
+For bidirectional channels, rfd and wfd are identical. The reasons for having separate in and out channels are:<br>
 1. On Unix-like systems, you can use two half duplex (unidirectional)
 pipes. While there is no possibility to establish a pipe directly to the PLC, a helper program
 or a PLC simulator might provide such pipes.<br>

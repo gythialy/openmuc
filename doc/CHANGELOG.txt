@@ -1,3 +1,10 @@
+v0.14.0 24-Feb-2015
+-------------------
+- added wirless M-Bus driver
+- modified driver API
+- improved REST server
+- some bug fixes in ASCII logger
+
 v0.13.1 17-Oct-2014
 -------------------
 - improvements to some drivers (M-Bus, IEC 62056-21 Modbus RTU)

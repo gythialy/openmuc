@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -54,8 +54,7 @@ public class LogFileWriter {
      * @param date
      * @param logChannelList
      */
-    public void log(LogIntervalContainerGroup group, int loggingInterval, Date date,
-                    HashMap<String, LogChannel> logChannelList) {
+    public void log(LogIntervalContainerGroup group, int loggingInterval, Date date, HashMap<String, LogChannel> logChannelList) {
 
         PrintStream out = getStream(group, loggingInterval, date, logChannelList);
 
@@ -72,7 +71,7 @@ public class LogFileWriter {
         // TODO match column with container id, so that they don't get mixed up
 
         for (int i = 0; i < containers.size(); i++) {
-            String value = new String();
+            String value = "";
             int size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
             boolean left = true;
 
@@ -81,99 +80,70 @@ public class LogFileWriter {
                     if (containers.get(i).getRecord().getValue() == null) {
                         // write error flag
                         value = LoggerUtils.buildError(Flag.CANNOT_WRITE_NULL_VALUE);
-                        size = getDataTypeSize(logChannelList.get(containers.get(i).getChannelId()),
-                                               i);
+                        size = getDataTypeSize(logChannelList.get(containers.get(i).getChannelId()), i);
                     } else {
-                        ValueType valueType = logChannelList.get(containers.get(i).getChannelId())
-                                                            .getValueType();
+                        ValueType valueType = logChannelList.get(containers.get(i).getChannelId()).getValueType();
                         // logger.debug("channel: " + containers.get(i).getChannelId());
                         switch (valueType) {
-                        case BOOLEAN:
-                            value = String.valueOf(containers.get(i)
-                                                             .getRecord()
-                                                             .getValue()
-                                                             .asShort());
-                            break;
-                        case LONG:
-                            value = String.valueOf(containers.get(i)
-                                                             .getRecord()
-                                                             .getValue()
-                                                             .asLong());
-                            size = IESDataFormatUtils.VALUE_SIZE_LONG;
-                            break;
-                        case INTEGER:
-                            value = String.valueOf(containers.get(i)
-                                                             .getRecord()
-                                                             .getValue()
-                                                             .asInt());
-                            size = IESDataFormatUtils.VALUE_SIZE_INTEGER;
-                            break;
-                        case SHORT:
-                            value = String.valueOf(containers.get(i)
-                                                             .getRecord()
-                                                             .getValue()
-                                                             .asShort());
-                            size = IESDataFormatUtils.VALUE_SIZE_SHORT;
-                            break;
-                        case DOUBLE:
-                        case FLOAT:
-                            size = IESDataFormatUtils.VALUE_SIZE_DOUBLE;
-                            try {
-                                value = IESDataFormatUtils.convertDoubleToStringWithMaxLength(
-                                        containers.get(i)
-                                                  .getRecord().getValue().asDouble(),
-                                        size);
-                            }
-                            catch (WrongScalingException e) {
-                                value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-                                logger.error(e.getMessage() + " ChannelId: " + containers.get(i)
-                                                                                         .getChannelId());
-                            }
-                            break;
-                        case BYTE_ARRAY:
-                            left = false;
-                            size = checkMinimalValueSize(logChannelList.get(containers.get(i)
-                                                                                      .getChannelId())
-                                                                       .getValueTypeLength());
-                            byte[] byteArray = containers.get(i)
-                                                         .getRecord()
-                                                         .getValue()
-                                                         .asByteArray();
-                            if (byteArray.length > size) {
-                                value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-                                logger.error("The byte array is too big, max Size = "
-                                             + size
-                                             + ", ChannelId: "
-                                             + containers.get(i).getChannelId());
-                            } else {
-                                value = IESDataFormatUtils.HEXADECIMAL
-                                        + LoggerUtils.ByteArrayToHexString(byteArray);
-                            }
-                            break;
-                        case STRING:
-                            left = false;
-                            size = checkMinimalValueSize(logChannelList.get(containers.get(i)
-                                                                                      .getChannelId())
-                                                                       .getValueTypeLength());
-                            value = containers.get(i).getRecord().getValue().toString();
-                            checkStringValue(value);
-                            if (value.length() > size) {
-                                value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-                                logger.error("The string is too big, max Size = "
-                                             + size
-                                             + ", ChannelId: "
-                                             + containers.get(i).getChannelId());
-                            }
-                            break;
-                        case BYTE:
-                            value = String.format("0x%02x",
-                                                  containers.get(i)
-                                                            .getRecord()
-                                                            .getValue()
-                                                            .asByte());
-                            break;
-                        default:
-                            throw new RuntimeException("unsupported valueType");
+                            case BOOLEAN:
+                                value = String.valueOf(containers.get(i).getRecord().getValue().asShort());
+                                break;
+                            case LONG:
+                                value = String.valueOf(containers.get(i).getRecord().getValue().asLong());
+                                size = IESDataFormatUtils.VALUE_SIZE_LONG;
+                                break;
+                            case INTEGER:
+                                value = String.valueOf(containers.get(i).getRecord().getValue().asInt());
+                                size = IESDataFormatUtils.VALUE_SIZE_INTEGER;
+                                break;
+                            case SHORT:
+                                value = String.valueOf(containers.get(i).getRecord().getValue().asShort());
+                                size = IESDataFormatUtils.VALUE_SIZE_SHORT;
+                                break;
+                            case DOUBLE:
+                            case FLOAT:
+                                size = IESDataFormatUtils.VALUE_SIZE_DOUBLE;
+                                try {
+                                    value = IESDataFormatUtils
+                                            .convertDoubleToStringWithMaxLength(containers.get(i).getRecord().getValue().asDouble(), size);
+                                } catch (WrongScalingException e) {
+                                    value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
+                                    logger.error(e.getMessage() + " ChannelId: " + containers.get(i).getChannelId());
+                                }
+                                break;
+                            case BYTE_ARRAY:
+                                left = false;
+                                size = checkMinimalValueSize(logChannelList.get(containers.get(i).getChannelId()).getValueTypeLength());
+                                byte[] byteArray = containers.get(i).getRecord().getValue().asByteArray();
+                                if (byteArray.length > size) {
+                                    value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
+                                    logger.error("The byte array is too big, max Size = " + size + ", ChannelId: " + containers.get(i)
+                                                                                                                               .getChannelId());
+                                } else {
+                                    value = IESDataFormatUtils.HEXADECIMAL + LoggerUtils.byteArrayToHexString(byteArray);
+                                }
+                                break;
+                            case STRING:
+                                left = false;
+                                size = checkMinimalValueSize(logChannelList.get(containers.get(i).getChannelId()).getValueTypeLength());
+                                value = containers.get(i).getRecord().getValue().toString();
+                                try {
+                                    checkStringValue(value);
+                                } catch (WrongCharacterException e) {
+                                    value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
+                                    logger.error(e.getMessage());
+                                }
+                                if (value.length() > size) {
+                                    value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
+                                    logger.error("The string is too big, max Size = " + size + ", ChannelId: " + containers.get(i)
+                                                                                                                           .getChannelId());
+                                }
+                                break;
+                            case BYTE:
+                                value = String.format("0x%02x", containers.get(i).getRecord().getValue().asByte());
+                                break;
+                            default:
+                                throw new RuntimeException("unsupported valueType");
                         }
                     }
                 } else {
@@ -208,25 +178,16 @@ public class LogFileWriter {
      *
      * @param value the string value which should be checked
      */
-    private void checkStringValue(String value) {
-        try {
-            if (value.contains(IESDataFormatUtils.SEPARATOR)) {
-                throw new WrongCharacterException(
-                        "Wrong character: String contains Seperator character: "
-                        + IESDataFormatUtils.SEPARATOR);
-            } else if (value.startsWith(IESDataFormatUtils.ERROR)) {
-                throw new WrongCharacterException("Wrong character: String begins with: "
-                                                  + IESDataFormatUtils.ERROR);
-            } else if (value.startsWith(IESDataFormatUtils.HEXADECIMAL)) {
-                throw new WrongCharacterException("Wrong character: String begins with: "
-                                                  + IESDataFormatUtils.HEXADECIMAL);
-            } else if (!value.matches("^[\\x00-\\x7F]*")) {
-                throw new WrongCharacterException("Wrong character: Non ASCII character in String.");
-            }
-        }
-        catch (WrongCharacterException e) {
-            value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-            logger.error(e.getMessage());
+    private void checkStringValue(String value) throws WrongCharacterException {
+
+        if (value.contains(IESDataFormatUtils.SEPARATOR)) {
+            throw new WrongCharacterException("Wrong character: String contains Seperator character: " + IESDataFormatUtils.SEPARATOR);
+        } else if (value.startsWith(IESDataFormatUtils.ERROR)) {
+            throw new WrongCharacterException("Wrong character: String begins with: " + IESDataFormatUtils.ERROR);
+        } else if (value.startsWith(IESDataFormatUtils.HEXADECIMAL)) {
+            throw new WrongCharacterException("Wrong character: String begins with: " + IESDataFormatUtils.HEXADECIMAL);
+        } else if (!value.matches("^[\\x00-\\x7F]*")) {
+            throw new WrongCharacterException("Wrong character: Non ASCII character in String.");
         }
     }
 
@@ -246,8 +207,8 @@ public class LogFileWriter {
      * @param logChannelList
      * @return the PrintStream for logging.
      */
-    private PrintStream getStream(LogIntervalContainerGroup group, int loggingInterval, Date date,
-                                  HashMap<String, LogChannel> logChannelList) {
+    private PrintStream getStream(LogIntervalContainerGroup group, int loggingInterval, Date date, HashMap<String, LogChannel>
+            logChannelList) {
 
         Calendar calendar = new GregorianCalendar(Locale.getDefault());
         calendar.setTime(date);
@@ -257,34 +218,17 @@ public class LogFileWriter {
         actualFile = file;
         PrintStream out = null;
 
-        // prüfe ob datei existiert
-        if (file.exists()) {
-            // open existing file
-            try {
+        try {
+            if (file.exists()) {
                 out = new PrintStream(new FileOutputStream(file, true), false, characterEncoding);
-            }
-            catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                file.createNewFile();
+            } else {
                 out = new PrintStream(new FileOutputStream(file, true), false, characterEncoding);
-                header.writeIESDataFormatHeader(group,
-                                                out,
-                                                file.getName(),
-                                                loggingInterval,
-                                                logChannelList);
+                header.writeIESDataFormatHeader(group, out, file.getName(), loggingInterval, logChannelList);
             }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return out;
     }
@@ -297,8 +241,7 @@ public class LogFileWriter {
      */
     private void writeTimestamps(StringBuilder sb, Calendar calendar) {
 
-        double unixtimestamp_sec = calendar.getTimeInMillis()
-                                   / 1000.0; // double for milliseconds, nanoseconds
+        double unixtimestamp_sec = calendar.getTimeInMillis() / 1000.0; // double for milliseconds, nanoseconds
 
         sb.append(String.format(LoggerUtils.DATE_FORMAT, calendar));
         sb.append(IESDataFormatUtils.SEPARATOR);
@@ -316,29 +259,28 @@ public class LogFileWriter {
      * @return size of DataType / ValueType.
      */
     private int getDataTypeSize(LogChannel logChannel, int iterator) {
+
         int size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
 
-        if ((logChannel != null) && (logChannel.getValueType().equals(ValueType.BYTE_ARRAY))) {
-            // get length from channel for ByteString
-            size = logChannel.getValueTypeLength();
-        } else if (logChannel != null && !(logChannel.getValueType()
-                                                     .equals(ValueType.BYTE_ARRAY))) {
-            // get length from channel for simple value types
-            size = LoggerUtils.getLengthOfValueType(logChannel.getValueType());
+        if (logChannel != null) {
+            boolean isByteArray = logChannel.getValueType().equals(ValueType.BYTE_ARRAY);
+            boolean isString = logChannel.getValueType().equals(ValueType.STRING);
+
+            if ((isByteArray || isString)) {
+                // get length from channel for ByteString
+                size = logChannel.getValueTypeLength();
+            } else if (!(isByteArray || isString)) {
+                // get length from channel for simple value types
+                size = LoggerUtils.getLengthOfValueType(logChannel.getValueType());
+            }
         } else {
             // get length from file
-            ValueType vt = LoggerUtils.identifyValueType(iterator
-                                                         + IESDataFormatUtils.NUM_OF_TIME_TYPES_IN_HEADER
-                                                         + 1,
-                                                         actualFile);
+            ValueType vt = LoggerUtils.identifyValueType(iterator + IESDataFormatUtils.NUM_OF_TIME_TYPES_IN_HEADER + 1, actualFile);
             size = LoggerUtils.getLengthOfValueType(vt);
-            if (vt.equals(ValueType.BYTE_ARRAY) && size <= IESDataFormatUtils.VALUE_SIZE_MINIMAL) {
-                size = LoggerUtils.getValueTypeLengthFromFile(iterator
-                                                              + IESDataFormatUtils.NUM_OF_TIME_TYPES_IN_HEADER
-                                                              + 1, actualFile);
+            if ((vt.equals(ValueType.BYTE_ARRAY) || (vt.equals(ValueType.STRING))) && size <= IESDataFormatUtils.VALUE_SIZE_MINIMAL) {
+                size = LoggerUtils.getValueTypeLengthFromFile(iterator + IESDataFormatUtils.NUM_OF_TIME_TYPES_IN_HEADER + 1, actualFile);
             }
         }
         return size;
     }
-
 }

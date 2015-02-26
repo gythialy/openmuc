@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,11 +41,9 @@ public class WriteHandle {
         GetRequest channelHandle = null;
         if (container.getChannelHandle() == null) {
             try {
-                channelHandle = ChannelAddress.parse(container.getChannelAddress())
-                                              .createGetRequest();
+                channelHandle = ChannelAddress.parse(container.getChannelAddress()).createGetRequest();
                 container.setChannelHandle(channelHandle);
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 flag = Flag.DRIVER_ERROR_CHANNEL_ADDRESS_SYNTAX_INVALID;
             }
         } else {
@@ -58,9 +56,10 @@ public class WriteHandle {
         getResult = result;
         if (getResult == null) {
             flag = Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
-        }
-        if (!getResult.isSuccess()) {
-            flag = Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
+        } else {
+            if (!getResult.isSuccess()) {
+                flag = Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
+            }
         }
     }
 
@@ -73,68 +72,67 @@ public class WriteHandle {
         Data param = result.data();
 
         switch (originData.getChoiceIndex()) {
-        case NULL_DATA:
-            param.setNull();
-            break;
-        case ARRAY:
-        case STRUCTURE:
-        case COMPACT_ARRAY:
-        case DATE_TIME:
-        case DATE:
-        case TIME:
-        case DONT_CARE:
-            flag = Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION;
-            result = null;
-            break;
-        case BOOL:
-            param.setbool(container.getValue().asBoolean());
-            break;
-        case BIT_STRING:
-            param.setBitString(container.getValue().asByteArray(),
-                               container.getValue().asByteArray().length * 8);
-            break;
-        case DOUBLE_LONG:
-            param.setInteger32(container.getValue().asInt());
-            break;
-        case DOUBLE_LONG_UNSIGNED:
-            param.setUnsigned32(container.getValue().asLong());
-            break;
-        case OCTET_STRING:
-            param.setOctetString(container.getValue().asByteArray());
-            break;
-        case VISIBLE_STRING:
-            param.setVisibleString(container.getValue().asByteArray());
-            break;
-        case BCD:
-            param.setBcd(container.getValue().asByte());
-            break;
-        case INTEGER:
-            param.setInteger8(container.getValue().asByte());
-            break;
-        case LONG_INTEGER:
-            param.setInteger16(container.getValue().asShort());
-            break;
-        case UNSIGNED:
-            param.setUnsigned8(container.getValue().asShort());
-            break;
-        case LONG_UNSIGNED:
-            param.setUnsigned16(container.getValue().asInt());
-            break;
-        case LONG64:
-            param.setInteger64(container.getValue().asLong());
-            break;
-        case LONG64_UNSIGNED:
-            param.setUnsigned64(container.getValue().asLong());
-            break;
-        case ENUMERATE:
-            param.setEnumerate(container.getValue().asByte());
-            break;
-        case FLOAT32:
-            param.setFloat32(container.getValue().asFloat());
-            break;
-        case FLOAT64:
-            param.setFloat64(container.getValue().asDouble());
-            break;
+            case NULL_DATA:
+                param.setNull();
+                break;
+            case ARRAY:
+            case STRUCTURE:
+            case COMPACT_ARRAY:
+            case DATE_TIME:
+            case DATE:
+            case TIME:
+            case DONT_CARE:
+                flag = Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION;
+                result = null;
+                break;
+            case BOOL:
+                param.setbool(container.getValue().asBoolean());
+                break;
+            case BIT_STRING:
+                param.setBitString(container.getValue().asByteArray(), container.getValue().asByteArray().length * 8);
+                break;
+            case DOUBLE_LONG:
+                param.setInteger32(container.getValue().asInt());
+                break;
+            case DOUBLE_LONG_UNSIGNED:
+                param.setUnsigned32(container.getValue().asLong());
+                break;
+            case OCTET_STRING:
+                param.setOctetString(container.getValue().asByteArray());
+                break;
+            case VISIBLE_STRING:
+                param.setVisibleString(container.getValue().asByteArray());
+                break;
+            case BCD:
+                param.setBcd(container.getValue().asByte());
+                break;
+            case INTEGER:
+                param.setInteger8(container.getValue().asByte());
+                break;
+            case LONG_INTEGER:
+                param.setInteger16(container.getValue().asShort());
+                break;
+            case UNSIGNED:
+                param.setUnsigned8(container.getValue().asShort());
+                break;
+            case LONG_UNSIGNED:
+                param.setUnsigned16(container.getValue().asInt());
+                break;
+            case LONG64:
+                param.setInteger64(container.getValue().asLong());
+                break;
+            case LONG64_UNSIGNED:
+                param.setUnsigned64(container.getValue().asLong());
+                break;
+            case ENUMERATE:
+                param.setEnumerate(container.getValue().asByte());
+                break;
+            case FLOAT32:
+                param.setFloat32(container.getValue().asFloat());
+                break;
+            case FLOAT64:
+                param.setFloat64(container.getValue().asDouble());
+                break;
         }
         return result;
     }

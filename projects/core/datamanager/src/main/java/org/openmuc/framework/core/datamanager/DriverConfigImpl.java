@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,7 +28,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public final class DriverConfigImpl implements DriverConfig {
 
@@ -38,7 +41,6 @@ public final class DriverConfigImpl implements DriverConfig {
     Boolean disabled = null;
 
     final HashMap<String, DeviceConfigImpl> deviceConfigsById = new LinkedHashMap<String, DeviceConfigImpl>();
-    final HashMap<String, List<DeviceTask>> deviceTasksByInterfaceAddress = new HashMap<String, List<DeviceTask>>();
 
     RootConfigImpl rootConfigParent;
 
@@ -64,8 +66,7 @@ public final class DriverConfigImpl implements DriverConfig {
         if (rootConfigParent.driverConfigsById.containsKey(id)) {
             throw new IdCollisionException("Collision with the driver ID:" + id);
         }
-        rootConfigParent.driverConfigsById.put(id,
-                                               rootConfigParent.driverConfigsById.remove(this.id));
+        rootConfigParent.driverConfigsById.put(id, rootConfigParent.driverConfigsById.remove(this.id));
 
         this.id = id;
     }
@@ -124,17 +125,6 @@ public final class DriverConfigImpl implements DriverConfig {
         rootConfigParent.deviceConfigsById.put(deviceId, newDevice);
         deviceConfigsById.put(deviceId, newDevice);
 
-        // TODO might be needed in DeviceConfig setInterfaceAddress:
-        // if (interfaceAddress == null || interfaceAddress.isEmpty()) {
-        // ifAndDevAddress = deviceAddress;
-        // }
-        // else {
-        // ifAndDevAddress = interfaceAddress + "#" + deviceAddress;
-        // if (deviceTasksByInterfaceAddress.get(deviceAddress) == null) {
-        // deviceTasksByInterfaceAddress.put(deviceAddress, new ArrayList<DeviceTask>());
-        // }
-        // }
-
         return newDevice;
     }
 
@@ -146,8 +136,7 @@ public final class DriverConfigImpl implements DriverConfig {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<DeviceConfig> getDevices() {
-        return (Collection<DeviceConfig>) (Collection<?>) Collections
-                .unmodifiableCollection(deviceConfigsById.values());
+        return (Collection<DeviceConfig>) (Collection<?>) Collections.unmodifiableCollection(deviceConfigsById.values());
     }
 
     @Override
@@ -160,8 +149,7 @@ public final class DriverConfigImpl implements DriverConfig {
         rootConfigParent = null;
     }
 
-    static void addDriverFromDomNode(Node driverConfigNode, RootConfig parentConfig)
-            throws ParseException {
+    static void addDriverFromDomNode(Node driverConfigNode, RootConfig parentConfig) throws ParseException {
 
         String id = ChannelConfigImpl.getAttributeValue(driverConfigNode, "id");
         if (id == null) {
@@ -171,8 +159,7 @@ public final class DriverConfigImpl implements DriverConfig {
         DriverConfigImpl config;
         try {
             config = (DriverConfigImpl) parentConfig.addDriver(id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ParseException(e);
         }
 
@@ -198,16 +185,14 @@ public final class DriverConfigImpl implements DriverConfig {
                     } else if (disabledString.equals("false")) {
                         config.disabled = false;
                     } else {
-                        throw new ParseException(
-                                "\"disabled\" tag contains neither \"true\" nor \"false\"");
+                        throw new ParseException("\"disabled\" tag contains neither \"true\" nor \"false\"");
                     }
                 } else {
                     throw new ParseException("found unknown tag:" + childName);
                 }
 
             }
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ParseException(e);
         }
     }
@@ -282,8 +267,7 @@ public final class DriverConfigImpl implements DriverConfig {
         }
 
         for (DeviceConfigImpl deviceConfig : deviceConfigsById.values()) {
-            configClone.deviceConfigsById.put(deviceConfig.id,
-                                              deviceConfig.cloneWithDefaults(configClone));
+            configClone.deviceConfigsById.put(deviceConfig.id, deviceConfig.cloneWithDefaults(configClone));
         }
         return configClone;
     }

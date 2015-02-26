@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -47,8 +47,8 @@ public final class OsgiClientConnectionFactory extends ClientConnectionFactory {
     }
 
     @Override
-    protected ILowerLayerFactory getLowerLayerFactory(
-            @SuppressWarnings("rawtypes") Class<? extends ClientConnectionSettings> settingsClass) {
+    protected ILowerLayerFactory getLowerLayerFactory(@SuppressWarnings("rawtypes") Class<? extends ClientConnectionSettings>
+                                                                  settingsClass) {
         for (ILowerLayerFactory factory : factories) {
             if (factory.accepts(settingsClass)) {
                 return factory;

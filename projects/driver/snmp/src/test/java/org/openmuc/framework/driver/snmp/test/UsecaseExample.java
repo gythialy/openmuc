@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -42,22 +42,11 @@ public class UsecaseExample {
 
             SnmpDriver snmpDriver = new SnmpDriver();
             // SNMPVersion=V2c:COMMUNITY=root:SECURITYNAME=root:AUTHENTICATIONPASSPHRASE=adminadmin:PRIVACYPASSPHRASE=adminadmin
-            String settings = SnmpDriverSettingVariableNames.SNMPVersion
-                              + "="
-                              + SNMPVersion.V2c
-                              + ":"
-                              + SnmpDriverSettingVariableNames.USERNAME
-                              + "=root:"
-                              + SnmpDriverSettingVariableNames.SECURITYNAME
-                              + "=root:"
-                              + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE
-                              + "=adminadmin:"
-                              + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE
-                              + "=adminadmin";
+            String settings = SnmpDriverSettingVariableNames.SNMPVersion + "=" + SNMPVersion.V2c + ":" + SnmpDriverSettingVariableNames
+                    .USERNAME + "=root:" + SnmpDriverSettingVariableNames.SECURITYNAME + "=root:" + SnmpDriverSettingVariableNames
+                    .AUTHENTICATIONPASSPHRASE + "=adminadmin:" + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=adminadmin";
             System.out.println(settings);
-            SnmpDevice myDevice = (SnmpDevice) snmpDriver.connect(null,
-                                                                  "192.168.1.1/161",
-                                                                  settings);
+            SnmpDevice myDevice = (SnmpDevice) snmpDriver.connect("192.168.1.1/161", settings);
 
             List<ChannelRecordContainer> containers = new ArrayList<ChannelRecordContainer>();
 
@@ -68,7 +57,7 @@ public class UsecaseExample {
             containers.add(new SnmpChannelRecordContainer(ch2));
             containers.add(new SnmpChannelRecordContainer(ch3));
 
-            snmpDriver.read(myDevice, containers, null, null);
+            myDevice.read(containers, null, null);
 
             for (ChannelRecordContainer container : containers) {
                 if (container.getRecord() != null) {
@@ -76,12 +65,10 @@ public class UsecaseExample {
                 }
             }
 
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (ArgumentSyntaxException e) {
+        } catch (ArgumentSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

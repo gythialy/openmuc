@@ -2,17 +2,13 @@
 
 <ul class="tab-menu">
     <li #if($content.getMenuItem()==
-    "DRIVERS") class="tab-menu-active" #else class="tab-menu-state" #end><a
-        href="${applicationPath}/drivers">Drivers</a></li>
+    "DRIVERS") class="tab-menu-active" #else class="tab-menu-state" #end><a href="${applicationPath}/drivers">Drivers</a></li>
     <li #if($content.getMenuItem()==
-    "DEVICES") class="tab-menu-active" #else class="tab-menu-state" #end><a
-        href="${applicationPath}/devices">Devices</a></li>
+    "DEVICES") class="tab-menu-active" #else class="tab-menu-state" #end><a href="${applicationPath}/devices">Devices</a></li>
     <li #if($content.getMenuItem()==
-    "CHANNELS") class="tab-menu-active" #else class="tab-menu-state" #end><a
-        href="${applicationPath}/channels">Channels</a></li>
+    "CHANNELS") class="tab-menu-active" #else class="tab-menu-state" #end><a href="${applicationPath}/channels">Channels</a></li>
     <li #if($content.getMenuItem()==
-    "OPTIONS") class="tab-menu-active" #else class="tab-menu-state" #end><a
-        href="${applicationPath}/options">Options</a></li>
+    "OPTIONS") class="tab-menu-active" #else class="tab-menu-state" #end><a href="${applicationPath}/options">Options</a></li>
     #if($content.getMenuItem() == "NONE")
     <li class="tab-menu-active"><a href="#">$content.getTitle()</a></li>
     #end

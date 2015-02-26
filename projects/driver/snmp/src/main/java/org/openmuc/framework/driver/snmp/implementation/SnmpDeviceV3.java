@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -51,7 +51,8 @@ public class SnmpDeviceV3 extends SnmpDevice {
      * @param address                  Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
      * @param username                 String containing username
      * @param securityName             the security name of the user (typically the user name). [required by snmp4j library]
-     * @param authenticationProtocol   the authentication protocol ID to be associated with this user. If set to <code>null</code>, this user
+     * @param authenticationProtocol   the authentication protocol ID to be associated with this user. If set to <code>null</code>, this
+     *                                 user
      *                                 only supports unauthenticated messages. [required by snmp4j library] eg. AuthMD5.ID
      * @param authenticationPassphrase the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
      *                                 also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
@@ -67,14 +68,8 @@ public class SnmpDeviceV3 extends SnmpDevice {
      * @throws ArgumentSyntaxException
      */
 
-    public SnmpDeviceV3(String address,
-                        String username,
-                        String securityName,
-                        OID authenticationProtocol,
-                        String authenticationPassphrase,
-                        OID privacyProtocol,
-                        String privacyPassphrase) throws ConnectionException,
-            ArgumentSyntaxException {
+    public SnmpDeviceV3(String address, String username, String securityName, OID authenticationProtocol, String
+            authenticationPassphrase, OID privacyProtocol, String privacyPassphrase) throws ConnectionException, ArgumentSyntaxException {
         super(address, authenticationPassphrase);
 
         this.username = username;
@@ -104,11 +99,7 @@ public class SnmpDeviceV3 extends SnmpDevice {
      * @throws ArgumentSyntaxException
      */
 
-    public SnmpDeviceV3(String address,
-                        String username,
-                        String securityName,
-                        String authenticationPassphrase,
-                        String privacyPassphrase)
+    public SnmpDeviceV3(String address, String username, String securityName, String authenticationPassphrase, String privacyPassphrase)
             throws ConnectionException, ArgumentSyntaxException {
         super(address, authenticationPassphrase);
 
@@ -120,7 +111,8 @@ public class SnmpDeviceV3 extends SnmpDevice {
         this.privacyPassphrase = privacyPassphrase;
     }
 
-    @Override void setTarget() {
+    @Override
+    void setTarget() {
         int securityLevel = -1;
         if (authenticationPassphrase == null || authenticationPassphrase.trim().equals("")) {
             // No Authentication and no Privacy
@@ -136,14 +128,9 @@ public class SnmpDeviceV3 extends SnmpDevice {
             }
 
         }
-        snmp.getUSM().addUser(
-                new OctetString(username),
-                new UsmUser(new OctetString(securityName),
-                            authenticationProtocol,
-                            new OctetString(
-                                    authenticationPassphrase),
-                            privacyProtocol,
-                            new OctetString(privacyPassphrase)));
+        snmp.getUSM().addUser(new OctetString(username),
+                              new UsmUser(new OctetString(securityName), authenticationProtocol, new OctetString(authenticationPassphrase),
+                                          privacyProtocol, new OctetString(privacyPassphrase)));
         // create the target
         target = new UserTarget();
         target.setAddress(targetAddress);
@@ -154,7 +141,6 @@ public class SnmpDeviceV3 extends SnmpDevice {
         target.setSecurityName(new OctetString(securityName));
     }
 
-    @Override
     public String getInterfaceAddress() {
         return null;
     }
@@ -164,33 +150,17 @@ public class SnmpDeviceV3 extends SnmpDevice {
         return targetAddress.toString();
     }
 
-    @Override
     public String getSettings() {
-        String settings = SnmpDriverSettingVariableNames.SNMPVersion.toString()
-                          + "="
-                          + SNMPVersion.V3
-                          + ":"
-                          + SnmpDriverSettingVariableNames.USERNAME
-                          + "="
-                          + username
-                          + ":"
-                          + SnmpDriverSettingVariableNames.SECURITYNAME
-                          + "="
-                          + securityName
-                          + ":"
-                          + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE
-                          + "="
-                          + authenticationPassphrase
-                          + ":"
-                          + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE
-                          + "="
-                          + privacyPassphrase;
+        String settings = SnmpDriverSettingVariableNames.SNMPVersion
+                .toString() + "=" + SNMPVersion.V3 + ":" + SnmpDriverSettingVariableNames.USERNAME + "=" + username + ":" +
+                SnmpDriverSettingVariableNames.SECURITYNAME + "=" + securityName + ":" + SnmpDriverSettingVariableNames
+                .AUTHENTICATIONPASSPHRASE + "=" + authenticationPassphrase + ":" + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "="
+                + privacyPassphrase;
 
         return settings;
 
     }
 
-    @Override
     public Object getConnectionHandle() {
         return this;
     }

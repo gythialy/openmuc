@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -111,8 +111,7 @@ public class ModbusChannel {
             setAccessFlag(accessFlag);
             setFunctionCode();
         } else {
-            throw new RuntimeException("Address initialization faild! Invalid parameters used: "
-                                       + channelAddress);
+            throw new RuntimeException("Address initialization faild! Invalid parameters used: " + channelAddress);
         }
 
     }
@@ -144,9 +143,8 @@ public class ModbusChannel {
 
     private boolean checkAddressParams(String[] params) {
         boolean returnValue = false;
-        if ((params[UNITID].matches("\\d+?") || params[UNITID].equals(""))
-            && EPrimaryTable.isValidValue(params[PRIMARYTABLE]) && params[ADDRESS].matches("\\d+?")
-            && EDatatype.isValidDatatype(params[DATATYPE])) {
+        if ((params[UNITID].matches("\\d+?") || params[UNITID].equals("")) && EPrimaryTable
+                .isValidValue(params[PRIMARYTABLE]) && params[ADDRESS].matches("\\d+?") && EDatatype.isValidDatatype(params[DATATYPE])) {
             returnValue = true;
         }
         return returnValue;
@@ -168,86 +166,82 @@ public class ModbusChannel {
     private void setFunctionCodeForReading() {
 
         switch (datatype) {
-        case BOOLEAN:
-            if (primaryTable.equals(EPrimaryTable.COILS)) {
-                functionCode = EFunctionCode.FC_01_READ_COILS;
-            } else if (primaryTable.equals(EPrimaryTable.DISCRETE_INPUTS)) {
-                functionCode = EFunctionCode.FC_02_READ_DISCRETE_INPUTS;
-            } else {
-                invalidReadAddressParameterCombination();
-            }
-            break;
-        case SHORT:
-        case INT:
-        case FLOAT:
-        case DOUBLE:
-        case LONG:
-        case BYTE_HIGH:
-        case BYTE_LOW:
-        case BYTEARRAY:
-            if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-                functionCode = EFunctionCode.FC_03_READ_HOLDING_REGISTERS;
-            } else if (primaryTable.equals(EPrimaryTable.INPUT_REGISTERS)) {
-                functionCode = EFunctionCode.FC_04_READ_INPUT_REGISTERS;
-            } else {
-                invalidReadAddressParameterCombination();
-            }
-            break;
-        default:
-            throw new RuntimeException("read: Datatype "
-                                       + datatype.toString()
-                                       + " not supported yet!");
+            case BOOLEAN:
+                if (primaryTable.equals(EPrimaryTable.COILS)) {
+                    functionCode = EFunctionCode.FC_01_READ_COILS;
+                } else if (primaryTable.equals(EPrimaryTable.DISCRETE_INPUTS)) {
+                    functionCode = EFunctionCode.FC_02_READ_DISCRETE_INPUTS;
+                } else {
+                    invalidReadAddressParameterCombination();
+                }
+                break;
+            case SHORT:
+            case INT:
+            case FLOAT:
+            case DOUBLE:
+            case LONG:
+            case BYTE_HIGH:
+            case BYTE_LOW:
+            case BYTEARRAY:
+                if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+                    functionCode = EFunctionCode.FC_03_READ_HOLDING_REGISTERS;
+                } else if (primaryTable.equals(EPrimaryTable.INPUT_REGISTERS)) {
+                    functionCode = EFunctionCode.FC_04_READ_INPUT_REGISTERS;
+                } else {
+                    invalidReadAddressParameterCombination();
+                }
+                break;
+            default:
+                throw new RuntimeException("read: Datatype " + datatype.toString() + " not supported yet!");
         }
     }
 
     private void setFunctionCodeForWriting() {
         switch (datatype) {
-        case BOOLEAN:
-            if (primaryTable.equals(EPrimaryTable.COILS)) {
-                functionCode = EFunctionCode.FC_05_WRITE_SINGLE_COIL;
-            } else {
-                invalidWriteAddressParameterCombination();
-            }
-            break;
-        case BYTE_HIGH:
-        case BYTE_LOW:
-        case SHORT:
-            if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-                functionCode = EFunctionCode.FC_06_WRITE_SINGLE_REGISTER;
-            } else {
-                invalidWriteAddressParameterCombination();
-            }
-            break;
-        case INT:
-        case FLOAT:
-        case DOUBLE:
-        case LONG:
-        case BYTEARRAY:
-            if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-                functionCode = EFunctionCode.FC_16_WRITE_MULTIPLE_REGISTERS;
-            } else {
-                invalidWriteAddressParameterCombination();
-            }
-            break;
-        default:
-            throw new RuntimeException("write: Datatype "
-                                       + datatype.toString()
-                                       + " not supported yet!");
+            case BOOLEAN:
+                if (primaryTable.equals(EPrimaryTable.COILS)) {
+                    functionCode = EFunctionCode.FC_05_WRITE_SINGLE_COIL;
+                } else {
+                    invalidWriteAddressParameterCombination();
+                }
+                break;
+            case BYTE_HIGH:
+            case BYTE_LOW:
+            case SHORT:
+                if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+                    functionCode = EFunctionCode.FC_06_WRITE_SINGLE_REGISTER;
+                } else {
+                    invalidWriteAddressParameterCombination();
+                }
+                break;
+            case INT:
+            case FLOAT:
+            case DOUBLE:
+            case LONG:
+            case BYTEARRAY:
+                if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+                    functionCode = EFunctionCode.FC_16_WRITE_MULTIPLE_REGISTERS;
+                } else {
+                    invalidWriteAddressParameterCombination();
+                }
+                break;
+            default:
+                throw new RuntimeException("write: Datatype " + datatype.toString() + " not supported yet!");
         }
     }
 
     private void invalidWriteAddressParameterCombination() {
-        throw new RuntimeException(
-                "Invalid channel address parameter combination for writing. \n Datatype: "
-                + datatype.toString().toUpperCase() + " PrimaryTable: " + primaryTable.toString()
-                                                                                      .toUpperCase());
+        throw new RuntimeException("Invalid channel address parameter combination for writing. \n Datatype: " + datatype.toString()
+                                                                                                                        .toUpperCase() +
+                                           " PrimaryTable: " + primaryTable
+                .toString().toUpperCase());
     }
 
     private void invalidReadAddressParameterCombination() {
-        throw new RuntimeException(
-                "Invalid channel address parameter combination for reading. \n Datatype: "
-                + datatype.toString().toUpperCase() + " PrimaryTable: " + primaryTable.toString()
-                                                                                      .toUpperCase());
+        throw new RuntimeException("Invalid channel address parameter combination for reading. \n Datatype: " + datatype.toString()
+                                                                                                                        .toUpperCase() +
+                                           " PrimaryTable: " + primaryTable
+                .toString().toUpperCase());
     }
 
     private void setStartAddress(String startAddress) {
@@ -323,14 +317,7 @@ public class ModbusChannel {
 
     @Override
     public String toString() {
-        return "channeladdress: "
-               + unitId
-               + ":"
-               + primaryTable.toString()
-               + ":"
-               + startAddress
-               + ":"
-               + datatype.toString();
+        return "channeladdress: " + unitId + ":" + primaryTable.toString() + ":" + startAddress + ":" + datatype.toString();
     }
 
 }

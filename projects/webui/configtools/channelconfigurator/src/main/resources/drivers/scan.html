@@ -5,16 +5,14 @@
         <tr>
             <td>
                 <label for="settings">
-					<span class="ui-icon ui-icon-info" style="float: left; margin-right: 10px;"
-                          title="Communication parameters that may be needed by the driver in order to scan for new devices. Typical settings are baudrate, username/password, and other protocol options.
+					<span class="ui-icon ui-icon-info" style="float: left; margin-right: 10px;" title="Communication parameters that may be needed by the driver in order to scan for new devices. Typical settings are baudrate, username/password, and other protocol options.
 Syntax for the $driverId driver:
 $!driverInfo.getDeviceScanParametersSyntax()"></span>
                     Settings:
                 </label>
 
             </td>
-            <td><input name="settings" type="text" size="30" maxlength="100" value="$!settings">
-            </td>
+            <td><input name="settings" type="text" size="30" maxlength="100" value="$!settings"></td>
 
         </tr>
     </table>
@@ -36,14 +34,12 @@ $!driverInfo.getDeviceScanParametersSyntax()"></span>
     <span id=errorMessage></span>
 </p>
 
-<form method="POST"
-      action="${applicationPath}/drivers/addscan?driverId=${driverId}&settings=$!{settings}">
+<form method="POST" action="${applicationPath}/drivers/addscan?driverId=${driverId}&settings=$!{settings}">
     <table id="scannedDevicesTable" class="conf_table_style">
         <tr>
             <th><input type="checkbox" id="checkAll"></th>
             <th>Device ID</th>
             <th>Description</th>
-            <th>Interface Address</th>
             <th>Device Address</th>
             <th>Settings</th>
         </tr>
@@ -64,7 +60,7 @@ $!driverInfo.getDeviceScanParametersSyntax()"></span>
     function getScannedDevices() {
         $.getJSON("${applicationPath}/drivers/scanupdates", function (data) {
             $.each(data, function (i, item) {
-                addRow(data[i].deviceID, data[i].description, data[i].interfaceAddress, data[i].deviceAddress, data[i].settings);
+                addRow(data[i].deviceID, data[i].description, data[i].deviceAddress, data[i].settings);
             });
         });
     }
@@ -85,7 +81,7 @@ $!driverInfo.getDeviceScanParametersSyntax()"></span>
         });
     }
 
-    function addRow(deviceID, description, interfaceAddress, deviceAddress, settings) {
+    function addRow(deviceID, description, deviceAddress, settings) {
         console.log("adding row");
         var table = document.getElementById("scannedDevicesTable");
 
@@ -97,15 +93,13 @@ $!driverInfo.getDeviceScanParametersSyntax()"></span>
         var cell2 = row.insertCell(2);
         var cell3 = row.insertCell(3);
         var cell4 = row.insertCell(4);
-        var cell5 = row.insertCell(5);
 
 
         cell0.innerHTML = "<input type='checkbox' name='devices' value='" + deviceID + "' size='18'>";
         cell1.innerHTML = "<input type='input' name='" + deviceID + "deviceId' value='" + deviceID + "' size='18'>";
         cell2.innerHTML = "<input type='input' name='" + deviceID + "description' value='" + description + "' size='18'>";
-        cell3.innerHTML = "<input type='input' name='" + deviceID + "interfaceAddress' value='" + interfaceAddress + "' size='18'>";
-        cell4.innerHTML = "<input type='input' name='" + deviceID + "deviceAddress' value='" + deviceAddress + "' size='18'>";
-        cell5.innerHTML = "<input type='input' name='" + deviceID + "settings' value='" + settings + "' size='18'>";
+        cell3.innerHTML = "<input type='input' name='" + deviceID + "deviceAddress' value='" + deviceAddress + "' size='18'>";
+        cell4.innerHTML = "<input type='input' name='" + deviceID + "settings' value='" + settings + "' size='18'>";
     }
 
     doUpdate();

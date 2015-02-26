@@ -12,8 +12,7 @@
                     <label for="startdateday">Export data since: </label>
                 </td>
                 <td>
-                    <input name="startdateday" id="startdateday" size="2" maxlength="2" type="text"
-                           value="$startDaySelected"/>
+                    <input name="startdateday" id="startdateday" size="2" maxlength="2" type="text" value="$startDaySelected"/>
                     <select name="startdatemonth" id="startdatemonth">
                         #foreach ( $month in $months )
                         #if ($foreach.count == $startMonthSelected)
@@ -23,8 +22,7 @@
                         #end
                         #end
                     </select>
-                    <input name="startdateyear" id="startdateyear" type="text" size="4"
-                           maxlength="4" value="$startYearSelected"/>
+                    <input name="startdateyear" id="startdateyear" type="text" size="4" maxlength="4" value="$startYearSelected"/>
                 </td>
             </tr>
             <tr>
@@ -33,8 +31,7 @@
                     <label for="checkbox">Export data until: </label>
                 </td>
                 <td>
-                    <input name="enddateday" id="enddateday" size="2" maxlength="2" type="text"
-                           value="$startDaySelected"/>
+                    <input name="enddateday" id="enddateday" size="2" maxlength="2" type="text" value="$startDaySelected"/>
                     <select name="enddatemonth" id="enddatemonth">
                         #foreach ( $month in $months )
                         #if ($foreach.count == $startMonthSelected)
@@ -44,8 +41,7 @@
                         #end
                         #end
                     </select>
-                    <input name="enddateyear" id="enddateyear" type="text" size="4" maxlength="4"
-                           value="$startYearSelected"/>
+                    <input name="enddateyear" id="enddateyear" type="text" size="4" maxlength="4" value="$startYearSelected"/>
                 </td>
                 <script type="text/javascript">
 
@@ -84,8 +80,7 @@
                     <label id="labellistlabel" for="labellist">Select channels to export:</label>
                 </td>
                 <td>
-                    <select name="labellist" id="labellist" multiple="multiple"
-                            style="max-height: 200px;">
+                    <select name="labellist" id="labellist" multiple="multiple" style="max-height: 200px;">
                         #foreach ( $label in $labellist )
                         <option>$label</option>
                         #end

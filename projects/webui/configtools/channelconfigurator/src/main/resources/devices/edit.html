@@ -10,14 +10,12 @@
             <tr>
                 <td>
                     <label for="id">
-                        <span class="ui-icon ui-icon-info" style="float: left; margin-right: 10px;"
-                              title="The ID of the device."> </span>
+                        <span class="ui-icon ui-icon-info" style="float: left; margin-right: 10px;" title="The ID of the device."> </span>
                         ID *:
                     </label>
 
                 </td>
-                <td><input name="deviceId" type="text" size="30" maxlength="60" value="$!device.id">
-                </td>
+                <td><input name="deviceId" type="text" size="30" maxlength="60" value="$!device.id"></td>
                 <td>N.A.</td>
             </tr>
             <tr>
@@ -28,20 +26,7 @@
                         Description:
                     </label>
                 </td>
-                <td><input name="description" type="text" size="30" maxlength="200"
-                           value="$!device.Description"></td>
-                <td>N.A.</td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="interfaceAddress">
-                        <span class="ui-icon ui-icon-info" style="float: left; margin-right: 10px;"
-                              title="$!esc.html($!driverInfo.getInterfaceAddressSyntax())"> </span>
-                        Interface Address:
-                    </label>
-                </td>
-                <td><input name="interfaceAddress" type="text" size="30" maxlength="200"
-                           value="$!device.InterfaceAddress"></td>
+                <td><input name="description" type="text" size="30" maxlength="200" value="$!device.Description"></td>
                 <td>N.A.</td>
             </tr>
             <tr>
@@ -52,8 +37,7 @@
                         Device Address:
                     </label>
                 </td>
-                <td><input name="deviceAddress" type="text" size="30" maxlength="200"
-                           value="$!device.DeviceAddress"></td>
+                <td><input name="deviceAddress" type="text" size="30" maxlength="200" value="$!device.DeviceAddress"></td>
                 <td>N.A.</td>
             </tr>
             <tr>
@@ -64,8 +48,7 @@
                         Settings:
                     </label>
                 </td>
-                <td><input name="settings" type="text" size="30" maxlength="200"
-                           value="$!device.Settings"></td>
+                <td><input name="settings" type="text" size="30" maxlength="200" value="$!device.Settings"></td>
                 <td>N.A.</td>
             </tr>
             <tr>
@@ -76,9 +59,7 @@
                         Sampling Timeout:
                     </label>
                 </td>
-                <td><input name="samplingTimeout" type="text" size="6" maxlength="10"
-                           value="$!device.SamplingTimeout"> ms
-                </td>
+                <td><input name="samplingTimeout" type="text" size="6" maxlength="10" value="$!device.SamplingTimeout"> ms</td>
                 <td>Value set in driver configuration</td>
             </tr>
             <tr>
@@ -90,9 +71,7 @@
                     </label>
 
                 </td>
-                <td><input name="connectRetry" type="text" size="6" maxlength="10"
-                           value="$!device.ConnectRetryInterval"> ms
-                </td>
+                <td><input name="connectRetry" type="text" size="6" maxlength="10" value="$!device.ConnectRetryInterval"> ms</td>
                 <td>Value set in driver configuration</td>
             </tr>
             <tr>

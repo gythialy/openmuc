@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -36,11 +36,8 @@ import java.util.Scanner;
  * @author Frederic Robra
  */
 public class Config {
-    private static final String OPENMUC_CONF = System.getProperties()
-                                                     .containsKey("org.openmuc.configfile") ?
-                                               System
-                                                       .getProperty("org.openmuc.configfile") :
-                                               "openmuc-config.xml";
+    private static final String OPENMUC_CONF = System.getProperties().containsKey("org.openmuc.framework.channelconfig") ? System
+            .getProperty("org.openmuc.framework.channelconfig") : "conf/channels.xml";
     private ResourceLoader loader;
     private ConfigService configService;
     private boolean changed = false;
@@ -74,8 +71,7 @@ public class Config {
         changed = true;
         try {
             configService.writeConfigToFile();
-        }
-        catch (ConfigWriteException e) {
+        } catch (ConfigWriteException e) {
             throw new ProcessRequestException(e);
         }
     }
@@ -84,8 +80,7 @@ public class Config {
         String date = new SimpleDateFormat("yyyy-MM-dd'_'HH:mm:ss").format(new Date());
         try {
             copy(new File(OPENMUC_CONF), new File(OPENMUC_CONF + "." + date));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ProcessRequestException(e);
         }
     }
@@ -118,11 +113,9 @@ public class Config {
         backupConfig();
         try {
             File dir = new File(OPENMUC_CONF).getAbsoluteFile().getParentFile();
-            copy(new File(dir.getAbsolutePath() + File.separatorChar + name),
-                 new File(OPENMUC_CONF));
+            copy(new File(dir.getAbsolutePath() + File.separatorChar + name), new File(OPENMUC_CONF));
             configService.reloadConfigFromFile();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ProcessRequestException(e);
         }
     }
@@ -143,11 +136,9 @@ public class Config {
                 fileContents.append(scanner.nextLine() + lineSeperator);
             }
 
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new ProcessRequestException(e);
-        }
-        finally {
+        } finally {
             scanner.close();
         }
         return fileContents.toString();
@@ -165,8 +156,7 @@ public class Config {
             while ((length = inputStream.read(buffer)) > 0) {
                 outputStream.write(buffer, 0, length);
             }
-        }
-        finally {
+        } finally {
             if (inputStream != null) {
                 inputStream.close();
             }

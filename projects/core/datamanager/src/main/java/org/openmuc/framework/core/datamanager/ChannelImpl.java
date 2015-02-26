@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -47,11 +47,7 @@ public final class ChannelImpl implements Channel {
     private Timer timer;
     private List<Record> futureValues;
 
-    public ChannelImpl(DataManager dataManager,
-                       ChannelConfigImpl config,
-                       ChannelState initState,
-                       Flag initFlag,
-                       long currentTime,
+    public ChannelImpl(DataManager dataManager, ChannelConfigImpl config, ChannelState initState, Flag initFlag, long currentTime,
                        List<LogChannel> logChannels) {
         this.dataManager = dataManager;
         this.config = config;
@@ -134,11 +130,6 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public String getInterfaceAddress() {
-        return config.deviceParent.interfaceAddress;
-    }
-
-    @Override
     public String getDeviceAddress() {
         return config.deviceParent.deviceAddress;
     }
@@ -188,10 +179,8 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public Record getLoggedRecord(long timestamp)
-            throws DataLoggerNotAvailableException, IOException {
-        List<Record> records = dataManager.getDataLogger()
-                                          .getRecords(config.id, timestamp, timestamp);
+    public Record getLoggedRecord(long timestamp) throws DataLoggerNotAvailableException, IOException {
+        List<Record> records = dataManager.getDataLogger().getRecords(config.id, timestamp, timestamp);
         if (records.size() > 0) {
             return records.get(0);
         } else {
@@ -200,19 +189,14 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public List<Record> getLoggedRecords(long startTime)
-            throws DataLoggerNotAvailableException, IOException {
-        return dataManager.getDataLogger()
-                          .getRecords(config.id, startTime, System.currentTimeMillis());
+    public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
+        return dataManager.getDataLogger().getRecords(config.id, startTime, System.currentTimeMillis());
     }
 
     @Override
-    public List<Record> getLoggedRecords(long startTime, long endTime)
-            throws DataLoggerNotAvailableException,
-            IOException {
+    public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException, IOException {
         Long currentTime = System.currentTimeMillis();
-        List<Record> toReturn = dataManager.getDataLogger()
-                                           .getRecords(config.id, startTime, endTime);
+        List<Record> toReturn = dataManager.getDataLogger().getRecords(config.id, startTime, endTime);
         for (Record record : futureValues) {
             if (record.getTimestamp() >= currentTime) {
                 if (record.getTimestamp() <= endTime) {
@@ -233,73 +217,51 @@ public final class ChannelImpl implements Channel {
 
             try {
                 if (scalingFactor != null) {
-                    record = new Record(new DoubleValue(record.getValue().asDouble()
-                                                        * scalingFactor),
-                                        record.getTimestamp(), record.getFlag());
+                    record = new Record(new DoubleValue(record.getValue().asDouble() * scalingFactor), record.getTimestamp(),
+                                        record.getFlag());
                 }
                 if (scalingOffset != null) {
-                    record = new Record(new DoubleValue(record.getValue().asDouble()
-                                                        + scalingOffset),
-                                        record.getTimestamp(), record.getFlag());
+                    record = new Record(new DoubleValue(record.getValue().asDouble() + scalingOffset), record.getTimestamp(),
+                                        record.getFlag());
                 }
-            }
-            catch (TypeConversionException e) {
+            } catch (TypeConversionException e) {
                 logger.error(
                         "Unable to apply scaling factor because a TypeConversionError occured. ByteArrays or Strings cannot be scaled!");
             }
 
             switch (config.valueType) {
-            case BOOLEAN:
-                currentSample = new Record(new BooleanValue(record.getValue().asBoolean()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case BYTE:
-                currentSample = new Record(new ByteValue(record.getValue().asByte()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case SHORT:
-                currentSample = new Record(new ShortValue(record.getValue().asShort()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case INTEGER:
-                currentSample = new Record(new IntValue(record.getValue().asInt()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case LONG:
-                currentSample = new Record(new LongValue(record.getValue().asLong()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case FLOAT:
-                currentSample = new Record(new FloatValue(record.getValue().asFloat()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case DOUBLE:
-                currentSample = new Record(new DoubleValue(record.getValue().asDouble()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case BYTE_ARRAY:
-                currentSample = new Record(new ByteArrayValue(record.getValue().asByteArray()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
-            case STRING:
-                currentSample = new Record(new StringValue(record.getValue().toString()),
-                                           record.getTimestamp(),
-                                           record.getFlag());
-                break;
+                case BOOLEAN:
+                    currentSample = new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(), record.getFlag());
+                    break;
+                case BYTE:
+                    currentSample = new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(), record.getFlag());
+                    break;
+                case SHORT:
+                    currentSample = new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(), record.getFlag());
+                    break;
+                case INTEGER:
+                    currentSample = new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(), record.getFlag());
+                    break;
+                case LONG:
+                    currentSample = new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(), record.getFlag());
+                    break;
+                case FLOAT:
+                    currentSample = new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(), record.getFlag());
+                    break;
+                case DOUBLE:
+                    currentSample = new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(), record.getFlag());
+                    break;
+                case BYTE_ARRAY:
+                    currentSample = new Record(new ByteArrayValue(record.getValue().asByteArray()), record.getTimestamp(),
+                                               record.getFlag());
+                    break;
+                case STRING:
+                    currentSample = new Record(new StringValue(record.getValue().toString()), record.getTimestamp(), record.getFlag());
+                    break;
             }
 
         } else {
-            currentSample = new Record(currentSample.getValue(),
-                                       currentSample.getTimestamp(),
-                                       record.getFlag());
+            currentSample = new Record(currentSample.getValue(), currentSample.getTimestamp(), record.getFlag());
         }
         notifyListeners();
     }
@@ -308,9 +270,7 @@ public final class ChannelImpl implements Channel {
         if (listeners.size() != 0) {
             synchronized (listeners) {
                 for (RecordListener listener : listeners) {
-                    config.deviceParent.device.dataManager.executor.execute(new ListenerNotifier(
-                            listener,
-                            currentSample));
+                    config.deviceParent.device.dataManager.executor.execute(new ListenerNotifier(listener, currentSample));
                 }
             }
         }
@@ -322,9 +282,7 @@ public final class ChannelImpl implements Channel {
 
     void setFlag(Flag flag) {
         if (flag != currentSample.getFlag()) {
-            currentSample = new Record(currentSample.getValue(),
-                                       currentSample.getTimestamp(),
-                                       flag);
+            currentSample = new Record(currentSample.getValue(), currentSample.getTimestamp(), flag);
             notifyListeners();
         }
     }
@@ -360,26 +318,19 @@ public final class ChannelImpl implements Channel {
         }
         writeValueContainer.setValue(adjustedValue);
 
-        List<WriteValueContainerImpl> writeValueContainerList = new ArrayList<WriteValueContainerImpl>(
-                1);
+        List<WriteValueContainerImpl> writeValueContainerList = new ArrayList<WriteValueContainerImpl>(1);
         writeValueContainerList.add(writeValueContainer);
-        WriteTask writeTask = new WriteTask(dataManager,
-                                            config.deviceParent.device,
-                                            writeValueContainerList,
-                                            writeTaskFinishedSignal);
+        WriteTask writeTask = new WriteTask(dataManager, config.deviceParent.device, writeValueContainerList, writeTaskFinishedSignal);
         synchronized (dataManager.newWriteTasks) {
             dataManager.newWriteTasks.add(writeTask);
         }
         dataManager.interrupt();
         try {
             writeTaskFinishedSignal.await();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
         }
 
-        currentSample = new Record(value,
-                                   System.currentTimeMillis(),
-                                   writeValueContainer.getFlag());
+        currentSample = new Record(value, System.currentTimeMillis(), writeValueContainer.getFlag());
         notifyListeners();
 
         return writeValueContainer.getFlag();
@@ -414,14 +365,10 @@ public final class ChannelImpl implements Channel {
         CountDownLatch readTaskFinishedSignal = new CountDownLatch(1);
 
         ChannelRecordContainerImpl readValueContainer = new ChannelRecordContainerImpl(this);
-        List<ChannelRecordContainerImpl> readValueContainerList = new ArrayList<ChannelRecordContainerImpl>(
-                1);
+        List<ChannelRecordContainerImpl> readValueContainerList = new ArrayList<ChannelRecordContainerImpl>(1);
         readValueContainerList.add(readValueContainer);
 
-        ReadTask readTask = new ReadTask(dataManager,
-                                         config.deviceParent.device,
-                                         readValueContainerList,
-                                         readTaskFinishedSignal);
+        ReadTask readTask = new ReadTask(dataManager, config.deviceParent.device, readValueContainerList, readTaskFinishedSignal);
         synchronized (dataManager.newReadTasks) {
             dataManager.newReadTasks.add(readTask);
         }
@@ -429,8 +376,7 @@ public final class ChannelImpl implements Channel {
 
         try {
             readTaskFinishedSignal.await();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
         }
 
         Record record = readValueContainer.record;
@@ -451,8 +397,7 @@ public final class ChannelImpl implements Channel {
                     adjustedValue = new DoubleValue(adjustedValue.asDouble() + scalingOffset);
                 }
                 record = new Record(adjustedValue, record.getTimestamp());
-            }
-            catch (TypeConversionException e) {
+            } catch (TypeConversionException e) {
                 logger.error(
                         "Unable to apply scaling factor because a TypeConversionError occured. ByteArrays or Strings cannot be scaled!");
             }
@@ -463,8 +408,7 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public boolean isConnected() {
-        if (config.state == ChannelState.CONNECTED || config.state == ChannelState.SAMPLING
-            || config.state == ChannelState.LISTENING) {
+        if (config.state == ChannelState.CONNECTED || config.state == ChannelState.SAMPLING || config.state == ChannelState.LISTENING) {
             return true;
         }
         return false;

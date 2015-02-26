@@ -1,3 +1,75 @@
-Bundle			Library		Website			License
-------			-------		-------			-------
-openmuc-driver-modbus	jamod		jamod.sourceforge.net	Apache 2.0
+
+Licenses of dependencies:
+
+Name:		jamod
+Description:	modbus library
+License:	Apache2.0
+URL:		jamod.sourceforge.net
+Required by:	openmuc-driver-modbus
+
+Name:		calimero-core
+Description:	knx library
+License:	GPLv2 or higher + Classpath Exception
+URL:		http://sourceforge.net/projects/calimero/
+Required by:	openmuc-driver-knx
+
+Name:		google-gson
+Description:	JSON library
+License:	Apache2.0
+URL:		http://code.google.com/p/google-gson/
+Required by:	openmuc-server-restws
+
+Name:		rxtxcomm_api
+Description:	RXTX library for serial communication
+License:	LGPL v2.1 + Linking Over Controlled Interface
+URL:		http://rxtx.qbang.org/wiki/index.php/Main_Page
+Required by:	openmuc-driver-modbus, openmuc-driver-dlms, openmuc-driver-mbus, openmuc-driver-wmbus, openmuc-driver-iec62056p21
+
+Name:		snmp4j
+Description:	The Object Oriented SNMP API for Java Managers and Agents
+License:	Apache2.0
+URL:		http://www.snmp4j.org/
+Required by:	openmuc-driver-snmp
+
+Name:		libnodave-java
+Description:	Exchange data with Siemens PLCs
+License:	GNU Library or Lesser General Public License version 2.0 (LGPLv2)
+URL:		http://sourceforge.net/projects/libnodave/
+Required by:	openmuc-driver-s7plc
+
+Name:		json
+Description:	JavaScript Object Notation Lib
+License:	The Software shall be used for Good, not Evil http://json.org/license.html)
+URL:		http://www.json.org/json-de.html
+Required by:	openmuc-driver-muc2muc
+
+Name:		commens-codec
+Description:	Apache Commons Codec provides implementations of common encoders and decoders such as Base64, Hex, Phonetic and URLs. 
+License:	Apache2.0
+URL:		http://commons.apache.org/proper/commons-codec/
+Required by:	openmuc-driver-muc2muc
+
+Name:		commons-fileupload
+Description:	Lib to add robust, high-performance, file upload capability to your servlets and web applications
+License:	Apache2.0
+URL:		http://commons.apache.org/proper/commons-fileupload/
+Required by:	openmuc-webui-bundleconfigurator
+
+Name:		velocity
+Description:	Apache Velocity is a Java-based template engine that provides a template language to reference objects defined in Java code
+License:	Apache2.0	
+URL:		http://velocity.apache.org/
+Required by:	openmuc-webui-base
+
+Name:		velocity-tools-generic
+Description:	Apache Velocity is a Java-based template engine that provides a template language to reference objects defined in Java code
+License:	Apache2.0	
+URL:		http://velocity.apache.org/
+Required by:	openmuc-webui-base
+
+
+
+
+
+
+

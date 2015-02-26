@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,8 +40,7 @@ public final class BundleConfiguration {
     private final ConfigurationAdmin confAdmin;
     private final Bundle bundle;
 
-    public BundleConfiguration(Bundle bundle, ConfigurationAdmin configAdmin, MetaTypeService meta)
-            throws IOException,
+    public BundleConfiguration(Bundle bundle, ConfigurationAdmin configAdmin, MetaTypeService meta) throws IOException,
             InvalidSyntaxException {
         hasConfig = false;
 
@@ -54,8 +53,7 @@ public final class BundleConfiguration {
                 for (Configuration config : configs) {
                     if (config.getBundleLocation() != null) {
                         config = confAdmin.getConfiguration(config.getPid());
-                        if (config.getBundleLocation().contains(location)
-                            || location.contains(config.getBundleLocation())) {
+                        if (config.getBundleLocation().contains(location) || location.contains(config.getBundleLocation())) {
                             this.config = config;
                             hasConfig = true;
                         }
@@ -86,8 +84,7 @@ public final class BundleConfiguration {
         }
     }
 
-    public void setBundleProperties(Dictionary<String, String> bundleProperties)
-            throws IOException {
+    public void setBundleProperties(Dictionary<String, String> bundleProperties) throws IOException {
         if (bundleProperties.size() == 1) {
             config = confAdmin.createFactoryConfiguration(bundle.getSymbolicName());
             config.setBundleLocation(bundle.getLocation());
@@ -126,8 +123,7 @@ public final class BundleConfiguration {
         } else {
             try {
                 config.delete();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
         }
     }

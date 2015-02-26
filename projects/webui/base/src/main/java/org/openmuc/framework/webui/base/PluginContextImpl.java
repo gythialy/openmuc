@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,9 +35,7 @@ public final class PluginContextImpl implements PluginContext {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
-    public PluginContextImpl(String pathInfo,
-                             HttpServletRequest request,
-                             HttpServletResponse response) {
+    public PluginContextImpl(String pathInfo, HttpServletRequest request, HttpServletResponse response) {
         extractPathInfoParts(pathInfo);
         this.request = request;
         this.response = response;
@@ -59,9 +57,8 @@ public final class PluginContextImpl implements PluginContext {
     }
 
     private void extractPathInfoParts(String pathInfo) {
-        String categoryPrefixes[] = {"/" + PluginCategory.APPLICATION.toString() + "/",
-                                     "/" + PluginCategory.CONFIGTOOL.toString() + "/",
-                                     "/" + PluginCategory.DRIVERTOOL.toString() + "/"};
+        String categoryPrefixes[] = {"/" + PluginCategory.APPLICATION.toString() + "/", "/" + PluginCategory.CONFIGTOOL
+                .toString() + "/", "/" + PluginCategory.DRIVERTOOL.toString() + "/"};
 
         for (String categoryPrefix : categoryPrefixes) {
             if (pathInfo.startsWith(categoryPrefix)) {

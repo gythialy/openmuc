@@ -35,8 +35,7 @@
         <tr>
             <td>Resolution:</td>
             <td><input id="resolutionList" type="text" size="5" value="500"></td>
-            <td><i>Resolution 0 will plot all data, might take some time or crash the browser.</i>
-            </td>
+            <td><i>Resolution 0 will plot all data, might take some time or crash the browser.</i></td>
         </tr>
         <tr>
             <td>
@@ -47,8 +46,7 @@
                 <div style="max-height:150px; overflow: auto">
                     #foreach ( $label in $labels )
                     <div id="divLabelList$velocityCount">
-                        <input type="checkbox" name="LabelList$velocityCount"
-                               id="LabelList$velocityCount" value="$label">
+                        <input type="checkbox" name="LabelList$velocityCount" id="LabelList$velocityCount" value="$label">
                         <label for="LabelList$velocityCount">$label</label>
                     </div>
                     #end

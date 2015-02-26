@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -140,13 +140,6 @@ public interface Channel {
      * @return the unique name of the communication driver that is used by this channel to read/write data.
      */
     public String getDriverName();
-
-    /**
-     * Returns the channel's interface address. May be <code>null</code> if not configured.
-     *
-     * @return the channel's interface address.
-     */
-    public String getInterfaceAddress();
 
     /**
      * Returns the channel's device address.
@@ -305,8 +298,7 @@ public interface Channel {
      * @throws DataLoggerNotAvailableException if no data logger is installed and therefore no logged data can be accessed.
      * @throws IOException                     if any kind of error occurs accessing the logged data.
      */
-    public List<Record> getLoggedRecords(long startTime)
-            throws DataLoggerNotAvailableException, IOException;
+    public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException;
 
     /**
      * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code>
@@ -319,8 +311,6 @@ public interface Channel {
      * @throws DataLoggerNotAvailableException if no data logger is installed and therefore no logged data can be accessed.
      * @throws IOException                     if any kind of error occurs accessing the logged data.
      */
-    public List<Record> getLoggedRecords(long startTime, long endTime)
-            throws DataLoggerNotAvailableException,
-            IOException;
+    public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException, IOException;
 
 }

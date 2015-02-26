@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -37,12 +37,7 @@ public class Option {
 
     @Override
     public String toString() {
-        return "short name: "
-               + this.optionName
-               + " full name: "
-               + this.optionFullName
-               + " id: "
-               + this.id;
+        return "short name: " + this.optionName + " full name: " + this.optionFullName + " id: " + this.id;
     }
 
     public Boolean equals(Option opt) {

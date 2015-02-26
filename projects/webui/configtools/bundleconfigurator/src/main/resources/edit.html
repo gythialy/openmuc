@@ -13,14 +13,11 @@
         #set($keyid = $key.replace('.','-'))
         <tr id="$keyid">
             <td>$key</td>
-            <td><input name="${key}Property" size="40" value="$!bundleProperties.get($key).get("
-                       value")">
-            </td>
+            <td><input name="${key}Property" size="40" value="$!bundleProperties.get($key).get(" value")"></td>
             <td>$!bundleProperties.get($key).get("description")</td>
             <td>
                 <div id="remove-$keyid">
-                    <input id="check-$keyid" type="checkbox" name="keyList" checked="true"
-                           value="$key">
+                    <input id="check-$keyid" type="checkbox" name="keyList" checked="true" value="$key">
                 </div>
                 <script type="text/javascript">
                     $(document).ready(function () {

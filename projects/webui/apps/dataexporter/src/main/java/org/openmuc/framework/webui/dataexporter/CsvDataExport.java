@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -51,8 +51,7 @@ public final class CsvDataExport {
             List<Record> records;
             try {
                 records = channel.getLoggedRecords(start, stop);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage());
                 continue;
             }
@@ -62,24 +61,21 @@ public final class CsvDataExport {
         printFile(labels, pw, dateFormat, allValues);
     }
 
-    private void printFile(String[] labels,
-                           PrintWriter pw,
-                           int dateFormat,
-                           List<List<Record>> allValues) {
+    private void printFile(String[] labels, PrintWriter pw, int dateFormat, List<List<Record>> allValues) {
         /* Write Header */
         switch (dateFormat) {
-        case 1:
-            pw.print("#ISOTIME UNIXTIME ");
-            break;
-        case 2:
-            pw.print("#ISOTIME ");
-            break;
-        case 3:
-            pw.print("#UNIXTIME ");
-            break;
-        case 4:
-            pw.print("#JAVATIME ");
-            break;
+            case 1:
+                pw.print("#ISOTIME UNIXTIME ");
+                break;
+            case 2:
+                pw.print("#ISOTIME ");
+                break;
+            case 3:
+                pw.print("#UNIXTIME ");
+                break;
+            case 4:
+                pw.print("#JAVATIME ");
+                break;
         }
 
         for (String label : labels) {
@@ -144,22 +140,22 @@ public final class CsvDataExport {
 
 			/* write dateFormat column */
             switch (dateFormat) {
-            case 1:
-                date.setTime(smallestts);
-                pw.print(DateParser.getIsoDate(date));
-                pw.print(' ');
-                pw.print(smallestts / 1000);
-                break;
-            case 2:
-                date.setTime(smallestts);
-                pw.print(DateParser.getIsoDate(date));
-                break;
-            case 3:
-                pw.print(smallestts / 1000);
-                break;
-            case 4:
-                pw.print(smallestts);
-                break;
+                case 1:
+                    date.setTime(smallestts);
+                    pw.print(DateParser.getIsoDate(date));
+                    pw.print(' ');
+                    pw.print(smallestts / 1000);
+                    break;
+                case 2:
+                    date.setTime(smallestts);
+                    pw.print(DateParser.getIsoDate(date));
+                    break;
+                case 3:
+                    pw.print(smallestts / 1000);
+                    break;
+                case 4:
+                    pw.print(smallestts);
+                    break;
             }
 
 			/*

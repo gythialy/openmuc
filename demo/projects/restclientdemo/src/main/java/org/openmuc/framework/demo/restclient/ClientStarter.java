@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,9 +35,9 @@ public class ClientStarter {
 
         String[] arg = args;
         if (arg.length == 0) {
-            System.out
-                    .println(
-                            "No arguments.\n\t-->\ttype for help: ./openmuc-demo-restclient --manual or\n\t   \t               ./openmuc-demo-restclient -m\n ");
+            System.out.println(
+                    "No arguments.\n\t-->\ttype for help: ./openmuc-demo-restclient --manual or\n\t   \t               " + "" +
+                            "./openmuc-demo-restclient -m\n ");
             return;
         }
         initOptions();
@@ -67,30 +67,28 @@ public class ClientStarter {
             System.out.println(code2);
             int code3 = (int) ((argCode & 0x0F80) >> 7);
             switch (code2) {
-            case 1:
-                Boolean ch = ChannelClient.start(code3, arg);
-                if (!ch) {
-                    System.out.println("Error");
-                }
-                break;
-            case 2:
-                Boolean dv = DeviceClient.start(code3, arg);
-                if (!dv) {
-                    System.out.println("Error");
-                }
-                break;
-            case 4:
+                case 1:
+                    Boolean ch = ChannelClient.start(code3, arg);
+                    if (!ch) {
+                        System.out.println("Error");
+                    }
+                    break;
+                case 2:
+                    Boolean dv = DeviceClient.start(code3, arg);
+                    if (!dv) {
+                        System.out.println("Error");
+                    }
+                    break;
+                case 4:
 
-                Boolean dr = DriverClient.start(code3, arg);
-                if (!dr) {
-                    System.out.println("Error");
-                }
-                break;
-            default:
-                System.out
-                        .println(
-                                "Do not use option -c (--channel), option -d (--device) and option -p (--driver) together.");
-                return;
+                    Boolean dr = DriverClient.start(code3, arg);
+                    if (!dr) {
+                        System.out.println("Error");
+                    }
+                    break;
+                default:
+                    System.out.println("Do not use option -c (--channel), option -d (--device) and option -p (--driver) together.");
+                    return;
             }
 
         }
@@ -109,9 +107,7 @@ public class ClientStarter {
         Option optMan = new Option('m', "manual", "Prints the full help for this client.");
         optionsList.add(optMan);
 
-        Option optHelp = new Option('h',
-                                    "help",
-                                    "Prints usage information about a specific command.");
+        Option optHelp = new Option('h', "help", "Prints usage information about a specific command.");
         optHelp.setNbrOfParamaters(1);
         optionsList.add(optHelp);
 
@@ -134,34 +130,24 @@ public class ClientStarter {
         optWrite.setNbrOfParamaters(20);
         optionsList.add(optWrite);
 
-        Option optGet = new Option('g',
-                                   "get",
-                                   "Gets config informations form the openmuc-config.xml");
+        Option optGet = new Option('g', "get", "Gets config informations form the channel config file");
         optGet.setNbrOfParamaters(20);
         optionsList.add(optGet);
 
-        Option optSet = new Option('s',
-                                   "set",
-                                   "sets config informations in the openmuc-config.xml");
+        Option optSet = new Option('s', "set", "sets config informations in the channel config file");
         optGet.setNbrOfParamaters(20);
         optionsList.add(optSet);
 
-        Option optAll = new Option('a',
-                                   "all",
-                                   "Prints all available channels for a given driver or device.");
+        Option optAll = new Option('a', "all", "Prints all available channels for a given driver or device.");
         optionsList.add(optAll);
 
-        Option optHistory = new Option('H',
-                                       "history",
-                                       "Prints history record for a given channel.");
+        Option optHistory = new Option('H', "history", "Prints history record for a given channel.");
         optHistory.setNbrOfParamaters(2);
         optionsList.add(optHistory);
 
         // 5th group of options
 
-        Option optReturnText = new Option('t',
-                                          "text",
-                                          "Displays server answers in text/plain format.");
+        Option optReturnText = new Option('t', "text", "Displays server answers in text/plain format.");
         optionsList.add(optReturnText);
 
         Option optReturnJson = new Option('j', "json", "Displays server answers in json format.");

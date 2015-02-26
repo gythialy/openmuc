@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -75,8 +75,7 @@ public final class ResourceLoader {
             reader.close();
 
             return builder.toString();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return null;
         }
 

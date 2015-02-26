@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -50,8 +50,7 @@ public class DataSet {
     public double getVal() {
         try {
             return Double.parseDouble(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return Double.NaN;
         }
     }

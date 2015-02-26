@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * @author Frederic Robra
  */
-public class SmlConnection extends Connection {
+public class SmlConnection extends GeneralConnection {
 
     private final SML_SerialReceiver receiver;
     private String serverID;
@@ -49,14 +49,11 @@ public class SmlConnection extends Connection {
         receiver = new SML_SerialReceiver();
         try {
             receiver.setupComPort(deviceAddress);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException();
-        }
-        catch (PortInUseException e) {
+        } catch (PortInUseException e) {
             throw new ConnectionException("Port in use");
-        }
-        catch (UnsupportedCommOperationException e) {
+        } catch (UnsupportedCommOperationException e) {
             throw new ConnectionException("Unsupported comm operation");
         }
     }
@@ -70,8 +67,7 @@ public class SmlConnection extends Connection {
     public void close() {
         try {
             receiver.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -82,8 +78,7 @@ public class SmlConnection extends Connection {
      * @see org.openmuc.framework.driver.ehz.Connection#read(java.util.List, int)
      */
     @Override
-    public void read(List<ChannelRecordContainer> containers, int timeout)
-            throws ConnectionException {
+    public void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
         logger.trace(name + "reading channels");
         try {
             long timestamp = System.currentTimeMillis();
@@ -98,8 +93,7 @@ public class SmlConnection extends Connection {
             }
 
             handleChannelRecordContainer(containers, values, timestamp);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             logger.error(name + "read failed");
             close();
@@ -126,16 +120,11 @@ public class SmlConnection extends Connection {
                 Integer valueTypeLength = null;
                 Boolean readable = true;
                 Boolean writable = false;
-                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress,
-                                                                  description,
-                                                                  valueType,
-                                                                  valueTypeLength,
-                                                                  readable,
+                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength, readable,
                                                                   writable);
                 channelInfos.add(channelInfo);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             logger.error(name + "read failed");
         }
@@ -152,8 +141,7 @@ public class SmlConnection extends Connection {
         try {
             getSML_ListEntries();
             return true;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return false;
         }
     }

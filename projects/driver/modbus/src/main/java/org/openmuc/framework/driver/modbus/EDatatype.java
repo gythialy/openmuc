@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -71,9 +71,8 @@ public enum EDatatype {
         }
 
         if (returnValue == null) {
-            throw new RuntimeException(enumAsString
-                                       + " is not supported. Use one of the following supported datatypes: "
-                                       + getSupportedDatatypes());
+            throw new RuntimeException(
+                    enumAsString + " is not supported. Use one of the following supported datatypes: " + getSupportedDatatypes());
         }
 
         return returnValue;

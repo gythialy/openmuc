@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -117,14 +117,12 @@ public class AsciiSocketServer extends Thread {
                     connectionList.add(con);
                     con.start();
                 }
-            }
-            catch (SocketException e) {
+            } catch (SocketException e) {
 
             }
             logger.info("DataSocketServer stopped.");
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             serverState = STATE_ERROR;
         }
@@ -154,8 +152,7 @@ public class AsciiSocketServer extends Thread {
         logger.info("Stop server.");
         try {
             serverSocket.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
 

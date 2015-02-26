@@ -22,8 +22,7 @@ public class DateParser {
             } else {
                 throw new InvalidDateException("Missing [" + token + "]");
             }
-        }
-        catch (NoSuchElementException ex) {
+        } catch (NoSuchElementException ex) {
             return false;
         }
     }
@@ -144,8 +143,7 @@ public class DateParser {
                     calendar.add(Calendar.MINUTE, tzmin);
                 }
             }
-        }
-        catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             throw new InvalidDateException("[" + ex.getMessage() + "] is not an integer");
         }
         return calendar;

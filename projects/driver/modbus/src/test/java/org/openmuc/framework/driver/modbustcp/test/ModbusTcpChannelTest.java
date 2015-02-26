@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -96,19 +96,14 @@ public class ModbusTcpChannelTest {
         for (String channelAddress : validAddresses) {
             try {
                 ModbusChannel channel = new ModbusChannel(channelAddress, EAccess.READ);
-                String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(),
-                                                channel.getDatatype());
+                String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(), channel.getDatatype());
                 if (!validAddressCombinations.contains(testString.toUpperCase())) {
                     Assert.fail(testString + "is not a valid paramaeter combination");
                 } else {
-                    System.out.println(channelAddress
-                                       + " and resulting "
-                                       + testString.toUpperCase()
-                                       + " are valid.");
+                    System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
                 }
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Assert.fail("unexpected exception");
             }
@@ -131,18 +126,13 @@ public class ModbusTcpChannelTest {
         for (String channelAddress : validAddresses) {
             try {
                 ModbusChannel channel = new ModbusChannel(channelAddress, EAccess.WRITE);
-                String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(),
-                                                channel.getDatatype());
+                String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(), channel.getDatatype());
                 if (!validAddressCombinations.contains(testString.toUpperCase())) {
                     Assert.fail(testString + "is not a valid paramaeter combination");
                 } else {
-                    System.out.println(channelAddress
-                                       + " and resulting "
-                                       + testString.toUpperCase()
-                                       + " are valid.");
+                    System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Assert.fail("unexpected exception");
             }

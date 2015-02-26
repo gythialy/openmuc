@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -63,8 +63,7 @@ public final class WebUiBaseServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String pathInfo = req.getPathInfo();
             if (pathInfo == null) {
@@ -112,9 +111,7 @@ public final class WebUiBaseServlet extends HttpServlet {
                 vc.put("page", "System Information");
                 vc.put("system", sysInfo);
                 vc.put("content_template", loader.getResourceAsString("sysinfo.html"));
-            } else if (pathInfo.equals("/configuration")
-                       || pathInfo.equals("/tools")
-                       || pathInfo.equals("/applications")) {
+            } else if (pathInfo.equals("/configuration") || pathInfo.equals("/tools") || pathInfo.equals("/applications")) {
 
                 vc.put("application", "Control Center");
                 vc.put("page", "Overview");
@@ -145,10 +142,7 @@ public final class WebUiBaseServlet extends HttpServlet {
 
                             StringWriter writer = new StringWriter();
                             resp.setContentType("text/plain");
-                            Velocity.mergeTemplate("ajax.html",
-                                                   RuntimeConstants.ENCODING_DEFAULT,
-                                                   vc,
-                                                   writer);
+                            Velocity.mergeTemplate("ajax.html", RuntimeConstants.ENCODING_DEFAULT, vc, writer);
                             /*
                              * Important for SSL, without '\n' and flush() the content will be wrong
 							 */
@@ -174,9 +168,7 @@ public final class WebUiBaseServlet extends HttpServlet {
                             if (appStyleSheet.startsWith("/")) {
                                 styleSheets.add(appStyleSheet);
                             } else {
-                                styleSheets.add(pluginContext.getApplicationPath()
-                                                + "/"
-                                                + appStyleSheet);
+                                styleSheets.add(pluginContext.getApplicationPath() + "/" + appStyleSheet);
                             }
                         }
                     }
@@ -189,9 +181,7 @@ public final class WebUiBaseServlet extends HttpServlet {
                             if (appJavaScript.startsWith("/")) {
                                 javaScripts.add(appJavaScript);
                             } else {
-                                javaScripts.add(pluginContext.getApplicationPath()
-                                                + "/"
-                                                + appJavaScript);
+                                javaScripts.add(pluginContext.getApplicationPath() + "/" + appJavaScript);
                             }
                         }
                     }
@@ -219,15 +209,13 @@ public final class WebUiBaseServlet extends HttpServlet {
             out.append('\n');
             out.print(writer);
             out.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getPathInfo().equals("/login")) {
             String user = req.getParameter("user");
             String pwd = req.getParameter("pwd");
@@ -312,9 +300,7 @@ public final class WebUiBaseServlet extends HttpServlet {
         for (String alias : aliases) {
             WebUiPluginService plugin = plugins.get(alias);
             if (plugin != null) {
-                MenuItem menuItem = new MenuItem(plugin.getName(),
-                                                 plugin.getCategory().toString() + "/"
-                                                 + plugin.getAlias(),
+                MenuItem menuItem = new MenuItem(plugin.getName(), plugin.getCategory().toString() + "/" + plugin.getAlias(),
                                                  plugin.getDescription());
 
                 if (plugin.getAlias().equals(pluginContext.getApplicationAlias())) {
@@ -322,17 +308,17 @@ public final class WebUiBaseServlet extends HttpServlet {
                 }
 
                 switch (plugin.getCategory()) {
-                case APPLICATION:
-                    applications.addSubItem(menuItem);
-                    break;
-                case CONFIGTOOL:
-                    configuration.addSubItem(menuItem);
-                    break;
-                case DRIVERTOOL:
-                    tools.addSubItem(menuItem);
-                    break;
-                default:
-                    menu.add(new MenuItem(plugin.getName(), plugin.getAlias()));
+                    case APPLICATION:
+                        applications.addSubItem(menuItem);
+                        break;
+                    case CONFIGTOOL:
+                        configuration.addSubItem(menuItem);
+                        break;
+                    case DRIVERTOOL:
+                        tools.addSubItem(menuItem);
+                        break;
+                    default:
+                        menu.add(new MenuItem(plugin.getName(), plugin.getAlias()));
                 }
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -61,8 +61,7 @@ public class IecReceiver {
         public void run() {
             try {
                 Thread.sleep(time);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
             end = true;
             return;
@@ -78,10 +77,7 @@ public class IecReceiver {
             portId = CommPortIdentifier.getPortIdentifier(iface);
             serialPort = (SerialPort) portId.open("ehz_connector", 2000);
 
-            serialPort.setSerialPortParams(9600,
-                                           SerialPort.DATABITS_7,
-                                           SerialPort.STOPBITS_1,
-                                           SerialPort.PARITY_EVEN);
+            serialPort.setSerialPortParams(9600, SerialPort.DATABITS_7, SerialPort.STOPBITS_1, SerialPort.PARITY_EVEN);
 
             inStream = new DataInputStream(serialPort.getInputStream());
 
@@ -90,17 +86,13 @@ public class IecReceiver {
             }
             try {
                 Thread.sleep(100);
+            } catch (InterruptedException e) {
             }
-            catch (InterruptedException e) {
-            }
-        }
-        catch (PortInUseException e) {
+        } catch (PortInUseException e) {
             throw new Exception("Port " + iface + " in use!");
-        }
-        catch (UnsupportedCommOperationException e) {
+        } catch (UnsupportedCommOperationException e) {
             throw new Exception("Error setting communication parameters!");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new Exception("Cannot catch output stream!");
         }
 
@@ -138,8 +130,7 @@ public class IecReceiver {
 
             try {
                 Thread.sleep(50);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
         } while (!time.isEnd());
 
@@ -159,10 +150,8 @@ public class IecReceiver {
     public void changeBaudrate(int baudrate) {
         try {
             logger.debug("Change baudrate to: " + baudrate);
-            serialPort.setSerialPortParams(baudrate, SerialPort.DATABITS_7, SerialPort.STOPBITS_1,
-                                           SerialPort.PARITY_EVEN);
-        }
-        catch (Exception e) {
+            serialPort.setSerialPortParams(baudrate, SerialPort.DATABITS_7, SerialPort.STOPBITS_1, SerialPort.PARITY_EVEN);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

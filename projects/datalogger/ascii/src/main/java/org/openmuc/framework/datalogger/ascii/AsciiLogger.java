@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class AsciiLogger implements DataLoggerService {
 
@@ -68,7 +69,10 @@ public class AsciiLogger implements DataLoggerService {
         logger.debug("using directory: " + loggerDirectory);
         File asciidata = new File(loggerDirectory);
         if (!asciidata.exists()) {
-            asciidata.mkdir();
+            if (!asciidata.mkdir()) {
+                logger.error("Could not create logger directory: " + asciidata.getAbsolutePath());
+                // TODO: weitere Behandlung,
+            }
         }
     }
 
@@ -139,7 +143,7 @@ public class AsciiLogger implements DataLoggerService {
             if (logChannelList.containsKey(container.getChannelId())) {
                 logInterval = logChannelList.get(container.getChannelId()).getLoggingInterval();
             } else {
-                // TODO there might be a change in the openmuc-config.xml
+                // TODO there might be a change in the channel config file
             }
 
             if (logIntervalGroups.containsKey(logInterval)) {
@@ -156,20 +160,28 @@ public class AsciiLogger implements DataLoggerService {
         }
 
         // alle gruppen loggen
-        for (Integer logInterval : logIntervalGroups.keySet()) {
+        Iterator<Entry<Integer, LogIntervalContainerGroup>> it = logIntervalGroups.entrySet().iterator();
+        Integer logInterval;
+        while (it.hasNext()) {
+            logInterval = it.next().getKey();
             LogIntervalContainerGroup group = logIntervalGroups.get(logInterval);
             LogFileWriter fileOutHandler = new LogFileWriter();
             fileOutHandler.log(group, logInterval, new Date(timestamp), logChannelList);
         }
-
     }
 
     @Override
-    public List<Record> getRecords(String channelId, long startTime, long endTime)
-            throws IOException {
-        int loggingInterval = logChannelList.get(channelId).getLoggingInterval();
-        LogFileReader reader = new LogFileReader(loggerDirectory, channelId, loggingInterval);
-        return reader.getValues(startTime, endTime);
+    public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
+
+        LogChannel logChannel = logChannelList.get(channelId);
+        LogFileReader reader = null;
+        if (logChannel != null) {
+            int loggingInterval = logChannel.getLoggingInterval();
+            reader = new LogFileReader(loggerDirectory, channelId, loggingInterval);
+            return reader.getValues(startTime, endTime);
+        } else {
+            throw new IOException("ChannelID (" + channelId + ") not available.");
+        }
     }
 
 }

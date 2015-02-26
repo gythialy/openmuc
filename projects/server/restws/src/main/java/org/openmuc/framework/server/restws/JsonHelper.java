@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,307 +20,346 @@
  */
 package org.openmuc.framework.server.restws;
 
-import org.openmuc.framework.data.DoubleValue;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Record;
-import org.openmuc.framework.data.Value;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.DriverConfig;
+import org.openmuc.framework.data.*;
 import org.openmuc.framework.dataaccess.Channel;
-import org.openmuc.framework.server.restws.json.*;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.server.restws.objects.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 public class JsonHelper {
 
-    public static String FlagToJson(Flag flag) {
-        JsonObject jso = new JsonObject();
+    private final static Logger logger = LoggerFactory.getLogger(JsonHelper.class);
 
-        jso.writeStartObject();
-        jso.writeObjectField("flag");
-        jso.writeObjectValue(flag.toString());
-        jso.writeEndObject();
+    private static Gson gson = new Gson();
 
-        return jso.getJsonText();
+    public static Gson getGson() {
+        return gson;
     }
 
-    public static Value JsonToValue(String jsontext) {
-        Value value = new DoubleValue(0.0);
-
-        JsonObjectMap jom = new JsonObjectMap();
-        jom = JsonReader.JsonStreamToMap(jsontext);
-        if (jom == null) {
-            return null;
-        }
-
-        ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(jom.keySet());
-        ListIterator<JsonFieldInformation> iter = arrayList.listIterator();
-        JsonFieldInformation jfi;
-        int i = 0;
-        while (iter.hasNext()) {
-            jfi = iter.next();
-            if (jfi.getFieldLevel() != 1) {
-                return null;
-            }
-            if (jfi.getFieldName().equals("value") && jfi.getFieldJsonTextType()
-                                                         .equals(JsonTextType.JsonNumber)) {
-                value = new DoubleValue(Double.valueOf((jom.get(jfi))));
-
-            }
-            ++i;
-        }
-        if (i != 1) {
-            return null;
-        } else {
-            return value;
-        }
-
-    }
-
-    public static Record JsonToRecord(String jsontext) {
-
-        Record rc;
-        Value value = new DoubleValue(0.0);
-
-        JsonObjectMap jom = new JsonObjectMap();
-        jom = JsonReader.JsonStreamToMap(jsontext);
-        if (jom == null) {
-            return null;
-        }
-
-        ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(jom.keySet());
-        ListIterator<JsonFieldInformation> iter = arrayList.listIterator();
-        JsonFieldInformation jfi;
-        int i = 0;
-        while (iter.hasNext()) {
-            jfi = iter.next();
-            if (jfi.getFieldLevel() != 1) {
-                return null;
-            }
-            if (jfi.getFieldName().equals("value") && jfi.getFieldJsonTextType()
-                                                         .equals(JsonTextType.JsonNumber)) {
-                value = new DoubleValue(Double.valueOf((jom.get(jfi))));
-                ++i;
-            } else if (jfi.getFieldName().equals("flag")
-                       && ((jfi.getFieldJsonTextType().equals(JsonTextType.JsonString))
-                           || (jfi.getFieldJsonTextType()
-                                  .equals(JsonTextType.JsonNull)))) {
-                if (jom.get(jfi).equals("\"VALID\"") || jom.get(jfi).equals("null")) {
-                    ++i;
-                } else {
-                    return null;
-                }
-            } else if (jfi.getFieldName().equals("timestamp")
-                       && jfi.getFieldJsonTextType().equals(JsonTextType.JsonNumber)) {
-                if (!jom.get(jfi).matches("-?\\d+")) {
-                    return null;
-                }
-                ++i;
-            }
-        }
-        if (i != 3) {
-            return null;
-        } else {
-            rc = new Record(value, System.currentTimeMillis());
-            return rc;
-        }
-
-    }
-
-    public static String RecordToJson(Record rc) {
+    public static JsonObject flagToJson(Flag flag) {
 
         JsonObject jso = new JsonObject();
-
-        jso.writeStartObject();
-        jso.writeObjectField("value");
-        try {
-            jso.writeObjectValue(rc.getValue().toString());
-            jso.writeObjectField("flag");
-            jso.writeObjectValue(rc.getFlag().toString());
-            jso.writeObjectField("timestamp");
-            jso.writeObjectValue(rc.getTimestamp());
-        }
-        catch (NullPointerException e) {
-            jso.writeObjectValue("-");
-            jso.writeObjectField("flag");
-            jso.writeObjectValue(rc.getFlag().toString());
-            jso.writeObjectField("timestamp");
-            jso.writeObjectValue(0);
-        }
-        jso.writeEndObject();
-
-        return jso.getJsonText();
-
+        jso.addProperty(Const.FLAG, flag.toString());
+        return jso;
     }
 
-    public static String RecordListToJsonArray(List<Record> records) {
+    public static Value jsonToValue(ValueType type, String jsontext) {
+
+        return getValue(type, gson.fromJson(jsontext, RestValue.class));
+    }
+
+    public static String jsonToIdAsString(String jsontext) {
+
+        return gson.fromJson(jsontext, RestId.class).getId();
+    }
+
+    public static Record jsonToRecord(ValueType type, String jsontext) {
+
+        return getRecord(gson.fromJson(jsontext, RestRecord.class), type);
+    }
+
+    public static JsonObject recordToJson(ValueType type, Record rc) {
+
+        return gson.toJsonTree(getRestRecord(rc, type), RestRecord.class).getAsJsonObject();
+    }
+
+    public static JsonArray recordListToJsonArray(ValueType type, List<Record> records) {
 
         JsonArray jsa = new JsonArray();
+
+        if (records != null) {
+            for (Record rc : records) {
+                jsa.add((recordToJson(type, rc)));
+            }
+        }
+        return jsa;
+    }
+
+    private static JsonObject channelRecordToJson(Channel ch, Record rc) {
+
         JsonObject jso = new JsonObject();
 
-        jsa.writeStartArray();
-
-        for (Record rc : records) {
-
-            jso.setJsonText(RecordToJson(rc));
-            jsa.writeArrayValue(jso);
-        }
-
-        jsa.writeEndArray();
-
-        return jsa.getJsonText();
+        jso.addProperty(Const.ID, ch.getId());
+        jso.add(Const.RECORDS, recordToJson(ch.getValueType(), rc));
+        return jso;
     }
 
-    private static JsonObject ChannelRecordToJson(Channel ch, Record rc) {
+    public static JsonArray channelRecordListToJsonArray(List<Channel> channels) {
 
-        JsonObject jst = new JsonObject();
+        JsonArray jsa = new JsonArray();
 
-        jst.writeStartObject();
-        jst.writeObjectField("id");
-        jst.writeObjectValue(ch.getId());
-        jst.writeObjectMember("record");
-        jst.writeObjectField("value");
-        try {
-            jst.writeObjectValue(rc.getValue().toString());
-            jst.writeObjectField("flag");
-            jst.writeObjectValue(rc.getFlag().toString());
-            jst.writeObjectField("timestamp");
-            jst.writeObjectValue(rc.getTimestamp());
-        }
-        catch (NullPointerException e) {
-            jst.writeObjectValue("0");
-            jst.writeObjectField("flag");
-            jst.writeObjectValue(rc.getFlag().toString());
-            jst.writeObjectField("timestamp");
-            jst.writeObjectValue(0);
-        }
-        jst.writeEndObject();
-        jst.writeEndObject();
-
-        return jst;
-
-    }
-
-    public static String ChannelRecordListToJsonArray(List<Channel> channels) {
-        JsonArray jst = new JsonArray();
-        jst.writeStartArray();
         for (Channel ch : channels) {
-            jst.writeArrayValue(ChannelRecordToJson(ch, ch.getLatestRecord()));
+            jsa.add(channelRecordToJson(ch, ch.getLatestRecord()));
         }
-        jst.writeEndArray();
-
-        return jst.getJsonText();
+        return jsa;
     }
 
-    public static String ListToJsonArray(List<String> devices) {
+    public static JsonObject channelRecordListWithRunningFlagToJsonObject(List<Channel> channels, boolean isRunning) {
 
-        JsonArray jsa = new JsonArray();
+        JsonObject jso = new JsonObject();
 
-        jsa.writeStartArray();
-
-        for (String dev : devices) {
-            jsa.writeArrayValue(dev);
-        }
-
-        jsa.writeEndArray();
-
-        return jsa.getJsonText();
+        jso.add(Const.RECORDS, channelRecordListToJsonArray(channels));
+        jso.addProperty(Const.RUNNING, isRunning);
+        return jso;
     }
 
-    public static ArrayList<Value> ChannelsJsonToValues(String jsontext, List<Channel> dChannels) {
-        ArrayList<Value> values = new ArrayList<Value>();
+    public static JsonObject channelRecordListWithDeviceStateToJsonObject(List<Channel> channels, DeviceState state) {
 
-        JsonObjectMap jom = new JsonObjectMap();
-        jom = JsonReader.JsonStreamToMap(jsontext);
-        if (jom == null) {
+        JsonObject jso = new JsonObject();
+
+        jso.add(Const.RECORDS, channelRecordListToJsonArray(channels));
+        jso.addProperty(Const.STATE, state.name());
+        return jso;
+    }
+
+    public static JsonObject channelListWithRunningFlagToJsonObject(List<Channel> channelList, boolean isRunning) {
+
+        JsonObject jso = new JsonObject();
+
+        jso.add(Const.CHANNELS, channelListToJsonArray(channelList));
+        jso.addProperty(Const.RUNNING, isRunning);
+        return jso;
+    }
+
+    public static JsonObject deviceListWithRunningFlagToJsonObject(List<String> deviceList, boolean isRunning) {
+
+        JsonObject jso = new JsonObject();
+
+        jso.add(Const.DEVICES, stringListToJsonArray(deviceList));
+        jso.addProperty(Const.RUNNING, isRunning);
+        return jso;
+    }
+
+    public static JsonObject channelListWithDeviceStateToJsonObject(List<Channel> channelList, DeviceState state) {
+
+        JsonObject jso = new JsonObject();
+
+        jso.add(Const.CHANNELS, channelListToJsonArray(channelList));
+        jso.addProperty(Const.STATE, state.name());
+        return jso;
+    }
+
+    public static JsonArray stringListToJsonArray(List<String> devices) {
+
+        return gson.toJsonTree(devices).getAsJsonArray();
+    }
+
+    public static JsonObject deviceListToJsonObject(List<String> devices) {
+
+        JsonObject jso = new JsonObject();
+        jso.add(Const.DEVICES, stringListToJsonArray(devices));
+        return jso;
+    }
+
+    public static JsonObject driverListToJsonObject(List<String> drivers) {
+
+        JsonObject jso = new JsonObject();
+        jso.add(Const.DRIVERS, stringListToJsonArray(drivers));
+        return jso;
+    }
+
+    public static JsonArray channelListToJsonArray(List<Channel> channelList) {
+
+        List<String> list = new ArrayList<String>();
+
+        for (Channel channel : channelList) {
+            list.add(channel.getId());
+        }
+        return stringListToJsonArray(list);
+    }
+
+    public static JsonObject isRunningToJsonArray(boolean isDisabled) {
+
+        JsonObject jso = new JsonObject();
+        jso.addProperty(Const.RUNNING, isDisabled);
+        return jso;
+    }
+
+    public static ArrayList<RestChannel> channelsJsonToRecords(String jsontext) {
+        ArrayList<RestChannel> recList = new ArrayList<RestChannel>();
+        JsonArray jsa = gson.fromJson(jsontext, JsonArray.class);
+        RestChannel rc = new RestChannel();
+        while (jsa.iterator().hasNext()) {
+            rc = gson.fromJson(jsa.iterator().next().getAsJsonObject(), RestChannel.class);
+            recList.add(rc);
+        }
+        if (recList.size() == 0) {
             return null;
         }
-
-        JsonFieldInformation jfi;
-        for (Channel drCh : dChannels) {
-            ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(jom.keySet());
-            ListIterator<JsonFieldInformation> iter = arrayList.listIterator();
-            int i = 0;
-            int size = 0;
-            while (iter.hasNext()) {
-                jfi = iter.next();
-                if (jfi.getFieldLevel() != 1) {
-                    return null;
-                }
-                if (jfi.getFieldName().equals(drCh.getId())
-                    && jfi.getFieldJsonTextType().equals(JsonTextType.JsonNumber)) {
-                    values.add(new DoubleValue(Double.valueOf((jom.get(jfi)))));
-                    ++i;
-                }
-                size++;
-
-            }
-            if (i != 1 || size != dChannels.size()) {
-                return null;
-            }
-        }
-        return values;
+        return recList;
     }
 
-    public static String ChannelFlagsToJson(ArrayList<Channel> channels, ArrayList<Flag> flags) {
+    public static JsonObject channelFlagsToJson(ArrayList<Channel> channels, ArrayList<Flag> flags) {
+
         JsonObject jso = new JsonObject();
-        jso.writeStartObject();
+
         int i = 0;
         for (Channel chId : channels) {
-            jso.writeObjectField(chId.getId());
-            jso.writeObjectValue(flags.get(i).toString());
+            jso.addProperty(chId.getId(), flags.get(i).toString());
             ++i;
         }
-
-        jso.writeEndObject();
-
-        return jso.getJsonText();
+        return jso;
     }
 
-    public static String ConfigValueToJson(String configField, String value) {
+    public static JsonObject channelConfigToJsonObject(ChannelConfig config) {
+
+        RestChannelConfig restConfig = RestChannelConfigMapper.getRestChannelConfig(config);
+        return (gson.toJsonTree(restConfig, RestChannelConfig.class)).getAsJsonObject();
+    }
+
+    public static JsonObject deviceConfigToJsonObject(DeviceConfig config) {
+
+        RestDeviceConfig restConfig = RestDeviceConfigMapper.getRestDeviceConfig(config);
+        return (gson.toJsonTree(restConfig, RestDeviceConfig.class)).getAsJsonObject();
+    }
+
+    public static JsonObject driverConfigToJsonObject(DriverConfig config) {
+
+        RestDriverConfig restConfig = RestDriverConfigMapper.getRestDriverConfig(config);
+        return (gson.toJsonTree(restConfig, RestDriverConfig.class)).getAsJsonObject();
+    }
+
+    public static JsonObject configValueToJson(String configField, String value) {
+
         JsonObject jso = new JsonObject();
 
-        jso.writeStartObject();
-        jso.writeObjectField(configField);
-
-        jso.writeObjectValue(value);
-        jso.writeEndObject();
-
-        return jso.getJsonText();
-
+        jso.addProperty(configField, value);
+        return jso;
     }
 
-    public static String JsonToConfigValue(String jsontext) {
-        String configValue = "";
+    public static String jsonToConfigValue(String jsontext) {
 
-        JsonObjectMap jom = new JsonObjectMap();
-        jom = JsonReader.JsonStreamToMap(jsontext);
-        if (jom == null) {
-            return null;
-        }
+        return getValue(ValueType.STRING, gson.fromJson(jsontext, RestValue.class)).asString();
+    }
 
-        ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(jom.keySet());
-        ListIterator<JsonFieldInformation> iter = arrayList.listIterator();
-        JsonFieldInformation jfi;
-        int i = 0;
-        while (iter.hasNext()) {
-            jfi = iter.next();
-            if (jfi.getFieldLevel() != 1) {
-                return null;
-            }
-            if (jfi.getFieldName().equals("value")
-                && (jfi.getFieldJsonTextType().equals(JsonTextType.JsonNumber)
-                    || jfi.getFieldJsonTextType()
-                          .equals(JsonTextType.JsonString))) {
-                configValue = jom.get(jfi);
+    private static RestRecord getRestRecord(Record rc, ValueType type) {
 
-            }
-            ++i;
-        }
-        if (i != 1) {
-            return null;
+        RestRecord rrc = new RestRecord();
+        rrc.setFlag(rc.getFlag());
+        rrc.setTimestamp(rc.getTimestamp());
+        Value value = rc.getValue();
+
+        if (rc.getFlag() != Flag.VALID) {
+            rrc.setValue(null);
         } else {
-            return configValue;
+            setRestRecordValue(type, value, rrc);
+        }
+        return rrc;
+    }
+
+    private static void setRestRecordValue(ValueType valueType, Value value, RestRecord rrc) {
+
+        if (value == null) {
+            rrc.setValue(null);
+        } else {
+            switch (valueType) {
+                case FLOAT:
+                    rrc.setValue(value.asFloat());
+                    break;
+                case DOUBLE:
+                    rrc.setValue(value.asDouble());
+                    break;
+                case SHORT:
+                    rrc.setValue(value.asShort());
+                    break;
+                case INTEGER:
+                    rrc.setValue(value.asInt());
+                    break;
+                case LONG:
+                    rrc.setValue(value.asLong());
+                    break;
+                case BYTE:
+                    rrc.setValue(value.asByte());
+                    break;
+                case BOOLEAN:
+                    rrc.setValue(value.asBoolean());
+                    break;
+                case BYTE_ARRAY:
+                    rrc.setValue(value.asByteArray());
+                    break;
+                case STRING:
+                    rrc.setValue(value.asString());
+                    break;
+                default:
+                    rrc.setValue(null);
+                    break;
+            }
         }
     }
+
+    private static Record getRecord(RestRecord rrc, ValueType type) {
+
+        Object value = rrc.getValue();
+        Value retValue = null;
+        if (value != null) {
+            retValue = getValue(type, value);
+        }
+        return new Record(retValue, rrc.getTimestamp(), rrc.getFlag());
+    }
+
+    private static Value getValue(ValueType type, Object value) {
+        // TODO: check all value types, if it is really a float, double, ...
+
+        if (value.getClass().isInstance(new RestValue())) {
+            value = ((RestValue) value).getValue();
+        }
+        Value retValue = null;
+        switch (type) {
+            case FLOAT:
+                FloatValue fvalue = new FloatValue(((Double) value).floatValue());
+                retValue = fvalue;
+                break;
+            case DOUBLE:
+                DoubleValue dValue = new DoubleValue((Double) value);
+                retValue = dValue;
+                break;
+            case SHORT:
+                ShortValue shValue = new ShortValue(((Double) value).shortValue());
+                retValue = shValue;
+                break;
+            case INTEGER:
+                IntValue iValue = new IntValue(((Double) value).intValue());
+                retValue = iValue;
+                break;
+            case LONG:
+                LongValue lValue = new LongValue(((Double) value).longValue());
+                retValue = lValue;
+                break;
+            case BYTE:
+                ByteValue byValue = new ByteValue(((Double) value).byteValue());
+                retValue = byValue;
+                break;
+            case BOOLEAN:
+                BooleanValue boValue = new BooleanValue((Boolean) value);
+                retValue = boValue;
+                break;
+            case BYTE_ARRAY:
+                ArrayList<Double> arrayList = ((ArrayList<Double>) value);
+                byte[] byteArray = new byte[arrayList.size()];
+                for (int i = 0; i < arrayList.size(); ++i) {
+                    byteArray[i] = arrayList.get(i).byteValue();
+                }
+                ByteArrayValue baValue = new ByteArrayValue(byteArray);
+                retValue = baValue;
+                break;
+            case STRING:
+                StringValue stValue = new StringValue((String) value);
+                retValue = stValue;
+                break;
+            default:
+                break;
+        }
+        return retValue;
+    }
+
 }

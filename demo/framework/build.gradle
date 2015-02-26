@@ -6,7 +6,7 @@ configurations.create('osgibundles')
 configurations.osgibundles.transitive = false;
 
 dependencies {
-    def openmucversion = '0.13.1'
+    def openmucversion = '0.14.0'
 
     osgibundles files('../../build/libs/openmuc-core-api-' + openmucversion + '.jar')
     osgibundles files('../../build/libs/openmuc-core-spi-' + openmucversion + '.jar')
@@ -26,39 +26,55 @@ dependencies {
     osgibundles files('../projects/simpleappdemo/build/libs/openmuc-demo-simpleapp-' + openmucversion + '.jar')
     osgibundles files('../projects/dummydriver/build/libs/openmuc-driver-dummy-' + openmucversion + '.jar')
 
-    //The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)
+    //--------------------------------------------------------------------------------------------------
+    // The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)
+    //--------------------------------------------------------------------------------------------------
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.gogo.runtime', version: '0.12.1'
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.gogo.command', version: '0.14.0'
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.gogo.shell', version: '0.10.0'
 
-    //Adds a telnet server so that the Felix Gogo Shell can be accessed
-    //using telnet clients. By default this server only listens on
-    //localhost port 6666. Therefor you can on only access it from the
-    //same host on which felix is running.
+    //--------------------------------------------------------------------------------------------------
+    // Adds a telnet server so that the Felix Gogo Shell can be accessed
+    // using telnet clients. By default this server only listens on
+    // localhost port 6666. Therefor you can on only access it from the
+    // same host on which felix is running.
+    //--------------------------------------------------------------------------------------------------
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.shell.remote', version: '1.1.2'
 
-    //message logging libraries, SLF4J is a light-weight logging API,
-    //Logback is a message logger implementation that implements SLF4J
-    //natively
-    osgibundles group: 'org.slf4j', name: 'slf4j-api', version: '1.7.7'
+    //--------------------------------------------------------------------------------------------------
+    // message logging libraries, SLF4J is a light-weight logging API,
+    // Logback is a message logger implementation that implements SLF4J
+    // natively
+    //--------------------------------------------------------------------------------------------------
+    osgibundles group: 'org.slf4j', name: 'slf4j-api', version: '1.7.10'
     osgibundles group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.2'
     osgibundles group: 'ch.qos.logback', name: 'logback-core', version: '1.1.2'
 
-    //Apache Felix Service Component Runtime that implements the OSGi Declarative Services Specification
-    //the OpenMUC core bundles use declarative services and thus depend on them
+    //--------------------------------------------------------------------------------------------------
+    // Apache Felix Service Component Runtime that implements the OSGi Declarative Services Specification
+    // the OpenMUC core bundles use declarative services and thus depend on them
+    //--------------------------------------------------------------------------------------------------
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '1.8.2'
 
-    //An implementation of the OSGi HTTP Service Specification, needed by the WebUI bundles
-    osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.bundle', version: '2.3.0'
-    //Implementation of the OSGi Event Admin Service needed by org.apache.felix.http.jetty
-    osgibundles group: 'org.apache.felix', name: 'org.apache.felix.eventadmin', version: '1.4.0'
+    //--------------------------------------------------------------------------------------------------
+    // An implementation of the OSGi HTTP Service Specification, needed by the WebUI bundles
+    //--------------------------------------------------------------------------------------------------
+    osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.bundle', version: '2.3.2'
+    //--------------------------------------------------------------------------------------------------
+    // Implementation of the OSGi Event Admin Service needed by org.apache.felix.http.jetty
+    //--------------------------------------------------------------------------------------------------
+    osgibundles group: 'org.apache.felix', name: 'org.apache.felix.eventadmin', version: '1.4.2'
 
-    //An implementation of the OSGi Configuration Admin Service, needed by the BundleConfigurator WebUI
-    //to enable users to dynamically configure running bundles.
+    //--------------------------------------------------------------------------------------------------
+    // An implementation of the OSGi Configuration Admin Service, needed by the BundleConfigurator WebUI
+    // to enable users to dynamically configure running bundles.
+    //--------------------------------------------------------------------------------------------------
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.configadmin', version: '1.8.0'
 
-    //An implementation of the OSGi MetaType Service, needed by the BundleConfigurator WebUI to receive
-    //information about the running bundles:
+    //--------------------------------------------------------------------------------------------------
+    // An implementation of the OSGi MetaType Service, needed by the BundleConfigurator WebUI to receive
+    // information about the running bundles:
+    //--------------------------------------------------------------------------------------------------
     osgibundles group: 'org.apache.felix', name: 'org.apache.felix.metatype', version: '1.0.10'
 
 }

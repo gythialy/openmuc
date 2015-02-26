@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -108,13 +108,11 @@ public final class DataPlotter implements WebUiPluginService {
             List<Record> values = null;
             try {
                 values = channel.getLoggedRecords(start, end);
-            }
-            catch (DataLoggerNotAvailableException e) {
+            } catch (DataLoggerNotAvailableException e) {
                 // TODO Auto-generated catch block
                 logger.debug("Cannot get logged Values. Reason " + e);
                 return new AjaxView("[]");
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 // TODO Auto-generated catch block
                 logger.debug("Cannot get logged Values. Reason " + e);
                 return new AjaxView("[]");
@@ -124,10 +122,7 @@ public final class DataPlotter implements WebUiPluginService {
 
             for (int i = 1; i < values.size(); i++) {
                 if (values.get(i).getTimestamp() - values.get(i - 1).getTimestamp() > period) {
-                    values.add(i,
-                               new Record(new DoubleValue(0),
-                                          values.get(i).getTimestamp() - 1,
-                                          Flag.UNKNOWN_ERROR));
+                    values.add(i, new Record(new DoubleValue(0), values.get(i).getTimestamp() - 1, Flag.UNKNOWN_ERROR));
                     i++;
                 }
             }
@@ -187,13 +182,11 @@ public final class DataPlotter implements WebUiPluginService {
             List<Record> values = null;
             try {
                 values = store.getLoggedRecords(start, end);
-            }
-            catch (DataLoggerNotAvailableException e) {
+            } catch (DataLoggerNotAvailableException e) {
                 // TODO Auto-generated catch block
                 logger.debug("Cannot get logged Values. Reason " + e);
                 return new AjaxView("[]");
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 // TODO Auto-generated catch block
                 logger.debug("Cannot get logged Values. Reason " + e);
                 return new AjaxView("[]");
@@ -209,27 +202,16 @@ public final class DataPlotter implements WebUiPluginService {
                 if (values.get(i).getTimestamp() >= start + diff || i + 1 == values.size()) {
                     if (i != oldi) {
                         Record temp;
-                        if (values.get(i - 1).getTimestamp() - values.get(oldi).getTimestamp()
-                            < diff - period) {
+                        if (values.get(i - 1).getTimestamp() - values.get(oldi).getTimestamp() < diff - period) {
                             // values only valid, if there are data at end and
                             // beginning
-                            temp = new Record(new DoubleValue(values.get(i - 1)
-                                                                    .getValue()
-                                                                    .asDouble()
-                                                              - values.get(oldi)
-                                                                      .getValue()
-                                                                      .asDouble()),
-                                              start,
-                                              Flag.UNKNOWN_ERROR);
+                            temp = new Record(
+                                    new DoubleValue(values.get(i - 1).getValue().asDouble() - values.get(oldi).getValue().asDouble()),
+                                    start, Flag.UNKNOWN_ERROR);
                         } else {
-                            temp = new Record(new DoubleValue(values.get(i - 1)
-                                                                    .getValue()
-                                                                    .asDouble()
-                                                              - values.get(oldi)
-                                                                      .getValue()
-                                                                      .asDouble()),
-                                              start,
-                                              Flag.VALID);
+                            temp = new Record(
+                                    new DoubleValue(values.get(i - 1).getValue().asDouble() - values.get(oldi).getValue().asDouble()),
+                                    start, Flag.VALID);
                         }
                         barvalues.add(temp);
                     } else {
@@ -268,11 +250,9 @@ public final class DataPlotter implements WebUiPluginService {
                     Record record = null;
                     try {
                         record = dataAccessService.getChannel(channel).getLoggedRecord(timestamp);
-                    }
-                    catch (DataLoggerNotAvailableException e) {
+                    } catch (DataLoggerNotAvailableException e) {
                         record = dataAccessService.getChannel(channel).getLatestRecord();
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
 
@@ -376,31 +356,9 @@ public final class DataPlotter implements WebUiPluginService {
      */
     private List<String> removeInapproriateBarPlotUnits(List<String> labels) {
         List<String> plottable = new ArrayList<String>();
-        List<String> unplottable = Arrays.asList("°",
-                                                 "°C",
-                                                 "currency",
-                                                 "m/s",
-                                                 "m^3/h",
-                                                 "m^3/d",
-                                                 "m^3/s':m^3/m':kg/h':kg",
-                                                 "N",
-                                                 "Nm",
-                                                 "Pa",
-                                                 "bar",
-                                                 "J/h",
-                                                 "W",
-                                                 "VA",
-                                                 "var':A",
-                                                 "C",
-                                                 "V",
-                                                 "V/m",
-                                                 "F",
-                                                 "Ohm",
-                                                 "A/m",
-                                                 "H",
-                                                 "Hz",
-                                                 "K",
-                                                 "%'");
+        List<String> unplottable = Arrays
+                .asList("°", "°C", "currency", "m/s", "m^3/h", "m^3/d", "m^3/s':m^3/m':kg/h':kg", "N", "Nm", "Pa", "bar", "J/h", "W", "VA",
+                        "var':A", "C", "V", "V/m", "F", "Ohm", "A/m", "H", "Hz", "K", "%'");
         for (String label : labels) {
             if (!unplottable.contains(dataAccessService.getChannel(label).getUnit())) {
                 plottable.add(label);
@@ -410,13 +368,7 @@ public final class DataPlotter implements WebUiPluginService {
     }
 
     private String recordToJson(Record record) {
-        return "{\"timestamp\":"
-               + record.getTimestamp()
-               + ",\"value\":"
-               + record.getValue()
-               + ",\"flag\":\""
-               + record.getFlag()
-               + "\"}";
+        return "{\"timestamp\":" + record.getTimestamp() + ",\"value\":" + record.getValue() + ",\"flag\":\"" + record.getFlag() + "\"}";
     }
 
     private String recordsToJson(List<Record> records) {
@@ -426,20 +378,14 @@ public final class DataPlotter implements WebUiPluginService {
         stringBuilder.append('[');
         if (it.hasNext()) {
             Record record = it.next();
-            stringBuilder.append("{\"timestamp\":"
-                                 + record.getTimestamp()
-                                 + ",\"value\":"
-                                 + record.getValue()
-                                 + ",\"flag\":\""
-                                 + record.getFlag()
-                                 + "\"}");
+            stringBuilder.append("{\"timestamp\":" + record.getTimestamp() + ",\"value\":" + record.getValue() + ",\"flag\":\"" + record
+                    .getFlag() + "\"}");
         }
 
         while (it.hasNext()) {
             Record record = it.next();
-            stringBuilder.append(",{\"timestamp\":" + record.getTimestamp() + ",\"value\":" + record
-                    .getValue()
-                                 + ",\"flag\":\"" + record.getFlag() + "\"}");
+            stringBuilder.append(",{\"timestamp\":" + record.getTimestamp() + ",\"value\":" + record.getValue() + ",\"flag\":\"" + record
+                    .getFlag() + "\"}");
         }
         stringBuilder.append(']');
         return stringBuilder.toString();
@@ -451,13 +397,8 @@ public final class DataPlotter implements WebUiPluginService {
         String response = "[";
         int counter = 0;
         for (Record record : recordList) {
-            response += "{\"timestamp\":"
-                        + record.getTimestamp()
-                        + ",\"value\":"
-                        + record.getValue()
-                        + ",\"flag\":\""
-                        + record.getFlag()
-                        + "\"}";
+            response += "{\"timestamp\":" + record.getTimestamp() + ",\"value\":" + record.getValue() + ",\"flag\":\"" + record
+                    .getFlag() + "\"}";
 
             if (counter < recordList.size() - 1) {
                 response += ",";
@@ -470,8 +411,7 @@ public final class DataPlotter implements WebUiPluginService {
     }
 
     @Override
-    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return true;
     }
 

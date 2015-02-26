@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,8 +38,6 @@ public abstract class Configurator {
         this.config = config;
     }
 
-    public abstract Content getContent(String localPath, HttpServletRequest request)
-            throws ProcessRequestException,
-            IdCollisionException;
+    public abstract Content getContent(String localPath, HttpServletRequest request) throws ProcessRequestException, IdCollisionException;
 
 }

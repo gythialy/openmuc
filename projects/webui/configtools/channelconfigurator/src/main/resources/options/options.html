@@ -17,8 +17,7 @@
         </td>
         <td>
             <a class="ui-icon ui-icon-disk" style="float: left; margin-right: 10px;"
-               href="${applicationPath}/options/open?backup=$backup" download="$backup"
-               title="Save file to disk"></a>
+               href="${applicationPath}/options/open?backup=$backup" download="$backup" title="Save file to disk"></a>
             #if($backup.matches($pattern))
             <a class="ui-icon ui-icon-refresh" style="float: left; margin-right: 10px;"
                href="${applicationPath}/options/restore?backup=$backup" title="Restore file"></a>

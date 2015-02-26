@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,27 +31,27 @@ public class SettingsClient {
 
     public static Boolean start(int code, String[] args) {
         switch (code) {
-        case 0:
-        case 2:
-            setDefaultSettings();
-            return true;
-        case 1:
-            setDefaultSettings();
-            setPrintText(true);
-            setPrintJson(false);
-            return true;
-        case 4:
-        case 6:
-            setDefaultSettings();
-            return setServer(args);
-        case 5:
-            setDefaultSettings();
-            setPrintText(true);
-            setPrintJson(false);
-            return setServer(args);
-        default:
-            System.out.println("Do not use option -j (--json) and option -t (--text) together.");
-            return false;
+            case 0:
+            case 2:
+                setDefaultSettings();
+                return true;
+            case 1:
+                setDefaultSettings();
+                setPrintText(true);
+                setPrintJson(false);
+                return true;
+            case 4:
+            case 6:
+                setDefaultSettings();
+                return setServer(args);
+            case 5:
+                setDefaultSettings();
+                setPrintText(true);
+                setPrintJson(false);
+                return setServer(args);
+            default:
+                System.out.println("Do not use option -j (--json) and option -t (--text) together.");
+                return false;
         }
     }
 

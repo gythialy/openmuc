@@ -17,7 +17,7 @@ jar {
     manifest {
         name = "OpenMUC Modbus Driver"
         instruction 'Bundle-ClassPath', '.,lib/jamod-1.2.jar'
-        instruction 'Import-Package', '!net.wimpi*,gnu.io,*'
+        instruction 'Import-Package', '!net.wimpi*,gnu.io;resolution:=optional,*'
         instruction 'Export-Package', ''
         instruction 'Service-Component', 'OSGI-INF/components.xml'
     }

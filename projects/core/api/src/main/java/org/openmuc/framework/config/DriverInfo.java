@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,22 +24,15 @@ public class DriverInfo {
 
     private final String id;
     private final String description;
-    private final String interfaceAddressSyntax;
     private final String deviceAddressSyntax;
     private final String parametersSyntax;
     private final String channelAddressSyntax;
     private final String deviceScanParametersSyntax;
 
-    public DriverInfo(String id,
-                      String description,
-                      String interfaceAddressSyntax,
-                      String deviceAddressSyntax,
-                      String parametersSyntax,
-                      String channelAddressSyntax,
+    public DriverInfo(String id, String description, String deviceAddressSyntax, String parametersSyntax, String channelAddressSyntax,
                       String deviceScanParametersSyntax) {
         this.id = id;
         this.description = description;
-        this.interfaceAddressSyntax = interfaceAddressSyntax;
         this.deviceAddressSyntax = deviceAddressSyntax;
         this.parametersSyntax = parametersSyntax;
         this.channelAddressSyntax = channelAddressSyntax;
@@ -58,10 +51,6 @@ public class DriverInfo {
 
     public String getDescription() {
         return description;
-    }
-
-    public String getInterfaceAddressSyntax() {
-        return interfaceAddressSyntax;
     }
 
     public String getDeviceAddressSyntax() {

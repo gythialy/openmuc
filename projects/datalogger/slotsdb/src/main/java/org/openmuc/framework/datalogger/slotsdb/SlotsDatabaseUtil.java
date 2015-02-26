@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,25 +35,18 @@ public final class SlotsDatabaseUtil {
 
     public static void printWholeFile(File file) throws IOException {
         if (!file.getName().contains(SlotsDb.FILE_EXTENSION)) {
-            System.err.println(file.getName()
-                               + " is not a \""
-                               + SlotsDb.FILE_EXTENSION
-                               + "\" file.");
+            System.err.println(file.getName() + " is not a \"" + SlotsDb.FILE_EXTENSION + "\" file.");
             return;
         } else {
             DataInputStream dis = new DataInputStream(new FileInputStream(file));
             try {
                 if (file.length() >= 16) {
-                    logger.debug("StartTimestamp: "
-                                 + dis.readLong()
-                                 + "  -  StepIntervall: "
-                                 + dis.readLong());
+                    logger.debug("StartTimestamp: " + dis.readLong() + "  -  StepIntervall: " + dis.readLong());
                     while (dis.available() >= 9) {
                         logger.debug(dis.readDouble() + "  -\t  Flag: " + dis.readByte());
                     }
                 }
-            }
-            finally {
+            } finally {
                 dis.close();
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -42,20 +42,16 @@ public class ScanForDevicesTask implements Runnable {
     public void run() {
         try {
             driver.scanForDevices(settings, new NonBlockingScanListener(listener));
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
             listener.scanError("Device scan not supported by driver");
             return;
-        }
-        catch (ArgumentSyntaxException e) {
+        } catch (ArgumentSyntaxException e) {
             listener.scanError("Scan settings syntax invalid: " + e.getMessage());
             return;
-        }
-        catch (ScanException e) {
+        } catch (ScanException e) {
             listener.scanError("IOException while scanning: " + e.getMessage());
             return;
-        }
-        catch (ScanInterruptedException e) {
+        } catch (ScanInterruptedException e) {
             listener.scanInterrupted();
             return;
         }

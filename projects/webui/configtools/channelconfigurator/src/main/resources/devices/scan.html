@@ -12,10 +12,8 @@
             #set( $channelId = "${deviceId}_$velocityCount" )
             <td><input type="checkbox" name="channels" value="$channelId"></td>
             <td><input type="input" name="${channelId}channelId" value="$channelId" size="20"></td>
-            <td><input type="input" name="${channelId}address" value="$info.ChannelAddress"
-                       size="30"></td>
-            <td><input type="input" name="${channelId}description" value="$!info.Description"
-                       size="25"></td>
+            <td><input type="input" name="${channelId}address" value="$info.ChannelAddress" size="30"></td>
+            <td><input type="input" name="${channelId}description" value="$!info.Description" size="25"></td>
             <td>
                 $!info.ValueType $!info.ValueTypeLength
                 <input type="hidden" name="${channelId}valueType" value="$!info.ValueType">

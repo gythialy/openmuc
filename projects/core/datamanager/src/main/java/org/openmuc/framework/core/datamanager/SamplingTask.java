@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,10 +44,7 @@ public final class SamplingTask extends DeviceTask {
     boolean startedLate = false;
     String samplingGroup;
 
-    public SamplingTask(DataManager dataManager,
-                        Device device,
-                        List<ChannelRecordContainerImpl> selectedChannels,
-                        String samplingGroup) {
+    public SamplingTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels, String samplingGroup) {
         this.dataManager = dataManager;
         this.device = device;
         channelRecordContainers = selectedChannels;
@@ -78,10 +75,7 @@ public final class SamplingTask extends DeviceTask {
     @SuppressWarnings("unchecked")
     protected void executeRead() throws UnsupportedOperationException, ConnectionException {
         // TODO must pass containerListHandle
-        device.deviceConfig.driverParent.activeDriver.read(device.connection,
-                                                           (List<ChannelRecordContainer>) ((List<?>) channelRecordContainers),
-                                                           null,
-                                                           samplingGroup);
+        device.connection.read((List<ChannelRecordContainer>) ((List<?>) channelRecordContainers), null, samplingGroup);
     }
 
     protected void taskAborted() {
@@ -92,23 +86,18 @@ public final class SamplingTask extends DeviceTask {
 
         try {
             executeRead();
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
             methodNotExceptedExceptionThrown = true;
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...",
-                        device.deviceConfig.id,
-                        e.getMessage());
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id, e.getMessage());
 
             synchronized (dataManager.disconnected) {
                 dataManager.disconnected.add(device);
             }
             dataManager.interrupt();
             return;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("unexpected exception thrown by read funtion of driver ", e);
             unknownDriverExceptionThrown = true;
         }

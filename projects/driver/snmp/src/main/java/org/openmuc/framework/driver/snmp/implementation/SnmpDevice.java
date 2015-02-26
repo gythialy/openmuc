@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,8 +21,13 @@
 package org.openmuc.framework.driver.snmp.implementation;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.DeviceConnection;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.driver.spi.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.AbstractTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
@@ -42,7 +47,9 @@ import java.util.*;
  *
  * @author Mehran Shakeri
  */
-public abstract class SnmpDevice implements DeviceConnection {
+public abstract class SnmpDevice implements Connection {
+
+    private final static Logger logger = LoggerFactory.getLogger(SnmpDevice.class);
 
     public enum SNMPVersion {
         V1, V2c, V3
@@ -82,32 +89,26 @@ public abstract class SnmpDevice implements DeviceConnection {
      * @throws ConnectionException
      * @throws ArgumentSyntaxException
      */
-    public SnmpDevice(String address, String authenticationPassphrase) throws ConnectionException,
-            ArgumentSyntaxException {
+    public SnmpDevice(String address, String authenticationPassphrase) throws ConnectionException, ArgumentSyntaxException {
 
         // start snmp compatible with all versions
         try {
             snmp = new Snmp(new DefaultUdpTransportMapping());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException("SNMP initialization failed! \n" + e.getMessage());
         }
-        usm = new USM(SecurityProtocols.getInstance(),
-                      new OctetString(MPv3.createLocalEngineID()),
-                      0);
+        usm = new USM(SecurityProtocols.getInstance(), new OctetString(MPv3.createLocalEngineID()), 0);
         SecurityModels.getInstance().addSecurityModel(usm);
         try {
             snmp.listen();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException("SNMP listen failed! \n" + e.getMessage());
         }
 
         // set address
         try {
             targetAddress = GenericAddress.parse(address);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ArgumentSyntaxException("Device address foramt is wrong! (eg. 1.1.1.1/1)");
         }
 
@@ -136,8 +137,7 @@ public abstract class SnmpDevice implements DeviceConnection {
      * @throws SnmpTimeoutException
      * @throws ConnectionException
      */
-    public Map<String, String> getRequestsList(List<String> OIDs)
-            throws SnmpTimeoutException, ConnectionException {
+    public Map<String, String> getRequestsList(List<String> OIDs) throws SnmpTimeoutException, ConnectionException {
 
         Map<String, String> result = new HashMap<String, String>();
 
@@ -160,11 +160,9 @@ public abstract class SnmpDevice implements DeviceConnection {
                 VariableBinding vb = (VariableBinding) vbs.get(i);
                 result.put(vb.getOid().toString(), vb.getVariable().toString());
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException("SNMP get request failed! " + e.getMessage());
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             throw new SnmpTimeoutException("Timeout: Target doesn't respond!");
         }
 
@@ -198,18 +196,15 @@ public abstract class SnmpDevice implements DeviceConnection {
             @SuppressWarnings("rawtypes")
             Vector vbs = responsePDU.getVariableBindings();
             result = ((VariableBinding) vbs.get(0)).getVariable().toString();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException("SNMP get request failed! " + e.getMessage());
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             throw new SnmpTimeoutException("Timeout: Target doesn't respond!");
         }
 
         return result;
     }
 
-    @Override
     public String getDeviceAddress() {
         return targetAddress.toString();
     }
@@ -229,9 +224,7 @@ public abstract class SnmpDevice implements DeviceConnection {
      * @param version     version of snmp that this device support
      * @param description other extra information which can be useful
      */
-    protected synchronized void NotifyForNewDevice(Address address,
-                                                   SNMPVersion version,
-                                                   String description) {
+    protected synchronized void NotifyForNewDevice(Address address, SNMPVersion version, String description) {
         SnmpDiscoveryEvent event = new SnmpDiscoveryEvent(this, address, version, description);
         @SuppressWarnings("rawtypes")
         Iterator i = listeners.iterator();
@@ -248,10 +241,7 @@ public abstract class SnmpDevice implements DeviceConnection {
      */
     public static String getNextBroadcastIPV4Address(String ip) {
         String[] nums = ip.split("\\.");
-        int i = (Integer.parseInt(nums[0]) << 24
-                 | Integer.parseInt(nums[2]) << 8
-                 | Integer.parseInt(nums[1]) << 16
-                 | Integer
+        int i = (Integer.parseInt(nums[0]) << 24 | Integer.parseInt(nums[2]) << 8 | Integer.parseInt(nums[1]) << 16 | Integer
                 .parseInt(nums[3])) + 256;
 
         return String.format("%d.%d.%d.%d", i >>> 24 & 0xFF, i >> 16 & 0xFF, i >> 8 & 0xFF, 255);
@@ -276,13 +266,7 @@ public abstract class SnmpDevice implements DeviceConnection {
         String desc = "";
 
         for (String key : ScanOIDs.keySet()) {
-            desc += "["
-                    + key
-                    + "("
-                    + ScanOIDs.get(key)
-                    + ")="
-                    + scannerResult.get(ScanOIDs.get(key))
-                    + "] ";
+            desc += "[" + key + "(" + ScanOIDs.get(key) + ")=" + scannerResult.get(ScanOIDs.get(key)) + "] ";
         }
 
         return desc;
@@ -296,13 +280,92 @@ public abstract class SnmpDevice implements DeviceConnection {
      */
     protected static SNMPVersion getSnmpVersionFromSnmpConstantsValue(int version) {
         switch (version) {
-        case 0:
-            return SNMPVersion.V1;
-        case 1:
-            return SNMPVersion.V2c;
-        case 3:
-            return SNMPVersion.V3;
+            case 0:
+                return SNMPVersion.V1;
+            case 1:
+                return SNMPVersion.V2c;
+            case 3:
+                return SNMPVersion.V3;
         }
         return null;
     }
+
+    @Override
+    public void disconnect() {
+    }
+
+    /**
+     * At least device address and channel address must be specified in the container.<br>
+     * <br>
+     * containers.deviceAddress = device address (eg. 1.1.1.1/161) <br>
+     * containers.channelAddress = OID (eg. 1.3.6.1.2.1.1.0)
+     */
+    @Override
+    public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup) throws
+            ConnectionException {
+
+        return readChannelGroup(containers, timeout);
+    }
+
+    @Override
+    public Object write(List<ChannelValueContainer> containers, Object containerListHandle) throws UnsupportedOperationException,
+            ConnectionException {
+        // TODO snmp set request will be implemented here
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Read all the channels of the device at once.
+     *
+     * @param device
+     * @param containers
+     * @param timeout
+     * @return Object
+     * @throws ConnectionException
+     */
+    private Object readChannelGroup(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
+
+        new Date().getTime();
+
+        List<String> oids = new ArrayList<String>();
+
+        for (ChannelRecordContainer container : containers) {
+            if (getDeviceAddress().equalsIgnoreCase(container.getChannel().getDeviceAddress())) {
+                oids.add(container.getChannelAddress());
+            }
+        }
+
+        Map<String, String> values = new HashMap<String, String>();
+
+        try {
+            values = getRequestsList(oids);
+            long receiveTime = System.currentTimeMillis();
+
+            for (ChannelRecordContainer container : containers) {
+                // make sure the value exists for corresponding channel
+                if (values.get(container.getChannelAddress()) != null) {
+                    logger.debug("{}: value = '{}'", container.getChannelAddress(), values.get(container.getChannelAddress()));
+                    container.setRecord(new Record(new ByteArrayValue(values.get(container.getChannelAddress()).getBytes()), receiveTime));
+                }
+            }
+        } catch (SnmpTimeoutException e) {
+            for (ChannelRecordContainer container : containers) {
+                container.setRecord(new Record(Flag.TIMEOUT));
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) throws
+            UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException, ConnectionException {
+        throw new UnsupportedOperationException();
+    }
+
 }

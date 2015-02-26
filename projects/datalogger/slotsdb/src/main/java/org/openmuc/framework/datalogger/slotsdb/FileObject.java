@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -65,22 +65,19 @@ public final class FileObject {
                     try {
                         startTimeStamp = dis.readLong();
                         storagePeriod = dis.readLong();
-                    }
-                    finally {
+                    } finally {
                         if (dis != null) {
                             dis.close();
                             dis = null;
                         }
                     }
-                }
-                finally {
+                } finally {
                     if (dis != null) {
                         dis.close();
                         dis = null;
                     }
                 }
-            }
-            finally {
+            } finally {
                 if (fis != null) {
                     fis.close();
                     fis = null;
@@ -104,15 +101,13 @@ public final class FileObject {
                 try {
                     startTimeStamp = dis.readLong();
                     storagePeriod = dis.readLong();
-                }
-                finally {
+                } finally {
                     if (dis != null) {
                         dis.close();
                         dis = null;
                     }
                 }
-            }
-            finally {
+            } finally {
                 if (fis != null) {
                     fis.close();
                     fis = null;
@@ -328,9 +323,7 @@ public final class FileObject {
             fis.getChannel().position(getBytePosition(timestamp));
             Double toReturn = dis.readDouble();
             if (!Double.isNaN(toReturn)) {
-                return new Record(new DoubleValue(toReturn),
-                                  timestamp,
-                                  Flag.newFlag(dis.readByte()));
+                return new Record(new DoubleValue(toReturn), timestamp, Flag.newFlag(dis.readByte()));
             }
         }
         return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -61,8 +61,7 @@ public final class RootConfigImpl implements RootConfig {
         dataLogSource = source;
     }
 
-    static RootConfigImpl createFromFile(File configFile)
-            throws ParseException, FileNotFoundException {
+    static RootConfigImpl createFromFile(File configFile) throws ParseException, FileNotFoundException {
         if (configFile == null) {
             throw new NullPointerException("configFileName is null or the empty string.");
         }
@@ -77,8 +76,7 @@ public final class RootConfigImpl implements RootConfig {
         Document doc;
         try {
             doc = docBFac.newDocumentBuilder().parse(configFile);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ParseException(e);
         }
 
@@ -115,8 +113,8 @@ public final class RootConfigImpl implements RootConfig {
         return rootConfig;
     }
 
-    void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException,
-            ParserConfigurationException, TransformerException {
+    void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException, ParserConfigurationException,
+            TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -152,8 +150,7 @@ public final class RootConfigImpl implements RootConfig {
     public DriverConfig getOrAddDriver(String id) {
         try {
             return addDriver(id);
-        }
-        catch (IdCollisionException e) {
+        } catch (IdCollisionException e) {
             return driverConfigsById.get(id);
         }
     }
@@ -191,8 +188,7 @@ public final class RootConfigImpl implements RootConfig {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<DriverConfig> getDrivers() {
-        return (Collection<DriverConfig>) (Collection<?>) Collections
-                .unmodifiableCollection(driverConfigsById.values());
+        return (Collection<DriverConfig>) (Collection<?>) Collections.unmodifiableCollection(driverConfigsById.values());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -68,16 +68,14 @@ public class S7ChannelAddress {
         int offsetPos = locator.indexOf('.');
         try {
             areaAddress = Integer.parseInt(locator.substring(areaAddressPos, offsetPos));
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new MalformendObjectLocatorException("NumberFormatException in areaAddress");
         }
 
         int typePos = locator.indexOf(':');
         try {
             offset = Integer.parseInt(locator.substring(offsetPos + 1, typePos));
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new MalformendObjectLocatorException("NumberFormatException in offset");
         }
 
@@ -104,8 +102,7 @@ public class S7ChannelAddress {
             String bitPos = locator.substring(typePos + 5, typePos + 6);
             try {
                 this.bitPos = Byte.parseByte(bitPos);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new MalformendObjectLocatorException("Invalid bit locator");
             }
         } else {
@@ -128,23 +125,23 @@ public class S7ChannelAddress {
     public int getDataLength() {
 
         switch (type) {
-        case TYPE_BIT:
-        case TYPE_UINT8:
-        case TYPE_INT8:
-            return 1;
-        case TYPE_UINT16:
-        case TYPE_INT16:
-            return 2;
-        case TYPE_UINT32:
-        case TYPE_INT32:
-        case TYPE_FLOAT:
-            return 4;
-        case TYPE_UINT64:
-        case TYPE_INT64:
-        case TYPE_DOUBLE:
-            return 8;
-        default:
-            return -1;
+            case TYPE_BIT:
+            case TYPE_UINT8:
+            case TYPE_INT8:
+                return 1;
+            case TYPE_UINT16:
+            case TYPE_INT16:
+                return 2;
+            case TYPE_UINT32:
+            case TYPE_INT32:
+            case TYPE_FLOAT:
+                return 4;
+            case TYPE_UINT64:
+            case TYPE_INT64:
+            case TYPE_DOUBLE:
+                return 8;
+            default:
+                return -1;
         }
     }
 

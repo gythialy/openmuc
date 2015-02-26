@@ -34,36 +34,24 @@ public final class Interface {
 
     protected static native int daveDisconnectPLC(long dc);
 
-    protected static native byte[] daveReadBytes(long dc, int area, int areaNumber,
-                                                 int startAddress, int length) throws IOException;
+    protected static native byte[] daveReadBytes(long dc, int area, int areaNumber, int startAddress, int length) throws IOException;
 
     //TODO native side to be implemented
-    protected static native void daveWriteBytes(long dc, int area, int areaNumber,
-                                                int startAddress, int length, byte[] buffer)
-            throws IOException;
+    protected static native void daveWriteBytes(long dc, int area, int areaNumber, int startAddress, int length, byte[] buffer) throws
+            IOException;
 
-    protected static native int daveSetBit(long dc,
-                                           int area,
-                                           int areaNumber,
-                                           int byteAdr,
-                                           int bitAdr) throws IOException;
+    protected static native int daveSetBit(long dc, int area, int areaNumber, int byteAdr, int bitAdr) throws IOException;
 
-    protected static native int daveClrBit(long dc,
-                                           int area,
-                                           int areaNumber,
-                                           int byteAdr,
-                                           int bitAdr) throws IOException;
+    protected static native int daveClrBit(long dc, int area, int areaNumber, int byteAdr, int bitAdr) throws IOException;
 
     public Interface(String name, String hostname, int port) throws IOException {
         this.socket = daveOpenSocket(hostname, port);
 
-        if (this.socket == 0)
-            throw new IOException("Cannot create socket to " + hostname + ":" + port);
+        if (this.socket == 0) throw new IOException("Cannot create socket to " + hostname + ":" + port);
 
         this.ifaceHandle = daveNewInterface(name, this.socket);
 
-        if (this.ifaceHandle == 0)
-            throw new IOException("Cannot create interface to " + hostname + ":" + port);
+        if (this.ifaceHandle == 0) throw new IOException("Cannot create interface to " + hostname + ":" + port);
     }
 
     protected long getHandle() {
@@ -88,8 +76,7 @@ public final class Interface {
     protected void finalize() throws Throwable {
         try {
             this.close();
-        }
-        finally {
+        } finally {
             super.finalize();
         }
     }

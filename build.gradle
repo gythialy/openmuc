@@ -3,8 +3,21 @@ def projectNameLowerCase = 'openmuc'
 
 configure(allprojects) {
     apply plugin: 'java'
-    version = '0.13.1'
+    version = '0.14.0'
     group = 'org.openmuc.framework'
+}
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.encoding = "UTF-8"
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+
+    javadoc {
+        options.encoding = "UTF-8"
+    }
 }
 
 project.ext {
@@ -21,6 +34,7 @@ project.ext {
                 it.getPath() == ':openmuc-driver-iec62056p21' ||
                 it.getPath() == ':openmuc-driver-knx' ||
                 it.getPath() == ':openmuc-driver-mbus' ||
+                it.getPath() == ':openmuc-driver-wmbus' ||
                 it.getPath() == ':openmuc-driver-modbus' ||
                 it.getPath() == ':openmuc-driver-s7plc' ||
                 it.getPath() == ':openmuc-driver-snmp' ||
@@ -33,8 +47,7 @@ project.ext {
                 it.getPath() == ':openmuc-webui-channelconfigurator' ||
                 it.getPath() == ':openmuc-webui-userconfigurator' ||
                 it.getPath() == ':openmuc-server-restws' ||
-                it.getPath() == ':openmuc-server-asciisocket' ||
-                it.getPath() == ':openmuc-server-modbus'
+                it.getPath() == ':openmuc-server-asciisocket'
     }
 
     docProjects = distributionProjects.findAll {
@@ -55,8 +68,7 @@ configure(subprojects) {
     targetCompatibility = 1.6
 
     repositories {
-    mavenCentral()
-//        maven { url 'http://repo1.maven.org/maven2/' }
+        mavenCentral()
         flatDir {
             dirs 'dependencies', rootDir.getPath() + "/dependencies"
         }
@@ -88,7 +100,6 @@ configure(subprojects) {
     uploadArchives {
         repositories {
             mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
                 repository(url: project.properties.repository) {
                     authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
@@ -206,7 +217,6 @@ task(tar, type: Tar) {
             include 'demo/framework/felix/**'
             include 'demo/framework/bundle/**'
             include 'demo/framework/conf/**'
-            include 'demo/framework/openmuc-config.xml'
             include 'demo/framework/README.txt'
             include 'demo/framework/run-openmuc.bat.winfile'
             include 'demo/framework/build.gradle'

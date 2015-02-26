@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,10 +35,7 @@ public class ServerClient {
     public static String USER_AGENT = "Rest Client";
 
     public static void sendGET(String string) {
-        String urlStr = SettingsClient.getProtocol()
-                        + SettingsClient.getServer()
-                        + ClientStarter.name
-                        + string;
+        String urlStr = SettingsClient.getProtocol() + SettingsClient.getServer() + ClientStarter.name + string;
         URL url;
         try {
             url = new URL(urlStr);
@@ -61,8 +58,7 @@ public class ServerClient {
                 System.out.println("Response Code : " + responseCode);
             }
 
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
@@ -74,10 +70,7 @@ public class ServerClient {
     }
 
     public static void sendPUT(String string, String string2) {
-        String urlStr = SettingsClient.getProtocol()
-                        + SettingsClient.getServer()
-                        + ClientStarter.name
-                        + string;
+        String urlStr = SettingsClient.getProtocol() + SettingsClient.getServer() + ClientStarter.name + string;
         URL url;
         try {
             url = new URL(urlStr);
@@ -105,18 +98,14 @@ public class ServerClient {
                 System.out.println("Response Code : " + responseCode);
             }
 
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
 
     }
 
     public static void sendPUTd(String string, ArrayList<String> wParam) {
-        String urlStr = SettingsClient.getProtocol()
-                        + SettingsClient.getServer()
-                        + ClientStarter.name
-                        + string;
+        String urlStr = SettingsClient.getProtocol() + SettingsClient.getServer() + ClientStarter.name + string;
         URL url;
         try {
             url = new URL(urlStr);
@@ -145,8 +134,7 @@ public class ServerClient {
                 System.out.println("Response Code : " + responseCode);
             }
 
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,10 +38,7 @@ public class SnmpDiscoveryEvent extends EventObject {
     private final SNMPVersion snmpVersion;
     private final String description;
 
-    public SnmpDiscoveryEvent(Object source,
-                              Address address,
-                              SNMPVersion version,
-                              String description) {
+    public SnmpDiscoveryEvent(Object source, Address address, SNMPVersion version, String description) {
         super(source);
         deviceAddress = address;
         snmpVersion = version;

@@ -1,0 +1,150 @@
+Changes from 4.4.1 to 4.6.0
+---------------------------
+** Improvement
+    * Update to framework and main 4.6.0
+
+Changes from 4.4.0 to 4.4.1
+---------------------------
+** Improvement
+    * Update to latest framework and main version 4.4.1
+    * Update to latest obr version 2.0.2
+    * Update to gogo commands 0.14.0 and runtime 0.12.1
+
+Changes from 4.2.1 to 4.4.0
+---------------------------
+** Improvement
+    * Update to framework and main 4.4.0
+
+Changes from 4.2.0 to 4.2.1
+---------------------------
+
+** Improvement
+    * Update to framework and main 4.2.1
+
+Changes from 4.0.3 to 4.2.0
+---------------------------
+
+** Improvement
+    * Update to framework and main 4.2.0
+
+Changes from 4.0.2 to 4.0.3
+---------------------------
+
+** Improvement
+    * Update to framework and main 4.0.3
+
+Changes from 4.0.1 to 4.0.2
+---------------------------
+
+** Improvement
+    * Update to framework and main 4.0.2
+
+Changes from 4.0.0 to 4.0.1
+---------------------------
+
+** Improvement
+    * Update to framework and main 4.0.1
+
+Changes from 3.2.2 to 4.0.0
+---------------------------
+
+** Improvement
+    * Update to framework and main 4.0.0
+    * Update to gogo command 0.12.0
+    * Update to OBR 1.6.6
+
+Changes from 3.2.1 to 3.2.2
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.2.2 
+
+Changes from 3.2.0 to 3.2.1
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.2.1
+
+Changes from 3.0.9 to 3.2.0
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.2.0
+
+Changes from 3.0.8 to 3.0.9
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.9
+
+
+Changes from 3.0.7 to 3.0.8
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.8
+    * Update to gogo 0.8.0
+
+Changes from 3.0.6 to 3.0.7
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.7
+
+** Bug
+    * [FELIX-2695] - [Distro] Invalid settings in config.properties 
+
+Changes from 3.0.5 to 3.0.6
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.6
+
+Changes from 3.0.4 to 3.0.5
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.5
+
+Changes from 3.0.3 to 3.0.4
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.4
+
+Changes from 3.0.2 to 3.0.3
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.3
+    * Update to gogo 0.6.1
+
+Changes from 3.0.1 to 3.0.2
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.1
+
+Changes form 3.0.0 to 3.0.1
+---------------------------
+
+** Improvement
+    * Update to framework and main 3.0.1
+
+Changes from 2.0.5 to 3.0.0
+---------------------------
+
+** Improvement
+    ** Update to framework and main 3.0.0
+    ** Replace shell with gogo 0.6.0
+
+Changes from 2.0.4 to 2.0.5
+---------------------------
+
+** Improvement
+    ** Update to framework and main 2.0.5
+
+2.0.4
+-----
+
+** Initial release

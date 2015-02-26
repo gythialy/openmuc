@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -36,9 +36,7 @@ public final class StartListeningTask extends DeviceTask {
 
     List<ChannelRecordContainerImpl> selectedChannels;
 
-    public StartListeningTask(DataManager dataManager,
-                              Device device,
-                              List<ChannelRecordContainerImpl> selectedChannels) {
+    public StartListeningTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels) {
         this.dataManager = dataManager;
         this.device = device;
         this.selectedChannels = selectedChannels;
@@ -49,26 +47,19 @@ public final class StartListeningTask extends DeviceTask {
     public void run() {
 
         try {
-            device.deviceConfig.driverParent.activeDriver.startListening(device.connection,
-                                                                         (List<ChannelRecordContainer>) ((List<?>) selectedChannels),
-                                                                         dataManager);
-        }
-        catch (UnsupportedOperationException e) {
+            device.connection.startListening((List<ChannelRecordContainer>) ((List<?>) selectedChannels), dataManager);
+        } catch (UnsupportedOperationException e) {
             for (ChannelRecordContainer channelRecordContainer : selectedChannels) {
                 ((ChannelRecordContainerImpl) channelRecordContainer).channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
             }
-        }
-        catch (ConnectionException e) {
-            // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...",
-                        device.deviceConfig.id,
-                        e.getMessage());
+        } catch (ConnectionException e) {
+            // Connection to device lost. Signal to device instance and end task
+            // without notifying DataManager
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id, e.getMessage());
             device.disconnectedSignal();
             return;
-        }
-        catch (Exception e) {
-            logger.error("unexpected exception by startListeningFor funtion of driver: "
-                         + device.deviceConfig.driverParent.id);
+        } catch (Exception e) {
+            logger.error("unexpected exception by startListeningFor funtion of driver: " + device.deviceConfig.driverParent.id, e);
             // TODO set flag?
         }
 

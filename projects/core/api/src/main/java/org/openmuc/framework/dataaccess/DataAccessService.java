@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -36,8 +36,7 @@ public interface DataAccessService {
 
     public List<LogicalDevice> getLogicalDevices(String type);
 
-    public List<LogicalDevice> getLogicalDevices(String type,
-                                                 LogicalDeviceChangeListener logicalDeviceChangeListener);
+    public List<LogicalDevice> getLogicalDevices(String type, LogicalDeviceChangeListener logicalDeviceChangeListener);
 
     public void read(List<ReadRecordContainer> values);
 

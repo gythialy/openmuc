@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,36 +40,26 @@ public final class ConnectTask extends DeviceTask {
 
     @Override
     public void run() {
-        Object connectionHandle;
+
         try {
-            connectionHandle = driver.connect(device.deviceConfig.interfaceAddress,
-                                              device.deviceConfig.deviceAddress,
-                                              device.deviceConfig.settings);
-        }
-        catch (ConnectionException e) {
-            logger.warn("Unable to connect to device {} because {}. Will try again in {}ms.",
-                        device.deviceConfig.id,
-                        e.getMessage(),
+            device.connection = driver.connect(device.deviceConfig.deviceAddress, device.deviceConfig.settings);
+        } catch (ConnectionException e) {
+            logger.warn("Unable to connect to device {} because {}. Will try again in {}ms.", device.deviceConfig.id, e.getMessage(),
                         device.deviceConfig.connectRetryInterval);
             synchronized (dataManager.connectionFailures) {
                 dataManager.connectionFailures.add(device);
             }
             dataManager.interrupt();
             return;
-        }
-        catch (ArgumentSyntaxException e) {
-            logger.warn(
-                    "Unable to connect to device {} because the address or settings syntax is incorrect: {}. Will try again in {}ms.",
-                    device.deviceConfig.id,
-                    e.getMessage(),
-                    device.deviceConfig.connectRetryInterval);
+        } catch (ArgumentSyntaxException e) {
+            logger.warn("Unable to connect to device {} because the address or settings syntax is incorrect: {}. Will try again in {}ms.",
+                        device.deviceConfig.id, e.getMessage(), device.deviceConfig.connectRetryInterval);
             synchronized (dataManager.connectionFailures) {
                 dataManager.connectionFailures.add(device);
             }
             dataManager.interrupt();
             return;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("unexpected exception thrown by connect funtion of driver", e);
             synchronized (dataManager.connectionFailures) {
                 dataManager.connectionFailures.add(device);
@@ -78,11 +68,15 @@ public final class ConnectTask extends DeviceTask {
             return;
         }
 
-        device.connection = new DeviceConnectionImpl(device.deviceConfig.interfaceAddress,
-                                                     device.deviceConfig.deviceAddress,
-                                                     device.deviceConfig.settings,
-                                                     connectionHandle,
-                                                     device);
+        if (device.connection == null) {
+            logger.error("Drivers connect() function returned null");
+            synchronized (dataManager.connectionFailures) {
+                dataManager.connectionFailures.add(device);
+            }
+            dataManager.interrupt();
+            return;
+        }
+
         synchronized (dataManager.connected) {
             dataManager.connected.add(device);
         }

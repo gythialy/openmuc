@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -57,8 +57,7 @@ public class Connection extends Thread {
 
     private final DataAccessService dataAccessService;
 
-    public Connection(DataAccessService dataAccessService, Socket sock, AsciiSocketServer server)
-            throws IOException {
+    public Connection(DataAccessService dataAccessService, Socket sock, AsciiSocketServer server) throws IOException {
         this.sock = sock;
         this.server = server;
 
@@ -77,8 +76,7 @@ public class Connection extends Thread {
         // TODO ?`Wofuer wird diese Funktion verwendet ?
         try {
             sock.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
         // this.interrupt();
@@ -92,8 +90,7 @@ public class Connection extends Thread {
 
             try {
                 Thread.sleep(100);
-            }
-            catch (InterruptedException e1) {
+            } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
 
@@ -132,18 +129,15 @@ public class Connection extends Thread {
                     sock.close();
                     running = false;
                 }
-            }
-            catch (InterruptedIOException iioe) {
+            } catch (InterruptedIOException iioe) {
                 try {
                     sock.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
                 logger.info("Timeout occurred (60s) - killing connection");
                 break;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.info(e.getMessage());
                 running = false;
             }
@@ -232,8 +226,7 @@ public class Connection extends Thread {
 
             out.println("!GET_AGE_RESPONSE " + label + " " + age + " ms");
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             out.println("!ERROR");
             logger.error(e.getMessage());
         }
@@ -278,8 +271,7 @@ public class Connection extends Thread {
             reports.add(report);
 
             out.println("!CONFIGURE_REPORT_RESPONSE handle:" + report.getHandle());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             out.println("!ERROR");
             logger.error(e.getMessage());
         }
@@ -306,8 +298,7 @@ public class Connection extends Thread {
                 out.println("!ERROR: Value not found!");
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             out.println("!ERROR");
             logger.error(e.getMessage());
         }
@@ -330,8 +321,7 @@ public class Connection extends Thread {
         Record value = null;
         try {
             value = channel.getLoggedRecord(Long.parseLong(timestamp));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             out.println("!ERROR");
             logger.error(e.getMessage());
         }
@@ -373,11 +363,8 @@ public class Connection extends Thread {
 
             if (st.hasMoreTokens()) {
                 endTime = st.nextToken();
-                values = storage.getLoggedRecords(Long.parseLong(startTime),
-                                                  Long.parseLong(endTime));
-                System.out.printf("getValues(%d,%d)",
-                                  Long.parseLong(startTime),
-                                  Long.parseLong(endTime));
+                values = storage.getLoggedRecords(Long.parseLong(startTime), Long.parseLong(endTime));
+                System.out.printf("getValues(%d,%d)", Long.parseLong(startTime), Long.parseLong(endTime));
             } else {
                 values = storage.getLoggedRecords(Long.parseLong(startTime));
                 System.out.printf("getValues(%d)", Long.parseLong(startTime));
@@ -394,8 +381,7 @@ public class Connection extends Thread {
 
             out.println();
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             out.println("!ERROR");
             logger.error(e.getMessage());
         }

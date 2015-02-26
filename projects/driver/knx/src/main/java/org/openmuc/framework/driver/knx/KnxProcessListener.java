@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -55,8 +55,7 @@ public class KnxProcessListener implements ProcessListener {
         listener = null;
     }
 
-    public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-                                                     RecordsReceivedListener listener) {
+    public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) {
         this.containers = containers;
         this.listener = listener;
     }
@@ -106,8 +105,7 @@ public class KnxProcessListener implements ProcessListener {
         return cachedValues;
     }
 
-    private static List<ChannelRecordContainer> createNewRecords(ChannelRecordContainer container,
-                                                                 Record record) {
+    private static List<ChannelRecordContainer> createNewRecords(ChannelRecordContainer container, Record record) {
         List<ChannelRecordContainer> recordContainers = new ArrayList<ChannelRecordContainer>();
         container.setRecord(record);
         recordContainers.add(container);

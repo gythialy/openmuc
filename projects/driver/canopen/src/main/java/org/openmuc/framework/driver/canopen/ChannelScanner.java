@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -58,8 +58,7 @@ public class ChannelScanner implements Callable<List<ChannelScanInfo>> {
             String channelSyntax = "SDO:" + i + ":0x1000:0x0";
             try {
                 Record record = canConnection.readSDO(new SDOObject(channelSyntax), 1000);
-                String info = "CAN ID: " + i + " - CANopen DS-" + Unsigned16.parse(record.getValue()
-                                                                                         .asByteArray());
+                String info = "CAN ID: " + i + " - CANopen DS-" + Unsigned16.parse(record.getValue().asByteArray());
                 logger.info("found channel {} device info: {}", channelSyntax, info);
                 infos.add(new ChannelScanInfo(channelSyntax, info, null, null));
 
@@ -74,8 +73,7 @@ public class ChannelScanner implements Callable<List<ChannelScanInfo>> {
                         PDOObject object = mapping.getMappedObjects()[k];
                         System.out.println(mapping.getCobId() + " - " + object);
                         StringBuilder address = new StringBuilder();
-                        address.append("PDO:0x")
-                               .append(Integer.toHexString(mapping.getCobId()).toUpperCase());
+                        address.append("PDO:0x").append(Integer.toHexString(mapping.getCobId()).toUpperCase());
                         address.append(":").append(k).append(":");
                         address.append(object.getLength());
                         StringBuilder description = new StringBuilder();
@@ -83,16 +81,12 @@ public class ChannelScanner implements Callable<List<ChannelScanInfo>> {
                         if (!parameter.isValid()) {
                             description.append(" PDO is disabled");
                         }
-                        infos.add(new ChannelScanInfo(address.toString(),
-                                                      description.toString(),
-                                                      null,
-                                                      null));
+                        infos.add(new ChannelScanInfo(address.toString(), description.toString(), null, null));
                     }
 
                 }
 
-            }
-            catch (CanException e) {
+            } catch (CanException e) {
                 logger.trace("{} not found: {}", channelSyntax, e.getMessage());
             }
         }

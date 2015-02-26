@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -47,9 +47,7 @@ public class DriversConfigurator extends Configurator {
     }
 
     @Override
-    public Content getContent(String localPath, HttpServletRequest request)
-            throws ProcessRequestException,
-            IdCollisionException {
+    public Content getContent(String localPath, HttpServletRequest request) throws ProcessRequestException, IdCollisionException {
 
         Content content = new Content();
         ConfigService configService = config.getConfigService();
@@ -118,8 +116,7 @@ public class DriversConfigurator extends Configurator {
             DriverInfo driverInfo = null;
             try {
                 driverInfo = configService.getDriverInfo(driverId);
-            }
-            catch (DriverNotAvailableException e1) {
+            } catch (DriverNotAvailableException e1) {
                 throw new ProcessRequestException("Driver " + driverId + " not available");
             }
             content.setTitle("Scan " + driverId);
@@ -132,13 +129,11 @@ public class DriversConfigurator extends Configurator {
                 try {
                     try {
                         configService.interruptDeviceScan(driverId);
-                    }
-                    catch (UnsupportedOperationException e) {
+                    } catch (UnsupportedOperationException e) {
                     }
                     deviceScanner = new DeviceScanner(driverId);
                     configService.scanForDevices(driverId, settings, deviceScanner.getListener());
-                }
-                catch (DriverNotAvailableException e) {
+                } catch (DriverNotAvailableException e) {
                     deviceScanner = null;
                     throw new ProcessRequestException("Driver " + driverId + " not available");
                 }
@@ -153,22 +148,14 @@ public class DriversConfigurator extends Configurator {
             if (deviceScanner != null) {
                 jsonString.append("[");
                 for (DeviceScanInfo scannedDevice : deviceScanner.getNewDevices()) {
-                    jsonString.append("{\"deviceID\":\"")
-                              .append(scannedDevice.getId())
-                              .append("\",\"description\":\"")
-                              .append(scannedDevice.getDescription())
-                              .append("\",\"interfaceAddress\":\"")
-                              .append(scannedDevice.getInterfaceAddress())
-                              .append("\",\"deviceAddress\":\"")
-                              .append(scannedDevice.getDeviceAddress())
-                              .append("\",\"settings\":\"")
-                              .append(scannedDevice.getSettings())
+                    jsonString.append("{\"deviceID\":\"").append(scannedDevice.getId()).append("\",\"description\":\"")
+                              .append(scannedDevice.getDescription()).append("\",\"deviceAddress\":\"")
+                              .append(scannedDevice.getDeviceAddress()).append("\",\"settings\":\"").append(scannedDevice.getSettings())
                               .append("\"},");
                 }
                 try {
                     jsonString.deleteCharAt(jsonString.lastIndexOf(","));
-                }
-                catch (StringIndexOutOfBoundsException e) {
+                } catch (StringIndexOutOfBoundsException e) {
                 }
                 jsonString.append("]");
             }
@@ -176,9 +163,7 @@ public class DriversConfigurator extends Configurator {
         } else if (localPath.endsWith("/scanprogress")) {
             StringBuilder jsonString = new StringBuilder();
             jsonString.append("{\"scanProgress\":\"");
-            if (deviceScanner == null
-                || deviceScanner.isScanInterrupted()
-                || deviceScanner.isScanError()) {
+            if (deviceScanner == null || deviceScanner.isScanInterrupted() || deviceScanner.isScanError()) {
                 jsonString.append("--- ");
             } else if (deviceScanner.isScanFinished()) {
                 jsonString.append(100);
@@ -187,8 +172,7 @@ public class DriversConfigurator extends Configurator {
             }
 
             if (deviceScanner != null && deviceScanner.getScanErrorMessage() != null) {
-                jsonString.append("\",\"errorMessage\":\"")
-                          .append(deviceScanner.getScanErrorMessage());
+                jsonString.append("\",\"errorMessage\":\"").append(deviceScanner.getScanErrorMessage());
             }
             jsonString.append("\"}");
             content = Content.createAjax(jsonString.toString());
@@ -197,8 +181,7 @@ public class DriversConfigurator extends Configurator {
 
             try {
                 configService.interruptDeviceScan(driverId);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.warn("scan could not be stopped");
             }
         } else if (localPath.endsWith("/addscan")) {
@@ -206,8 +189,7 @@ public class DriversConfigurator extends Configurator {
 
             try {
                 configService.interruptDeviceScan(driverId);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.warn("scan could not be stopped");
             }
 
@@ -215,13 +197,11 @@ public class DriversConfigurator extends Configurator {
             for (String device : devices) {
                 String deviceId = Util.parseString(request, device + "deviceId");
                 String description = Util.tryParseString(request, device + "description");
-                String interfaceAddress = Util.tryParseString(request, device + "interfaceAddress");
                 String deviceAddress = Util.tryParseString(request, device + "deviceAddress");
                 String settings = Util.tryParseString(request, device + "settings");
                 DriverConfig driver = rootConfig.getDriver(driverId);
                 DeviceConfig newDevice = driver.addDevice(deviceId);
                 newDevice.setDescription(description);
-                newDevice.setInterfaceAddress(interfaceAddress);
                 newDevice.setDeviceAddress(deviceAddress);
                 newDevice.setSettings(settings);
             }

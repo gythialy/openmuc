@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,7 +26,6 @@ import java.util.Collection;
 public interface DeviceConfig {
 
     public static final String DESCRIPTION_DEFAULT = "";
-    public static final String INTERFACE_ADDRESS_DEFAULT = "";
     public static final String DEVICE_ADDRESS_DEFAULT = "";
     public static final String SETTINGS_DEFAULT = "";
     public static final Boolean DISABLED_DEFAULT = false;
@@ -38,10 +37,6 @@ public interface DeviceConfig {
     public String getDescription();
 
     public void setDescription(String description);
-
-    public String getInterfaceAddress();
-
-    public void setInterfaceAddress(String address);
 
     public String getDeviceAddress();
 

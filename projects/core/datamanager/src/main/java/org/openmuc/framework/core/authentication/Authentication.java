@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -109,30 +109,14 @@ public final class Authentication implements AuthenticationService {
         try {
             sha = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = sha.digest(pwd.getBytes());
-            char[] digits = {'0',
-                             '1',
-                             '2',
-                             '3',
-                             '4',
-                             '5',
-                             '6',
-                             '7',
-                             '8',
-                             '9',
-                             'a',
-                             'b',
-                             'c',
-                             'd',
-                             'e',
-                             'f'};
+            char[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
             for (byte hashedByte : hashedBytes) {
                 hash.append(digits[(hashedByte & 0xf0) >> 4]);
                 hash.append(digits[(hashedByte & 0x0f)]);
             }
 
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -158,8 +142,7 @@ public final class Authentication implements AuthenticationService {
             output.write(text);
             output.flush();
             output.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
 
     }
@@ -176,13 +159,11 @@ public final class Authentication implements AuthenticationService {
 
                     shadow.put(temp[0], temp[1]);
                 }
-            }
-            finally {
+            } finally {
                 reader.close();
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
 
         return shadow;

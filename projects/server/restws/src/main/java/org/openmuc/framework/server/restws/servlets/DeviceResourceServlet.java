@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,15 +20,17 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
+import com.google.gson.JsonArray;
 import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.dataaccess.WriteValueContainer;
-import org.openmuc.framework.server.restws.Activator;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.server.restws.Const;
 import org.openmuc.framework.server.restws.JsonHelper;
 import org.openmuc.framework.server.restws.PathHandler;
+import org.openmuc.framework.server.restws.RestServer;
+import org.openmuc.framework.server.restws.objects.RestChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,23 +43,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("serial")
 public class DeviceResourceServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 4619892734239871891L;
     private final static Logger logger = LoggerFactory.getLogger(DeviceResourceServlet.class);
+
     private DataAccessService dataAccess;
     private ConfigService configService;
     private RootConfig rootCfg;
 
+    private final ServletLib lib = new ServletLib();
+
     @Override
     public void init() throws ServletException {
-        this.dataAccess = Activator.getDataAccess();
-        this.configService = Activator.getConfigService();
+        this.dataAccess = RestServer.getDataAccessService();
+        this.configService = RestServer.getConfigService();
         this.rootCfg = configService.getConfig();
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
@@ -89,10 +94,10 @@ public class DeviceResourceServlet extends HttpServlet {
             }
 
             if (pathInfo.equals("/")) {
-
-                out.println(JsonHelper.ListToJsonArray(devices));
+                out.println(JsonHelper.deviceListToJsonObject(devices));
             } else {
-                devId = pathInfo.replace("/", "");
+                String[] pathInfoArray = pathInfo.replaceFirst("/", "").split("/");
+                devId = pathInfoArray[0].replace("/", "");
                 List<Channel> deviceChannels = new ArrayList<Channel>();
 
                 if (devices.contains(devId)) {
@@ -103,9 +108,18 @@ public class DeviceResourceServlet extends HttpServlet {
                     for (ChannelConfig chCf : channelConfig) {
                         deviceChannels.add(dataAccess.getChannel(chCf.getId()));
                     }
-
-                    out.println(JsonHelper.ChannelRecordListToJsonArray(deviceChannels));
+                    DeviceState deviceState = configService.getDeviceState(devId);
+                    if (pathInfoArray.length > 1 && pathInfoArray[1].equals(Const.CHANNELS)) {
+                        out.println(JsonHelper.channelListWithDeviceStateToJsonObject(deviceChannels, deviceState));
+                    } else if (pathInfoArray.length == 1) {
+                        out.println(JsonHelper.channelRecordListWithDeviceStateToJsonObject(deviceChannels, deviceState));
+                    } else {
+                        String message = "Requested rest device is not available, DeviceID = " + devId;
+                        logger.warn(message);
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, message);
+                    }
                 } else {
+                    logger.warn("Requested rest device is not available, DeviceID = " + devId);
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
             }
@@ -114,86 +128,29 @@ public class DeviceResourceServlet extends HttpServlet {
             configField = pathInfo.split("\\/")[2];
             doGetConfigInfo(out, devId, configField, response);
         } else {
+            logger.warn("Requested rest path is not available, Path Info = " + request.getPathInfo());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
-
+        out.flush();
+        out.close();
     }
 
-    private void doGetConfigInfo(PrintWriter out,
-                                 String devId,
-                                 String configField,
-                                 HttpServletResponse response)
-            throws IOException {
+    private void doGetConfigInfo(PrintWriter out, String devId, String configField, HttpServletResponse response) throws IOException {
+
         DeviceConfig deviceConfig;
         deviceConfig = rootCfg.getDevice(devId);
         if (deviceConfig != null) {
-            if (configField.equals("deviceAddress")) {
-                if (deviceConfig.getDeviceAddress() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             deviceConfig.getDeviceAddress()));
-                }
-
-            } else if (configField.equals("description")) {
-                if (deviceConfig.getDescription() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             deviceConfig.getDescription()));
-                }
-
-            } else if (configField.equals("samplingTimeout")) {
-                if (deviceConfig.getSamplingTimeout() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             deviceConfig.getSamplingTimeout()
-                                                                         .toString()));
-                }
-            } else if (configField.equals("settings")) {
-                if (deviceConfig.getSettings() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             deviceConfig.getSettings()));
-                }
-            } else if (configField.equals("interfaceAddress")) {
-                if (deviceConfig.getInterfaceAddress() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper
-                                        .ConfigValueToJson(configField,
-                                                           deviceConfig.getInterfaceAddress()
-                                                                       .toString()));
-                }
-
-            } else if (configField.equals("connectRetryInterval")) {
-                if (deviceConfig.getConnectRetryInterval() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             deviceConfig.getConnectRetryInterval()
-                                                                         .toString()));
-                }
-            } else if (configField.equals("isDisabled")) {
-                if (deviceConfig.isDisabled() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             deviceConfig.isDisabled().toString()));
-                }
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            }
-
+            JsonArray jsa = new JsonArray();
+            jsa.add(JsonHelper.deviceConfigToJsonObject(deviceConfig).get(configField));
+            out.print(jsa);
+        } else {
+            logger.warn("Requested rest device is not available, DeviceID = " + devId);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
-
     }
 
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
@@ -207,7 +164,6 @@ public class DeviceResourceServlet extends HttpServlet {
             queryStr = "";
         }
 
-        ArrayList<Channel> deviceChannels = new ArrayList<Channel>();
         String devId = pathInfo.replace("/", ""), configField;
 
         List<String> devices = new ArrayList<String>();
@@ -227,53 +183,34 @@ public class DeviceResourceServlet extends HttpServlet {
 
         InputStream in = request.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-        String line, text = "";
-        try {
-            while ((line = br.readLine()) != null) {
-                text += line;
-            }
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        String text = lib.buildString(br);
         in.close();
 
         if (!request.getContentType().equals("application/json")) {
+            logger.warn("Requested rest was not a json media type. MediaType = " + request.getContentType());
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
         } else if (PathHandler.isValidRequest(pathInfo, queryStr)) {
 
             if (!devices.contains(devId)) {
+                logger.warn("Requested rest device is not available, DeviceID = " + devId);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                Collection<ChannelConfig> channelConfig = new ArrayList<ChannelConfig>();
-
-                channelConfig = rootCfg.getDevice(devId).getChannels();
-                for (ChannelConfig chCf : channelConfig) {
-                    deviceChannels.add(dataAccess.getChannel(chCf.getId()));
-                }
-                ArrayList<Value> values = JsonHelper.ChannelsJsonToValues(text, deviceChannels);
-                List<WriteValueContainer> writeValues = new ArrayList<WriteValueContainer>();
-
+                ArrayList<RestChannel> values = JsonHelper.channelsJsonToRecords(text);
                 if (values != null) {
-                    int i = 0;
-                    ArrayList<Flag> flags = new ArrayList<Flag>();
-                    for (Channel drv : deviceChannels) {
-                        WriteValueContainer wvc = drv.getWriteContainer();
-                        wvc.setValue(values.get(i));
-                        writeValues.add(wvc);
-                        ++i;
-                    }
-                    dataAccess.write(writeValues);
-                    for (WriteValueContainer wvc : writeValues) {
-                        flags.add(wvc.getFlag());
-                    }
-                    out.println("SEND: " + JsonHelper.ChannelFlagsToJson(deviceChannels, flags));
+                    while (values.iterator().hasNext()) {
+                        RestChannel restC = values.iterator().next();
+                        String id = restC.getId();
+                        Record rec = restC.getRecord();
 
-                } else {
-
-                    response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+                        Channel ch = dataAccess.getChannel(id);
+                        if (ch != null) {
+                            ch.setLatestRecord(rec);
+                        } else {
+                            logger.warn("Requested rest channel is not available, ChannelID = " + id);
+                            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                            break;
+                        }
+                    }
                 }
             }
         } else if (PathHandler.isValidConfigRequest(pathInfo, queryStr)) {
@@ -282,22 +219,20 @@ public class DeviceResourceServlet extends HttpServlet {
 
             if (devices.contains(devId)) {
                 try {
-                    String configValue = JsonHelper.JsonToConfigValue(text);
+                    String configValue = JsonHelper.jsonToConfigValue(text);
                     doPutConfigInfo(out, configValue, devId, configField, response);
-                }
-                catch (ConfigWriteException cwe) {
+                } catch (ConfigWriteException cwe) {
                     cwe.printStackTrace();
                 }
             }
         }
+        out.flush();
+        out.close();
     }
 
-    private void doPutConfigInfo(PrintWriter out,
-                                 String configValue,
-                                 String devId,
-                                 String configField,
-                                 HttpServletResponse response)
+    private void doPutConfigInfo(PrintWriter out, String configValue, String devId, String configField, HttpServletResponse response)
             throws ConfigWriteException, IOException {
+
         DeviceConfig deviceConfig;
         deviceConfig = rootCfg.getDevice(devId);
         configValue = configValue.replace("\"", "");
@@ -323,11 +258,6 @@ public class DeviceResourceServlet extends HttpServlet {
                 deviceConfig.setConnectRetryInterval(Integer.valueOf(configValue));
                 configService.setConfig(rootCfg);
                 configService.writeConfigToFile();
-
-            } else if (configField.equals("interfaceAddress")) {
-                deviceConfig.setInterfaceAddress(configValue);
-                configService.setConfig(rootCfg);
-                configService.writeConfigToFile();
             } else if (configField.equals("isDisabled")) {
                 deviceConfig.setDisabled(Boolean.getBoolean(configValue));
                 configService.setConfig(rootCfg);
@@ -335,8 +265,7 @@ public class DeviceResourceServlet extends HttpServlet {
             } else if (configField.equals("setId")) {
                 try {
                     deviceConfig.setId(configValue);
-                }
-                catch (IdCollisionException e) {
+                } catch (IdCollisionException e) {
                     e.printStackTrace();
                 }
                 configService.setConfig(rootCfg);
@@ -344,21 +273,21 @@ public class DeviceResourceServlet extends HttpServlet {
             } else if (configField.equals("addChannel")) {
                 try {
                     deviceConfig.addChannel(configValue);
-                }
-                catch (IdCollisionException e) {
+                } catch (IdCollisionException e) {
                     e.printStackTrace();
                 }
                 configService.setConfig(rootCfg);
                 configService.writeConfigToFile();
             } else {
+                logger.warn("Requested rest configService is not available, configServiceID = " + configField);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         }
     }
 
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         response.setContentType("application/json");
         response.getWriter();
         String pathInfo = request.getPathInfo();
@@ -374,36 +303,28 @@ public class DeviceResourceServlet extends HttpServlet {
 
         InputStream in = request.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-        String line, text = "";
-        try {
-            while ((line = br.readLine()) != null) {
-                text += line;
-            }
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        devId = JsonHelper.JsonToConfigValue(text);
-        devId = devId.replace("\"", "");
+        devId = JsonHelper.jsonToConfigValue(lib.buildString(br));
         in.close();
-        if (!request.getContentType().equals("application/json") || devId == null) {
+        if (devId == null) {
+            logger.warn("Device id is null");
+            response.sendError(HttpServletResponse.SC_NO_CONTENT);
+        } else if (!request.getContentType().equals("application/json")) {
+            logger.warn("Requested rest was not a json media type. MediaType = " + request.getContentType() + " and DeviceID =  " + devId);
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
         } else if (pathInfo.equals("/delete") || pathInfo.equals("/delete/")) {
 
             try {
                 DeviceConfig deviceConfig;
+                devId = devId.replace("\"", "");
                 deviceConfig = rootCfg.getDevice(devId);
                 deviceConfig.delete();
                 configService.setConfig(rootCfg);
                 configService.writeConfigToFile();
-            }
-            catch (ConfigWriteException e) {
+            } catch (ConfigWriteException e) {
                 e.printStackTrace();
             }
-
         } else {
+            logger.warn("Requested device is not available, DeviceID = " + devId);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
 
@@ -413,4 +334,5 @@ public class DeviceResourceServlet extends HttpServlet {
     public void destroy() {
 
     }
+
 }

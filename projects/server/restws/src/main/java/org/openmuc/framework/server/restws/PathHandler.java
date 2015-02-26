@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,12 +22,19 @@ package org.openmuc.framework.server.restws;
 
 public class PathHandler {
 
-    public static Boolean isValidRequest(String pathInfo, String queryStr) {
-        String regex = "^(\\/)([a-zA-Z0-9._-]*\\w)(\\/{0,1})";
+    // private final static Logger logger = LoggerFactory.getLogger(PathHandler.class);
 
-        if (pathInfo.matches(regex) && queryStr == "") {
+    public static Boolean isValidRequest(String pathInfo, String queryStr) {
+
+        String regex0 = "^(\\/)([a-zA-Z0-9._-]*\\w)(\\/{0,1})";
+        String regex1 = "^(\\/)([a-zA-Z0-9._-]*\\w)(\\/{1}([a-zA-Z0-9._-]*\\w))(\\/{0,1})";
+
+        if (pathInfo.matches(regex0) && queryStr.equals("")) {
             return true;
-        } else if (pathInfo.equals("/") && queryStr == "") {
+        }
+        if (pathInfo.matches(regex1) && queryStr.equals("")) {
+            return true;
+        } else if (pathInfo.equals("/") && queryStr.equals("")) {
             return true;
         } else {
             return false;
@@ -35,8 +42,10 @@ public class PathHandler {
     }
 
     public static Boolean isValidHistoryRequest(String pathInfo, String queryStr) {
+
         String regexPathInfo = "^(\\/)([a-zA-Z0-9._-]*\\w)(\\/)history";
         String regexQueryStr = "from=(\\d{1,13})&until=(\\d{1,20})";
+
         if (pathInfo.matches(regexPathInfo) && queryStr.matches(regexQueryStr)) {
             return true;
         } else {
@@ -45,9 +54,10 @@ public class PathHandler {
     }
 
     public static boolean isValidConfigRequest(String pathInfo, String queryStr) {
+
         String regex = "^(\\/)([a-zA-Z0-9._-]*\\w)(\\/)([a-zA-Z0-9._-]*\\w)(\\/{0,1})";
 
-        if (pathInfo.matches(regex) && queryStr == "") {
+        if (pathInfo.matches(regex) && queryStr.equals("")) {
             return true;
         } else {
             return false;

@@ -21,15 +21,12 @@
                     <a class="ui-icon ui-icon-folder-open" style="float: left; margin-right: 10px;"
                        href="${applicationPath}/channels#$device.id" title="Show channels"></a>
                     <a class="ui-icon ui-icon-wrench" style="float: left; margin-right: 10px;"
-                       href="${applicationPath}/devices/edit?driverId=${driver.id}&deviceId=${device.id}"
-                       title="Edit"></a>
+                       href="${applicationPath}/devices/edit?driverId=${driver.id}&deviceId=${device.id}" title="Edit"></a>
                     <a class="ui-icon ui-icon-trash" style="float: left; margin-right: 10px;"
-                       href="${applicationPath}/devices/delete?deviceId=${device.id}"
-                       title="Delete"></a>
+                       href="${applicationPath}/devices/delete?deviceId=${device.id}" title="Delete"></a>
                     #if($state == "CONNECTED")
                     <a class="ui-icon ui-icon-search" style="float: left;"
-                       href="${applicationPath}/devices/scan?driverId=${driver.id}&deviceId=${device.id}"
-                       title="Scan for channels"></a>
+                       href="${applicationPath}/devices/scan?driverId=${driver.id}&deviceId=${device.id}" title="Scan for channels"></a>
                 </td>
                 #end
                 <td>

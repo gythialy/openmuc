@@ -56,8 +56,7 @@ SYN
                 <td>MPI with IBH NetLink MPI to ethernet gateway</td>
             </tr>
         </table>
-        <H3>ProfiBus/MPI speed constants to be used with <a href=daveInterface.html>newInterface</a>:
-        </H3>
+        <H3>ProfiBus/MPI speed constants to be used with <a href=daveInterface.html>newInterface</a>:</H3>
         <table>
             <tr>
                 <td>daveSpeed9k</td>
@@ -195,16 +194,14 @@ Genarally, 0 means ok, &gt;0 are results (also errors) reported by the PLC, &lt;
     <tr>
         <td>daveResItemNotAvailable200</td>
         <td>3</td>
-        <td>means a a piece of data is not available in the CPU, e.g. when trying to read a non
-            existing DB or bit bloc of length<>1. This code seems to be specific to 200 family.
+        <td>means a a piece of data is not available in the CPU, e.g. when trying to read a non existing DB or bit bloc of length<>1. This
+            code seems to be specific to 200 family.
         </td>
     </tr>
     <tr>
         <td>daveResItemNotAvailable</td>
         <td>10</td>
-        <td> means a a piece of data is not available in the CPU, e.g. when trying to read a non
-            existing DB
-        </td>
+        <td> means a a piece of data is not available in the CPU, e.g. when trying to read a non existing DB</td>
     </tr>
     <tr>
         <td>daveAddressOutOfRange</td>
@@ -347,8 +344,8 @@ void setDebug(int nDebug);
 </pre>
 typedef struct _daveConnection  daveConnection;
 typedef struct _daveInterface  daveInterface;
-<H3>Helper struct to manage PDUs. This is NOT the part of the packet called PDU, but a set of
-    pointers that ease access to the "private parts" of a PDU.</H3>
+<H3>Helper struct to manage PDUs. This is NOT the part of the packet called PDU, but a set of pointers that ease access to the "private
+    parts" of a PDU.</H3>
 <pre>
 typedef struct {
     uc * header;	/* pointer to start of PDU (PDU header) */
@@ -361,8 +358,8 @@ typedef struct {
     int udlen;		/* user or result data length */
 } PDU;
 </pre>
-<H3>Definitions of prototypes for the protocol specific functions. The library "switches" protocol
-    by setting pointers to the protol specific implementations.</H3>
+<H3>Definitions of prototypes for the protocol specific functions. The library "switches" protocol by setting pointers to the protol
+    specific implementations.</H3>
 <pre>
 typedef int (*_initAdapterFunc) ();
 typedef int (*_connectPLCFunc) ();
@@ -595,12 +592,9 @@ void  _daveConstructReadRequest(PDU *p, int area, int DBnum, int start, int byte
 
                 <pre> int  daveSwapIed_32(int ff);</pre>
                 <H2>Newer data conversion convenience functions:</H2>
-                Newer conversion routines. As the terms WORD, INT, INTEGER etc have different
-                meanings
-                for users of different programming languages and compilers, I choose to provide a
-                new
-                set of conversion routines named according to the bit length of the value used. The
-                'U'
+                Newer conversion routines. As the terms WORD, INT, INTEGER etc have different meanings
+                for users of different programming languages and compilers, I choose to provide a new
+                set of conversion routines named according to the bit length of the value used. The 'U'
                 or 'S' stands for unsigned or signed.
                 <H3>Get a value from the position b points to</h3>
                 B is typically a pointer to a buffer that has
@@ -624,8 +618,7 @@ void  _daveConstructReadRequest(PDU *p, int area, int DBnum, int start, int byte
                 <pre> int  daveGetS32(daveConnection * dc);</pre>
                 <pre> unsigned int  daveGetU32(daveConnection * dc);</pre>
                 <H2>
-                    Get a value from a given position in the last result read on the connection
-                    dc.</h2>
+                    Get a value from a given position in the last result read on the connection dc.</h2>
                 <pre> int  daveGetS8at(daveConnection * dc, int pos);</pre>
                 <pre> int  daveGetU8at(daveConnection * dc, int pos);</pre>
                 <pre> int  daveGetS16at(daveConnection * dc, int pos);</pre>

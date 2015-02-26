@@ -25,8 +25,7 @@ access the structure daveResult directly or use:
 daveUseResult(daveConnection *, daveResultSet * rs, int number);
 </pre>
 This will set the internal result pointer of the <a href=daveConnection.html>daveConnection</a>
-to the result byte array. After doing this, the normal <a href=conversions.html>conversion
-    functions</a> can be used
+to the result byte array. After doing this, the normal <a href=conversions.html>conversion functions</a> can be used
 to transfer single values to C variables. Example:
 <pre>
     res=daveUseResult(dc, rs, 0); // first result

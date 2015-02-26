@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  * 
  * This file is part of openMUC.
  * For more information visit http://www.openmuc.org
@@ -107,21 +107,9 @@ class ReceivingFrame {
      */
     public CEMILData getCemilData() {
         if (KNXCtrl == 0x00) {
-            return new CEMILData(CEMILData.MC_LDATA_IND,
-                                 srcAddress,
-                                 dstAddress,
-                                 tpdu,
-                                 Priority.NORMAL,
-                                 true,
-                                 hopCount);
+            return new CEMILData(CEMILData.MC_LDATA_IND, srcAddress, dstAddress, tpdu, Priority.NORMAL, true, hopCount);
         } else { // Extended frame format
-            return new CEMILDataEx(CEMILData.MC_LDATA_IND,
-                                   srcAddress,
-                                   dstAddress,
-                                   tpdu,
-                                   Priority.NORMAL,
-                                   true,
-                                   hopCount);
+            return new CEMILDataEx(CEMILData.MC_LDATA_IND, srcAddress, dstAddress, tpdu, Priority.NORMAL, true, hopCount);
         }
     }
 

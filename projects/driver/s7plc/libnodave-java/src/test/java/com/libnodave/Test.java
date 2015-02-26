@@ -19,6 +19,7 @@ public class Test {
 
         ifc.setTimeout(5000000);
 
+
         System.out.println("New connection...");
         Connection con = new Connection(ifc, 2, 0, 2);
 
@@ -28,8 +29,7 @@ public class Test {
         System.out.println("read DB150 ...");
         try {
             buf = con.readBytes(Connection.AREA_DB, 150, 0, 24);
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -42,8 +42,7 @@ public class Test {
         bbuf.putFloat(0, (float) 25.5);
         try {
             con.writeBytes(Connection.AREA_DB, 150, 10, 4, buf);
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -51,8 +50,7 @@ public class Test {
         System.out.println("read bytes...");
         try {
             buf = con.readBytes(Connection.AREA_DB, 18, 0, 128);
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -66,8 +64,7 @@ public class Test {
 
         try {
             con.setBit(Connection.AREA_DB, 150, 0, 2);
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -81,31 +78,27 @@ public class Test {
             System.out.println("Toggle bit");
             try {
                 con.setBit(Connection.AREA_DB, 150, 0, 4);
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
 
             try {
                 Thread.sleep(1000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
             try {
                 con.clrBit(Connection.AREA_DB, 150, 0, 4);
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             try {
                 Thread.sleep(1000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -114,8 +107,7 @@ public class Test {
 
         try {
             con.setBit(Connection.AREA_DB, 150, 0, 3);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

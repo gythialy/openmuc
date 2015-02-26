@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -37,7 +37,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
     String id;
     String description = null;
     String deviceAddress = null;
-    String interfaceAddress = null;
     String settings = null;
 
     Integer samplingTimeout = null;
@@ -72,9 +71,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
         }
 
         driverParent.deviceConfigsById.put(id, driverParent.deviceConfigsById.remove(this.id));
-        driverParent.rootConfigParent.deviceConfigsById.put(id,
-                                                            driverParent.rootConfigParent.deviceConfigsById
-                                                                    .remove(this.id));
+        driverParent.rootConfigParent.deviceConfigsById.put(id, driverParent.rootConfigParent.deviceConfigsById.remove(this.id));
 
         this.id = id;
     }
@@ -97,16 +94,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
     @Override
     public void setDeviceAddress(String address) {
         deviceAddress = address;
-    }
-
-    @Override
-    public String getInterfaceAddress() {
-        return interfaceAddress;
-    }
-
-    @Override
-    public void setInterfaceAddress(String address) {
-        interfaceAddress = address;
     }
 
     @Override
@@ -183,9 +170,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<ChannelConfig> getChannels() {
-        return (Collection<ChannelConfig>) (Collection<?>) Collections.unmodifiableCollection(
-                channelConfigsById
-                        .values());
+        return (Collection<ChannelConfig>) (Collection<?>) Collections.unmodifiableCollection(channelConfigsById.values());
     }
 
     @Override
@@ -208,8 +193,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
         return driverParent;
     }
 
-    static void addDeviceFromDomNode(Node deviceConfigNode, DriverConfig parentConfig)
-            throws ParseException {
+    static void addDeviceFromDomNode(Node deviceConfigNode, DriverConfig parentConfig) throws ParseException {
 
         String id = ChannelConfigImpl.getAttributeValue(deviceConfigNode, "id");
         if (id == null) {
@@ -219,8 +203,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
         DeviceConfigImpl config;
         try {
             config = (DeviceConfigImpl) parentConfig.addDevice(id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ParseException(e);
         }
 
@@ -239,8 +222,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
                     config.setDescription(childNode.getTextContent());
                 } else if (childName.equals("deviceAddress")) {
                     config.setDeviceAddress(childNode.getTextContent());
-                } else if (childName.equals("interfaceAddress")) {
-                    config.setInterfaceAddress(childNode.getTextContent());
                 } else if (childName.equals("settings")) {
                     config.setSettings(childNode.getTextContent());
                 } else if (childName.equals("samplingTimeout")) {
@@ -254,15 +235,13 @@ public final class DeviceConfigImpl implements DeviceConfig {
                     } else if (disabledString.equals("false")) {
                         config.disabled = false;
                     } else {
-                        throw new ParseException(
-                                "\"disabled\" tag contains neither \"true\" nor \"false\"");
+                        throw new ParseException("\"disabled\" tag contains neither \"true\" nor \"false\"");
                     }
                 } else {
                     throw new ParseException("found unknown tag:" + childName);
                 }
             }
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ParseException(e);
         }
 
@@ -283,12 +262,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
         if (deviceAddress != null) {
             childElement = document.createElement("deviceAddress");
             childElement.setTextContent(deviceAddress);
-            parentElement.appendChild(childElement);
-        }
-
-        if (interfaceAddress != null) {
-            childElement = document.createElement("interfaceAddress");
-            childElement.setTextContent(interfaceAddress);
             parentElement.appendChild(childElement);
         }
 
@@ -332,7 +305,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
 
         configClone.description = description;
         configClone.deviceAddress = deviceAddress;
-        configClone.interfaceAddress = interfaceAddress;
         configClone.settings = settings;
         configClone.samplingTimeout = samplingTimeout;
         configClone.connectRetryInterval = connectRetryInterval;
@@ -360,12 +332,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
             configClone.deviceAddress = deviceAddress;
         }
 
-        if (interfaceAddress == null) {
-            configClone.interfaceAddress = INTERFACE_ADDRESS_DEFAULT;
-        } else {
-            configClone.interfaceAddress = interfaceAddress;
-        }
-
         if (settings == null) {
             configClone.settings = SETTINGS_DEFAULT;
         } else {
@@ -391,8 +357,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
         }
 
         for (ChannelConfigImpl channelConfig : channelConfigsById.values()) {
-            configClone.channelConfigsById.put(channelConfig.id,
-                                               channelConfig.cloneWithDefaults(configClone));
+            configClone.channelConfigsById.put(channelConfig.id, channelConfig.cloneWithDefaults(configClone));
         }
         return configClone;
     }

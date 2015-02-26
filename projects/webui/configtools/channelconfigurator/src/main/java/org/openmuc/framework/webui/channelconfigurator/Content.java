@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,23 +44,15 @@ public class Content {
         html.append("<p>Error processing request.</p>");
         html.append(e.getMessage());
         html.append("<hr><p><a id=expand href=# style=\"");
-        html.append(
-                "background: url(/openmuc/images/arrow_right_small.png) no-repeat left; padding-left: 20px");
+        html.append("background: url(/openmuc/images/arrow_right_small.png) no-repeat left; padding-left: 20px");
         html.append("\">Stack Trace</a></p>");
-        html.append(
-                "<div id=expander style=\"display: none; overflow: scroll; white-space: nowrap\">");
+        html.append("<div id=expander style=\"display: none; overflow: scroll; white-space: nowrap\">");
         html.append(e.toString()).append(": ").append(e.getMessage()).append("<br>");
         html.append("#set( $bo = \"(\")").append("#set( $bc = \")\")");
         html.append("<div style=\"padding-left: 3em\">");
         for (StackTraceElement element : e.getStackTrace()) {
-            html.append("at ")
-                .append(element.getClassName())
-                .append(".")
-                .append(element.getMethodName());
-            html.append("${bo}")
-                .append(element.getFileName())
-                .append(':')
-                .append(element.getLineNumber());
+            html.append("at ").append(element.getClassName()).append(".").append(element.getMethodName());
+            html.append("${bo}").append(element.getFileName()).append(':').append(element.getLineNumber());
             html.append("${bc}<br>");
         }
         html.append("</div></div>");
@@ -68,12 +60,10 @@ public class Content {
         html.append("$(\"#expand\").click(function(event) {");
         html.append("  event.preventDefault();");
         html.append("  if($(\"#expander\").is(\":visible\")) {");
-        html.append(
-                "    $(\"#expand\").css(\"background-image\", \"url(/openmuc/images/arrow_right_small.png)\");");
+        html.append("    $(\"#expand\").css(\"background-image\", \"url(/openmuc/images/arrow_right_small.png)\");");
         html.append("  }");
         html.append("  else {");
-        html.append(
-                "    $(\"#expand\").css(\"background-image\", \"url(/openmuc/images/arrow_down_small.png)\");");
+        html.append("    $(\"#expand\").css(\"background-image\", \"url(/openmuc/images/arrow_down_small.png)\");");
         html.append("  }");
         html.append("  $(\"#expander\").slideToggle(500, function() { });");
         html.append("});");

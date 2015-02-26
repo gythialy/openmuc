@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -55,15 +55,13 @@ public class KnxGroupDPTest {
                 System.out.println("testing: " + dpt.toString());
                 try {
                     dp = new KnxGroupDP(main, dpt.getDescription(), dpt.getID());
-                }
-                catch (KNXException e) {
+                } catch (KNXException e) {
                     fail("could not create KnxGroupDP with: " + dpt.toString());
                 }
                 try {
                     dp.getKnxValue().setDPTValue(dpt.getLowerValue());
                     dp.getKnxValue().setDPTValue(dpt.getUpperValue());
-                }
-                catch (KNXFormatException e) {
+                } catch (KNXFormatException e) {
                     fail("could not set upper and lower value to KnxGroupDP: " + dpt.toString());
                 }
                 assertTrue(dp.getKnxValue().getOpenMucValue() instanceof Value);

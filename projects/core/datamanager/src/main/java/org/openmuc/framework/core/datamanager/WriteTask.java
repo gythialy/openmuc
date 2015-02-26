@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,10 +38,8 @@ public final class WriteTask extends DeviceTask {
     private final CountDownLatch writeTaskFinishedSignal;
     List<WriteValueContainerImpl> writeValueContainers;
 
-    public WriteTask(DataManager dataManager,
-                     Device device,
-                     List<WriteValueContainerImpl> writeValueContainers,
-                     CountDownLatch writeTaskFinishedSignal) {
+    public WriteTask(DataManager dataManager, Device device, List<WriteValueContainerImpl> writeValueContainers, CountDownLatch
+            writeTaskFinishedSignal) {
         this.dataManager = dataManager;
         this.device = device;
         this.writeTaskFinishedSignal = writeTaskFinishedSignal;
@@ -53,20 +51,14 @@ public final class WriteTask extends DeviceTask {
     public void run() {
 
         try {
-            device.deviceConfig.driverParent.activeDriver.write(device.connection,
-                                                                (List<ChannelValueContainer>) ((List<?>) writeValueContainers),
-                                                                null);
-        }
-        catch (UnsupportedOperationException e) {
+            device.connection.write((List<ChannelValueContainer>) ((List<?>) writeValueContainers), null);
+        } catch (UnsupportedOperationException e) {
             for (WriteValueContainerImpl valueContainer : writeValueContainers) {
                 valueContainer.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
             }
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...",
-                        device.deviceConfig.id,
-                        e.getMessage());
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id, e.getMessage());
             for (WriteValueContainerImpl valueContainer : writeValueContainers) {
                 valueContainer.setFlag(Flag.CONNECTION_EXCEPTION);
             }
@@ -76,8 +68,7 @@ public final class WriteTask extends DeviceTask {
             }
             dataManager.interrupt();
             return;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("unexpected exception thrown by write funtion of driver ", e);
             for (WriteValueContainerImpl valueContainer : writeValueContainers) {
                 valueContainer.setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);

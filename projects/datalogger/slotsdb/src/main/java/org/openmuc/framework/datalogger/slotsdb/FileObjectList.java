@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -107,11 +107,10 @@ public final class FileObjectList {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             try {
                 sdf.parse(folder.getParentFile().getName());
-            }
-            catch (ParseException e) {
-                throw new IOException("Unable to parse Timestamp from folder: "
-                                      + folder.getParentFile().getName()
-                                      + ". Expected Folder in yyyyMMdd Format!");
+            } catch (ParseException e) {
+                throw new IOException(
+                        "Unable to parse Timestamp from folder: " + folder.getParentFile().getName() + ". Expected Folder in yyyyMMdd " +
+                                "Format!");
             }
             firstTS = sdf.getCalendar().getTimeInMillis();
         } else {
@@ -185,16 +184,14 @@ public final class FileObjectList {
     public FileObject getFileObjectForTimestamp(long timestamp) {
         if (files.size() > 1) {
             for (FileObject f : files) {
-                if (f.getStartTimeStamp() <= timestamp
-                    && f.getTimestampForLatestValue() >= timestamp) {
+                if (f.getStartTimeStamp() <= timestamp && f.getTimestampForLatestValue() >= timestamp) {
                     // File
                     // found!
                     return f;
                 }
             }
         } else if (files.size() == 1) {
-            if (files.get(0).getStartTimeStamp() <= timestamp
-                && files.get(0).getTimestampForLatestValue() >= timestamp) {
+            if (files.get(0).getStartTimeStamp() <= timestamp && files.get(0).getTimestampForLatestValue() >= timestamp) {
                 // contains
                 // this
                 // TS
@@ -251,19 +248,16 @@ public final class FileObjectList {
         List<FileObject> toReturn = new Vector<FileObject>(1);
         if (files.size() > 1) {
             for (int i = 0; i < files.size(); i++) {
-                if ((files.get(i).getStartTimeStamp() <= start
-                     && files.get(i).getTimestampForLatestValue() >= start)
-                    || (files.get(i).getStartTimeStamp() <= end
-                        && files.get(i).getTimestampForLatestValue() >= end)
-                    || (files.get(i).getStartTimeStamp() >= start
-                        && files.get(i).getTimestampForLatestValue() <= end)) {
+                if ((files.get(i).getStartTimeStamp() <= start && files.get(i).getTimestampForLatestValue() >= start) || (files.get(i)
+                                                                                                                               .getStartTimeStamp() <= end && files
+                        .get(i).getTimestampForLatestValue() >= end) || (files.get(i).getStartTimeStamp() >= start && files.get(i)
+                                                                                                                           .getTimestampForLatestValue() <= end)) {
                     // needed files.
                     toReturn.add(files.get(i));
                 }
             }
         } else if (files.size() == 1) {
-            if (files.get(0).getStartTimeStamp() <= end
-                && files.get(0).getTimestampForLatestValue() >= start) {
+            if (files.get(0).getStartTimeStamp() <= end && files.get(0).getTimestampForLatestValue() >= start) {
                 // contains
                 // this
                 // TS

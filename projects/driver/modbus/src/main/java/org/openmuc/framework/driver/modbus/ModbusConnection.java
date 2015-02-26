@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,9 +27,19 @@ import net.wimpi.modbus.io.ModbusTransaction;
 import net.wimpi.modbus.msg.*;
 import net.wimpi.modbus.procimg.InputRegister;
 import net.wimpi.modbus.procimg.Register;
+import net.wimpi.modbus.procimg.SimpleRegister;
 import net.wimpi.modbus.util.BitVector;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.Connection;
 
-public abstract class ModbusConnection {
+import java.util.Hashtable;
+import java.util.List;
+
+public abstract class ModbusConnection implements Connection {
 
     private final ReadCoilsRequest readCoilsRequest;
     private final ReadInputDiscretesRequest readInputDiscretesRequest;
@@ -41,14 +51,20 @@ public abstract class ModbusConnection {
     private final WriteMultipleRegistersRequest writeMultipleRegistersRequest;
 
     private ModbusTransaction transaction;
+    private final ModbusDriverUtil util;
+    // List do manage Channel Objects to avoid to check the syntax of each channel address for every read or write
+    private final Hashtable<String, ModbusChannel> modbusChannels;
 
     public abstract void connect() throws Exception;
 
+    @Override
     public abstract void disconnect();
 
     public ModbusConnection() {
 
         transaction = null;
+        util = new ModbusDriverUtil();
+        modbusChannels = new Hashtable<String, ModbusChannel>();
 
         readCoilsRequest = new ReadCoilsRequest();
         readInputDiscretesRequest = new ReadInputDiscretesRequest();
@@ -64,8 +80,104 @@ public abstract class ModbusConnection {
         this.transaction = transaction;
     }
 
-    private synchronized BitVector readCoils(int startAddress, int count, int unitID)
-            throws ModbusException {
+    public Value readChannel(ModbusChannel channel) throws ModbusException {
+        Value value = null;
+
+        switch (channel.getFunctionCode()) {
+            case FC_01_READ_COILS:
+                value = util.getBitVectorsValue(readCoils(channel));
+                break;
+            case FC_02_READ_DISCRETE_INPUTS:
+                value = util.getBitVectorsValue(readDiscreteInputs(channel));
+                break;
+            case FC_03_READ_HOLDING_REGISTERS:
+                value = util.getRegistersValue(readHoldingRegisters(channel), channel.getDatatype());
+                break;
+            case FC_04_READ_INPUT_REGISTERS:
+                value = util.getRegistersValue(readInputRegisters(channel), channel.getDatatype());
+                break;
+            default:
+                throw new RuntimeException("FunctionCode " + channel.getFunctionCode() + " not supported yet");
+        }
+
+        return value;
+    }
+
+    public void readChannelGroup(ModbusChannelGroup channelGroup, List<ChannelRecordContainer> containers) throws ModbusException {
+
+        switch (channelGroup.getFunctionCode()) {
+            case FC_01_READ_COILS:
+                BitVector coils = readCoils(channelGroup);
+                channelGroup.setChannelValues(coils, containers);
+                break;
+            case FC_02_READ_DISCRETE_INPUTS:
+                BitVector discretInput = readDiscreteInputs(channelGroup);
+                channelGroup.setChannelValues(discretInput, containers);
+                break;
+            case FC_03_READ_HOLDING_REGISTERS:
+                Register[] registers = readHoldingRegisters(channelGroup);
+                channelGroup.setChannelValues(registers, containers);
+                break;
+            case FC_04_READ_INPUT_REGISTERS:
+                InputRegister[] inputRegisters = readInputRegisters(channelGroup);
+                channelGroup.setChannelValues(inputRegisters, containers);
+                break;
+            default:
+                throw new RuntimeException("FunctionCode " + channelGroup.getFunctionCode() + " not supported yet");
+        }
+    }
+
+    public void writeChannel(ModbusChannel channel, Value value) throws ModbusException, RuntimeException {
+
+        switch (channel.getFunctionCode()) {
+            case FC_05_WRITE_SINGLE_COIL:
+                writeSingleCoil(channel, value.asBoolean());
+                break;
+            case FC_15_WRITE_MULITPLE_COILS:
+                writeMultipleCoils(channel, util.getBitVectorFromByteArray(value));
+                break;
+            case FC_06_WRITE_SINGLE_REGISTER:
+                writeSingleRegister(channel, new SimpleRegister(value.asShort()));
+                break;
+            case FC_16_WRITE_MULTIPLE_REGISTERS:
+                writeMultipleRegisters(channel, util.valueToRegisters(value, channel.getDatatype()));
+                break;
+            default:
+                throw new RuntimeException("FunctionCode " + channel.getFunctionCode().toString() + " not supported yet");
+        }
+    }
+
+    public void setChannelsWithErrorFlag(List<ChannelRecordContainer> containers) {
+        for (ChannelRecordContainer container : containers) {
+            container.setRecord(new Record(null, null, Flag.DRIVER_ERROR_CHANNEL_TEMPORARILY_NOT_ACCESSIBLE));
+        }
+    }
+
+    protected ModbusChannel getModbusChannel(String channelAddress, EAccess access) {
+
+        ModbusChannel modbusChannel = null;
+
+        // check if the channel object already exists in the list
+        if (modbusChannels.containsKey(channelAddress)) {
+            modbusChannel = modbusChannels.get(channelAddress);
+
+            // if the channel object exists the access flag might has to be updated
+            // (this is case occurs when the channel is readable and writable)
+            if (!modbusChannel.getAccessFlag().equals(access)) {
+                modbusChannel.update(access);
+            }
+        }
+        // create a new channel object
+        else {
+            modbusChannel = new ModbusChannel(channelAddress, access);
+            modbusChannels.put(channelAddress, modbusChannel);
+        }
+
+        return modbusChannel;
+
+    }
+
+    private synchronized BitVector readCoils(int startAddress, int count, int unitID) throws ModbusException {
         readCoilsRequest.setReference(startAddress);
         readCoilsRequest.setBitCount(count);
         readCoilsRequest.setUnitID(unitID);
@@ -82,13 +194,10 @@ public abstract class ModbusConnection {
     }
 
     public BitVector readCoils(ModbusChannelGroup channelGroup) throws ModbusException {
-        return readCoils(channelGroup.getStartAddress(),
-                         channelGroup.getCount(),
-                         channelGroup.getUnitId());
+        return readCoils(channelGroup.getStartAddress(), channelGroup.getCount(), channelGroup.getUnitId());
     }
 
-    private synchronized BitVector readDiscreteInputs(int startAddress, int count, int unitID)
-            throws ModbusException {
+    private synchronized BitVector readDiscreteInputs(int startAddress, int count, int unitID) throws ModbusException {
         readInputDiscretesRequest.setReference(startAddress);
         readInputDiscretesRequest.setBitCount(count);
         readInputDiscretesRequest.setUnitID(unitID);
@@ -100,19 +209,14 @@ public abstract class ModbusConnection {
     }
 
     public BitVector readDiscreteInputs(ModbusChannel channel) throws ModbusException {
-        return readDiscreteInputs(channel.getStartAddress(),
-                                  channel.getCount(),
-                                  channel.getUnitId());
+        return readDiscreteInputs(channel.getStartAddress(), channel.getCount(), channel.getUnitId());
     }
 
     public BitVector readDiscreteInputs(ModbusChannelGroup channelGroup) throws ModbusException {
-        return readDiscreteInputs(channelGroup.getStartAddress(),
-                                  channelGroup.getCount(),
-                                  channelGroup.getUnitId());
+        return readDiscreteInputs(channelGroup.getStartAddress(), channelGroup.getCount(), channelGroup.getUnitId());
     }
 
-    private synchronized Register[] readHoldingRegisters(int startAddress, int count, int unitID)
-            throws ModbusException {
+    private synchronized Register[] readHoldingRegisters(int startAddress, int count, int unitID) throws ModbusException {
         readHoldingRegisterRequest.setReference(startAddress);
         readHoldingRegisterRequest.setWordCount(count);
         readHoldingRegisterRequest.setUnitID(unitID);
@@ -122,15 +226,11 @@ public abstract class ModbusConnection {
     }
 
     public Register[] readHoldingRegisters(ModbusChannel channel) throws ModbusException {
-        return readHoldingRegisters(channel.getStartAddress(),
-                                    channel.getCount(),
-                                    channel.getUnitId());
+        return readHoldingRegisters(channel.getStartAddress(), channel.getCount(), channel.getUnitId());
     }
 
     public Register[] readHoldingRegisters(ModbusChannelGroup channelGroup) throws ModbusException {
-        return readHoldingRegisters(channelGroup.getStartAddress(),
-                                    channelGroup.getCount(),
-                                    channelGroup.getUnitId());
+        return readHoldingRegisters(channelGroup.getStartAddress(), channelGroup.getCount(), channelGroup.getUnitId());
     }
 
     /**
@@ -144,8 +244,8 @@ public abstract class ModbusConnection {
      * @throws ModbusSlaveException
      * @throws ModbusException
      */
-    private synchronized InputRegister[] readInputRegisters(int startAddress, int count, int unitID)
-            throws ModbusIOException, ModbusSlaveException, ModbusException {
+    private synchronized InputRegister[] readInputRegisters(int startAddress, int count, int unitID) throws ModbusIOException,
+            ModbusSlaveException, ModbusException {
         readInputRegistersRequest.setReference(startAddress);
         readInputRegistersRequest.setWordCount(count);
         readInputRegistersRequest.setUnitID(unitID);
@@ -163,9 +263,7 @@ public abstract class ModbusConnection {
      * @throws ModbusException
      */
     public InputRegister[] readInputRegisters(ModbusChannel channel) throws ModbusException {
-        return readInputRegisters(channel.getStartAddress(),
-                                  channel.getCount(),
-                                  channel.getUnitId());
+        return readInputRegisters(channel.getStartAddress(), channel.getCount(), channel.getUnitId());
     }
 
     /**
@@ -175,15 +273,11 @@ public abstract class ModbusConnection {
      * @return the InputRegister
      * @throws ModbusException
      */
-    public InputRegister[] readInputRegisters(ModbusChannelGroup channelGroup)
-            throws ModbusException {
-        return readInputRegisters(channelGroup.getStartAddress(),
-                                  channelGroup.getCount(),
-                                  channelGroup.getUnitId());
+    public InputRegister[] readInputRegisters(ModbusChannelGroup channelGroup) throws ModbusException {
+        return readInputRegisters(channelGroup.getStartAddress(), channelGroup.getCount(), channelGroup.getUnitId());
     }
 
-    public synchronized void writeSingleCoil(ModbusChannel channel, boolean state)
-            throws ModbusException {
+    public synchronized void writeSingleCoil(ModbusChannel channel, boolean state) throws ModbusException {
         writeCoilRequest.setReference(channel.getStartAddress());
         writeCoilRequest.setCoil(state);
         writeCoilRequest.setUnitID(channel.getUnitId());
@@ -191,8 +285,7 @@ public abstract class ModbusConnection {
         transaction.execute();
     }
 
-    public synchronized void writeMultipleCoils(ModbusChannel channel, BitVector coils)
-            throws ModbusException {
+    public synchronized void writeMultipleCoils(ModbusChannel channel, BitVector coils) throws ModbusException {
         writeMultipleCoilsRequest.setReference(channel.getStartAddress());
         writeMultipleCoilsRequest.setCoils(coils);
         writeMultipleCoilsRequest.setUnitID(channel.getUnitId());
@@ -200,8 +293,7 @@ public abstract class ModbusConnection {
         transaction.execute();
     }
 
-    public synchronized void writeSingleRegister(ModbusChannel channel, Register register)
-            throws ModbusException {
+    public synchronized void writeSingleRegister(ModbusChannel channel, Register register) throws ModbusException {
 
         writeSingleRegisterRequest.setReference(channel.getStartAddress());
         writeSingleRegisterRequest.setRegister(register);
@@ -210,8 +302,7 @@ public abstract class ModbusConnection {
         transaction.execute();
     }
 
-    public synchronized void writeMultipleRegisters(ModbusChannel channel, Register[] registers)
-            throws ModbusException {
+    public synchronized void writeMultipleRegisters(ModbusChannel channel, Register[] registers) throws ModbusException {
         writeMultipleRegistersRequest.setReference(channel.getStartAddress());
         writeMultipleRegistersRequest.setRegisters(registers);
         writeMultipleRegistersRequest.setUnitID(channel.getUnitId());

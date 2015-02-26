@@ -7,13 +7,13 @@
     <title>OpenMUC User Guide</title>
     <style type="text/css">
         /*
- * AsciiDoc 'volnitsky' theme for xhtml11 and html5 backends.
- * Based on css from http://volnitsky.com, which was in turn based on default
- * theme from AsciiDoc
- *
- * FIXME: The styling is still a bit rough in places.
- *
- */
+         * AsciiDoc 'volnitsky' theme for xhtml11 and html5 backends.
+         * Based on css from http://volnitsky.com, which was in turn based on default
+         * theme from AsciiDoc
+         *
+         * FIXME: The styling is still a bit rough in places.
+         *
+         */
 
         /* Default font. */
         body {
@@ -377,13 +377,8 @@
             margin-top: 1em;
         }
 
-        .paragraph p, li, dd, .content {
-            max-width: 45em;
-        }
-
-        .admonitionblock {
-            max-width: 35em;
-        }
+        /*.paragraph p, li, dd, .content { max-width: 85em; }
+        .admonitionblock               { max-width: 35em; }*/
 
         div.sectionbody div.ulist > ul > li {
             list-style-type: square;
@@ -404,9 +399,9 @@
         }
 
         /*
- * html5 specific
- *
- * */
+         * html5 specific
+         *
+         * */
 
         table.tableblock {
             margin-top: 1.0em;
@@ -678,8 +673,7 @@
 
     <div id="toc">
         <div id="toctitle">Table of Contents</div>
-        <noscript><p><b>JavaScript must be enabled in your browser to display the table of
-            contents.</b></p></noscript>
+        <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
     </div>
 </div>
 <div id="content">
@@ -687,80 +681,79 @@
         <h2 id="_component_overview">1. Component Overview</h2>
 
         <div class="sectionbody">
-            <div class="paragraph"><p>For a short overview of OpenMUC&#8217;s goals and features
-                please visit our
-                website: <a href="http://www.openmuc.org/index.php?id=11">http://www.openmuc.org/index.php?id=11</a>.
-                This documentation is
-                meant for people that want to take a more detailed look at OpenMUC and
-                people that want to start using OpenMUC.</p></div>
+            <div class="paragraph"><p>For a short overview of OpenMUC&#8217;s goals and features please visit our
+                website: <a href="http://www.openmuc.org/index.php?id=11">http://www.openmuc.org/index.php?id=11</a>. This guide is is a
+                detailed documentation on how OpenMUC works and how to use it.</p></div>
             <div class="paragraph"><p>The following picture illustrates how OpenMUC works.</p></div>
             <div class="imageblock">
                 <div class="content">
-                    <img src="openmuc_doc_img/openmuc-overview-with-nums.png"
-                         alt="openmuc_doc_img/openmuc-overview-with-nums.png"/>
+                    <img src="openmuc_doc_img/openmuc-overview-with-nums.png" alt="openmuc_doc_img/openmuc-overview-with-nums.png"/>
                 </div>
                 <div class="title">Figure 1. Architecture Overview</div>
             </div>
-            <div class="paragraph"><p>All boxes seen in the picture are implemented as software
-                modules
+            <div class="paragraph"><p>All boxes seen in the picture are implemented as software modules
                 called OSGi bundles that run independently in the OSGi
                 environment. All modules except for the data manager are
                 optional. Thus by selecting the modules you need you can easily create
                 your own customized and lightweight system.</p></div>
-            <div class="paragraph"><p>The different modules in the picture are now further
-                explained:</p></div>
+            <div class="paragraph"><p>The different modules in the picture are now further explained:</p></div>
             <div class="olist arabic">
                 <ol class="arabic">
                     <li>
                         <p>
-                            The <strong>Data Manager</strong> is at the core and center of OpenMUC.
-                            Virtually
-                            all other OpenMUC modules (drivers, data loggers, servers,
-                            applications, web UI plugins) communicate with it through OSGi
+                            The <strong>data manager</strong> represents the core and center of OpenMUC. Virtually
+                            all other OpenMUC modules (e.g. drivers, data loggers, servers,
+                            applications and web interface plugins) communicate with it through OSGi
                             services. The data manager gets automatically notified when new
                             drivers or data loggers get installed. OpenMUC applications
                             communicate with devices, access logged data or change the
                             configuration by calling service functions provided by the data
                             manager. It is therefore the data manager that shields the application
                             programmer from the details of the communication and data logging
-                            technology. What the Data Manager does is mostly controlled through a
+                            technology. What the data manager does is mostly controlled through a
                             central configuration.
                         </p>
                     </li>
                     <li>
                         <p>
-                            In the <strong>configuration</strong> the user defines data channels.
-                            Data channels
-                            are the frameworks representation of data points in connected
-                            devices. Amongst others the channel configuration holds the following
-                            information:
+                            The <strong>channel configuration</strong> hold the user defined data channels and
+                            its parameters. Data channels are the frameworks
+                            representation of data points in connected devices. Amongst others the
+                            channel configuration holds the following information:
                         </p>
 
-                        <div class="olist loweralpha">
-                            <ol class="loweralpha">
-                                <li>
-                                    <p>
-                                        communication parameters that the drivers require
-                                    </p>
-                                </li>
-                                <li>
-                                    <p>
-                                        when to sample new data from connected devices
-                                    </p>
-                                </li>
-                                <li>
-                                    <p>
-                                        when to send sampled data to existing data logger(s)
-                                        for efficient persistent storage.
-                                    </p>
-                                </li>
-                            </ol>
+                        <div class="openblock">
+                            <div class="content">
+                                <div class="olist loweralpha">
+                                    <ol class="loweralpha">
+                                        <li>
+                                            <p>
+                                                communication parameters that the drivers require
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <p>
+                                                when to sample new data from connected devices
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <p>
+                                                when to send sampled data to existing data logger(s)
+                                                for efficient persistent storage.
+                                            </p>
+                                        </li>
+                                    </ol>
+                                </div>
+                                <div class="paragraph"><p>The configuration is stored in the file
+                                    conf/channels.xml. You may add or modify the configured channels by
+                                    manually editing the channels.xml file or through the channel
+                                    configurator web interface.</p></div>
+                            </div>
                         </div>
                     </li>
                     <li>
                         <p>
-                            A <strong>driver</strong> is used by the Data Manager to get data from a
-                            connected
+                            A <strong>driver</strong> is used by the data manager to get data from a connected
                             device. Thus a driver usually implements a communication
                             protocol. Several communication drivers have already been developed
                             (e.g. IEC 61850, ModbusTCP, KNX, DLMS/COSEM). While implementing
@@ -773,9 +766,8 @@
                     </li>
                     <li>
                         <p>
-                            A <strong>data logger</strong> saves sampled data persistently.
-                            Essentially the
-                            Data Manager forwards sampled data to all available data loggers if
+                            A <strong>data logger</strong> saves sampled data persistently. Essentially the
+                            data manager forwards sampled data to all available data loggers if
                             configured to do so. Data loggers are specifically designed to store
                             time series data for short storage and retrieval times. Note that this
                             usually means that they are not SQL-based. OpenMUC currently includes
@@ -787,16 +779,15 @@
                     <li>
                         <p>
                             If all you want is sample and log data you may not need to program
-                            an <strong>application</strong>. But if you want to process sampled data
-                            or control a
+                            an <strong>application</strong>. But if you want to process sampled data or control a
                             device you will want to write your own application. Like all other
                             modules your application will be an OSGI bundle. In your application
                             you can use the DataAccessService and the ConfigService provided by
-                            the Data Manager to access sampled and logged data. You may also issue
-                            immediate read or write commands. These are forwarded by the Data
-                            Manager to the driver. The configuration (when to sample and to log)
+                            the data manager to access sampled and logged data. You may also issue
+                            immediate read or write commands. These are forwarded by the data
+                            manager to the driver. The configuration (when to sample and to log)
                             can also be changed during run-time by the application. At all times
-                            the application only communicates with the Data Manager and is thus
+                            the application only communicates with the data manager and is thus
                             hidden from the complicated details of the communication technology.
                         </p>
                     </li>
@@ -804,17 +795,15 @@
                         <p>
                             If your application is located on a remote system (e.g. a smart
                             phone or an Internet server) then the data and configuration can be
-                            accessed through an OpenMUC <strong>server</strong>. At the moment we
-                            have two
-                            servers: a RESTful Web Service and very simple ASCII socket server. In
+                            accessed through an OpenMUC <strong>server</strong>. At the moment we have two
+                            servers: a RESTful web service and very simple ASCII socket server. In
                             the future an IEC 61850 server is planned.
                         </p>
                     </li>
                     <li>
                         <p>
-                            Finally the OpenMUC framework provides a <strong>web user
-                            interface</strong> for
-                            tasks such as configuration, visualization of sampled data, or
+                            Finally the OpenMUC framework provides a <strong>web user interface</strong> for
+                            tasks such as configuration, visualization of sampled data or
                             exporting logged data. The web interface is modular and provides a
                             plug-in interface. This way developers may write a website that
                             integrates into the main menu of the web interface. The web UI is
@@ -830,129 +819,113 @@
         <h2 id="_demo_framework">2. Demo Framework</h2>
 
         <div class="sectionbody">
-            <div class="paragraph"><p>An easy way to start understanding OpenMUC is by running the
-                demo
-                framework and experiment with it. This chapter will guide you
+            <div class="paragraph"><p>An easy way to start understanding OpenMUC is by running the demo
+                framework and experimenting with it. This chapter will guide you
                 through this process.</p></div>
             <div class="sect2">
                 <h3 id="_demo_files">2.1. Demo Files</h3>
 
-                <div class="paragraph"><p>The OpenMUC demo is located in the folder "demo" inside
-                    the OpenMUC
+                <div class="paragraph"><p>The OpenMUC demo is located in the folder "demo" inside the OpenMUC
                     distribution archive. The "demo" folder contains the folders "projects" and
                     "framework". The "projects" folder contains several demo software projects
                     that can be imported into Eclipse as we will explain later. The
                     following demo projects exist:</p></div>
-                <div class="olist arabic">
-                    <ol class="arabic">
+                <div class="ulist">
+                    <ul>
                         <li>
                             <p>
-                                <strong>simpleappdemo</strong> - A demo app which demonstrates how
-                                to write an
+                                <strong>simpleappdemo</strong> - A demo app which demonstrates how to write an
                                 application that runs within the OpenMUC OSGi environment. The demo
-                                app accesses data provided by the DataManager (and retrieved using
-                                the
+                                app accesses data provided by the data manager (and retrieved using the
                                 dummy driver).
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>dummydriver</strong> - A dummy driver which provides "dummy"
-                                data in form
+                                <strong>dummydriver</strong> - A driver which provides dummy data in form
                                 of a sine wave to the OpenMUC core. Normally an OpenMUC driver
-                                implements a specific communication protocol (e.g. Modbus) that can
-                                be
-                                used by the OpenMUC Data Manager to get data from connected
-                                devices. The dummy driver does no communication but returns dummy
-                                data
+                                implements a specific communication protocol (e.g. Modbus) that can be
+                                used by the OpenMUC data manager to get data from connected
+                                devices. The dummy driver does no communication but returns dummy data
                                 instead.
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>restclientdemo</strong> - A RESTful web service client which
-                                accesses data
-                                from OpenMUC via the <a href="#id_restful_web_services">RESTful WS
-                                server</a>. Note
+                                <strong>restclientdemo</strong> - A RESTful web service client which accesses data
+                                from OpenMUC via the <a href="#id_restful_web_services">RESTful WS server</a>. Note
                                 that this client is a stand alone Java application that does not run
-                                within the OpenMUC OSGi environment. It shall demonstrate how to
-                                write
+                                within the OpenMUC OSGi environment. It shall demonstrate how to write
                                 applications that access OpenMUC remotely using web services.
                             </p>
                         </li>
-                    </ol>
+                    </ul>
                 </div>
-                <div class="paragraph"><p>Two of the demo projects (the dummydriver and the
-                    simpleappdemo)
+                <div class="paragraph"><p>Two of the demo projects (the dummydriver and the simpleappdemo)
                     will be running inside the demo framework. The demo framework is
                     located in the "framework" folder that contains the following files
                     and folders:</p></div>
-                <div class="olist arabic">
-                    <ol class="arabic">
+                <div class="ulist">
+                    <ul>
                         <li>
                             <p>
-                                <strong>felix</strong> - contains the Felix OSGi framework jar file
-                                and the Felix
+                                <strong>felix</strong> - contains the Felix OSGi framework jar file and the Felix
                                 documentation. OpenMUC consists of software modules called OSGi
                                 bundles that run inside an OSGi container/framework. Different OSGi
                                 implementations exist (e.g. Apache Felix, Eclipse Equinox,
                                 Knopflerfish). The OpenMUC demo is based on the Apache Felix OSGi
-                                platform because it is very easy to use and well documented. Later
-                                you
-                                may use another implementation as long as it conforms to the 4.2
-                                spec
+                                platform because it is very easy to use and well documented. Later you
+                                may use another implementation as long as it conforms to the 4.2 spec
                                 of OSGi.
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>bundle</strong> - contains all the bundles that the Felix
-                                OSGi environment
+                                <strong>bundle</strong> - contains all the bundles that the Felix OSGi environment
                                 will automatically run at start up.
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>conf</strong> - contains files to configure the Felix
-                                framework and
-                                individual bundles.
+                                <strong>conf</strong> - contains different configuration files:
                             </p>
-                        </li>
-                        <li>
-                            <p>
-                                <strong>openmuc-config.xml</strong> - the central <a
-                                    href="#id_configuration">configuration file</a> for OpenMUC. It
-                                is read by the Data Manager at start up. It
-                                holds all the information on devices and channels that are known to
-                                the OpenMUC system. Parameters such as the communication address of
-                                a
-                                connected device or the data logging interval are specified here.
-                            </p>
+
+                            <div class="ulist">
+                                <ul>
+                                    <li>
+                                        <p>
+                                            <strong>channels.xml</strong> - the central <a href="#id_configuration">configuration file</a>
+                                            for OpenMUC. It is read by the data manager at start up. It
+                                            holds all the information on devices and channels that are known to
+                                            the OpenMUC system. Parameters such as the communication address of a
+                                            connected device or the data logging interval are specified here.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                         <li>
                             <p>
                                 <strong>run-openmuc.sh</strong> - starts the framework.
                             </p>
                         </li>
-                    </ol>
+                    </ul>
                 </div>
             </div>
             <div class="sect2">
                 <h3 id="_running_the_demo">2.2. Running the Demo</h3>
 
-                <div class="paragraph"><p>You can start the OpenMUC demo framework by running the
-                    Felix OSGi framework in the following way:</p></div>
+                <div class="paragraph"><p>You can start the OpenMUC demo framework by running the Felix OSGi framework in the following
+                    way:</p></div>
                 <div class="listingblock">
                     <div class="content">
                         <pre><code>java -jar felix/felix.jar</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>For convenience you may also run OpenMUC by executing
-                    run-openmuc.sh
+                <div class="paragraph"><p>For convenience you may also run OpenMUC by executing run-openmuc.sh
                     (Linux) or run-openmuc.bat (Windows, you have to rename the file
                     first).</p></div>
-                <div class="paragraph"><p>Once the Felix framework has initialized it will start all
-                    the bundles
+                <div class="paragraph"><p>Once the Felix framework has initialized it will start all the bundles
                     located in the folder named "bundle". On the console you will see the
                     logging messages generated by the OpenMUC framework and the Simple Demo
                     App.</p></div>
@@ -968,20 +941,16 @@
                     <ol class="arabic">
                         <li>
                             <p>
-                                <strong>OpenMUC Core - API</strong> - the interfaces and classes
-                                that form the
-                                application programming interface of OpenMUC. The API consists of
-                                two
+                                <strong>OpenMUC Core - API</strong> - the interfaces and classes that form the
+                                application programming interface of OpenMUC. The API consists of two
                                 OSGi services, the DataAccessService and the ConfigService. They are
-                                implemented/provided by the Data Manager.
+                                implemented/provided by the data manager.
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>OpenMUC Core - SPI</strong> - the interfaces and classes
-                                that form the
-                                service providing interface. The SPI consists of the DriverService
-                                and
+                                <strong>OpenMUC Core - SPI</strong> - the interfaces and classes that form the
+                                service providing interface. The SPI consists of the DriverService and
                                 DataLoggingService. These services are provided by the
                                 individual drivers and data loggers (that could be considered as
                                 plugins). OpenMUC applications do not need the SPI, they only depend
@@ -990,17 +959,13 @@
                         </li>
                         <li>
                             <p>
-                                <strong>OpenMUC Core - Data Manager</strong> - The core
-                                implementation of the
-                                API. It provides the services defined in the API and it
-                                automatically
-                                detects drivers and data loggers that provide the services defined
-                                in
-                                the SPI. The separation of API and Data Manager allows to update the
-                                Data Manager during runtime without effects on other bundles that
+                                <strong>OpenMUC Core - Data Manager</strong> - The core implementation of the
+                                API. It provides the services defined in the API and it automatically
+                                detects drivers and data loggers that provide the services defined in
+                                the SPI. The separation of API and data manager allows to update the
+                                data manager during runtime without effects on other bundles that
                                 depend on the API. The separation API of SPI was done to hide the
-                                application developer from the SPI classes and interfaces that he
-                                does
+                                application developer from the SPI classes and interfaces that he does
                                 not need.
                             </p>
                         </li>
@@ -1010,8 +975,7 @@
             <div class="sect2">
                 <h3 id="_the_data_manager">2.3. The Data Manager</h3>
 
-                <div class="paragraph"><p>Lets start by stopping the Simple Demo App. In the Felix
-                    GoGo shell
+                <div class="paragraph"><p>Lets start by stopping the Simple Demo App. In the Felix GoGo shell
                     type "lb" to see the list of the installed bundles. Check what ID the
                     Simple Demo App has and then stop it using the stop command:</p></div>
                 <div class="listingblock">
@@ -1019,17 +983,14 @@
                         <pre><code>&gt;stop &lt;id&gt;</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>With "lb" you can check again if the bundle has been
-                    stopped. The
+                <div class="paragraph"><p>With "lb" you can check again if the bundle has been stopped. The
                     state should be "resolved" now. Though the demo application is no
-                    longer running, the Data Manager is still running and doing what it
-                    was configured to do. Let us take a look at the openmuc-config.xml
-                    file to see what the Data Manager is doing.</p></div>
-                <div class="paragraph"><p>The openmuc-config.xml file configures the driver with the
-                    ID
+                    longer running, the data manager is still running and doing what it
+                    was configured to do. Let us take a look at the conf/channels.xml
+                    file to see what the data manager is doing.</p></div>
+                <div class="paragraph"><p>The channels.xml file configures the driver with the ID
                     "dummy". Every driver has a unique ID that is documented in the
-                    section on <a href="#drivers">drivers</a>. For the dummy driver a single device
-                    is
+                    section on <a href="#drivers">drivers</a>. For the dummy driver a single device is
                     configured with a device address equal to
                     "dummy/device/address/1". The device address is a string that tells
                     the driver the communication address of the device. This way the
@@ -1037,8 +998,7 @@
                     specific. Drivers that implement a protocol on top of TCP/IP could
                     have a syntax like &lt;ip&gt;:&lt;port&gt; for example. The dummy driver ignores
                     that address because it does not really communicate with a device.</p></div>
-                <div class="paragraph"><p>This configured device contains two channels. Each channel
-                    defines a
+                <div class="paragraph"><p>This configured device contains two channels. Each channel defines a
                     data point inside the device. Both channels have a sampling interval
                     set to 100ms. This means the data manager will ask the dummy driver
                     every 100ms to read new values for these two channels. Since the dummy
@@ -1052,9 +1012,8 @@
                     applications by calling the getLatestRecord() function of a channel
                     object as we will see. Samples may also be logged if the data manager
                     is configured to do so.</p></div>
-                <div class="paragraph"><p>Both channels in the configuration are configured with a
-                    logging
-                    interval of 8s. This means that every 8s the Data Manager will take
+                <div class="paragraph"><p>Both channels in the configuration are configured with a logging
+                    interval of 8s. This means that every 8s the data manager will take
                     the latest record and forward it to all installed data
                     loggers for persistent storage. In the demo framework both the ASCII
                     Logger and SlotsDB a binary logger are installed. Therefor the records
@@ -1065,25 +1024,21 @@
             <div class="sect2">
                 <h3 id="_demo_app">2.4. Demo App</h3>
 
-                <div class="paragraph"><p>We will now go through the DemoApp so you better
-                    understand the
+                <div class="paragraph"><p>We will now go through the DemoApp so you better understand the
                     capabilities of OpenMUC. First you can start the Simple Demo App again
                     by executing "start &lt;id&gt;" in the GoGo shell of the framework.</p></div>
-                <div class="paragraph"><p>You will get an output that shows you the values which
-                    were sampled
+                <div class="paragraph"><p>You will get an output that shows you the values which were sampled
                     for channel1:</p></div>
                 <div class="paragraph">
                     <div class="title">Output of the OpenMUC Demo</div>
                     <p><span class="image">
 <a class="image" href="openmuc_doc_img/getting_started_demo_output.png">
-    <img src="openmuc_doc_img/getting_started_demo_output.png"
-         alt="openmuc_doc_img/getting_started_demo_output.png" width="800"/>
+    <img src="openmuc_doc_img/getting_started_demo_output.png" alt="openmuc_doc_img/getting_started_demo_output.png" width="800"/>
 </a>
 </span></p></div>
-                <div class="paragraph"><p>The DummyDriver provides some data which is read or
-                    written by the
-                    Data Manager. The DemoApp accesses this data via the Data Manager and
-                    triggers the Data Manager to write data to the DemoDriver.</p></div>
+                <div class="paragraph"><p>The DummyDriver provides some data which is read or written by the
+                    data manager. The DemoApp accesses this data via the data manager and
+                    triggers the data manager to write data to the DemoDriver.</p></div>
                 <div class="imageblock">
                     <div class="content">
                         <img src="openmuc_doc_img/getting_started_demo_components.png"
@@ -1091,11 +1046,10 @@
                     </div>
                     <div class="title">Figure 2. Components of the Demo</div>
                 </div>
-                <div class="paragraph"><p>In order to follow the code of the demo app it is
-                    convenient to import
+                <div class="paragraph"><p>In order to follow the code of the demo app it is convenient to import
                     the Sample Demo App into Eclipse. Follow the instructions on the
-                    following site: <a href="http://www.openmuc.org/index.php?id=28">http://www.openmuc.org/index.php?id=28</a>
-                    . Note that you
+                    following site: <a href="http://www.openmuc.org/index.php?id=28">http://www.openmuc.org/index.php?id=28</a> . Note that
+                    you
                     have to execute "gradle eclipse" within the folder
                     demo/projects/simpleappdemo in order to create the Eclipse project files
                     for the demo app.</p></div>
@@ -1103,15 +1057,13 @@
             <div class="sect2">
                 <h3 id="_the_webui">2.5. The WebUI</h3>
 
-                <div class="paragraph"><p>Now we want to see the data which are actually sampled by
-                    the Data Manager.</p></div>
+                <div class="paragraph"><p>Now we want to see the data which are actually sampled by the data manager.</p></div>
                 <div class="olist arabic">
                     <ol class="arabic">
                         <li>
                             <p>
-                                Run the demo via run-openmuc.sh. When the demo is running open your
-                                browser and go to <a href="http://localhost:8888/openmuc">http://localhost:8888/openmuc</a>
-                                to show OpenMUCs web interface.
+                                Run the demo via run-openmuc.sh. When the demo is running open your browser and go to <a
+                                    href="http://localhost:8888/openmuc">http://localhost:8888/openmuc</a> to show OpenMUCs web interface.
                             </p>
                         </li>
                         <li>
@@ -1121,8 +1073,7 @@
                         </li>
                         <li>
                             <p>
-                                Click on the Data Plotter node which you will find under
-                                Applications
+                                Click on the Data Plotter node which you will find under Applications
                             </p>
                         </li>
                         <li>
@@ -1155,8 +1106,8 @@
         <h2 id="id_configuration">3. Configuration</h2>
 
         <div class="sectionbody">
-            <div class="paragraph"><p>The <strong>openmuc-config.xml</strong> is the configuration
-                file for OpenMUC. It tells the OpenMUC framework which channels it
+            <div class="paragraph"><p>The <strong>conf/channels.xml</strong> file is the main configuration file for OpenMUC. It tells the
+                OpenMUC framework which channels it
                 should log and sample. It contains a hierarchical structure of
                 drivers, devices and channels. A driver can have one or more devices
                 and devices can have one or more channels. Following listing shows a
@@ -1203,8 +1154,8 @@
             </div>
             <div class="literalblock">
                 <div class="content">
-                    <pre><code>driver id="drivername"&gt; replace drivername with driver you want to
-                        use like "modbustcp" or "m3b".</code></pre>
+                    <pre><code>driver id="drivername"&gt; replace drivername with driver you want to use like "modbustcp" or
+                        "m3b".</code></pre>
                 </div>
             </div>
             <div class="tableblock">
@@ -1240,27 +1191,24 @@
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">time*</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Default time waited for a
-                            read operation to complete if the device doesn&#8217;t set a
-                            samplingTimeout on its own.</p></td>
+                        <td align="left" valign="top"><p class="table">Default time waited for a read operation to complete if the device
+                            doesn&#8217;t set a samplingTimeout on its own.</p></td>
                     </tr>
                     <tr>
-                        <td align="center" valign="top"><p class="table">connectRetryInterval</p>
-                        </td>
+                        <td align="center" valign="top"><p class="table">connectRetryInterval</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">time*</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Default time waited until a
-                            failed connection attempt is repeated.</p></td>
+                        <td align="left" valign="top"><p class="table">Default time waited until a failed connection attempt is
+                            repeated.</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">disabled</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">true/false</p></td>
                         <td align="center" valign="top"><p class="table">false</p></td>
-                        <td align="left" valign="top"><p class="table">While disabled, no
-                            connections to devices on this driver are established at all and all
-                            channels of these devices stop being sampled and logged</p></td>
+                        <td align="left" valign="top"><p class="table">While disabled, no connections to devices on this driver are
+                            established at all and all channels of these devices stop being sampled and logged</p></td>
                     </tr>
                     </tbody>
                 </table>
@@ -1291,19 +1239,8 @@
                         <td align="center" valign="top"><p class="table">yes</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Address for the driver to
-                            uniquely identify the device. Syntax of this address is up to the driver
-                            implementation</p></td>
-                    </tr>
-                    <tr>
-                        <td align="center" valign="top"><p class="table">interfaceAddress</p></td>
-                        <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table">string</p></td>
-                        <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Address for the driver to
-                            identify the interface over which the device is connected. Used if e.g.
-                            the device is on a shared bus with other devices. Syntax of this address
-                            is up to the driver implementation</p></td>
+                        <td align="left" valign="top"><p class="table">Address for the driver to uniquely identify the device. Syntax of
+                            this address is up to the driver implementation</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">name</p></td>
@@ -1317,42 +1254,38 @@
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Description of the device</p>
-                        </td>
+                        <td align="left" valign="top"><p class="table">Description of the device</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">settings</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Additional settings for the
-                            driver. Syntax is up to the driver implementation</p></td>
+                        <td align="left" valign="top"><p class="table">Additional settings for the driver. Syntax is up to the driver
+                            implementation</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">samplingTimeout</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">time*</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Time waited for a read
-                            operation to complete. Overwrites samplingTimeout of Driver.</p></td>
+                        <td align="left" valign="top"><p class="table">Time waited for a read operation to complete. Overwrites
+                            samplingTimeout of Driver.</p></td>
                     </tr>
                     <tr>
-                        <td align="center" valign="top"><p class="table">connectRetryInterval</p>
-                        </td>
+                        <td align="center" valign="top"><p class="table">connectRetryInterval</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">time*</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Time waited until a failed
-                            connection attempt is repeated</p></td>
+                        <td align="left" valign="top"><p class="table">Time waited until a failed connection attempt is repeated</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">disabled</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">true/false</p></td>
                         <td align="center" valign="top"><p class="table">false</p></td>
-                        <td align="left" valign="top"><p class="table">While disabled, no connection
-                            of this device is established and all channels of this device stop being
-                            sampled and logged</p></td>
+                        <td align="left" valign="top"><p class="table">While disabled, no connection of this device is established and all
+                            channels of this device stop being sampled and logged</p></td>
                     </tr>
                     </tbody>
                 </table>
@@ -1383,91 +1316,80 @@
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Globally unique identifier.
-                            Used by data logger implementations. The OpenMUC framework automatically
-                            generates an id if none is provided.</p></td>
+                        <td align="left" valign="top"><p class="table">Globally unique identifier. Used by data logger implementations. The
+                            OpenMUC framework automatically generates an id if none is provided.</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">label</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Name of the channel. Has to
-                            be globally unique. This name can be used in your application.</p></td>
+                        <td align="left" valign="top"><p class="table">Name of the channel. Has to be globally unique. This name can be used
+                            in your application.</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">description</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">?</p></td>
-                        <td align="left" valign="top"><p class="table">Description of the
-                            channel</p></td>
+                        <td align="left" valign="top"><p class="table">Description of the channel</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">channelAddress</p></td>
                         <td align="center" valign="top"><p class="table">yes</p></td>
                         <td align="center" valign="top"><p class="table">string</p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">The channelAddress is driver
-                            specific and contains the necessary parameters for the driver to
-                            access</p></td>
+                        <td align="left" valign="top"><p class="table">The channelAddress is driver specific and contains the necessary
+                            parameters for the driver to access</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">valueType</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table">DOUBLE FLOAT LONG INTEGER
-                            SHORT BYTE BOOLEAN BYTE_ARRAY</p></td>
+                        <td align="center" valign="top"><p class="table">DOUBLE FLOAT LONG INTEGER SHORT BYTE BOOLEAN BYTE_ARRAY</p></td>
                         <td align="center" valign="top"><p class="table">DOUBLE</p></td>
-                        <td align="left" valign="top"><p class="table">Data type of the channel.
-                            Used on data logger. Driver implementation do NOT receive this
-                            settings</p></td>
+                        <td align="left" valign="top"><p class="table">Data type of the channel. Used on data logger. Driver implementation
+                            do NOT receive this settings</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">valueLength</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table"><em>integer</em></p></td>
                         <td align="center" valign="top"><p class="table"></p></td>
-                        <td align="left" valign="top"><p class="table">Only used if valueType ==
-                            BYTE_ARRAY. Determines the maximum length of the byte array</p></td>
+                        <td align="left" valign="top"><p class="table">Only used if valueType == BYTE_ARRAY. Determines the maximum length
+                            of the byte array</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">scalingFactor</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table"><em>double</em> e.g.: 1.0
-                            4.94147E-9</p></td>
+                        <td align="center" valign="top"><p class="table"><em>double</em> e.g.: 1.0 4.94147E-9</p></td>
                         <td align="center" valign="top"><p class="table"></p></td>
-                        <td align="left" valign="top"><p class="table">Is used to scale a value read
-                            by a driver or set by an application. The value read by an driver is
-                            multiplied with the scalingFactor and a value set by an application is
-                            divided by the scalingFactor.</p></td>
+                        <td align="left" valign="top"><p class="table">Is used to scale a value read by a driver or set by an application.
+                            The value read by an driver is multiplied with the scalingFactor and a value set by an application is divided by
+                            the scalingFactor.</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">valueOffset</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table"><em>double</em></p></td>
                         <td align="center" valign="top"><p class="table">0</p></td>
-                        <td align="left" valign="top"><p class="table">Is used to offset a value
-                            read by a driver or set by an application. The offset is added to a
-                            value read by a driver and subtracted from a value set by an
-                            application.</p></td>
+                        <td align="left" valign="top"><p class="table">Is used to offset a value read by a driver or set by an application.
+                            The offset is added to a value read by a driver and subtracted from a value set by an application.</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">unit</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table"><em>string</em></p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Physical unit of this
-                            channel. For information only (info can be accessed by an app or
-                            driver)</p></td>
+                        <td align="left" valign="top"><p class="table">Physical unit of this channel. For information only (info can be
+                            accessed by an app or driver)</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">loggingInterval</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">time*</p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Time difference until this
-                            channel is logged again. -1 or omitting loggingInterval disables
-                            logging</p></td>
+                        <td align="left" valign="top"><p class="table">Time difference until this channel is logged again. -1 or omitting
+                            loggingInterval disables logging</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">loggingTimeOffset</p></td>
@@ -1479,21 +1401,18 @@
                     <tr>
                         <td align="center" valign="top"><p class="table">listening</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                        </td>
+                        <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                         <td align="center" valign="top"><p class="table">false</p></td>
-                        <td align="left" valign="top"><p class="table">Determines if this channel
-                            shall passively listen for incoming value changes from the driver</p>
-                        </td>
+                        <td align="left" valign="top"><p class="table">Determines if this channel shall passively listen for incoming value
+                            changes from the driver</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">samplingInterval</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table">time*</p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">Time interval between two
-                            attempts to read this channel. -1 or omitting samlingOffset disables
-                            sampling on this channel</p></td>
+                        <td align="left" valign="top"><p class="table">Time interval between two attempts to read this channel. -1 or
+                            omitting samlingOffset disables sampling on this channel</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">samplingTimeOffset</p></td>
@@ -1507,65 +1426,56 @@
                         <td align="center" valign="top"><p class="table">no</p></td>
                         <td align="center" valign="top"><p class="table"><em>string</em></p></td>
                         <td align="center" valign="top"><p class="table">-</p></td>
-                        <td align="left" valign="top"><p class="table">For grouping channels. All
-                            channels with the same samplingGroup and same samplingInterval are in
-                            one group. The purpous of samplingGroups is to improve the drivers
-                            performance - if possible.</p></td>
+                        <td align="left" valign="top"><p class="table">For grouping channels. All channels with the same samplingGroup and
+                            same samplingInterval are in one group. The purpous of samplingGroups is to improve the drivers performance - if
+                            possible.</p></td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">isReadable</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                        </td>
+                        <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                         <td align="center" valign="top"><p class="table">false</p></td>
-                        <td align="left" valign="top"><p class="table">For information only (info
-                            can be accessed by an app or driver)</p></td>
+                        <td align="left" valign="top"><p class="table">For information only (info can be accessed by an app or driver)</p>
+                        </td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">isWritable</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                        </td>
+                        <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                         <td align="center" valign="top"><p class="table">false</p></td>
-                        <td align="left" valign="top"><p class="table">For information only (info
-                            can be accessed by an app or driver)</p></td>
+                        <td align="left" valign="top"><p class="table">For information only (info can be accessed by an app or driver)</p>
+                        </td>
                     </tr>
                     <tr>
                         <td align="center" valign="top"><p class="table">disabled</p></td>
                         <td align="center" valign="top"><p class="table">no</p></td>
-                        <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                        </td>
+                        <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                         <td align="center" valign="top"><p class="table">false</p></td>
-                        <td align="left" valign="top"><p class="table">If a channel is disabled, all
-                            sampling and logging actions of this channel are stopped</p></td>
+                        <td align="left" valign="top"><p class="table">If a channel is disabled, all sampling and logging actions of this
+                            channel are stopped</p></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="paragraph"><p><strong>*time: integer with suffix (ms, s, m, h) like: 300ms,
-                2s.</strong></p></div>
+            <div class="paragraph"><p><strong>*time: integer with suffix (ms, s, m, h) like: 300ms, 2s.</strong></p></div>
             <div class="admonitionblock">
                 <table>
                     <tr>
                         <td class="icon">
                             <img src="/etc/asciidoc/images/icons/note.png" alt="Note"/>
                         </td>
-                        <td class="content"><strong>if you don&#8217;t use a suffix, then ms is
-                            automatically used</strong></td>
+                        <td class="content"><strong>if you don&#8217;t use a suffix, then ms is automatically used</strong></td>
                     </tr>
                 </table>
             </div>
             <div class="paragraph"><p><strong>Default Data Logger</strong></p></div>
-            <div class="paragraph"><p>You can define a default data logger by adding a logger
-                element with the id of a data logger to the configuration. If available, that data
-                logger is used to read logged values. The ids of data loggers shipped with the
-                OpenMUC Framework are defined in the "Data Loggers" chapter. If no logger with the
-                defined id is available, or the logger element is missing from the configuration, an
-                arbitrary available logger is used to read logged values. Only one default logger
-                may be defined. If multiple logger elements exists, only the first one is
-                evaluated.</p></div>
-            <div class="paragraph"><p>This configuration only affects reading of already logged
-                values. Channels are still logged by all available loggers.</p></div>
+            <div class="paragraph"><p>You can define a default data logger by adding a logger element with the id of a data logger to the
+                configuration. If available, that data logger is used to read logged values. The ids of data loggers shipped with the
+                OpenMUC Framework are defined in the "Data Loggers" chapter. If no logger with the defined id is available, or the logger
+                element is missing from the configuration, an arbitrary available logger is used to read logged values. Only one default
+                logger may be defined. If multiple logger elements exists, only the first one is evaluated.</p></div>
+            <div class="paragraph"><p>This configuration only affects reading of already logged values. Channels are still logged by all
+                available loggers.</p></div>
             <div class="sect2">
                 <h3 id="_sampling_listening_and_logging">3.1. Sampling, Listening and Logging</h3>
 
@@ -1573,27 +1483,24 @@
                     <ul>
                         <li>
                             <p>
-                                <strong>sampling</strong> is when the Data Manager frequently asks a
-                                driver to retrieve a channel value.
+                                <strong>sampling</strong> is when the data manager frequently asks a driver to retrieve a channel value.
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>listening</strong> is when the driver listens on a channel
-                                and forwards new values to the Data Manager.
+                                <strong>listening</strong> is when the driver listens on a channel and forwards new values to the data
+                                manager.
                             </p>
                         </li>
                         <li>
                             <p>
-                                <strong>logging</strong> is when the Data Manager forwards the
-                                current sampled value to the data loggers that are installed. The
-                                data loggers then store the data persistently
+                                <strong>logging</strong> is when the data manager forwards the current sampled value to the data loggers
+                                that are installed. The data loggers then store the data persistently
                             </p>
                         </li>
                     </ul>
                 </div>
-                <div class="paragraph"><p>The following examples will give you a better
-                    understanding of these three settings.</p></div>
+                <div class="paragraph"><p>The following examples will give you a better understanding of these three settings.</p></div>
                 <div class="listingblock">
                     <div class="title">Example 1: Just Sampling</div>
                     <div class="content">
@@ -1604,9 +1511,8 @@
     &lt;/channel&gt;</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>In example 1 the channel is sampled every 4 seconds which
-                    means the Data Manager requests every 4 seconds the current value from the
-                    driver.</p></div>
+                <div class="paragraph"><p>In example 1 the channel is sampled every 4 seconds which means the data manager requests every 4
+                    seconds the current value from the driver.</p></div>
                 <div class="listingblock">
                     <div class="title">Example 2: Sampling and Logging</div>
                     <div class="content">
@@ -1618,11 +1524,10 @@
     &lt;/channel&gt;</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>Example 2 extends example 1 by an additional logging. The
-                    logging interval is set to 8 seconds which means that every 8 seconds the last
-                    sampled value is stored in the database. In this case every second sampled value
-                    is stored because the sampling interval is 4 seconds. To log every sampled value
-                    the sampling interval and logging interval need to be the same.</p></div>
+                <div class="paragraph"><p>Example 2 extends example 1 by an additional logging. The logging interval is set to 8 seconds
+                    which means that every 8 seconds the last sampled value is stored in the database. In this case every second sampled
+                    value is stored because the sampling interval is 4 seconds. To log every sampled value the sampling interval and logging
+                    interval need to be the same.</p></div>
                 <div class="listingblock">
                     <div class="title">Example 3: Just Listening</div>
                     <div class="content">
@@ -1633,9 +1538,8 @@
     &lt;/channel&gt;</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>In example 3 listening instead of sampling is used. This
-                    means that the driver reports a new channel value to the Data Manager when the
-                    value has changed for example.</p></div>
+                <div class="paragraph"><p>In example 3 listening instead of sampling is used. This means that the driver reports a new
+                    channel value to the data manager when the value has changed for example.</p></div>
                 <div class="listingblock">
                     <div class="title">Example 4: Listening and Logging</div>
                     <div class="content">
@@ -1647,17 +1551,15 @@
     &lt;/channel&gt;</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>Example 4 extends example 3 by an additional logging.</p>
-                </div>
+                <div class="paragraph"><p>Example 4 extends example 3 by an additional logging.</p></div>
                 <div class="admonitionblock">
                     <table>
                         <tr>
                             <td class="icon">
-                                <img src="/etc/asciidoc/images/icons/important.png"
-                                     alt="Important"/>
+                                <img src="/etc/asciidoc/images/icons/important.png" alt="Important"/>
                             </td>
-                            <td class="content">When listening is true and additional a sampling
-                                interval is defined then the sampling is ignored.
+                            <td class="content">When listening is true and additional a sampling interval is defined then the sampling is
+                                ignored.
                             </td>
                         </tr>
                     </table>
@@ -1680,8 +1582,7 @@
 
                 <div class="paragraph"><p>Modbus Homepage: <a href="http://www.modbus.org">http://www.modbus.org</a><br/>
                     Modbus Protocol Specifications: <a href="http://www.modbus.org/specs.php">http://www.modbus.org/specs.php</a><br/>
-                    Modbus Master Simulator modpoll: <a
-                            href="http://www.modbusdriver.com/modpoll.html">http://www.modbusdriver.com/modpoll.html</a>
+                    Modbus Master Simulator modpoll: <a href="http://www.modbusdriver.com/modpoll.html">http://www.modbusdriver.com/modpoll.html</a>
                 </p></div>
                 <div class="tableblock">
                     <table rules="all"
@@ -1694,32 +1595,21 @@
                         <col width="47%"/>
                         <tbody>
                         <tr>
-                            <td colspan="3" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis</strong></p></td>
+                            <td colspan="3" align="left" valign="top"><p class="table"><strong>Configuration Synopsis</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table"></p></td>
-                            <td align="left" valign="top"><p class="table"><strong>TCP</strong></p>
-                            </td>
-                            <td align="left" valign="top"><p class="table"><strong>RTU</strong></p>
-                            </td>
+                            <td align="left" valign="top"><p class="table"><strong>TCP</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>RTU</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
-                            <td colspan="2" align="left" valign="top"><p class="table">modbus</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td colspan="2" align="left" valign="top"><p class="table">N.A.</p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table">modbus</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">
-                                &lt;ip&gt;[:&lt;port&gt;]</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;serial port&gt;</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">&lt;ip&gt;[:&lt;port&gt;]</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;serial port&gt;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
@@ -1737,8 +1627,8 @@
                 </div>
                 <div class="paragraph"><p><strong>DeviceAddress</strong></p></div>
                 <div class="paragraph"><p><strong>For TCP:</strong><br/>
-                    The DeviceAddress is specified by an IP address and an optional port. If no port
-                    is specified, the driver uses the modbus default port 502.</p></div>
+                    The DeviceAddress is specified by an IP address and an optional port. If no port is specified, the driver uses the
+                    modbus default port 502.</p></div>
                 <div class="paragraph"><p><strong>For RTU:</strong><br/>
                     The DeviceAddress is specified by a serial port like /dev/ttyS0.</p></div>
                 <div class="admonitionblock">
@@ -1747,9 +1637,8 @@
                             <td class="icon">
                                 <img src="/etc/asciidoc/images/icons/note.png" alt="Note"/>
                             </td>
-                            <td class="content">The driver uses the jamod library which itself uses
-                                the rxtx library for serial communication. Therefor the librxtx-java
-                                package needs to be installed on the system. Furthermore the user
+                            <td class="content">The driver uses the jamod library which itself uses the rxtx library for serial
+                                communication. Therefor the librxtx-java package needs to be installed on the system. Furthermore the user
                                 needs to be in the groups dialout and plugdev
                             </td>
                         </tr>
@@ -1787,45 +1676,38 @@
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">&lt;encoding&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">SERIAL_ENCODING_RTU</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">SERIAL_ENCODING_RTU</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">&lt;baudrate&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">Integer value: e.g.:
-                                2400, 9600, 115200, &#8230;</p></td>
+                            <td align="left" valign="top"><p class="table">Integer value: e.g.: 2400, 9600, 115200, &#8230;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">&lt;databits&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">DATABITS_5, DATABITS_6,
-                                DATABITS_7, DATABITS_8</p></td>
+                            <td align="left" valign="top"><p class="table">DATABITS_5, DATABITS_6, DATABITS_7, DATABITS_8</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">&lt;parity&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">PARITY_EVEN, PARITY_MARK,
-                                PARITY_NONE, PARITY_ODD, PARITY_SPACE</p></td>
+                            <td align="left" valign="top"><p class="table">PARITY_EVEN, PARITY_MARK, PARITY_NONE, PARITY_ODD,
+                                PARITY_SPACE</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">&lt;stopbits&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">STOPBITS_1, STOPBITS_1_5,
-                                STOPBITS_2</p></td>
+                            <td align="left" valign="top"><p class="table">STOPBITS_1, STOPBITS_1_5, STOPBITS_2</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">&lt;echo&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">ECHO_TRUE, ECHO_FALSE</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">ECHO_TRUE, ECHO_FALSE</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">&lt;flowControlIn&gt;</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">FLOWCONTROL_NONE,
-                                FLOWCONTROL_RTSCTS_IN, FLOWCONTROL_XONXOFF_IN</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;flowControlIn&gt;</p></td>
+                            <td align="left" valign="top"><p class="table">FLOWCONTROL_NONE, FLOWCONTROL_RTSCTS_IN,
+                                FLOWCONTROL_XONXOFF_IN</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                &lt;flowControlOut&gt;</p></td>
-                            <td align="left" valign="top"><p class="table">FLOWCONTROL_NONE,
-                                FLOWCONTROL_RTSCTS_OUT, FLOWCONTROL_XONXOFF_OUT</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;flowControlOut&gt;</p></td>
+                            <td align="left" valign="top"><p class="table">FLOWCONTROL_NONE, FLOWCONTROL_RTSCTS_OUT,
+                                FLOWCONTROL_XONXOFF_OUT</p></td>
                         </tr>
                         </tbody>
                     </table>
@@ -1833,9 +1715,8 @@
                 <div class="paragraph"><p>Example: &lt;settings&gt;RTU:SERIAL_ENCODING_RTU:38400:DATABITS_8:PARITY_NONE:STOPBITS_1
                     :ECHO_FALSE:FLOWCONTROL_NONE:FLOWCONTROL_NONE&lt;/settings&gt;</p></div>
                 <div class="paragraph"><p><strong>ChannelAddress</strong></p></div>
-                <div class="paragraph"><p>The ChannelAddress consists of four parts: UnitId,
-                    PrimaryTable, Address and Datatyp which are explained in detail in the following
-                    table.</p></div>
+                <div class="paragraph"><p>The ChannelAddress consists of four parts: UnitId, PrimaryTable, Address and Datatyp which are
+                    explained in detail in the following table.</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -1853,71 +1734,59 @@
                         <tbody>
                         <tr>
                             <td align="center" valign="top"><p class="table">UnitId</p></td>
-                            <td align="left" valign="top"><p class="table">In homogenious
-                                architecture (when just MODBUS TCP/IP is used)<br/>
-                                On TCP/IP, the MODBUS server is addressed by its IP address;
-                                therefore, the MODBUS Unit Identifier is useless. The value 255
-                                (0xFF) has to be used.</p>
+                            <td align="left" valign="top"><p class="table">In homogenious architecture (when just MODBUS TCP/IP is
+                                used)<br/>
+                                On TCP/IP, the MODBUS server is addressed by its IP address; therefore, the MODBUS Unit Identifier is
+                                useless. The value 255 (0xFF) has to be used.</p>
 
-                                <p class="table">In heterogeneous architecture (when using MODBUS
-                                    TCP/IP and MODBUS serial or MODBUS+)<br/>
-                                    This field is used for routing purpose when addressing a device
-                                    on a MODBUS+ or MODBUS serial line sub-network. In that case,
-                                    the “Unit Identifier” carries the MODBUS slave address of the
-                                    remote device. The MODBUS slave device addresses on serial line
-                                    are assigned from 1 to 247 (decimal). Address 0 is used as
-                                    broadcast address.</p>
+                                <p class="table">In heterogeneous architecture (when using MODBUS TCP/IP and MODBUS serial or MODBUS+)<br/>
+                                    This field is used for routing purpose when addressing a device on a MODBUS+ or MODBUS serial line
+                                    sub-network. In that case, the “Unit Identifier” carries the MODBUS slave address of the remote device.
+                                    The MODBUS slave device addresses on serial line are assigned from 1 to 247 (decimal). Address 0 is used
+                                    as broadcast address.</p>
 
-                                <p class="table">Note: Some MODBUS devices act like a bridge or a
-                                    gateway and require the UnitId even if they are accessed through
-                                    TCP/IP. One of those devices is the Janitza UMG. To access data
-                                    from the Janitza the UnitId has to be 1.</p></td>
+                                <p class="table">Note: Some MODBUS devices act like a bridge or a gateway and require the UnitId even if
+                                    they are accessed through TCP/IP. One of those devices is the Janitza UMG. To access data from the
+                                    Janitza the UnitId has to be 1.</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">PrimaryTable</p></td>
-                            <td align="left" valign="top"><p class="table">PrimaryTable defines the
-                                which part of the device memory should be accessed.
-                                Valid values: COILS, DISCRETE_INPUTS, INPUT_REGISTERS,
-                                HOLDING_REGISTERS</p></td>
+                            <td align="left" valign="top"><p class="table">PrimaryTable defines the which part of the device memory should
+                                be accessed.
+                                Valid values: COILS, DISCRETE_INPUTS, INPUT_REGISTERS, HOLDING_REGISTERS</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">Address</p></td>
-                            <td align="left" valign="top"><p class="table">Address of the
-                                channel/register. Decimal integer value - not hex!</p></td>
+                            <td align="left" valign="top"><p class="table">Address of the channel/register. Decimal integer value - not
+                                hex!</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">Datatyp</p></td>
                             <td align="left" valign="top"><p class="table">Valid values:
-                                BOOLEAN, SHORT, INT, FLOAT, DOUBLE, LONG, BYTEARRAY[n] (n = number
-                                of REGISTERS not BYTES, 1 Register = 2 Bytes!)</p></td>
+                                BOOLEAN, SHORT, INT, FLOAT, DOUBLE, LONG, BYTEARRAY[n] (n = number of REGISTERS not BYTES, 1 Register = 2
+                                Bytes!)</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="imageblock">
                     <div class="content">
-                        <img src="openmuc_doc_img/driver_modbustcp_address.png"
-                             alt="openmuc_doc_img/driver_modbustcp_address.png"/>
+                        <img src="openmuc_doc_img/driver_modbustcp_address.png" alt="openmuc_doc_img/driver_modbustcp_address.png"/>
                     </div>
                     <div class="title">Figure 3. Primary Tables and Channel Address</div>
                 </div>
-                <div class="paragraph"><p><strong>Valid Address Parameter Combinations</strong></p>
-                </div>
-                <div class="paragraph"><p>Since COILS and DISCRETE_INPUTS are used for bit access,
-                    only the data type BOOLEAN makes sense in combinations with of one of these.
-                    INPUT_REGISTERS and HOLDING_REGISTERS are used for register access. There is
-                    also a difference between reading and writing. Only COILS and HOLDING_REGISTERS
-                    are readable and writable. DISCRETE_INPUTS and INPUT_REGISTERS are read only.
-                    The following table gives an overview of valid parameter combinations of
-                    PrimaryTable and Datatyp.</p></div>
+                <div class="paragraph"><p><strong>Valid Address Parameter Combinations</strong></p></div>
+                <div class="paragraph"><p>Since COILS and DISCRETE_INPUTS are used for bit access, only the data type BOOLEAN makes sense in
+                    combinations with of one of these. INPUT_REGISTERS and HOLDING_REGISTERS are used for register access. There is also a
+                    difference between reading and writing. Only COILS and HOLDING_REGISTERS are readable and writable. DISCRETE_INPUTS and
+                    INPUT_REGISTERS are read only. The following table gives an overview of valid parameter combinations of PrimaryTable and
+                    Datatyp.</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
                            frame="border"
                            cellspacing="0" cellpadding="4">
-                        <caption class="title">Table 6. Valid Address Parameters for reading a
-                            channel
-                        </caption>
+                        <caption class="title">Table 6. Valid Address Parameters for reading a channel</caption>
                         <col width="12%"/>
                         <col width="12%"/>
                         <col width="12%"/>
@@ -1928,22 +1797,14 @@
                         <col width="12%"/>
                         <tbody>
                         <tr>
-                            <td align="left" valign="top"><p class="table"><strong>Primary
-                                Table</strong></p></td>
-                            <td align="left" valign="top"><p class="table"><strong>BOOLEAN</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>SHORT</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>INT</strong></p>
-                            </td>
-                            <td align="left" valign="top"><p class="table"><strong>FLOAT</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>DOUBLE</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>LONG</strong></p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">
-                                <strong>BYTEARRAY[n]</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>Primary Table</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>BOOLEAN</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>SHORT</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>INT</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>FLOAT</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>DOUBLE</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>LONG</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>BYTEARRAY[n]</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">COILS</p></td>
@@ -1976,8 +1837,7 @@
                             <td align="left" valign="top"><p class="table">ok</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">HOLDING_REGISTERS</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">HOLDING_REGISTERS</p></td>
                             <td align="left" valign="top"><p class="table">x</p></td>
                             <td align="left" valign="top"><p class="table">ok</p></td>
                             <td align="left" valign="top"><p class="table">ok</p></td>
@@ -1994,9 +1854,7 @@
                            width="100%"
                            frame="border"
                            cellspacing="0" cellpadding="4">
-                        <caption class="title">Table 7. Valid Address Parameters for writing a
-                            channel
-                        </caption>
+                        <caption class="title">Table 7. Valid Address Parameters for writing a channel</caption>
                         <col width="12%"/>
                         <col width="12%"/>
                         <col width="12%"/>
@@ -2007,22 +1865,14 @@
                         <col width="12%"/>
                         <tbody>
                         <tr>
-                            <td align="left" valign="top"><p class="table"><strong>Primary
-                                Table</strong></p></td>
-                            <td align="left" valign="top"><p class="table"><strong>BOOLEAN</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>SHORT</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>INT</strong></p>
-                            </td>
-                            <td align="left" valign="top"><p class="table"><strong>FLOAT</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>DOUBLE</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>LONG</strong></p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">
-                                <strong>BYTEARRAY[n]</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>Primary Table</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>BOOLEAN</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>SHORT</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>INT</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>FLOAT</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>DOUBLE</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>LONG</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>BYTEARRAY[n]</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">COILS</p></td>
@@ -2055,8 +1905,7 @@
                             <td align="left" valign="top"><p class="table">x</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">HOLDING_REGISTERS</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">HOLDING_REGISTERS</p></td>
                             <td align="left" valign="top"><p class="table">x</p></td>
                             <td align="left" valign="top"><p class="table">ok</p></td>
                             <td align="left" valign="top"><p class="table">ok</p></td>
@@ -2078,27 +1927,20 @@
                 <div class="paragraph"><p><strong>Examples for invalid addresses:</strong></p></div>
                 <div class="listingblock">
                     <div class="content">
-<pre><code>&lt;channelAddress&gt;255:INPUT_REGISTERS:100:BOOLEAN&lt;/channelAddress&gt; (BOOLEAN
-    doesn't go with INPUT_REGISTERS) +
-    &lt;channelAddress&gt;255:COILS:412:LONG&lt;/channelAddress&gt; (LONG does not go with
-    COILS)</code></pre>
+<pre><code>&lt;channelAddress&gt;255:INPUT_REGISTERS:100:BOOLEAN&lt;/channelAddress&gt; (BOOLEAN doesn't go with INPUT_REGISTERS) +
+    &lt;channelAddress&gt;255:COILS:412:LONG&lt;/channelAddress&gt; (LONG does not go with COILS)</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p><strong>Function Codes</strong> (more detailed information
-                    about how the driver works)</p></div>
-                <div class="paragraph"><p>The driver is based on the Java Modbus Library (<a
-                        href="http://jamod.sourceforge.net">jamod</a>) which provides read and write
-                    access via modbus.
-                    Following table shows which modbus function code is used to access the data of
-                    the channel.</p></div>
+                <div class="paragraph"><p><strong>Function Codes</strong> (more detailed information about how the driver works)</p></div>
+                <div class="paragraph"><p>The driver is based on the Java Modbus Library (<a href="http://jamod.sourceforge.net">jamod</a>)
+                    which provides read and write access via modbus.
+                    Following table shows which modbus function code is used to access the data of the channel.</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
                            frame="border"
                            cellspacing="0" cellpadding="4">
-                        <caption class="title">Table 8. Relation between function code and channel
-                            address
-                        </caption>
+                        <caption class="title">Table 8. Relation between function code and channel address</caption>
                         <col width="20%"/>
                         <col width="20%"/>
                         <col width="20%"/>
@@ -2106,16 +1948,11 @@
                         <col width="20%"/>
                         <tbody>
                         <tr>
-                            <td align="left" valign="top"><p class="table"><strong>jamod
-                                Method</strong></p></td>
-                            <td align="left" valign="top"><p class="table"><strong>Modbus Function
-                                Code</strong></p></td>
-                            <td align="left" valign="top"><p class="table"><strong>Primary
-                                Table</strong></p></td>
-                            <td align="left" valign="top"><p class="table"><strong>Access</strong>
-                            </p></td>
-                            <td align="left" valign="top"><p class="table"><strong>Java Data
-                                Type</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>jamod Method</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>Modbus Function Code</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>Primary Table</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>Access</strong></p></td>
+                            <td align="left" valign="top"><p class="table"><strong>Java Data Type</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ReadCoilsRequest</p></td>
@@ -2125,73 +1962,53 @@
                             <td align="left" valign="top"><p class="table">boolean</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                ReadInputDiscretesRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 2 Read Discrete
-                                Inputs</p></td>
+                            <td align="left" valign="top"><p class="table">ReadInputDiscretesRequest</p></td>
+                            <td align="left" valign="top"><p class="table">FC 2 Read Discrete Inputs</p></td>
                             <td align="left" valign="top"><p class="table">Discrete Inputs</p></td>
                             <td align="left" valign="top"><p class="table">R</p></td>
                             <td align="left" valign="top"><p class="table">boolean</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                ReadMultipleRegistersRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 3 Read Holding
-                                Registers</p></td>
-                            <td align="left" valign="top"><p class="table">Holding Registers</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">ReadMultipleRegistersRequest</p></td>
+                            <td align="left" valign="top"><p class="table">FC 3 Read Holding Registers</p></td>
+                            <td align="left" valign="top"><p class="table">Holding Registers</p></td>
                             <td align="left" valign="top"><p class="table">RW</p></td>
-                            <td align="left" valign="top"><p class="table">short, int, double, long,
-                                float, bytearray[]</p></td>
+                            <td align="left" valign="top"><p class="table">short, int, double, long, float, bytearray[]</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                ReadInputRegistersRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 4 Read Input
-                                Registers</p></td>
+                            <td align="left" valign="top"><p class="table">ReadInputRegistersRequest</p></td>
+                            <td align="left" valign="top"><p class="table">FC 4 Read Input Registers</p></td>
                             <td align="left" valign="top"><p class="table">Input Registers</p></td>
                             <td align="left" valign="top"><p class="table">R</p></td>
-                            <td align="left" valign="top"><p class="table">short, int, double, long,
-                                float, bytearray[]</p></td>
+                            <td align="left" valign="top"><p class="table">short, int, double, long, float, bytearray[]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">WriteCoilRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 5 Write Single
-                                Coil</p></td>
+                            <td align="left" valign="top"><p class="table">FC 5 Write Single Coil</p></td>
                             <td align="left" valign="top"><p class="table">Coils</p></td>
                             <td align="left" valign="top"><p class="table">RW</p></td>
                             <td align="left" valign="top"><p class="table">boolean</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                WriteMultipleCoilsRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 15 Write Multiple
-                                Coils</p></td>
+                            <td align="left" valign="top"><p class="table">WriteMultipleCoilsRequest</p></td>
+                            <td align="left" valign="top"><p class="table">FC 15 Write Multiple Coils</p></td>
                             <td align="left" valign="top"><p class="table">Coils</p></td>
                             <td align="left" valign="top"><p class="table">RW</p></td>
                             <td align="left" valign="top"><p class="table">boolean</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                WriteMultipleRegistersRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 6 Write Single
-                                Registers</p></td>
-                            <td align="left" valign="top"><p class="table">Holding Registers</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">WriteMultipleRegistersRequest</p></td>
+                            <td align="left" valign="top"><p class="table">FC 6 Write Single Registers</p></td>
+                            <td align="left" valign="top"><p class="table">Holding Registers</p></td>
                             <td align="left" valign="top"><p class="table">RW</p></td>
-                            <td align="left" valign="top"><p class="table">short, int, double, long,
-                                float, bytearray[]</p></td>
+                            <td align="left" valign="top"><p class="table">short, int, double, long, float, bytearray[]</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                WriteMultipleRegistersRequest</p></td>
-                            <td align="left" valign="top"><p class="table">FC 16 Write Multiple
-                                Registers</p></td>
-                            <td align="left" valign="top"><p class="table">Holding Registers</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">WriteMultipleRegistersRequest</p></td>
+                            <td align="left" valign="top"><p class="table">FC 16 Write Multiple Registers</p></td>
+                            <td align="left" valign="top"><p class="table">Holding Registers</p></td>
                             <td align="left" valign="top"><p class="table">RW</p></td>
-                            <td align="left" valign="top"><p class="table">short, int, double, long,
-                                float, bytearray[]</p></td>
+                            <td align="left" valign="top"><p class="table">short, int, double, long, float, bytearray[]</p></td>
                         </tr>
                         </tbody>
                     </table>
@@ -2199,8 +2016,8 @@
                 <div class="paragraph"><p><strong>Example</strong></p></div>
                 <div class="listingblock">
                     <div class="content">
-                        <pre><code>&lt;channelAddress&gt;255:INPUT_REGISTERS:100:SHORT&lt;/channelAddress&gt;
-                            will be accessed via function code 4.</code></pre>
+                        <pre><code>&lt;channelAddress&gt;255:INPUT_REGISTERS:100:SHORT&lt;/channelAddress&gt; will be accessed via function
+                            code 4.</code></pre>
                     </div>
                 </div>
                 <div class="sect3">
@@ -2212,56 +2029,50 @@
                                 <td class="icon">
                                     <img src="/etc/asciidoc/images/icons/note.png" alt="Note"/>
                                 </td>
-                                <td class="content">Till now the driver has been tested with some
-                                    modules of the Wago 750 Series with the Fieldbus-Coupler 750-342
+                                <td class="content">Till now the driver has been tested with some modules of the Wago 750 Series with the
+                                    Fieldbus-Coupler 750-342
                                 </td>
                             </tr>
                         </table>
                     </div>
-                    <div class="paragraph"><p>If you want to use the Modbus TCP driver for accessing
-                        a Wago device you first need to know how the process image is build. From
-                        the process image you can derive the register addresses of your Wago modules
-                        (AO, AI, DO, DI). You find detailed information about the process image in
-                        <a href="http://www.wago.com/wagoweb/documentation/750/eng_manu/coupler_controller/m07500342_00000000_0en.pdf">WAGO
+                    <div class="paragraph"><p>If you want to use the Modbus TCP driver for accessing a Wago device you first need to know
+                        how the process image is build. From the process image you can derive the register addresses of your Wago modules
+                        (AO, AI, DO, DI). You find detailed information about the process image in <a
+                                href="http://www.wago.com/wagoweb/documentation/750/eng_manu/coupler_controller/m07500342_00000000_0en.pdf">WAGO
                             750-342 Manual</a> on page 46 and 47.</p></div>
-                    <div class="paragraph"><p>The following Examples are based on figure <a
-                            href="#wago">[wago]</a><br/></p></div>
-                    <div class="paragraph"><p><strong>Example 1: Read AI 2 from first (left)
-                        472-module (Register Address 0x0001)</strong></p></div>
+                    <div class="paragraph"><p>The following Examples are based on figure <a href="#wago">[wago]</a><br/></p></div>
+                    <div class="paragraph"><p><strong>Example 1: Read AI 2 from first (left) 472-module (Register Address 0x0001)</strong>
+                    </p></div>
                     <div class="listingblock">
                         <div class="content">
                             <pre><code>&lt;channelAddress&gt;255:INPUT_REGISTERS:1:SHORT&lt;/channelAddress&gt;</code></pre>
                         </div>
                     </div>
-                    <div class="paragraph"><p><strong>Example 2: Read DI 3 from first (left)
-                        472-module (Register Address 0x0003)</strong></p></div>
+                    <div class="paragraph"><p><strong>Example 2: Read DI 3 from first (left) 472-module (Register Address 0x0003)</strong>
+                    </p></div>
                     <div class="listingblock">
                         <div class="content">
                             <pre><code>&lt;channelAddress&gt;255:DISCRETE_INPUTS:3:BOOLEAN&lt;/channelAddress&gt;</code></pre>
                         </div>
                     </div>
-                    <div class="paragraph"><p><strong>Example 3: Write AO 1 from first (left)
-                        550-module (Register Address 0x0000/0x0200)</strong><br/>
-                        For writing only the +0x0200 addresses should be used! Since the driver
-                        accepts only a decimal channelAddress 0x0200 must be converted to decimal.
-                        The resulting address would be:</p></div>
+                    <div class="paragraph"><p><strong>Example 3: Write AO 1 from first (left) 550-module (Register Address
+                        0x0000/0x0200)</strong><br/>
+                        For writing only the +0x0200 addresses should be used! Since the driver accepts only a decimal channelAddress 0x0200
+                        must be converted to decimal. The resulting address would be:</p></div>
                     <div class="listingblock">
                         <div class="content">
                             <pre><code>&lt;channelAddress&gt;255:HOLDING_REGISTERS:512:SHORT&lt;/channelAddress&gt;</code></pre>
                         </div>
                     </div>
-                    <div class="paragraph"><p><strong>Example 4: Write DO 2 from 501-module
-                        (Register Address 0x0000/0x0201)</strong><br/>
-                        For writing only the +0x0200 addresses should be used! Since the driver
-                        accepts only a decimal channelAddress 0x0201 must be converted to decimal.
-                        The resulting address would be:</p></div>
+                    <div class="paragraph"><p><strong>Example 4: Write DO 2 from 501-module (Register Address 0x0000/0x0201)</strong><br/>
+                        For writing only the +0x0200 addresses should be used! Since the driver accepts only a decimal channelAddress 0x0201
+                        must be converted to decimal. The resulting address would be:</p></div>
                     <div class="listingblock">
                         <div class="content">
                             <pre><code>&lt;channelAddress&gt;255:COILS:513:BOOLEAN&lt;/channelAddress&gt;</code></pre>
                         </div>
                     </div>
-                    <div class="paragraph"><p><strong>Example 5: Read back DO 2 from 501-module
-                        (Register Address 0x0201)</strong></p></div>
+                    <div class="paragraph"><p><strong>Example 5: Read back DO 2 from 501-module (Register Address 0x0201)</strong></p></div>
                     <div class="listingblock">
                         <div class="content">
 <pre><code>&lt;channelAddress&gt;255:COILS:513:BOOLEAN&lt;/channelAddress&gt; or
@@ -2271,16 +2082,14 @@
                     <div class="paragraph" id="wago">
                         <div class="title">Wago 750-342 Process Image</div>
                         <p><span class="image">
-<img src="openmuc_doc_img/modbus_wago_process_image.png"
-     alt="openmuc_doc_img/modbus_wago_process_image.png"/>
+<img src="openmuc_doc_img/modbus_wago_process_image.png" alt="openmuc_doc_img/modbus_wago_process_image.png"/>
 </span></p></div>
                 </div>
             </div>
             <div class="sect2">
                 <h3 id="_m_bus_wired">5.2. M-Bus (wired)</h3>
 
-                <div class="paragraph"><p>M-Bus is communication protocol to read out meters.</p>
-                </div>
+                <div class="paragraph"><p>M-Bus is communication protocol to read out meters.</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -2291,58 +2100,93 @@
                         <col width="95%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">mbus</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">&lt;serialport&gt;</p>
-                            </td>
-                        </tr>
-                        <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;mbusaddress&gt;</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">&lt;serial_port&gt;:&lt;mbus_address&gt;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
-                            <td align="left" valign="top"><p class="table">[&lt;baudrate&gt;/&lt;databits&gt;&lt;parity&gt;&lt;stopbits&gt;]</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">
+                                [&lt;baudrate&gt;/&lt;databits&gt;&lt;parity&gt;&lt;stopbits&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Channel Address</p></td>
-                            <td align="left" valign="top"><p class="table">
-                                &lt;dib&gt;:&lt;vib&gt;</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;dib&gt;:&lt;vib&gt;</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="paragraph"><p><strong>Interface Address</strong></p></div>
-                <div class="paragraph"><p>Here the name of the serial port should be given that
-                    connects to the M-Bus converter. (e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux)</p>
-                </div>
                 <div class="paragraph"><p><strong>Device Address</strong></p></div>
-                <div class="paragraph"><p>Shall be the primary or secondary M-Bus address of the
-                    meter (e.g. p1
-                    for primary address 1, s&#8230; for a secondary address)</p></div>
+                <div class="paragraph"><p>The serial port should be given that connects to the M-Bus converter. (e.g. /dev/ttyS0,
+                    /dev/ttyUSB0 on Linux).
+                    Shall be the primary M-Bus address of the meter (e.g. 1
+                    for primary address 1).</p></div>
                 <div class="paragraph"><p><strong>Settings</strong></p></div>
-                <div class="paragraph"><p>The settings consist only of the serial port settings of
-                    the syntax &lt;baudrate&gt;/&lt;databits&gt;&lt;parity&gt;&lt;stopbits&gt;. If
-                    left empty the default is used: "2400/8E1"</p></div>
+                <div class="paragraph"><p>The settings consist only of the serial port settings of the syntax &lt;baudrate&gt;/&lt;databits&gt;&lt;parity&gt;&lt;stopbits&gt;.
+                    If left empty the default is used: "2400/8E1"</p></div>
                 <div class="paragraph"><p><strong>Channel Address</strong></p></div>
-                <div class="paragraph"><p>Shall be of the format &lt;dib&gt;:&lt;vib&gt; in a
-                    hexadecimal string format (e.g. 04:03 or 02:fd48)</p></div>
+                <div class="paragraph"><p>Shall be of the format &lt;dib&gt;:&lt;vib&gt; in a hexadecimal string format (e.g. 04:03 or
+                    02:fd48)</p></div>
             </div>
             <div class="sect2">
-                <h3 id="_iec_61850">5.3. IEC 61850</h3>
+                <h3 id="_m_bus_wireless">5.3. M-Bus (wireless)</h3>
 
-                <div class="paragraph"><p>IEC 61850 is an international communication standard used
-                    mostly for
+                <div class="paragraph"><p>Wireless M-Bus is communication protocol to read out meters and sensors.</p></div>
+                <div class="tableblock">
+                    <table rules="all"
+                           width="100%"
+                           frame="border"
+                           cellspacing="0" cellpadding="4">
+                        <caption class="title">Table 10. Configuration Synopsis</caption>
+                        <col width="4%"/>
+                        <col width="95%"/>
+                        <tbody>
+                        <tr>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis</strong></p></td>
+                        </tr>
+                        <tr>
+                            <td align="left" valign="top"><p class="table">ID</p></td>
+                            <td align="left" valign="top"><p class="table">wmbus</p></td>
+                        </tr>
+                        <tr>
+                            <td align="left" valign="top"><p class="table">Device Address</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;serial_port&gt;:&lt;secondary_address&gt;</p></td>
+                        </tr>
+                        <tr>
+                            <td align="left" valign="top"><p class="table">Settings</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;transceiver&gt; &lt;mode&gt; [&lt;key&gt;]</p></td>
+                        </tr>
+                        <tr>
+                            <td align="left" valign="top"><p class="table">Channel Address</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;dib&gt;:&lt;vib&gt;</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="paragraph"><p><strong>Device Address</strong></p></div>
+                <div class="paragraph"><p>&lt;serial_port&gt; - The serial port used for communication. Examples are /dev/ttyS0 (Linux) or
+                    COM1 (Windows)</p></div>
+                <div class="paragraph"><p>&lt;secondary_address&gt; - The secondary address consists of 8 bytes that should be specified in
+                    hexadecimal form. (e.g. e30456a6b72e3e4e)</p></div>
+                <div class="paragraph"><p><strong>Settings</strong></p></div>
+                <div class="paragraph"><p>&lt;transceiver&gt; - The transceiver being used. It can be <em>amber</em> or <em>rc</em> for
+                    modules from RadioCrafts.</p></div>
+                <div class="paragraph"><p>&lt;mode&gt; - The wM-Bus mode can be S or T.</p></div>
+                <div class="paragraph"><p>&lt;key&gt; - The key in hexadecimal form.</p></div>
+                <div class="paragraph"><p><strong>Channel Address</strong></p></div>
+                <div class="paragraph"><p>Shall be of the format &lt;dib&gt;:&lt;vib&gt; in a hexadecimal string format (e.g. 04:03 or
+                    02:fd48)</p></div>
+            </div>
+            <div class="sect2">
+                <h3 id="_iec_61850">5.4. IEC 61850</h3>
+
+                <div class="paragraph"><p>IEC 61850 is an international communication standard used mostly for
                     substation automation and controlling distributed energy resources
                     (DER). The IEC 61850 driver uses the client library from the
                     OpenIEC61850 project.</p></div>
@@ -2355,63 +2199,48 @@
                         <col width="95%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">iec61850</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">N.A.</p></td>
-                        </tr>
-                        <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;host&gt;[:&lt;port&gt;]</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">&lt;host&gt;[:&lt;port&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
-                            <td align="left" valign="top"><p class="table">[-a &lt;authentication
-                                parameter&gt;] [-lt &lt;local t-selector&gt;] [-rt &lt;remote
-                                t-selector&gt;]</p></td>
+                            <td align="left" valign="top"><p class="table">[-a &lt;authentication parameter&gt;] [-lt &lt;local t-selector&gt;]
+                                [-rt &lt;remote t-selector&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Channel Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;bda reference&gt;:&lt;fc&gt;</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">&lt;bda reference&gt;:&lt;fc&gt;</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>Channel Address</strong></p></div>
-                <div class="paragraph"><p>The channel address should be the IEC 61850 Object
-                    Reference and the
+                <div class="paragraph"><p>The channel address should be the IEC 61850 Object Reference and the
                     Functional Constraint of the Basic Data Attribute that is to be
-                    addressed separated by a colon. Note that an IEC 61850 timestamp received will
-                    be
+                    addressed separated by a colon. Note that an IEC 61850 timestamp received will be
                     converted to a LongValue that represents the milliseconds since
                     1970. Some information is lost during this conversion because the IEC
                     61850 timestamp is more exact.</p></div>
                 <div class="paragraph"><p><strong>Settings</strong></p></div>
-                <div class="paragraph"><p>The defaults for TSelLocal and TSelRemote are "00" and
-                    "01"
+                <div class="paragraph"><p>The defaults for TSelLocal and TSelRemote are "00" and "01"
                     respectively. You can also set either TSelector to the empty string
                     (e.g. "-lt -rt"). This way they will be omitted in the connection
                     request.</p></div>
             </div>
             <div class="sect2">
-                <h3 id="_dlms_cosem">5.4. DLMS/COSEM</h3>
+                <h3 id="_dlms_cosem">5.5. DLMS/COSEM</h3>
 
-                <div class="paragraph"><p>DLMS/COSEM is a international standardized protocol used
-                    mostly to communicate with smart meter devices. The DLMS/COSEM driver uses the
-                    client library developed by the jDLMS project. Currently, the DLMS/COSEM driver
-                    supports communication via HDLC and TCP/IP using Logical Name Referencing to
-                    retrieve values from the device.</p></div>
-                <div class="paragraph"><p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar
-                    (optional)</p></div>
+                <div class="paragraph"><p>DLMS/COSEM is a international standardized protocol used mostly to communicate with smart meter
+                    devices. The DLMS/COSEM driver uses the client library developed by the jDLMS project. Currently, the DLMS/COSEM driver
+                    supports communication via HDLC and TCP/IP using Logical Name Referencing to retrieve values from the device.</p></div>
+                <div class="paragraph"><p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar (optional)</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -2421,23 +2250,17 @@
                         <col width="95%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">dlms</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">&lt;protocol&gt;:&lt;physical-connection&gt;</p>
-                            </td>
-                        </tr>
-                        <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;server-logical&gt;:&lt;client-logical&gt;</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">hdlc:&lt;serial-port&gt;[:&lt;server-physical-port&gt;]:&lt;server-logical&gt;:&lt;client-logical&gt;<br/>
+                                tcp:&lt;server-ip&gt;[:&lt;server-port&gt;]:&lt;server-logical&gt;:&lt;client-logical&gt;<br/>
+                                udp:&lt;server-ip&gt;[:&lt;server-port&gt;]:&lt;server-logical&gt;:&lt;client-logical&gt;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
@@ -2453,9 +2276,8 @@
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>Interface Address</strong></p></div>
-                <div class="paragraph"><p>The interface address consists of all elements the driver
-                    needs to uniquely identify and address a physical smart meter and format depends
-                    on the used protocol. Refer to the following table for the format of the
+                <div class="paragraph"><p>The interface address consists of all elements the driver needs to uniquely identify and address a
+                    physical smart meter and format depends on the used protocol. Refer to the following table for the format of the
                     interface address.</p></div>
                 <div class="tableblock">
                     <table rules="all"
@@ -2475,54 +2297,40 @@
                         <tbody>
                         <tr>
                             <td align="center" valign="top"><p class="table">hdlc</p></td>
-                            <td align="center" valign="top"><p class="table">&lt;serial-port&gt;[:&lt;server-physical-port&gt;]</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">hdlc:ttyUSB0 or
-                                hdlc:ttyUSB0:16</p></td>
+                            <td align="center" valign="top"><p class="table">&lt;serial-port&gt;[:&lt;server-physical-port&gt;]</p></td>
+                            <td align="left" valign="top"><p class="table">hdlc:ttyUSB0 or hdlc:ttyUSB0:16</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">tcp</p></td>
-                            <td align="center" valign="top"><p class="table">&lt;server-ip&gt;[:&lt;server-port&gt;]</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">tcp:16:192.168.200.25 or
-                                tcp:16:192.168.200.25:4059</p></td>
+                            <td align="center" valign="top"><p class="table">&lt;server-ip&gt;[:&lt;server-port&gt;]</p></td>
+                            <td align="left" valign="top"><p class="table">tcp:16:192.168.200.25 or tcp:16:192.168.200.25:4059</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>Device Address</strong></p></div>
-                <div class="paragraph"><p>The device address contains all data necessary to connect
-                    to a logical device of the smart meter. Both the server-logical and
-                    client-logical address are each a 16-Bit unsigned number. The server-logical
-                    address is needed to identify a logical device inside a smart meter. In most
-                    cases, there are 2 logical devices inside a smart meter with the first being a
-                    management device to get common information and data about other logical devices
-                    in this smart meter while the second logical device is the smart meter itself
-                    holding the tariff and measurement data. The management device has the address
-                    1, the address of the second device is manufacturer specific but can be read
-                    from the management device. If the physical device acts as a hub for other smart
-                    meter, the number of logical devices increases accordingly. The client-logical
-                    address is often used in conjunction with a password to identify the access
-                    level of the client. For the lowest access level (Public client) the
-                    client-logical address 16 with no password is reserved by the IEC 62056-46 and
-                    IEC 62056-47 norm.</p></div>
+                <div class="paragraph"><p>The device address contains all data necessary to connect to a logical device of the smart meter.
+                    Both the server-logical and client-logical address are each a 16-Bit unsigned number. The server-logical address is
+                    needed to identify a logical device inside a smart meter. In most cases, there are 2 logical devices inside a smart
+                    meter with the first being a management device to get common information and data about other logical devices in this
+                    smart meter while the second logical device is the smart meter itself holding the tariff and measurement data. The
+                    management device has the address 1, the address of the second device is manufacturer specific but can be read from the
+                    management device. If the physical device acts as a hub for other smart meter, the number of logical devices increases
+                    accordingly. The client-logical address is often used in conjunction with a password to identify the access level of the
+                    client. For the lowest access level (Public client) the client-logical address 16 with no password is reserved by the
+                    IEC 62056-46 and IEC 62056-47 norm.</p></div>
                 <div class="paragraph"><p><strong>Channel Address</strong></p></div>
-                <div class="paragraph"><p>A channel address references a single attribute of a COSEM
-                    Interface Object. To uniquely identify an attribute, the class-id, reference-id
-                    and attribute-id are needed, each separated by the slash character. The class-id
-                    and attribute-id are each a 16 bit unsigned number, while the reference-id needs
-                    to be the 6 byte OBIS code as it is defined by the DLMS UA. The reference-id can
-                    be written as hexadecimal number (e.g. 0101010800FF) or as a series of six
-                    decimal numbers separated by periods (1.1.1.8.0.255).</p></div>
-                <div class="paragraph"><p>For a list of all valid reference-ids and the
-                    corresponding COSEM Interface Class, consult the list of standardized OBIS codes
-                    administered by the DLMS UA <a
-                            href="http://dlms.com/documentation/listofstandardobiscodesandmaintenanceproces/index.html">here</a>
-                </p></div>
+                <div class="paragraph"><p>A channel address references a single attribute of a COSEM Interface Object. To uniquely identify
+                    an attribute, the class-id, reference-id and attribute-id are needed, each separated by the slash character. The
+                    class-id and attribute-id are each a 16 bit unsigned number, while the reference-id needs to be the 6 byte OBIS code as
+                    it is defined by the DLMS UA. The reference-id can be written as hexadecimal number (e.g. 0101010800FF) or as a series
+                    of six decimal numbers separated by periods (1.1.1.8.0.255).</p></div>
+                <div class="paragraph"><p>For a list of all valid reference-ids and the corresponding COSEM Interface Class, consult the
+                    list of standardized OBIS codes administered by the DLMS UA <a
+                            href="http://dlms.com/documentation/listofstandardobiscodesandmaintenanceproces/index.html">here</a></p></div>
                 <div class="paragraph"><p><strong>Settings</strong></p></div>
-                <div class="paragraph"><p>Settings are separated by a semi-colon. The available
-                    settings are determined by the used protocol, defined as first parameter of the
-                    interface address. All possible settings with a short description and default
+                <div class="paragraph"><p>Settings are separated by a semi-colon. The available settings are determined by the used
+                    protocol, defined as first parameter of the device address. All possible settings with a short description and default
                     values are listed in the following table.</p></div>
                 <div class="tableblock">
                     <table rules="all"
@@ -2549,64 +2357,51 @@
                             <td align="center" valign="top"><p class="table">all</p></td>
                             <td align="center" valign="top"><p class="table">string</p></td>
                             <td align="center" valign="top"><p class="table"></p></td>
-                            <td align="left" valign="top"><p class="table">Authorization password to
-                                access the smart meter device</p></td>
+                            <td align="left" valign="top"><p class="table">Authorization password to access the smart meter device</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">SendDisconnect</p></td>
                             <td align="center" valign="top"><p class="table">all</p></td>
-                            <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                            </td>
+                            <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                             <td align="center" valign="top"><p class="table">true</p></td>
-                            <td align="left" valign="top"><p class="table">Send a disconnect message
-                                at DLMS layer on disconnecting from device. Set this flag to false
-                                if the remote device is expecting the disconnect message at a lower
-                                layer (like HDLC)</p></td>
+                            <td align="left" valign="top"><p class="table">Send a disconnect message at DLMS layer on disconnecting from
+                                device. Set this flag to false if the remote device is expecting the disconnect message at a lower layer
+                                (like HDLC)</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">UseHandshake</p></td>
                             <td align="center" valign="top"><p class="table">HDLC</p></td>
-                            <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                            </td>
+                            <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                             <td align="center" valign="top"><p class="table">true</p></td>
-                            <td align="left" valign="top"><p class="table">Use initial handshake to
-                                negotiate baud rate</p></td>
+                            <td align="left" valign="top"><p class="table">Use initial handshake to negotiate baud rate</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">Baudrate</p></td>
                             <td align="center" valign="top"><p class="table">HDLC</p></td>
-                            <td align="center" valign="top"><p class="table"><em>integer</em></p>
-                            </td>
+                            <td align="center" valign="top"><p class="table"><em>integer</em></p></td>
                             <td align="center" valign="top"><p class="table"></p></td>
-                            <td align="left" valign="top"><p class="table">Maximum supported baud
-                                rate (0 = no maximum). If UseHandshake = false, this value will be
-                                used to communicate with the device and <em>has</em> to be set</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">Maximum supported baud rate (0 = no maximum). If UseHandshake =
+                                false, this value will be used to communicate with the device and <em>has</em> to be set</p></td>
                         </tr>
                         <tr>
                             <td align="center" valign="top"><p class="table">ForceSingle</p></td>
                             <td align="center" valign="top"><p class="table">all</p></td>
-                            <td align="center" valign="top"><p class="table"><em>true/false</em></p>
-                            </td>
+                            <td align="center" valign="top"><p class="table"><em>true/false</em></p></td>
                             <td align="center" valign="top"><p class="table">false</p></td>
-                            <td align="left" valign="top"><p class="table">Forces every attribute to
-                                be requested individually. This option has to be enabled to support
-                                Kamstrup 382 smart meter devices</p></td>
+                            <td align="left" valign="top"><p class="table">Forces every attribute to be requested individually. This option
+                                has to be enabled to support Kamstrup 382 smart meter devices</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_knx">5.5. KNX</h3>
+                <h3 id="_knx">5.6. KNX</h3>
 
-                <div class="paragraph"><p>KNX is a standardised protocol for intelligent buildings.
-                    The KNX driver uses KNXnet/IP to connect to the wired KNX BUS or a RC1180 UART
-                    (e. g. Calao USB-KNX-RF-C0X) to connect to RF. The driver supports group read
-                    and writes and is also able to listen to the BUS. The driver uses the calimero
-                    library.</p></div>
-                <div class="paragraph"><p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar</p>
-                </div>
+                <div class="paragraph"><p>KNX is a standardised protocol for intelligent buildings. The KNX driver uses KNXnet/IP to connect
+                    to the wired KNX BUS or a RC1180 UART (e. g. Calao USB-KNX-RF-C0X) to connect to RF. The driver supports group read and
+                    writes and is also able to listen to the BUS. The driver uses the calimero library.</p></div>
+                <div class="paragraph"><p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -2616,34 +2411,25 @@
                         <col width="80%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis for KNXnet/IP</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis for KNXnet/IP</strong>
+                            </p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">knx</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">knxip://&lt;Host IP&gt;[:&lt;Port&gt;]</p>
-                            </td>
-                        </tr>
-                        <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">knxip://&lt;Device IP&gt;[:&lt;Port&gt;]</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">knxip://&lt;Device IP&gt;[:&lt;Port&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
-                            <td align="left" valign="top"><p class="table">[Address=&lt;Individual
-                                KNX address (e. g. 2.6.52)&gt;];[SerialNumber=&lt;Serial
+                            <td align="left" valign="top"><p class="table">[Address=&lt;Individual KNX address (e. g. 2.6.52)&gt;];[SerialNumber=&lt;Serial
                                 number&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Channel Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;Group Adress&gt;:&lt;DPT_ID&gt;</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">&lt;Group Adress&gt;:&lt;DPT_ID&gt;</p></td>
                         </tr>
                         </tbody>
                     </table>
@@ -2657,57 +2443,45 @@
                         <col width="80%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis for RC1180</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis for RC1180</strong>
+                            </p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">knx</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table"></p></td>
-                        </tr>
-                        <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">knxrc1180://&lt;serialPort&gt;</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">knxrc1180://&lt;serialPort&gt;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
-                            <td align="left" valign="top"><p class="table">[Address=&lt;Individual
-                                KNX address (e. g. 2.6.52)&gt;];[SerialNumber=&lt;Serial
+                            <td align="left" valign="top"><p class="table">[Address=&lt;Individual KNX address (e. g. 2.6.52)&gt;];[SerialNumber=&lt;Serial
                                 number&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Channel Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;Group Adress&gt;:&lt;DPT_ID&gt;[:&lt;AET&gt;:&lt;SNorDoA&gt;]</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">&lt;Group
+                                Adress&gt;:&lt;DPT_ID&gt;[:&lt;AET&gt;:&lt;SNorDoA&gt;]</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>Device Address</strong></p></div>
-                <div class="paragraph"><p>For KNXnet/IP the device address consists of the host IP
-                    and the IP of the KNX tunnel or router.
-                    For RC1180 the device address is the serial port (e. g.
-                    knxrc1180://dev/ttyUSB0).</p></div>
+                <div class="paragraph"><p>For KNXnet/IP the device address consists of the host IP and the IP of the KNX tunnel or router.
+                    For RC1180 the device address is the serial port (e. g. knxrc1180://dev/ttyUSB0).</p></div>
                 <div class="paragraph"><p><strong>Channel Address</strong></p></div>
-                <div class="paragraph"><p>The channel address consist of the group address you want
-                    to monitor and the corresponding data point ID. A data point consists of a main
-                    number and a subtype. For example a boolean would be represented by the main
+                <div class="paragraph"><p>The channel address consist of the group address you want to monitor and the corresponding data
+                    point ID. A data point consists of a main number and a subtype. For example a boolean would be represented by the main
                     number 1 and a switch by the subtype 001, the DPT_ID of a switch is 1.001.
-                    For a wireless connection there is also the possibility to change the serial
-                    number or domain address for each group write. scanForChannels() will return the
-                    specific channel address.</p></div>
+                    For a wireless connection there is also the possibility to change the serial number or domain address for each group
+                    write. scanForChannels() will return the specific channel address.</p></div>
             </div>
             <div class="sect2">
-                <h3 id="_ehz">5.6. EHZ</h3>
+                <h3 id="_ehz">5.7. EHZ</h3>
 
                 <div class="paragraph"><p>OpenMUC driver for SML and IEC 62056-21</p></div>
-                <div class="paragraph"><p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar</p>
-                </div>
+                <div class="paragraph"><p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -2717,22 +2491,16 @@
                         <col width="80%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis for EHZ</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis for EHZ</strong></p>
+                            </td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">ehz</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table"></p></td>
-                        </tr>
-                        <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">sml://&lt;serialPort&gt;
-                                or iec://&lt;serialPort&gt;</p></td>
+                            <td align="left" valign="top"><p class="table">sml://&lt;serialPort&gt; or iec://&lt;serialPort&gt;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
@@ -2740,24 +2508,20 @@
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Channel Address</p></td>
-                            <td align="left" valign="top"><p class="table">&lt;OBIScode&gt; e.g.
-                                10181ff (not 1-0:1.8.1*255)</p></td>
+                            <td align="left" valign="top"><p class="table">&lt;OBIScode&gt; e.g. 10181ff (not 1-0:1.8.1*255)</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="paragraph"><p>scanForDevices() and scanForChannels will return the
-                    specific configuration.</p></div>
+                <div class="paragraph"><p>scanForDevices() and scanForChannels will return the specific configuration.</p></div>
             </div>
             <div class="sect2">
-                <h3 id="_canopen">5.7. CANopen</h3>
+                <h3 id="_canopen">5.8. CANopen</h3>
 
-                <div class="paragraph"><p>OpenMUC driver to access generic CANopen devices. The
-                    driver is able to read and write the CANopen object dictionary as well as to
-                    listen for PDOs.</p></div>
-                <div class="paragraph"><p>This driver uses the socketcan project to access the CAN
-                    network, therefore Linux is needed. But the jCANopen library can easily be
-                    expanded to access the CAN network with Windows.</p></div>
+                <div class="paragraph"><p>OpenMUC driver to access generic CANopen devices. The driver is able to read and write the CANopen
+                    object dictionary as well as to listen for PDOs.</p></div>
+                <div class="paragraph"><p>This driver uses the socketcan project to access the CAN network, therefore Linux is needed. But
+                    the jCANopen library can easily be expanded to access the CAN network with Windows.</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -2767,8 +2531,8 @@
                         <col width="80%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis for CANopen</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis for CANopen</strong>
+                            </p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
@@ -2776,74 +2540,59 @@
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
-                            <td align="left" valign="top"><p class="table">Name of the interface</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">Name of the interface</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Settings</p></td>
-                            <td align="left" valign="top"><p class="table">[NMT];[SYNC=&lt;time ms&gt;]</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">[NMT];[SYNC=&lt;time ms&gt;]</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Channel Address</p></td>
-                            <td align="left" valign="top"><p class="table">SDO:&lt;CAN ID&gt;:&lt;Object
-                                Index&gt;:&lt;Object Subindex&gt;[:&lt;Data Type&gt;]<br/>
-                                PDO:&lt;PDO ID&gt;:&lt;Position&gt;:&lt;Length&gt;[:&lt;Data Type&gt;]
-                            </p></td>
+                            <td align="left" valign="top"><p class="table">SDO:&lt;CAN ID&gt;:&lt;Object Index&gt;:&lt;Object Subindex&gt;[:&lt;Data
+                                Type&gt;]<br/>
+                                PDO:&lt;PDO ID&gt;:&lt;Position&gt;:&lt;Length&gt;[:&lt;Data Type&gt;]</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>Device Address</strong></p></div>
-                <div class="paragraph"><p>The device address consists of the name of the interface
-                    e.g. "can0"</p></div>
+                <div class="paragraph"><p>The device address consists of the name of the interface e.g. "can0"</p></div>
                 <div class="paragraph"><p>Settings:<br/>
                     NMT: The driver controls the CAN network e.g. starts and stops nodes.<br/>
-                    SYNC: The driver sends a sync package, may be necessary to receive PDOs<br/></p>
-                </div>
+                    SYNC: The driver sends a sync package, may be necessary to receive PDOs<br/></p></div>
                 <div class="paragraph"><p><strong>Channel Address</strong></p></div>
                 <div class="paragraph"><p>The channel address can either be a SDO or a PDO</p></div>
-                <div class="paragraph"><p>SDO:&lt;CAN ID&gt;:&lt;Object Index&gt;:&lt;Object
-                    Subindex&gt;[:&lt;Data Type&gt;]<br/>
+                <div class="paragraph"><p>SDO:&lt;CAN ID&gt;:&lt;Object Index&gt;:&lt;Object Subindex&gt;[:&lt;Data Type&gt;]<br/>
                     e.g. SDO:0x1:0x7130:1:INTEGER16<br/>
                     PDO:&lt;PDO ID&gt;:&lt;Position&gt;:&lt;Length&gt;[:&lt;Data Type&gt;]<br/>
                     e.g. PDO:0x181:0:16:INTEGER16<br/>
-                    Data Type:
-                    &lt;UNSIGNED8|UNSIGNED16|&#8230;|INTEGER8|&#8230;|REAL32|REAL64&gt;<br/>
+                    Data Type: &lt;UNSIGNED8|UNSIGNED16|&#8230;|INTEGER8|&#8230;|REAL32|REAL64&gt;<br/>
                     PDO ID: The COB ID of the PDO message<br/>
-                    Position: PDOs with the same ID are sorted by the position and aligned by the
-                    length<br/>
+                    Position: PDOs with the same ID are sorted by the position and aligned by the length<br/>
                     Length: The length, in bit, of the specified data in this PDO<br/>
                     IDs and numbers are either decimal (42) or hex (0x2A)<br/></p></div>
             </div>
             <div class="sect2">
-                <h3 id="_snmp">5.8. SNMP</h3>
+                <h3 id="_snmp">5.9. SNMP</h3>
 
-                <div class="paragraph"><p>Simple Network Management Protocol (SNMP) is an
-                    Internet-standard protocol for monitoring and management of devices on IP
-                    networks.</p></div>
+                <div class="paragraph"><p>Simple Network Management Protocol (SNMP) is an Internet-standard protocol for monitoring and
+                    management of devices on IP networks.</p></div>
                 <div class="paragraph"><p><strong>Dependencies:</strong> snmp4j-2.2.5.jar</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
                            frame="border"
                            cellspacing="0" cellpadding="4">
-                        <caption class="title">Table 10. Configuration Synopsis</caption>
+                        <caption class="title">Table 11. Configuration Synopsis</caption>
                         <col width="20%"/>
                         <col width="80%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration
-                                Synopsis</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Configuration Synopsis</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">ID</p></td>
                             <td align="left" valign="top"><p class="table">snmp</p></td>
-                        </tr>
-                        <tr>
-                            <td align="left" valign="top"><p class="table">Interface Address</p>
-                            </td>
-                            <td align="left" valign="top"><p class="table">&lt;null&gt;</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">Device Address</p></td>
@@ -2861,8 +2610,8 @@
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>Device Address</strong></p></div>
-                <div class="paragraph"><p>IP address and available SNMP port of the target device
-                    should be provided as Device Address.</p></div>
+                <div class="paragraph"><p>IP address and available SNMP port of the target device should be provided as Device Address.</p>
+                </div>
                 <div class="paragraph"><p><strong>Example for Device Address:</strong></p></div>
                 <div class="listingblock">
                     <div class="content">
@@ -2870,25 +2619,22 @@
                     </div>
                 </div>
                 <div class="paragraph"><p><strong>Settings</strong></p></div>
-                <div class="paragraph"><p>All settings are stored in
-                    "SnmpDriverSettingVariableNames" enum.</p></div>
+                <div class="paragraph"><p>All settings are stored in "SnmpDriverSettingVariableNames" enum.</p></div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
                            frame="border"
                            cellspacing="0" cellpadding="4">
-                        <caption class="title">Table 11. Setting Parameters</caption>
+                        <caption class="title">Table 12. Setting Parameters</caption>
                         <col width="9%"/>
                         <col width="90%"/>
                         <tbody>
                         <tr>
-                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Setting
-                                Parameters</strong></p></td>
+                            <td colspan="2" align="left" valign="top"><p class="table"><strong>Setting Parameters</strong></p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">SNMPVersion</p></td>
-                            <td align="left" valign="top"><p class="table">"SNMPVersion" enum
-                                contains all available values</p></td>
+                            <td align="left" valign="top"><p class="table">"SNMPVersion" enum contains all available values</p></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top"><p class="table">USERNAME</p></td>
@@ -2899,40 +2645,33 @@
                             <td align="left" valign="top"><p class="table">string</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                AUTHENTICATIONPASSPHRASE</p></td>
-                            <td align="left" valign="top"><p class="table">is the same COMMUNITY
-                                word in SNMP V2c</p></td>
+                            <td align="left" valign="top"><p class="table">AUTHENTICATIONPASSPHRASE</p></td>
+                            <td align="left" valign="top"><p class="table">is the same COMMUNITY word in SNMP V2c</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">PRIVACYPASSPHRASE</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">PRIVACYPASSPHRASE</p></td>
                             <td align="left" valign="top"><p class="table">string</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="paragraph"><p><strong>SNMPVersion</strong></p></div>
-                <div class="paragraph"><p>SNMPVersion is an enum variable containing valid SNMP
-                    versions. (V1, V2c, V3)</p></div>
-                <div class="paragraph"><p><strong>Example for valid settings string:</strong></p>
-                </div>
+                <div class="paragraph"><p>SNMPVersion is an enum variable containing valid SNMP versions. (V1, V2c, V3)</p></div>
+                <div class="paragraph"><p><strong>Example for valid settings string:</strong></p></div>
                 <div class="listingblock">
                     <div class="content">
                         <pre><code>SNMPVersion=V2c:USERNAME=public:SECURITYNAME=public:AUTHENTICATIONPASSPHRASE=password</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>In order to read specific channel, corresponding SNMP OID
-                    shall be passed.</p></div>
+                <div class="paragraph"><p>In order to read specific channel, corresponding SNMP OID shall be passed.</p></div>
                 <div class="paragraph"><p><strong>Example for SNMP OID:</strong></p></div>
                 <div class="listingblock">
                     <div class="content">
                         <pre><code>1.3.6.1.2.1.1.1.0</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>For scanning SNMP enabled devices in the network, range of
-                    IP addresses shall be provided. This functionality is implemented only for SNMP
-                    V2c.</p></div>
+                <div class="paragraph"><p>For scanning SNMP enabled devices in the network, range of IP addresses shall be provided. This
+                    functionality is implemented only for SNMP V2c.</p></div>
             </div>
         </div>
     </div>
@@ -2950,15 +2689,13 @@
             <div class="sect2">
                 <h3 id="_slotsdb">7.1. SlotsDB</h3>
 
-                <div class="paragraph"><p>For configuration purposes, the id of SlotsDB is
-                    "slotsdb".</p></div>
+                <div class="paragraph"><p>For configuration purposes, the id of SlotsDB is "slotsdb".</p></div>
                 <div class="paragraph"><p>TBD</p></div>
             </div>
             <div class="sect2">
                 <h3 id="_ascii_logger">7.2. ASCII Logger</h3>
 
-                <div class="paragraph"><p>Use "asciilogger" as id to refer to the ASCII Logger in
-                    configurations.</p></div>
+                <div class="paragraph"><p>Use "asciilogger" as id to refer to the ASCII Logger in configurations.</p></div>
                 <div class="paragraph"><p>TBD</p></div>
             </div>
         </div>
@@ -2967,55 +2704,48 @@
         <h2 id="_servers">8. Servers</h2>
 
         <div class="sectionbody">
-            <div class="paragraph"><p>Servers provide applications outside the OpenMUC Framework
-                access to registered channels and/or the configuration of the Framework.</p></div>
+            <div class="paragraph"><p>Servers provide applications outside the OpenMUC Framework access to registered channels and/or the
+                configuration of the Framework.</p></div>
             <div class="sect2">
                 <h3 id="id_restful_web_services">8.1. RESTful Web Service</h3>
 
-                <div class="paragraph"><p>The openmuc-server-restws bundle manages a RESTful web
-                    service to access all registered channels of the Framework. The RESTful web
-                    service is accessed by the same port as the web interface mentioned in Chapter
-                    2. RESTful web services</p></div>
+                <div class="paragraph"><p>The openmuc-server-restws bundle manages a RESTful web service to access all registered channels
+                    of the Framework. The RESTful web service is accessed by the same port as the web interface mentioned in Chapter 2.
+                    RESTful web services</p></div>
                 <div class="admonitionblock">
                     <table>
                         <tr>
                             <td class="icon">
                                 <img src="/etc/asciidoc/images/icons/tip.png" alt="Tip"/>
                             </td>
-                            <td class="content">The address to access the web service using the
-                                provided demo/framework folder is
-                                <em>http://localhost:8888/rest/</em></td>
+                            <td class="content">The address to access the web service using the provided demo/framework folder is <em>http://localhost:8888/rest/</em>
+                            </td>
                         </tr>
                     </table>
                 </div>
                 <div class="sect3">
                     <h4 id="_requirements">8.1.1. Requirements</h4>
 
-                    <div class="paragraph"><p>In order to start the RESTful web service, the
-                        following bundle must be provided:</p></div>
+                    <div class="paragraph"><p>In order to start the RESTful web service, the following bundle must be provided:</p></div>
                     <div class="ulist">
                         <ul>
                             <li>
                                 <p>
-                                    Bundle that provides an org.osgi.service.http.HttpService
-                                    service. In the demo framework, that service is provided by the
-                                    org.apache.felix.http.jetty bundle.
+                                    Bundle that provides an org.osgi.service.http.HttpService service. In the demo framework, that service
+                                    is provided by the org.apache.felix.http.jetty bundle.
                                 </p>
                             </li>
                         </ul>
                     </div>
-                    <div class="paragraph"><p>This bundles is already provided by the demo
-                        framework. The RESTful web service will start automatically with the
-                        framework without additional settings.</p></div>
+                    <div class="paragraph"><p>This bundles is already provided by the demo framework. The RESTful web service will start
+                        automatically with the framework without additional settings.</p></div>
                 </div>
                 <div class="sect3">
                     <h4 id="_accessing_channels">8.1.2. Accessing channels</h4>
 
-                    <div class="paragraph"><p>The latest record of a single label can be accessed,
-                        by sending a GET request at the address: <em>http://server-address/rest/channel/label</em>
-                        where label is replaced with the actual channel label. The result will be
-                        latest record object of the channel encoded in JSON with the following
-                        structure:</p></div>
+                    <div class="paragraph"><p>The latest record of a single label can be accessed, by sending a GET request at the address:
+                        <em>http://server-address/rest/channel/label</em> where label is replaced with the actual channel label. The result
+                        will be latest record object of the channel encoded in JSON with the following structure:</p></div>
                     <div class="listingblock">
                         <div class="title">Record JSON</div>
                         <div class="content">
@@ -3026,14 +2756,11 @@
     }</code></pre>
                         </div>
                     </div>
-                    <div class="paragraph"><p>You can access logged values of a channel by adding
-                        <em>/history?from=fromTimestamp&amp;until=untilTimestamp</em> to the channel
-                        address, fromTimestamp and untilTimestamp are both milliseconds since Unix
-                        epoch (1970-01-01 00:00:00). The result is a collection of records encoded
-                        as JSON.</p></div>
-                    <div class="paragraph"><p>Additionaly, the records off all available channels
-                        can be read it one go, by omitting the label from the address. The result is
-                        a collection of channel objects encoded in JSON using this structure:</p>
+                    <div class="paragraph"><p>You can access logged values of a channel by adding <em>/history?from=fromTimestamp&amp;until=untilTimestamp</em>
+                        to the channel address, fromTimestamp and untilTimestamp are both milliseconds since Unix epoch (1970-01-01
+                        00:00:00). The result is a collection of records encoded as JSON.</p></div>
+                    <div class="paragraph"><p>Additionaly, the records off all available channels can be read it one go, by omitting the
+                        label from the address. The result is a collection of channel objects encoded in JSON using this structure:</p>
                     </div>
                     <div class="listingblock">
                         <div class="title">ChannelCollection JSON</div>
@@ -3051,16 +2778,13 @@
     ]</code></pre>
                         </div>
                     </div>
-                    <div class="paragraph"><p>Finally, if HTTPS is enabled, new records can be
-                        written to channels by sending a PUT request at the address that represents
-                        a channel. To successfully write a new record, login credentials have to be
-                        sent with the request, using <em>HTTP_BASIC</em> as challenge. The login
-                        credentials are the same as the one used to log into the web interface of
-                        the OpenMUC Framework. The data in the put request is a record encoded as
-                        specified in Record JSON above.</p></div>
-                    <div class="paragraph"><p>Under demo/projects/restclientdemo is a sample java
-                        client that exemplarily implements all mentioned methods of accessing a
-                        channel.</p></div>
+                    <div class="paragraph"><p>Finally, if HTTPS is enabled, new records can be written to channels by sending a PUT request
+                        at the address that represents a channel. To successfully write a new record, login credentials have to be sent with
+                        the request, using <em>HTTP_BASIC</em> as challenge. The login credentials are the same as the one used to log into
+                        the web interface of the OpenMUC Framework. The data in the put request is a record encoded as specified in Record
+                        JSON above.</p></div>
+                    <div class="paragraph"><p>Under demo/projects/restclientdemo is a sample java client that exemplarily implements all
+                        mentioned methods of accessing a channel.</p></div>
                 </div>
             </div>
         </div>
@@ -3069,86 +2793,70 @@
         <h2 id="_enabling_https_connections">9. Enabling HTTPS Connections</h2>
 
         <div class="sectionbody">
-            <div class="paragraph"><p>To enable secure and encrypted communication with the OpenMUC
-                Framework using HTTPS, some steps that are illustrated in this chapter have to be
-                made first. After these steps are performed, the WebUI as well as RESTful web
+            <div class="paragraph"><p>To enable secure and encrypted communication with the OpenMUC Framework using HTTPS, some steps that
+                are illustrated in this chapter have to be made first. After these steps are performed, the WebUI as well as RESTful web
                 service can be accessed using HTTPS.</p></div>
             <div class="sect2">
                 <h3 id="_getting_an_ssl_tls_certificate">9.1. Getting an SSL/TLS certificate</h3>
 
-                <div class="paragraph"><p>To establish an HTTPS connection, you need a certificate
-                    that confirms that you are who you claim to be. There are two possible ways for
-                    aquiring an SSL/TLS certificate.</p></div>
+                <div class="paragraph"><p>To establish an HTTPS connection, you need a certificate that confirms that you are who you claim
+                    to be. There are two possible ways for aquiring an SSL/TLS certificate.</p></div>
                 <div class="paragraph">
                     <div class="title">Aquire from certificate authority</div>
-                    <p>The first possible way to get a certificate is by letting a certificate
-                        authority (CA) issue one to you. The exact course of action differs from CA
-                        to CA, and in most cases these certificates can have annual fees in the
-                        range of up to 1500$; in general these certificates are trusted by every
-                        major web browser and operating system without further configuration on
-                        client or server side. For are comparison of CAs, you can consult <a
-                                href="http://en.wikipedia.org/wiki/Comparison_of_SSL_certificates_for_web_servers">this
-                            table</a>.</p></div>
-                <div class="paragraph"><p>After you have aquired a certificate from a CA, you can
-                    add it with the following command to a java keystore:</p></div>
+                    <p>The first possible way to get a certificate is by letting a certificate authority (CA) issue one to you. The exact
+                        course of action differs from CA to CA, and in most cases these certificates can have annual fees in the range of up
+                        to 1500$; in general these certificates are trusted by every major web browser and operating system without further
+                        configuration on client or server side. For are comparison of CAs, you can consult <a
+                                href="http://en.wikipedia.org/wiki/Comparison_of_SSL_certificates_for_web_servers">this table</a>.</p></div>
+                <div class="paragraph"><p>After you have aquired a certificate from a CA, you can add it with the following command to a
+                    java keystore:</p></div>
                 <div class="listingblock">
                     <div class="content">
-                        <pre><code>keytool -importkeystore -srckeystore pfxfile.pxf -srcstoretype
-                            pkcs12 -destkeystore clientcert.jks -deststoretype JKS</code></pre>
+                        <pre><code>keytool -importkeystore -srckeystore pfxfile.pxf -srcstoretype pkcs12 -destkeystore clientcert.jks
+                            -deststoretype JKS</code></pre>
                     </div>
                 </div>
                 <div class="paragraph">
                     <div class="title">Creating a self signed certificate</div>
-                    <p>The other method of aquiring a certificate is by creating a self signed one
-                        using the <code>keytool</code> program shipped with the JRE. As there are no
-                        CAs involved in creating this certificate, there are no implied consts in
-                        creating and maintaining a self signed certificate. On the other hand,
-                        because everyone can create a certificate with your name, self signed
-                        certificates aren&#8217;t trusted by default. The user has to accept the
-                        certificate in his browser or you have to program your app in a way that it
-                        accepts your own certificate. Because of this, using self signed
-                        certificates is only recommended if the OpenMUC Framework is used in an
-                        internal team or a small user group.</p></div>
-                <div class="paragraph"><p>To create a self signed certificate, use the following
-                    command:</p></div>
+                    <p>The other method of aquiring a certificate is by creating a self signed one using the <code>keytool</code> program
+                        shipped with the JRE. As there are no CAs involved in creating this certificate, there are no implied consts in
+                        creating and maintaining a self signed certificate. On the other hand, because everyone can create a certificate
+                        with your name, self signed certificates aren&#8217;t trusted by default. The user has to accept the certificate in
+                        his browser or you have to program your app in a way that it accepts your own certificate. Because of this, using
+                        self signed certificates is only recommended if the OpenMUC Framework is used in an internal team or a small user
+                        group.</p></div>
+                <div class="paragraph"><p>To create a self signed certificate, use the following command:</p></div>
                 <div class="listingblock">
                     <div class="content">
-                        <pre><code>keytool -keystore clientcert.jks -genkey -keyalg RSA -alias
-                            OpenMUC -validity 365</code></pre>
+                        <pre><code>keytool -keystore clientcert.jks -genkey -keyalg RSA -alias OpenMUC -validity 365</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>After all prompts have been filled out, the certificate is
-                    created in the file named after the <code>-keystore</code> parameter
-                    (clientcert.jks in the example). Make sure that the question about your first
-                    and last name is answered with the fully qualified name of the server that runs
-                    the OpenMUC framework, otherwise your client will get a notification, that the
-                    certificate and server name don&#8217;t match.</p></div>
+                <div class="paragraph"><p>After all prompts have been filled out, the certificate is created in the file named after the
+                    <code>-keystore</code> parameter (clientcert.jks in the example). Make sure that the question about your first and last
+                    name is answered with the fully qualified name of the server that runs the OpenMUC framework, otherwise your client will
+                    get a notification, that the certificate and server name don&#8217;t match.</p></div>
                 <div class="admonitionblock">
                     <table>
                         <tr>
                             <td class="icon">
                                 <img src="/etc/asciidoc/images/icons/note.png" alt="Note"/>
                             </td>
-                            <td class="content">The Demo Framework provides a self signed
-                                certificate that can be used for demonstration purposes. The
-                                certificate is in the keystore named <strong>OpenMUC.jks</strong> in
-                                the framework folder. The password to access the keystore is
-                                <strong>https4OpenMUC</strong>. A password to access the certificate
-                                is not set.
+                            <td class="content">The Demo Framework provides a self signed certificate that can be used for demonstration
+                                purposes. The certificate is in the keystore named <strong>OpenMUC.jks</strong> in the framework folder. The
+                                password to access the keystore is <strong>https4OpenMUC</strong>. A password to access the certificate is
+                                not set.
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_configurating_jetty_to_use_https">9.2. Configurating Jetty to use
-                    HTTPS</h3>
+                <h3 id="_configurating_jetty_to_use_https">9.2. Configurating Jetty to use HTTPS</h3>
 
-                <div class="paragraph"><p>The Jetty HTTP-Server bundled with the Demo Framework
-                    supports HTTPS connections natively without the need to install additional
-                    bundles. To enable HTTPS connections, just fill out the following lines as
-                    stated in the table and add these to the <strong>config.properties</strong> file
-                    located inside the <strong>conf</strong> folder:</p></div>
+                <div class="paragraph"><p>The Jetty HTTP-Server bundled with the Demo Framework supports HTTPS connections natively without
+                    the need to install additional bundles. To enable HTTPS connections, just fill out the following lines as stated in the
+                    table and add these to the <strong>config.properties</strong> file located inside the <strong>conf</strong> folder:</p>
+                </div>
                 <div class="tableblock">
                     <table rules="all"
                            width="100%"
@@ -3158,39 +2866,30 @@
                         <col width="95%"/>
                         <tbody>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                org.apache.felix.https.enable</p></td>
+                            <td align="left" valign="top"><p class="table">org.apache.felix.https.enable</p></td>
                             <td align="left" valign="top"><p class="table"><em>true</em></p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                org.apache.felix.https.keystore</p></td>
-                            <td align="left" valign="top"><p class="table">Location of the
-                                certificate from step 1</p></td>
+                            <td align="left" valign="top"><p class="table">org.apache.felix.https.keystore</p></td>
+                            <td align="left" valign="top"><p class="table">Location of the certificate from step 1</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                org.apache.felix.https.keystore.password</p></td>
-                            <td align="left" valign="top"><p class="table">Password to access
-                                keystore</p></td>
+                            <td align="left" valign="top"><p class="table">org.apache.felix.https.keystore.password</p></td>
+                            <td align="left" valign="top"><p class="table">Password to access keystore</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                org.apache.felix.https.keystore.key.password</p></td>
-                            <td align="left" valign="top"><p class="table">Password to access
-                                certificate inside keystore (if any)</p></td>
+                            <td align="left" valign="top"><p class="table">org.apache.felix.https.keystore.key.password</p></td>
+                            <td align="left" valign="top"><p class="table">Password to access certificate inside keystore (if any)</p></td>
                         </tr>
                         <tr>
-                            <td align="left" valign="top"><p class="table">
-                                org.osgi.service.http.port.secure</p></td>
-                            <td align="left" valign="top"><p class="table">Port to use for HTTPS</p>
-                            </td>
+                            <td align="left" valign="top"><p class="table">org.osgi.service.http.port.secure</p></td>
+                            <td align="left" valign="top"><p class="table">Port to use for HTTPS</p></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="paragraph"><p>To use the self signed certificate you would add the
-                    following lines to config.properties:</p></div>
+                <div class="paragraph"><p>To use the self signed certificate you would add the following lines to config.properties:</p>
+                </div>
                 <div class="listingblock">
                     <div class="content">
 <pre><code>org.apache.felix.https.enable = true
@@ -3199,8 +2898,8 @@
     org.osgi.service.http.port.secure = 8800</code></pre>
                     </div>
                 </div>
-                <div class="paragraph"><p>If the configuration is correct, Jetty will enable the
-                    support for HTTPS connection the next time it is started.</p></div>
+                <div class="paragraph"><p>If the configuration is correct, Jetty will enable the support for HTTPS connection the next time
+                    it is started.</p></div>
             </div>
         </div>
     </div>
@@ -3208,12 +2907,10 @@
         <h2 id="_openmucs_channel_concept">10. OpenMUCs Channel Concept</h2>
 
         <div class="sectionbody">
-            <div class="paragraph"><p>OpenMUC works on the basis of channels. A channel basically
-                represents a single data point inside a device which can be read and/or written via
-                the according protocol driver. Some examples for a channel are the metered active
-                power of a smart meter, the temperature of a temperature sensor, any value of
-                digital or analog I/O module or the some manufacture data of the device. So a
-                channel can represent any data which is accessible through applied protocol. The
+            <div class="paragraph"><p>OpenMUC works on the basis of channels. A channel basically represents a single data point inside a
+                device which can be read and/or written via the according protocol driver. Some examples for a channel are the metered
+                active power of a smart meter, the temperature of a temperature sensor, any value of digital or analog I/O module or the
+                some manufacture data of the device. So a channel can represent any data which is accessible through applied protocol. The
                 following picture illustrates the channel concept.</p></div>
             <div class="paragraph">
                 <div class="title">OpenMUCs Channel Concept</div>
@@ -3231,7 +2928,7 @@
                        width="100%"
                        frame="border"
                        cellspacing="0" cellpadding="4">
-                    <caption class="title">Table 12. Screenshots</caption>
+                    <caption class="title">Table 13. Screenshots</caption>
                     <col width="33%"/>
                     <col width="33%"/>
                     <col width="33%"/>
@@ -3249,8 +2946,7 @@
 </span></p></td>
                         <td align="left" valign="top"><p class="table"><span class="image">
 <a class="image" href="openmuc_doc_img/screenshots_channel_configurator.png">
-    <img src="openmuc_doc_img/screenshots_channel_configurator.png" alt="My screenshot"
-         width="200"/>
+    <img src="openmuc_doc_img/screenshots_channel_configurator.png" alt="My screenshot" width="200"/>
 </a>
 </span></p></td>
                         <td align="left" valign="top"><p class="table"><span class="image">
@@ -3270,7 +2966,7 @@
 </div>
 <div id="footer">
     <div id="footer-text">
-        Last updated 2014-10-15 15:42:34 CEST
+        Last updated 2015-02-24 14:47:03 CET
     </div>
 </div>
 </body>

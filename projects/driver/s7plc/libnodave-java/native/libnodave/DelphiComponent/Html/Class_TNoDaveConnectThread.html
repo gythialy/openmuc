@@ -34,8 +34,7 @@ Declared in Unit <a href="File_NoDaveComponent.html">NoDaveComponent</a><br>
 Worker-thread for asynchronous connecting with the PLC.
 <dl>
     <dt class=used><b>Used in</b></dt>
-    <dd class=used><a href="Class_TNoDave.html">TNoDave</a>.<a href="Class_TNoDave.html#I_Connect">Connect</a>
-    </dd>
+    <dd class=used><a href="Class_TNoDave.html">TNoDave</a>.<a href="Class_TNoDave.html#I_Connect">Connect</a></dd>
 </dl>
 <hr>
 <h2 class=methodlist>List of Constructors:</h2>
@@ -46,21 +45,18 @@ Worker-thread for asynchronous connecting with the PLC.
 <hr>
 <h2 class=methodlist>List of Methods:</h2>
 <dl class=funclist>
-    <dt><img src="protected.gif" alt="protected"> <b>procedure</b> <a href="#I_DoOnConnect">DoOnConnect</a>
-    </dt>
+    <dt><img src="protected.gif" alt="protected"> <b>procedure</b> <a href="#I_DoOnConnect">DoOnConnect</a></dt>
     <dd>Synchronization-method for calling the OnConnect-Event of the TNoDave-instance.</dd>
-    <dt><img src="protected.gif" alt="protected"> <b>procedure</b> <a
-            href="#I_DoOnError">DoOnError</a></dt>
+    <dt><img src="protected.gif" alt="protected"> <b>procedure</b> <a href="#I_DoOnError">DoOnError</a></dt>
     <dd>Synchronization-method for calling the OnError-Event of the TNoDave-instance.</dd>
-    <dt><img src="protected.gif" alt="protected"> <b>procedure</b> <a href="#I_Execute">Execute</a>
-    </dt>
+    <dt><img src="protected.gif" alt="protected"> <b>procedure</b> <a href="#I_Execute">Execute</a></dt>
     <dd>Open the connection to the PLC.</dd>
 </dl>
 <hr>
 <h2 class=member>Constructors:</h2>
 <dl class=member>
-    <dt class=member><a name="I_Create"><img src="public.gif" alt="public"></a> <b>constructor</b>
-        Create(Target: <a href="Class_TNoDave.html">TNoDave</a>)
+    <dt class=member><a name="I_Create"><img src="public.gif" alt="public"></a> <b>constructor</b> Create(Target: <a
+            href="Class_TNoDave.html">TNoDave</a>)
     </dt>
     <dd class=member>Create the worker-thread for asynchronous connecting with the PLC.
         <dl>
@@ -72,36 +68,30 @@ Worker-thread for asynchronous connecting with the PLC.
                 </dl>
             </dd>
             <dt class=called><b>Called by</b></dt>
-            <dd class=called><a href="Class_TNoDave.html">TNoDave</a>.<a
-                    href="Class_TNoDave.html#I_Connect">Connect</a></dd>
+            <dd class=called><a href="Class_TNoDave.html">TNoDave</a>.<a href="Class_TNoDave.html#I_Connect">Connect</a></dd>
         </dl>
         <br></dd>
 </dl>
 <hr>
 <h2 class=member>Methods:</h2>
 <dl class=member>
-    <dt class=member><a name="I_DoOnConnect"><img src="protected.gif" alt="protected"></a> <b>procedure</b>
-        DoOnConnect
-    </dt>
+    <dt class=member><a name="I_DoOnConnect"><img src="protected.gif" alt="protected"></a> <b>procedure</b> DoOnConnect</dt>
     <dd class=member>Synchronization-method for calling the OnConnect-Event of the TNoDave-instance.
         <dl>
             <dt class=called><b>Called by</b></dt>
             <dd class=called><a href="#I_Execute">Execute</a></dd>
         </dl>
         <br></dd>
-    <dt class=member><a name="I_DoOnError"><img src="protected.gif" alt="protected"></a> <b>procedure</b>
-        DoOnError
-    </dt>
+    <dt class=member><a name="I_DoOnError"><img src="protected.gif" alt="protected"></a> <b>procedure</b> DoOnError</dt>
     <dd class=member>Synchronization-method for calling the OnError-Event of the TNoDave-instance.
         <dl>
             <dt class=called><b>Called by</b></dt>
             <dd class=called><a href="#I_Execute">Execute</a></dd>
         </dl>
         <br></dd>
-    <dt class=member><a name="I_Execute"><img src="protected.gif" alt="protected"></a>
-        <b>procedure</b> Execute; <b>override</b></dt>
-    <dd class=member>Open the connection to the PLC. If successfull then call the OnConnect-Event
-        else call the OnError-Event of the TNoDave-instance.
+    <dt class=member><a name="I_Execute"><img src="protected.gif" alt="protected"></a> <b>procedure</b> Execute; <b>override</b></dt>
+    <dd class=member>Open the connection to the PLC. If successfull then call the OnConnect-Event else call the OnError-Event of the
+        TNoDave-instance.
         <dl>
             <dt class=overrides><b>Overrides</b></dt>
             <dd class=overrides>Execute</dd>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -42,9 +42,7 @@ public class OptionsConfigurator extends Configurator {
     }
 
     @Override
-    public Content getContent(String localPath, HttpServletRequest request)
-            throws ProcessRequestException,
-            IdCollisionException {
+    public Content getContent(String localPath, HttpServletRequest request) throws ProcessRequestException, IdCollisionException {
 
         Content content = null;
         ResourceLoader loader = config.getLoader();

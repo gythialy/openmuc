@@ -680,14 +680,7 @@
     };
 
     Axis.prototype.resetScale = function (opts) {
-        $.extend(true, this, {
-            min: null,
-            max: null,
-            numberTicks: null,
-            tickInterval: null,
-            _ticks: [],
-            ticks: []
-        }, opts);
+        $.extend(true, this, {min: null, max: null, numberTicks: null, tickInterval: null, _ticks: [], ticks: []}, opts);
         this.resetDataBounds();
     };
 
@@ -2535,12 +2528,7 @@
                     this.preDrawHooks.hooks[i].call(this);
                 }
                 // create an underlying canvas to be used for special features.
-                this.target.append(this.baseCanvas.createElement({
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0
-                }, 'jqplot-base-canvas', null, this));
+                this.target.append(this.baseCanvas.createElement({left: 0, right: 0, top: 0, bottom: 0}, 'jqplot-base-canvas', null, this));
                 this.baseCanvas.setContext();
                 this.target.append(this.title.draw());
                 this.title.pack({top: 0, left: 0});
@@ -2806,13 +2794,7 @@
                             points = s._barPoints[j];
                             p = s.gridData[j];
                             if (x > points[0][0] && x < points[2][0] && y > points[2][1] && y < points[0][1]) {
-                                return {
-                                    seriesIndex: s.index,
-                                    pointIndex: j,
-                                    gridData: p,
-                                    data: s.data[j],
-                                    points: s._barPoints[j]
-                                };
+                                return {seriesIndex: s.index, pointIndex: j, gridData: p, data: s.data[j], points: s._barPoints[j]};
                             }
                         }
                         break;
@@ -2856,12 +2838,7 @@
                                 minang = (j > 0) ? s.gridData[j - 1][1] + sm : sm;
                                 maxang = s.gridData[j][1];
                                 if (theta > minang && theta < maxang) {
-                                    return {
-                                        seriesIndex: s.index,
-                                        pointIndex: j,
-                                        gridData: s.gridData[j],
-                                        data: s.data[j]
-                                    };
+                                    return {seriesIndex: s.index, pointIndex: j, gridData: s.gridData[j], data: s.data[j]};
                                 }
                             }
                         }
@@ -2906,12 +2883,7 @@
                                 minang = (j > 0) ? s.gridData[j - 1][1] + sm : sm;
                                 maxang = s.gridData[j][1];
                                 if (theta > minang && theta < maxang) {
-                                    return {
-                                        seriesIndex: s.index,
-                                        pointIndex: j,
-                                        gridData: s.gridData[j],
-                                        data: s.data[j]
-                                    };
+                                    return {seriesIndex: s.index, pointIndex: j, gridData: s.gridData[j], data: s.data[j]};
                                 }
                             }
                         }
@@ -2928,12 +2900,7 @@
                                 d = Math.sqrt((x - p[0]) * (x - p[0]) + (y - p[1]) * (y - p[1]));
                                 if (d <= p[2] && (d <= d0 || d0 == null)) {
                                     d0 = d;
-                                    ret = {
-                                        seriesIndex: i,
-                                        pointIndex: j,
-                                        gridData: p,
-                                        data: s.data[j]
-                                    };
+                                    ret = {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                 }
                             }
                             if (ret != null) {
@@ -2968,12 +2935,7 @@
                         for (j = 0; j < v.length; j++) {
                             cv = v[j];
                             if (y >= cv[0][1] && y <= cv[3][1] && x >= lex[0] && x <= rex[0]) {
-                                return {
-                                    seriesIndex: s.index,
-                                    pointIndex: j,
-                                    gridData: null,
-                                    data: s.data[j]
-                                };
+                                return {seriesIndex: s.index, pointIndex: j, gridData: null, data: s.data[j]};
                             }
                         }
                         break;
@@ -3007,13 +2969,7 @@
                                     }
                                 }
                                 if (inside) {
-                                    return {
-                                        seriesIndex: i,
-                                        pointIndex: null,
-                                        gridData: s.gridData,
-                                        data: s.data,
-                                        points: s._areaPoints
-                                    };
+                                    return {seriesIndex: i, pointIndex: null, gridData: s.gridData, data: s.data, points: s._areaPoints};
                                 }
                                 break;
 
@@ -3028,36 +2984,21 @@
                                         if (r.candleStick) {
                                             var yp = s._yaxis.series_u2p;
                                             if (x >= p[0] - r._bodyWidth / 2 && x <= p[0] + r._bodyWidth / 2 && y >= yp(s.data[j][2]) && y <= yp(s.data[j][3])) {
-                                                return {
-                                                    seriesIndex: i,
-                                                    pointIndex: j,
-                                                    gridData: p,
-                                                    data: s.data[j]
-                                                };
+                                                return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                             }
                                         }
                                         // if an open hi low close chart
                                         else if (!r.hlc) {
                                             var yp = s._yaxis.series_u2p;
                                             if (x >= p[0] - r._tickLength && x <= p[0] + r._tickLength && y >= yp(s.data[j][2]) && y <= yp(s.data[j][3])) {
-                                                return {
-                                                    seriesIndex: i,
-                                                    pointIndex: j,
-                                                    gridData: p,
-                                                    data: s.data[j]
-                                                };
+                                                return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                             }
                                         }
                                         // a hi low close chart
                                         else {
                                             var yp = s._yaxis.series_u2p;
                                             if (x >= p[0] - r._tickLength && x <= p[0] + r._tickLength && y >= yp(s.data[j][1]) && y <= yp(s.data[j][2])) {
-                                                return {
-                                                    seriesIndex: i,
-                                                    pointIndex: j,
-                                                    gridData: p,
-                                                    data: s.data[j]
-                                                };
+                                                return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                             }
                                         }
 
@@ -3066,12 +3007,7 @@
                                         d = Math.sqrt((x - p[0]) * (x - p[0]) + (y - p[1]) * (y - p[1]));
                                         if (d <= threshold && (d <= d0 || d0 == null)) {
                                             d0 = d;
-                                            return {
-                                                seriesIndex: i,
-                                                pointIndex: j,
-                                                gridData: p,
-                                                data: s.data[j]
-                                            };
+                                            return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                         }
                                     }
                                 }
@@ -3093,36 +3029,21 @@
                                     if (r.candleStick) {
                                         var yp = s._yaxis.series_u2p;
                                         if (x >= p[0] - r._bodyWidth / 2 && x <= p[0] + r._bodyWidth / 2 && y >= yp(s.data[j][2]) && y <= yp(s.data[j][3])) {
-                                            return {
-                                                seriesIndex: i,
-                                                pointIndex: j,
-                                                gridData: p,
-                                                data: s.data[j]
-                                            };
+                                            return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                         }
                                     }
                                     // if an open hi low close chart
                                     else if (!r.hlc) {
                                         var yp = s._yaxis.series_u2p;
                                         if (x >= p[0] - r._tickLength && x <= p[0] + r._tickLength && y >= yp(s.data[j][2]) && y <= yp(s.data[j][3])) {
-                                            return {
-                                                seriesIndex: i,
-                                                pointIndex: j,
-                                                gridData: p,
-                                                data: s.data[j]
-                                            };
+                                            return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                         }
                                     }
                                     // a hi low close chart
                                     else {
                                         var yp = s._yaxis.series_u2p;
                                         if (x >= p[0] - r._tickLength && x <= p[0] + r._tickLength && y >= yp(s.data[j][1]) && y <= yp(s.data[j][2])) {
-                                            return {
-                                                seriesIndex: i,
-                                                pointIndex: j,
-                                                gridData: p,
-                                                data: s.data[j]
-                                            };
+                                            return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                         }
                                     }
 
@@ -3131,12 +3052,7 @@
                                     d = Math.sqrt((x - p[0]) * (x - p[0]) + (y - p[1]) * (y - p[1]));
                                     if (d <= threshold && (d <= d0 || d0 == null)) {
                                         d0 = d;
-                                        return {
-                                            seriesIndex: i,
-                                            pointIndex: j,
-                                            gridData: p,
-                                            data: s.data[j]
-                                        };
+                                        return {seriesIndex: i, pointIndex: j, gridData: p, data: s.data[j]};
                                     }
                                 }
                             }
@@ -4178,11 +4094,7 @@
                     var points = [[left, tn.getTop() + tn.getHeight() / 2], [left, t0.getTop() + t0.getHeight() / 2 + 1.0]];
                     // draw the shadow
                     if (this.shadow) {
-                        this.renderer.shadowRenderer.draw(ctx, points, {
-                            lineCap: 'butt',
-                            fill: false,
-                            closePath: false
-                        });
+                        this.renderer.shadowRenderer.draw(ctx, points, {lineCap: 'butt', fill: false, closePath: false});
                     }
                     // draw the line
                     drawLine(points[0][0], points[0][1], points[1][0], points[1][1], {
@@ -5906,14 +5818,7 @@
         }
         this.shadowRenderer.init(sdopt);
 
-        var shopt = {
-            fill: false,
-            isarc: false,
-            strokeStyle: this.color,
-            fillStyle: this.color,
-            lineWidth: this.lineWidth,
-            closePath: true
-        };
+        var shopt = {fill: false, isarc: false, strokeStyle: this.color, fillStyle: this.color, lineWidth: this.lineWidth, closePath: true};
         if (this.style.indexOf('filled') != -1) {
             shopt.fill = true;
         }

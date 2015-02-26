@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,27 +28,15 @@ public class DeviceScanInfo {
 
     private final String id;
     private final String deviceAddress;
-    private final String interfaceAddress;
     private final String settings;
     private final String description;
 
-    public DeviceScanInfo(String interfaceAddress,
-                          String deviceAddress,
-                          String settings,
-                          String description) {
+    public DeviceScanInfo(String deviceAddress, String settings, String description) {
         if (deviceAddress == null) {
             throw new IllegalArgumentException("deviceAddress must not be null.");
         }
 
-        if (interfaceAddress == null || interfaceAddress.isEmpty()) {
-            id = deviceAddress.replaceAll("[^a-zA-Z0-9]+", "");
-            this.interfaceAddress = "";
-        } else {
-            id = interfaceAddress.replaceAll("[^a-zA-Z0-9]+", "") + deviceAddress.replaceAll(
-                    "[^a-zA-Z0-9]+",
-                    "");
-            this.interfaceAddress = interfaceAddress;
-        }
+        id = deviceAddress.replaceAll("[^a-zA-Z0-9]+", "");
 
         this.deviceAddress = deviceAddress;
 
@@ -82,15 +70,6 @@ public class DeviceScanInfo {
      */
     public String getDescription() {
         return description;
-    }
-
-    /**
-     * Gets the interface address.
-     *
-     * @return the interface address
-     */
-    public String getInterfaceAddress() {
-        return interfaceAddress;
     }
 
     /**

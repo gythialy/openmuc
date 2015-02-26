@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,35 +21,38 @@
 package org.openmuc.framework.driver.mbus;
 
 import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.driver.spi.*;
-import org.openmuc.jmbus.*;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
+import org.openmuc.jmbus.MBusSap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 public class MBusDriver implements DriverService {
     private final static Logger logger = LoggerFactory.getLogger(MBusDriver.class);
 
-    private final Map<String, ConnectionHandle> connections = new HashMap<String, ConnectionHandle>();
+    private final Map<String, MBusSerialInterface> interfaces = new HashMap<String, MBusSerialInterface>();
 
-    private final static DriverInfo info = new DriverInfo("mbus",
-                                                          // id
+    private final static DriverInfo info = new DriverInfo("mbus", // id
                                                           // description
                                                           "M-Bus (wired) is a protocol to read out meters.",
-                                                          // interface address
-                                                          "Synopsis: <serial_port>\n(e.g. /dev/ttyS0 (Unix), COM1 (Windows)",
                                                           // device address
-                                                          "Synopsis: <mbus_address>\nExample for <mbus_address>: p5 for primary address 5",
-                                                          // parameters
+                                                          "Synopsis: <serial_port>:<mbus_address>\nExample for <serial_port>: /dev/ttyS0 " +
+                                                                  "(Unix), COM1 (Windows)\nExample for <mbus_address>: 5 for primary " +
+                                                                  "address 5",
+                                                          // settings
                                                           "Synopsis: [<baud_rate>]\nThe default baud rate is 2400",
                                                           // channel address
                                                           "Synopsis: <dib>:<vib>",
                                                           // device scan parameters
-                                                          "Synopsis: <serial_port> [baud_rate]\nExamples for <serial_port>: /dev/ttyS0 (Unix), COM1 (Windows)");
+                                                          "Synopsis: <serial_port> [baud_rate]\nExamples for <serial_port>: /dev/ttyS0 " +
+                                                                  "(Unix), COM1 (Windows)");
 
     private boolean interruptScan;
 
@@ -59,42 +62,37 @@ public class MBusDriver implements DriverService {
     }
 
     @Override
-    public void scanForDevices(String settings, DriverDeviceScanListener listener)
-            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException,
-            ScanInterruptedException {
+    public void scanForDevices(String settings, DriverDeviceScanListener listener) throws UnsupportedOperationException,
+            ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
         interruptScan = false;
 
         String[] args = settings.split("\\s+");
         if (args.length < 1 || args.length > 2) {
-            throw new ArgumentSyntaxException(
-                    "Less than one or more than two arguments in the settings are not allowed.");
+            throw new ArgumentSyntaxException("Less than one or more than two arguments in the settings are not allowed.");
         }
 
         int baudRate = 2400;
         if (args.length == 2) {
             try {
                 baudRate = Integer.parseInt(args[1]);
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 throw new ArgumentSyntaxException("<braud_rate> is not an integer");
             }
         }
 
         MBusSap mBusSap;
-        if (!connections.containsKey(args[0])) {
+        if (!interfaces.containsKey(args[0])) {
             mBusSap = new MBusSap(args[0], baudRate);
             try {
                 mBusSap.open();
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 throw new ArgumentSyntaxException();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new ScanException(e);
             }
         } else {
-            mBusSap = connections.get(args[0]).getMBusSap();
+            mBusSap = interfaces.get(args[0]).getMBusSap();
         }
 
         mBusSap.setTimeout(1000);
@@ -109,22 +107,18 @@ public class MBusDriver implements DriverService {
                 if (i % 5 == 0) {
                     listener.scanProgressUpdate(i * 100 / 250);
                 }
-                String primaryAddress = "p" + i;
                 logger.debug("scanning for meter with primary address {}", i);
                 try {
-                    mBusSap.read(primaryAddress);
-                }
-                catch (TimeoutException e) {
+                    mBusSap.read(i);
+                } catch (TimeoutException e) {
                     continue;
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     throw new ScanException(e);
                 }
-                listener.deviceFound(new DeviceScanInfo(args[0], primaryAddress, "", ""));
-                logger.debug("found meter: p{}", i);
+                listener.deviceFound(new DeviceScanInfo(args[0] + ":" + i, "", ""));
+                logger.debug("found meter: {}", i);
             }
-        }
-        finally {
+        } finally {
             mBusSap.close();
         }
 
@@ -137,273 +131,70 @@ public class MBusDriver implements DriverService {
     }
 
     @Override
-    public List<ChannelScanInfo> scanForChannels(DeviceConnection connection, String settings)
-            throws UnsupportedOperationException, ConnectionException {
-        ConnectionHandle conHandle = (ConnectionHandle) connection.getConnectionHandle();
+    public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException, ConnectionException {
 
-        List<ChannelScanInfo> chanScanInf = new ArrayList<ChannelScanInfo>();
+        String[] deviceAddressTokens = deviceAddress.trim().split(":");
 
-        try {
-            MBusMessage msg = conHandle.getMBusSap().read(conHandle.getDeviceAddress());
-            msg.decodeDeep();
-
-            List<VariableDataBlock> vdb = msg.getVariableDataResponse().getVariableDataBlocks();
-
-            for (VariableDataBlock block : vdb) {
-
-                block.decode();
-
-                String vib = bytesToHexString(block.getVIB());
-                String dib = bytesToHexString(block.getDIB());
-
-                ValueType valueType;
-                Integer valueLength;
-
-                switch (block.getDataValueType()) {
-                case DATE:
-                    valueType = ValueType.BYTE_ARRAY;
-                    valueLength = 250;
-                    break;
-                case STRING:
-                    valueType = ValueType.BYTE_ARRAY;
-                    valueLength = 250;
-                    break;
-                case LONG:
-                    valueType = ValueType.LONG;
-                    valueLength = null;
-                    break;
-                case DOUBLE:
-                    valueType = ValueType.DOUBLE;
-                    valueLength = null;
-                    break;
-                default:
-                    valueType = ValueType.BYTE_ARRAY;
-                    valueLength = 250;
-                    break;
-                }
-
-                chanScanInf.add(new ChannelScanInfo(dib + ":" + vib,
-                                                    block.getDescription().toString(),
-                                                    valueType,
-                                                    valueLength));
-            }
-        }
-        catch (IOException e) {
-            throw new ConnectionException(e);
-        }
-        catch (TimeoutException e) {
-            return null;
-        }
-        catch (DecodingException e) {
-            e.printStackTrace();
-            logger.debug("Skipped invalid or unsupported M-Bus VariableDataBlock:"
-                         + e.getMessage());
+        if (deviceAddressTokens.length != 2) {
+            throw new ArgumentSyntaxException("The device address does not consist of two parameters.");
         }
 
-        return chanScanInf;
-    }
-
-    @Override
-    public Object connect(String interfaceAddress, String deviceAddress, String settings)
-            throws ArgumentSyntaxException, ConnectionException {
-
-        ConnectionHandle connectionHandle = connections.get(interfaceAddress);
-
-        if (connectionHandle == null) {
-
-            int baudrate = 2400;
-
-            if (!settings.isEmpty()) {
-                try {
-                    baudrate = Integer.parseInt(settings);
-                }
-                catch (NumberFormatException e) {
-                    throw new ArgumentSyntaxException("Settings: baudrate is not a parsable number");
-                }
-            }
-
-            MBusSap mBusSap = new MBusSap(interfaceAddress, baudrate);
-
-            try {
-                mBusSap.open();
-            }
-            catch (IOException e1) {
-                throw new ConnectionException("Unable to bind local interface: "
-                                              + interfaceAddress);
-            }
-
-            try {
-                mBusSap.read(deviceAddress);
-            }
-            catch (Exception e) {
-                mBusSap.close();
-                throw new ConnectionException(e);
-            }
-
-            connectionHandle = new ConnectionHandle(mBusSap, deviceAddress);
-            connections.put(interfaceAddress, connectionHandle);
-
-        } else {
-
-            try {
-                connectionHandle.getMBusSap().read(deviceAddress);
-            }
-            catch (Exception e) {
-                throw new ConnectionException(e);
-            }
-
-            connectionHandle.increaseDeviceCounter();
+        String serialPortName = deviceAddressTokens[0];
+        Integer mBusAddress = Integer.decode(deviceAddressTokens[1]);
+        if (mBusAddress == null) {
+            throw new ArgumentSyntaxException("Settings: mBusAddress (" + deviceAddressTokens[1] + ") is not a int");
         }
 
-        return connectionHandle;
-    }
+        MBusSerialInterface serialInterface;
 
-    @Override
-    public void disconnect(DeviceConnection connection) {
-        ConnectionHandle connectionHandle = (ConnectionHandle) connection.getConnectionHandle();
-        if (!connectionHandle.isOpen()) {
-            return;
-        }
-        connectionHandle.decreaseDeviceCounter();
-        if (connectionHandle.getDeviceCounter() == 0) {
-            connectionHandle.getMBusSap().close();
-            connections.remove(connection.getInterfaceAddress());
-        }
-    }
+        synchronized (this) {
 
-    @Override
-    public Object read(DeviceConnection connection, List<ChannelRecordContainer> containers,
-                       Object containerListHandle, String samplingGroup)
-            throws UnsupportedOperationException, ConnectionException {
+            synchronized (interfaces) {
 
-        ConnectionHandle connectionHandle = (ConnectionHandle) connection.getConnectionHandle();
-        if (!connectionHandle.isOpen()) {
-            throw new ConnectionException();
-        }
+                serialInterface = interfaces.get(serialPortName);
 
-        MBusSap mBusSap = connectionHandle.getMBusSap();
+                if (serialInterface == null) {
 
-        MBusMessage response = null;
-        try {
-            response = mBusSap.read(connection.getDeviceAddress());
-            response.decodeDeep();
-        }
-        catch (IOException e1) {
-            connectionHandle.close();
-            connectionHandle.getMBusSap().close();
-            connections.remove(connection.getInterfaceAddress());
-            throw new ConnectionException(e1);
-        }
-        catch (TimeoutException e1) {
-            for (ChannelRecordContainer container : containers) {
-                container.setRecord(new Record(Flag.TIMEOUT));
-            }
-            return null;
-        }
-        catch (DecodingException e) {
-            e.printStackTrace();
-        }
+                    int baudrate = 2400;
 
-        long timestamp = System.currentTimeMillis();
+                    if (!settings.isEmpty()) {
+                        try {
+                            baudrate = Integer.parseInt(settings);
+                        } catch (NumberFormatException e) {
+                            throw new ArgumentSyntaxException("Settings: baudrate is not a parsable number");
+                        }
+                    }
 
-        List<VariableDataBlock> vdbs = response.getVariableDataResponse().getVariableDataBlocks();
-        String[] dibvibs = new String[vdbs.size()];
-
-        int i = 0;
-        for (VariableDataBlock vdb : vdbs) {
-            dibvibs[i++] = bytesToHexString(vdb.getDIB()) + ':' + bytesToHexString(vdb.getVIB());
-        }
-
-        for (ChannelRecordContainer container : containers) {
-
-            i = 0;
-            for (VariableDataBlock dataBlock : vdbs) {
-
-                if (dibvibs[i++].equalsIgnoreCase(container.getChannelAddress())) {
+                    MBusSap mBusSap = new MBusSap(serialPortName, baudrate);
 
                     try {
-                        dataBlock.decode();
-                    }
-                    catch (DecodingException e) {
-                        container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
-                        logger.debug("Unable to parse VariableDataBlock received via M-Bus", e);
-                        break;
+                        mBusSap.open();
+                    } catch (IOException e1) {
+                        throw new ConnectionException("Unable to bind local interface: " + deviceAddressTokens[0]);
                     }
 
-                    switch (dataBlock.getDataValueType()) {
-                    case DATE:
-                        container.setRecord(new Record(new StringValue(((Date) dataBlock.getDataValue())
-                                                                               .toString()),
-                                                       timestamp));
-                        break;
-                    case STRING:
-                        container.setRecord(new Record(new StringValue((String) dataBlock.getDataValue()),
-                                                       timestamp));
-                        break;
-                    case DOUBLE:
-                        container.setRecord(new Record(new DoubleValue(dataBlock.getScaledDataValue()),
-                                                       timestamp));
-                        break;
-                    case LONG:
-                        if (dataBlock.getMultiplierExponent() == 0) {
-                            container.setRecord(new Record(new LongValue((Long) dataBlock.getDataValue()),
-                                                           timestamp));
-                        } else {
-                            container.setRecord(new Record(new DoubleValue(dataBlock.getScaledDataValue()),
-                                                           timestamp));
-                        }
-                        break;
-                    case BCD:
-                        if (dataBlock.getMultiplierExponent() == 0) {
-                            container.setRecord(new Record(new LongValue(((Bcd) dataBlock.getDataValue())
-                                                                                 .longValue()),
-                                                           timestamp));
-                        } else {
-                            container.setRecord(new Record(new DoubleValue(((Bcd) dataBlock.getDataValue())
-                                                                                   .longValue()
-                                                                           * Math.pow(10,
-                                                                                      dataBlock.getMultiplierExponent())),
-                                                           timestamp));
-                        }
-                        break;
-                    }
+                    serialInterface = new MBusSerialInterface(mBusSap, serialPortName, interfaces);
 
-                    break;
+                }
+            }
 
+            synchronized (serialInterface) {
+                try {
+                    serialInterface.getMBusSap().read(mBusAddress);
+                } catch (IOException e) {
+                    serialInterface.close();
+                    throw new ConnectionException(e);
+                } catch (TimeoutException e) {
+                    serialInterface.decreaseConnectionCounter();
+                    throw new ConnectionException(e);
                 }
 
             }
 
-            if (container.getRecord() == null) {
-                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
-            }
-
         }
 
-        return null;
-    }
+        return new MBusConnection(serialInterface, mBusAddress);
 
-    @Override
-    public void startListening(DeviceConnection connection, List<ChannelRecordContainer> containers,
-                               RecordsReceivedListener listener)
-            throws UnsupportedOperationException, ConnectionException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object write(DeviceConnection connection,
-                        List<ChannelValueContainer> containers,
-                        Object containerListHandle)
-            throws UnsupportedOperationException, ConnectionException {
-        throw new UnsupportedOperationException();
-    }
-
-    private String bytesToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%1$02X", b));
-        }
-        return sb.toString();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,10 +33,8 @@ public class JsonHelper {
         jso.writeObjectField("value");
         try {
             jso.writeObjectValue(Double.valueOf(value));
-        }
-        catch (NumberFormatException e) {
-            System.out.println(
-                    "No valid double as argument for option -w (--write)\nRequest will fail:");
+        } catch (NumberFormatException e) {
+            System.out.println("No valid double as argument for option -w (--write)\nRequest will fail:");
         }
 
         jso.writeEndObject();
@@ -55,10 +53,8 @@ public class JsonHelper {
             } else {
                 try {
                     jso.writeObjectValue(Double.valueOf(param));
-                }
-                catch (NumberFormatException e) {
-                    System.out.println(
-                            "No valid double as argument for option -w (--write)\nRequest will fail:");
+                } catch (NumberFormatException e) {
+                    System.out.println("No valid double as argument for option -w (--write)\nRequest will fail:");
                 }
             }
             ++i;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -71,8 +71,7 @@ public final class SimpleDemoApp extends Thread implements RecordListener {
         interrupt();
         try {
             this.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
         }
     }
 
@@ -102,19 +101,13 @@ public final class SimpleDemoApp extends Thread implements RecordListener {
         channel6 = dataAccessService.getChannel(channelId6);
 
         while (!deactivatedSignal && (channel1 == null || channel2 == null || channel3 == null)) {
-            String errorMessage = "Channel "
-                                  + channelId1
-                                  + " or "
-                                  + channelId2
-                                  + " or "
-                                  + channelId3
-                                  + " not found, will try again in 5 seconds.";
+            String errorMessage = "Channel " + channelId1 + " or " + channelId2 + " or " + channelId3 + " not found, will try again in 5 " +
+                    "seconds.";
             logger.error(errorMessage);
 
             try {
                 Thread.sleep(5000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 logger.info("DemoApp thread interrupted: will stop");
             }
 
@@ -170,18 +163,7 @@ public final class SimpleDemoApp extends Thread implements RecordListener {
                 long time = cal.getTimeInMillis();
                 if ((cal.get(Calendar.MINUTE) % 2) > 0) {
                     valueChannel5 = "Teststring";
-                    byte[] valueChannel6 = {0x00,
-                                            0x01,
-                                            0x09,
-                                            0x0A,
-                                            0x0F,
-                                            0x10,
-                                            0x11,
-                                            0x7F,
-                                            -0x7F,
-                                            -0x51,
-                                            -0x10,
-                                            -0x01};
+                    byte[] valueChannel6 = {0x00, 0x01, 0x09, 0x0A, 0x0F, 0x10, 0x11, 0x7F, -0x7F, -0x51, -0x10, -0x01};
                     channel6.setLatestRecord(new Record(new ByteArrayValue(valueChannel6), time));
                 } else {
                     valueChannel5 = "Test";
@@ -200,31 +182,19 @@ public final class SimpleDemoApp extends Thread implements RecordListener {
 
                 printCounter++;
                 if (printCounter > 20) {
-                    logger.debug(channelId1
-                                 + ": "
-                                 + valueChannel1
-                                 + "  "
-                                 + channelId2
-                                 + ": "
-                                 + valueChannel2
-                                 + "  "
-                                 + channelId3
-                                 + ": "
-                                 + valueChannel3
-                                 + "  state: "
-                                 + state);
+                    logger.debug(
+                            channelId1 + ": " + valueChannel1 + "  " + channelId2 + ": " + valueChannel2 + "  " + channelId3 + ": " +
+                                    valueChannel3 + "  state: " + state);
                     printCounter = 0;
                 }
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("something went wrong...");
             }
 
             try {
                 Thread.sleep(100);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 logger.info("DemoApp thread interrupted");
             }
         }

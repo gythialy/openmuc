@@ -1,8 +1,7 @@
 <H1>MPI details</H1>
 As many users asked for the details of MPI Interface, protocol and whether there is a way to make your own MPI adapter, here is a brief description of what I know:
 <H2>Physical Layer</H2>
-MPI uses RS485 serial communication with parity even and baud rates from 19.2 kBaud to 187.5 or to 12MBaud in newer systems.
-<br>
+MPI uses RS485 serial communication with parity even and baud rates from 19.2 kBaud to 187.5 or to 12MBaud in newer systems.<br>
 Want to "sniff" MPI? Set your PLC's MPI speed to 19.2, because this is the only baudrate also supported by PC UARTs. Prepare a ribbon cable with one male and to female Sub-D connectors. Plug it into the PLCs MPI connector, an MPI adapter or CP5x1x into one female and an RS485/RS232 converter or PPI cable into the other one. Now your PC can listen!
 <H2>Media Arbitration</H2>
 MPI is basically a variety of Profibus, using the FDL profile.<br>
@@ -46,6 +45,4 @@ The <a href=S7communication.html>S7
 <li>Implement 3964R for PC side.</li>
 <li>Implement the adapter init/disconnect commends.</li>
 <li>Implement the "Step7 protocol" for PC side, if you want to use it with Step7.</li>
-<li>Be aware that it is not tested for Profibus compliance. So you are at risk to stop dangerous
-    machinery...
-</li>
+<li>Be aware that it is not tested for Profibus compliance. So you are at risk to stop dangerous machinery...</li>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -46,10 +46,7 @@ public final class SlotsDb implements DataLoggerService {
     /*
      * Root folder for SlotsDB files
      */
-    public static String DB_ROOT_FOLDER = System.getProperty(SlotsDb.class.getPackage()
-                                                                          .getName()
-                                                                          .toLowerCase()
-                                                             + ".dbfolder");
+    public static String DB_ROOT_FOLDER = System.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".dbfolder");
 
     /*
      * If no other root folder is defined, data will be stored to this folder
@@ -68,36 +65,24 @@ public final class SlotsDb implements DataLoggerService {
      *
      * host:/#> ulimit -aH [...] open files (-n) 1024 [...]
      */
-    public static String MAX_OPEN_FOLDERS = System.getProperty(SlotsDb.class.getPackage()
-                                                                            .getName()
-                                                                            .toLowerCase()
-                                                               + ".max_open_folders");
+    public static String MAX_OPEN_FOLDERS = System.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".max_open_folders");
     public static int MAX_OPEN_FOLDERS_DEFAULT = 512;
 
     /*
      * configures the data flush period. The less you flush, the faster SLOTSDB will be. unset this System Property (or
      * set to 0) to flush data directly to disk.
      */
-    public static String FLUSH_PERIOD = System.getProperty(SlotsDb.class.getPackage()
-                                                                        .getName()
-                                                                        .toLowerCase()
-                                                           + ".flushperiod");
+    public static String FLUSH_PERIOD = System.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".flushperiod");
 
     /*
      * configures how long data will at least be stored in the SLOTSDB.
      */
-    public static String DATA_LIFETIME_IN_DAYS = System.getProperty(SlotsDb.class.getPackage()
-                                                                                 .getName()
-                                                                                 .toLowerCase()
-                                                                    + ".limit_days");
+    public static String DATA_LIFETIME_IN_DAYS = System.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_days");
 
     /*
      * configures the maximum Database Size (in MB).
      */
-    public static String MAX_DATABASE_SIZE = System.getProperty(SlotsDb.class.getPackage()
-                                                                             .getName()
-                                                                             .toLowerCase()
-                                                                + ".limit_size");
+    public static String MAX_DATABASE_SIZE = System.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_size");
 
     /*
      * Minimum Size for SLOTSDB (in MB).
@@ -122,8 +107,9 @@ public final class SlotsDb implements DataLoggerService {
         String rootFolder = SlotsDb.DB_ROOT_FOLDER;
         if (rootFolder == null) {
             rootFolder = SlotsDb.DEFAULT_DB_ROOT_FOLDER;
-            logger.info("System property " + SlotsDb.class.getPackage().getName().toLowerCase()
-                        + ".dbfolder not set. Storing to " + SlotsDb.DEFAULT_DB_ROOT_FOLDER);
+            logger.info("System property " + SlotsDb.class.getPackage().getName()
+                                                          .toLowerCase() + ".dbfolder not set. Storing to " + SlotsDb
+                    .DEFAULT_DB_ROOT_FOLDER);
         }
 
         fileObjectProxy = new FileObjectProxy(rootFolder);
@@ -139,8 +125,7 @@ public final class SlotsDb implements DataLoggerService {
     }
 
     @Override
-    public List<Record> getRecords(String channelId, long startTime, long endTime)
-            throws IOException {
+    public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
         return fileObjectProxy.read(channelId, startTime, endTime);
     }
 
@@ -162,8 +147,7 @@ public final class SlotsDb implements DataLoggerService {
             } else {
                 try {
                     value = container.getRecord().getValue().asDouble();
-                }
-                catch (TypeConversionException e) {
+                } catch (TypeConversionException e) {
                     value = Double.NaN;
                 }
             }
@@ -174,14 +158,9 @@ public final class SlotsDb implements DataLoggerService {
             // }
 
             try {
-                fileObjectProxy.appendValue(container.getChannelId(),
-                                            value,
-                                            timestamp,
-                                            container.getRecord().getFlag()
-                                                     .getCode(),
+                fileObjectProxy.appendValue(container.getChannelId(), value, timestamp, container.getRecord().getFlag().getCode(),
                                             loggingIntervalsById.get(container.getChannelId()));
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logger.error("error logging records");
                 e.printStackTrace();
             }

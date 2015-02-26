@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -53,8 +53,7 @@ public class SettingsHelper {
         for (String arg : settingsArray) {
             int p = arg.indexOf("=");
             if (p != -1) {
-                settingsMap.put(arg.substring(0, p).toLowerCase().trim(),
-                                arg.substring(p + 1).trim());
+                settingsMap.put(arg.substring(0, p).toLowerCase().trim(), arg.substring(p + 1).trim());
             }
             // ignore params with wrong formatting
             // TODO Add logging for wrongly formatted setting

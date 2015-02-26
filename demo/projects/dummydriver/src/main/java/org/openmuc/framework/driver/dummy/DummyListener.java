@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,8 +35,7 @@ final class DummyListener extends Thread {
 
     Double p = Math.random();
 
-    public DummyListener(List<ChannelRecordContainer> containers,
-                         RecordsReceivedListener listener) {
+    public DummyListener(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) {
         this.containers = containers;
         this.listener = listener;
     }
@@ -46,8 +45,7 @@ final class DummyListener extends Thread {
         while (true) {
             try {
                 Thread.sleep(3000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 return;
             }
             long receiveTime = System.currentTimeMillis();

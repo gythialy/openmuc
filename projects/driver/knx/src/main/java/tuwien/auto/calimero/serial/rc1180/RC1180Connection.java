@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  * 
  * This file is part of openMUC.
  * For more information visit http://www.openmuc.org
@@ -74,10 +74,7 @@ public class RC1180Connection {
             CommPortIdentifier commPortIdentifier = CommPortIdentifier.getPortIdentifier(portID);
             serialPort = (SerialPort) commPortIdentifier.open("knx", 2000);
 
-            serialPort.setSerialPortParams(19200,
-                                           SerialPort.DATABITS_8,
-                                           SerialPort.STOPBITS_1,
-                                           SerialPort.PARITY_NONE);
+            serialPort.setSerialPortParams(19200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
             os = new DataOutputStream(serialPort.getOutputStream());
             is = new DataInputStream(serialPort.getInputStream());
@@ -89,20 +86,17 @@ public class RC1180Connection {
             }
             open = true;
             logger.trace("connected to serial port " + serialPort.getName());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             throw new KNXException(e.getMessage(), e);
-        }
-        finally {
+        } finally {
             io.release();
         }
 
 		/* Configure CALAO USB-KNX-RF-C01 */
         try {
             Thread.sleep(500);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
         }
 
         configure = new Configure(is, os, io, logger);
@@ -133,12 +127,8 @@ public class RC1180Connection {
      * @param wait     <code>true</code> to wait, <code>false</code> to immediately return
      * @throws KNXLinkClosedException
      */
-    public void sendSpoofingRequest(IndividualAddress src,
-                                    KNXAddress dst,
-                                    int hopCount,
-                                    byte[] nsdu,
-                                    boolean wait)
-            throws KNXLinkClosedException {
+    public void sendSpoofingRequest(IndividualAddress src, KNXAddress dst, int hopCount, byte[] nsdu, boolean wait) throws
+            KNXLinkClosedException {
         if (addressContainer.containsKey(dst)) {
             logger.trace("send spoofing request");
             SNorDoA address = addressContainer.get(dst);
@@ -164,12 +154,7 @@ public class RC1180Connection {
      * @param wait     <code>true</code> to wait, <code>false</code> to immediately return
      * @throws KNXLinkClosedException
      */
-    public void sendRequest(IndividualAddress src,
-                            KNXAddress dst,
-                            int hopCount,
-                            byte[] nsdu,
-                            boolean wait)
-            throws KNXLinkClosedException {
+    public void sendRequest(IndividualAddress src, KNXAddress dst, int hopCount, byte[] nsdu, boolean wait) throws KNXLinkClosedException {
         if (!linkLayerFrameNumbers.containsKey(dst)) { // if we don't know the frame number, take it over
             linkLayerFrameNumbers.put(dst, -1);
             for (int i = 0; i < 8; i++) {
@@ -182,12 +167,7 @@ public class RC1180Connection {
         linkLayerFrameNumber = (linkLayerFrameNumber + 1) % 8;
         linkLayerFrameNumbers.put(dst, linkLayerFrameNumber);
 
-        TransmittingFrame frame = new TransmittingFrame(src,
-                                                        dst,
-                                                        hopCount,
-                                                        linkLayerFrameNumber,
-                                                        addressExtensionType,
-                                                        nsdu);
+        TransmittingFrame frame = new TransmittingFrame(src, dst, hopCount, linkLayerFrameNumber, addressExtensionType, nsdu);
 
         try {
             logger.trace("sending " + frame);
@@ -198,16 +178,13 @@ public class RC1180Connection {
             if (wait) {
                 try {
                     Thread.sleep(200);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error(e.getMessage());
             throw new KNXLinkClosedException(e.getMessage());
-        }
-        finally {
+        } finally {
             io.release();
         }
 
@@ -263,8 +240,7 @@ public class RC1180Connection {
     public void setSerialNumber(final byte[] serialNumber) {
         try {
             configure.setSerialNumber(serialNumber);
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             logger.warn("failed to set serial number: " + DataUnitBuilder.toHex(serialNumber, ":"));
         }
     }
@@ -278,8 +254,7 @@ public class RC1180Connection {
         byte[] serialNumber = null;
         try {
             serialNumber = configure.getSerialNumber();
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             logger.warn("failed to get serial number");
             serialNumber = new byte[6];
         }
@@ -294,10 +269,8 @@ public class RC1180Connection {
     public void setDomainAddress(final byte[] domainAddress) {
         try {
             configure.setDomainAddress(domainAddress);
-        }
-        catch (KNXException e) {
-            logger.warn("failed to set domain address: " + DataUnitBuilder.toHex(domainAddress,
-                                                                                 ":"));
+        } catch (KNXException e) {
+            logger.warn("failed to set domain address: " + DataUnitBuilder.toHex(domainAddress, ":"));
         }
     }
 
@@ -310,8 +283,7 @@ public class RC1180Connection {
         byte[] domainAddress = null;
         try {
             domainAddress = configure.getDomainAddress();
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             logger.warn("failed to get domain address");
             domainAddress = new byte[6];
         }
@@ -362,42 +334,32 @@ public class RC1180Connection {
 
                                 try {
                                     /* parse buffer and fire event */
-                                    logger.trace("received message: " + DataUnitBuilder.toHex(
-                                            message,
-                                            ":"));
+                                    logger.trace("received message: " + DataUnitBuilder.toHex(message, ":"));
                                     fireFrameReceived(new ReceivingFrame(message));
-                                }
-                                catch (KNXException e) {
-                                    logger.warn("message " + DataUnitBuilder.toHex(message, ":")
-                                                + " could not be parsed: " + e.getMessage());
+                                } catch (KNXException e) {
+                                    logger.warn(
+                                            "message " + DataUnitBuilder.toHex(message, ":") + " could not be parsed: " + e.getMessage());
                                 }
                             } else {
                                 logger.warn("start byte not received, skipping");
                             }
                             byte[] newBuffer = new byte[BUFFER_LENGTH];
-                            System.arraycopy(buffer,
-                                             nextPos,
-                                             newBuffer,
-                                             0,
-                                             BUFFER_LENGTH - nextPos);
+                            System.arraycopy(buffer, nextPos, newBuffer, 0, BUFFER_LENGTH - nextPos);
                             buffer = newBuffer;
                             read -= nextPos;
                         }
                     }
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     logger.error(e.getMessage());
                     running = false;
-                }
-                finally {
+                } finally {
                     io.release();
                 }
 
                 try {
                     Thread.sleep(100);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                 }
             }
         }
@@ -417,8 +379,7 @@ public class RC1180Connection {
 
         private void fireFrameReceived(ReceivingFrame frame) {
             KNXAddress dst = frame.getDstAddress();
-            if (!linkLayerFrameNumbers.containsKey(dst)
-                || frame.getLinkLayerFrameNumber() == ((linkLayerFrameNumbers.get(dst) + 1) % 8)) {
+            if (!linkLayerFrameNumbers.containsKey(dst) || frame.getLinkLayerFrameNumber() == ((linkLayerFrameNumbers.get(dst) + 1) % 8)) {
                 linkLayerFrameNumbers.put(frame.getDstAddress(), frame.getLinkLayerFrameNumber());
             }
 
@@ -431,8 +392,7 @@ public class RC1180Connection {
             for (EventListener listener : listeners.listeners()) {
                 try {
                     ((KNXListener) listener).frameReceived(event);
-                }
-                catch (final RuntimeException e) {
+                } catch (final RuntimeException e) {
                     removeConnectionListener((KNXListener) listener);
                     logger.error("removed event listener", e);
                 }

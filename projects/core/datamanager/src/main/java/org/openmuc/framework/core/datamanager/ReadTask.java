@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,10 +44,8 @@ public class ReadTask extends DeviceTask {
     boolean running = false;
     boolean startedLate = false;
 
-    public ReadTask(DataManager dataManager,
-                    Device device,
-                    List<ChannelRecordContainerImpl> selectedChannels,
-                    CountDownLatch readTaskFinishedSignal) {
+    public ReadTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels, CountDownLatch
+            readTaskFinishedSignal) {
         this.dataManager = dataManager;
         this.device = device;
         channelRecordContainers = selectedChannels;
@@ -59,15 +57,11 @@ public class ReadTask extends DeviceTask {
 
         try {
             executeRead();
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
             methodNotExceptedExceptionThrown = true;
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...",
-                        device.deviceConfig.id,
-                        e.getMessage());
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id, e.getMessage());
 
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
                 driverChannel.setRecord(new Record(Flag.ACCESS_METHOD_NOT_SUPPORTED));
@@ -78,8 +72,7 @@ public class ReadTask extends DeviceTask {
             }
             dataManager.interrupt();
             return;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("unexpected exception thrown by read funtion of driver ", e);
             unknownDriverExceptionThrown = true;
         }
@@ -106,10 +99,7 @@ public class ReadTask extends DeviceTask {
 
     @SuppressWarnings("unchecked")
     protected void executeRead() throws UnsupportedOperationException, ConnectionException {
-        device.deviceConfig.driverParent.activeDriver.read(device.connection,
-                                                           (List<ChannelRecordContainer>) ((List<?>) channelRecordContainers),
-                                                           true,
-                                                           null);
+        device.connection.read((List<ChannelRecordContainer>) ((List<?>) channelRecordContainers), true, "");
     }
 
     protected void taskFinished() {

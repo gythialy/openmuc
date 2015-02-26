@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,6 +27,6 @@ public interface RecordsReceivedListener {
 
     public void newRecords(List<ChannelRecordContainer> recordContainers);
 
-    public void connectionInterrupted(DeviceConnection connection);
+    public void connectionInterrupted(String driverId, Connection connection);
 
 }

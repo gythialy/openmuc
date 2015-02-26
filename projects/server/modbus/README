@@ -1,4 +1,0 @@
-If you run ModbusTCP Server without root-privileges you have to allow
-Felix to bind Port 502 with setcap.
-
-setcap 'cap_net_bind_service=+ep' /path/to/program

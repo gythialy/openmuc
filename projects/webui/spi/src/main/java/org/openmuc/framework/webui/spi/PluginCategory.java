@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,14 +33,14 @@ public enum PluginCategory {
     @Override
     public String toString() {
         switch (value) {
-        case 1:
-            return "applications";
-        case 2:
-            return "drivertool";
-        case 3:
-            return "configtool";
-        default:
-            return "";
+            case 1:
+                return "applications";
+            case 2:
+                return "drivertool";
+            case 3:
+                return "configtool";
+            default:
+                return "";
         }
     }
 }

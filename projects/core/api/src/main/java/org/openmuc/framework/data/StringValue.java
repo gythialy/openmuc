@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -37,8 +37,7 @@ public class StringValue implements Value {
     public double asDouble() {
         try {
             return Double.parseDouble(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new TypeConversionException();
         }
     }
@@ -47,8 +46,7 @@ public class StringValue implements Value {
     public float asFloat() {
         try {
             return Float.parseFloat(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new TypeConversionException();
         }
     }
@@ -57,8 +55,7 @@ public class StringValue implements Value {
     public long asLong() {
         try {
             return Long.parseLong(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new TypeConversionException();
         }
     }
@@ -67,8 +64,7 @@ public class StringValue implements Value {
     public int asInt() {
         try {
             return Integer.parseInt(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new TypeConversionException();
         }
     }
@@ -77,8 +73,7 @@ public class StringValue implements Value {
     public short asShort() {
         try {
             return Short.parseShort(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new TypeConversionException();
         }
     }
@@ -87,8 +82,7 @@ public class StringValue implements Value {
     public byte asByte() {
         try {
             return Byte.parseByte(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new TypeConversionException();
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,10 +24,7 @@ import org.openmuc.framework.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.*;
 
 public class LogFileReader {
@@ -66,9 +63,7 @@ public class LogFileReader {
 
         List<Record> allRecords = new ArrayList<Record>();
 
-        List<String> filenames = LoggerUtils.getFilenames(loggingInterval,
-                                                          this.startTimestamp,
-                                                          this.endTimestamp);
+        List<String> filenames = LoggerUtils.getFilenames(loggingInterval, this.startTimestamp, this.endTimestamp);
 
         for (int i = 0; i < filenames.size(); i++) {
             Boolean nextFile = false;
@@ -80,22 +75,18 @@ public class LogFileReader {
             } else {
                 filepath = path + "/" + filenames.get(i);
             }
-            RandomAccessFile raf = getRandomAccessFile(filepath);
 
-            if (raf != null) {
-                if (i > 0) {
-                    nextFile = true;
-                }
-                List<Record> fileRecords = processFile(raf, nextFile);
-                if (fileRecords != null) {
-                    allRecords.addAll(fileRecords);
-                    logger.debug("read records: " + fileRecords.size());
-                } else {
-                    // some error occurred while processing the file so no records will be added
-                }
-            } else {
-                // some error occurred by getting the bufferdReader
+            if (i > 0) {
+                nextFile = true;
             }
+            List<Record> fileRecords = processFile(filepath, nextFile);
+            if (fileRecords != null) {
+                allRecords.addAll(fileRecords);
+                logger.debug("read records: " + fileRecords.size());
+            } else {
+                // some error occurred while processing the file so no records will be added
+            }
+
         }
         return allRecords;
     }
@@ -139,7 +130,7 @@ public class LogFileReader {
      * @param br
      * @return records on success, otherwise null
      */
-    private List<Record> processFile(RandomAccessFile raf, Boolean nextFile) {
+    private List<Record> processFile(String filepath, Boolean nextFile) {
 
         List<Record> records = new ArrayList<Record>();
         String line = null;
@@ -149,33 +140,29 @@ public class LogFileReader {
         String firstValueLine = null;
         long actualTimestamp = 0;
 
+        RandomAccessFile raf = getRandomAccessFile(filepath);
+        if (raf == null) {
+            return null;
+        }
         try {
-
             int channelColumn = -1;
             while (channelColumn <= 0) {
                 line = raf.readLine();
                 channelColumn = LoggerUtils.getColumnNumberByName(line, channelId);
-                unixTimestampColumn = LoggerUtils.getColumnNumberByName(line,
-                                                                        LoggerUtils.TIMESTAMP_STRING);
+                unixTimestampColumn = LoggerUtils.getColumnNumberByName(line, LoggerUtils.TIMESTAMP_STRING);
             }
 
             firstValueLine = raf.readLine();
             rowSize = firstValueLine.length() + 1;
             currentPosition = raf.getFilePointer() - rowSize;
-            firstTimestamp = (long) (Double
-                                             .valueOf((firstValueLine.split(IESDataFormatUtils.SEPARATOR))[unixTimestampColumn])
-                                     * 1000);
+            firstTimestamp = (long) (Double.valueOf((firstValueLine.split(IESDataFormatUtils.SEPARATOR))[unixTimestampColumn]) * 1000);
 
             if (nextFile || startTimestamp < firstTimestamp) {
                 startTimestamp = firstTimestamp;
             }
 
             if (startTimestamp >= firstTimestamp) {
-                long filepos = getFilePosition(loggingInterval,
-                                               startTimestamp,
-                                               firstTimestamp,
-                                               currentPosition,
-                                               rowSize);
+                long filepos = getFilePosition(loggingInterval, startTimestamp, firstTimestamp, currentPosition, rowSize);
                 raf.seek(filepos);
                 actualTimestamp = startTimestamp;
                 while ((line = raf.readLine()) != null && actualTimestamp <= endTimestamp) {
@@ -186,12 +173,10 @@ public class LogFileReader {
             } else {
                 records = null; // because the column of the channel was not identified
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             records = null;
         }
-
         return records;
     }
 
@@ -216,8 +201,7 @@ public class LogFileReader {
         RandomAccessFile raf = null;
         try {
             raf = new RandomAccessFile(new File(filepath), "r");
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
 
             logger.warn("Requested logfile: '" + filepath + "' not found.");
             // e.printStackTrace();
@@ -239,16 +223,13 @@ public class LogFileReader {
             long timestampMS = ((Double) (timestampS * (1000))).longValue();
 
             if (isTimestampPartOfRequestedInterval(timestampMS)) {
-                Record record = convertLogfileEntryToRecord(columnValue[channelColumn],
-                                                            timestampMS);
+                Record record = convertLogfileEntryToRecord(columnValue[channelColumn], timestampMS);
                 records.add(record);
             }
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             logger.debug("It's not a timestamp.");
             e.printStackTrace();
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
     }
@@ -280,19 +261,14 @@ public class LogFileReader {
      * @param startTimestamp
      * @return the position of the start timestamp as long.
      */
-    private long getFilePosition(int loggingInterval,
-                                 long startTimestamp,
-                                 long firstTimestamp,
-                                 long firstValuePos,
-                                 long rowSize) {
+    private long getFilePosition(int loggingInterval, long startTimestamp, long firstTimestamp, long firstValuePos, long rowSize) {
 
         long pos = 0;
 
         Calendar calendar = new GregorianCalendar(Locale.getDefault());
         calendar.setTimeInMillis(startTimestamp);
 
-        pos = (calendar.getTimeInMillis() - firstTimestamp) / loggingInterval * rowSize
-              + firstValuePos;
+        pos = (calendar.getTimeInMillis() - firstTimestamp) / loggingInterval * rowSize + firstValuePos;
 
         // System.out.println("loggingInterval = " + loggingInterval + ", startTimestamp = " + startTimestamp
         // + ", firstTimestamp = " + firstTimestamp + ", firstValuePos = " + firstValuePos + ", rowSize = "
@@ -312,9 +288,7 @@ public class LogFileReader {
     private Record convertLogfileEntryToRecord(String strValue, long timestamp) {
         Record record = null;
         if (isNumber(strValue)) {
-            record = new Record(new DoubleValue(Double.parseDouble(strValue)),
-                                timestamp,
-                                Flag.VALID);
+            record = new Record(new DoubleValue(Double.parseDouble(strValue)), timestamp, Flag.VALID);
         } else {
             // fehlerfall, wenn errors "errxx" geloggt wurden
             // record = new Record(null, timestamp, Flag);
@@ -339,16 +313,17 @@ public class LogFileReader {
             int errorSize = IESDataFormatUtils.ERROR.length();
             String errorFlag = strValue.substring(errorSize, errorSize + 2);
             if (isNumber(errorFlag)) {
-                record = new Record(null,
-                                    timestamp,
-                                    Flag.newFlag(Integer.parseInt(errorFlag.trim())));
+                record = new Record(null, timestamp, Flag.newFlag(Integer.parseInt(errorFlag.trim())));
             } else {
                 record = new Record(null, timestamp, Flag.NO_VALUE_RECEIVED_YET);
             }
         } else if (strValue.trim().startsWith(IESDataFormatUtils.HEXADECIMAL)) {
-            record = new Record(new ByteArrayValue(strValue.trim().getBytes()),
-                                timestamp,
-                                Flag.VALID);
+            try {
+                record = new Record(new ByteArrayValue(strValue.trim().getBytes("US-ASCII")), timestamp, Flag.VALID);
+            } catch (UnsupportedEncodingException e) {
+                record = new Record(Flag.UNKNOWN_ERROR);
+                logger.error("Hexadecimal value is non US-ASCII decoded, value is: " + strValue.trim());
+            }
         } else {
             record = new Record(new StringValue(strValue.trim()), timestamp, Flag.VALID);
         }
@@ -368,8 +343,7 @@ public class LogFileReader {
 
         try {
             Double.parseDouble(strValue);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = false;
         }
 

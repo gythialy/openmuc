@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,7 +28,6 @@ import org.openmuc.framework.webui.spi.WebUiPluginService;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,35 +45,30 @@ public final class WebUiBase {
 
     private volatile WebUiBaseServlet servlet;
 
-    private ServiceTracker<WebUiPluginService, WebUiPluginService> pluginTracker;
-    private ServiceTracker<HttpService, HttpService> httpTracker;
-
     protected void activate(ComponentContext context) throws Exception {
         logger.info("Activating WebUI Base");
 
         Velocity.setProperty("resource.loader", "class");
-        Velocity.setProperty("class.resource.loader.class",
-                             "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        Velocity.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 
         Velocity.init();
 
-        pluginTracker = new ServiceTracker<WebUiPluginService, WebUiPluginService>(context.getBundleContext(),
-                                                                                   WebUiPluginService.class
-                                                                                           .getName(),
-                                                                                   null);
-        pluginTracker.open(true);
-
         servlet = new WebUiBaseServlet(new ResourceLoader(context.getBundleContext()), this);
-        registerAllResources();
 
-        httpTracker = new ServiceTracker<HttpService, HttpService>(context.getBundleContext(),
-                                                                   HttpService.class.getName(),
-                                                                   null);
-        httpTracker.open();
-        HttpService httpService = httpTracker.getService();
-        if (httpService != null && this.httpService == null) {
-            setHttpService(httpService);
+        try {
+            httpService.registerResources("/openmuc/css", "/css", null);
+            httpService.registerResources("/openmuc/images", "/images", null);
+            httpService.registerResources("/openmuc/js", "/js", null);
+            httpService.registerServlet("/openmuc", servlet, null, null);
+        } catch (Exception e) {
         }
+
+        synchronized (pluginsByAlias) {
+            for (WebUiPluginService plugin : pluginsByAlias.values()) {
+                registerResources(plugin);
+            }
+        }
+
     }
 
     protected void deactivate(ComponentContext context) {
@@ -83,8 +77,6 @@ public final class WebUiBase {
         httpService.unregister("/openmuc/css");
         httpService.unregister("/openmuc/images");
         httpService.unregister("/openmuc/js");
-        pluginTracker.close();
-        httpTracker.close();
     }
 
     protected void setHttpService(HttpService httpService) {
@@ -126,24 +118,12 @@ public final class WebUiBase {
             for (String alias : aliases) {
                 try {
 
-                    httpService.registerResources("/openmuc/"
-                                                  + plugin.getCategory()
-                                                  + "/"
-                                                  + plugin.getAlias()
-                                                  + "/"
-                                                  + alias,
-                                                  plugin.getResources().get(alias),
-                                                  plugin);
+                    httpService.registerResources("/openmuc/" + plugin.getCategory() + "/" + plugin.getAlias() + "/" + alias,
+                                                  plugin.getResources().get(alias), plugin);
 
-                }
-                catch (NamespaceException e) {
-                    logger.error("Servlet with alias \"/openmuc/"
-                                 + plugin.getCategory()
-                                 + "/"
-                                 + plugin.getAlias()
-                                 + "/"
-                                 + alias
-                                 + "\" already registered");
+                } catch (NamespaceException e) {
+                    logger.error("Servlet with alias \"/openmuc/" + plugin.getCategory() + "/" + plugin
+                            .getAlias() + "/" + alias + "\" already registered");
                 }
             }
         }
@@ -153,12 +133,7 @@ public final class WebUiBase {
         Set<String> aliases = plugin.getResources().keySet();
 
         for (String alias : aliases) {
-            httpService.unregister("/openmuc/"
-                                   + plugin.getCategory().toString()
-                                   + "/"
-                                   + plugin.getAlias()
-                                   + "/"
-                                   + alias);
+            httpService.unregister("/openmuc/" + plugin.getCategory().toString() + "/" + plugin.getAlias() + "/" + alias);
         }
     }
 
@@ -174,29 +149,4 @@ public final class WebUiBase {
         return authService;
     }
 
-    private synchronized void registerAllResources() {
-        if (httpService != null && servlet != null) {
-            try {
-                httpService.registerResources("/openmuc/css", "/css", null);
-                httpService.registerResources("/openmuc/images", "/images", null);
-                httpService.registerResources("/openmuc/js", "/js", null);
-                httpService.registerServlet("/openmuc", servlet, null, null);
-                synchronized (pluginsByAlias) {
-                    WebUiPluginService[] plugins = pluginTracker.getServices(new WebUiPluginService[0]);
-                    for (WebUiPluginService plugin : plugins) {
-                        if (!pluginsByAlias.containsKey(plugin.getAlias())) {
-                            logger.info("Tracked WebUI plugin: " + plugin.getName());
-                            pluginsByAlias.put(plugin.getAlias(), plugin);
-                        }
-                    }
-
-                    for (WebUiPluginService plugin : pluginsByAlias.values()) {
-                        registerResources(plugin);
-                    }
-                }
-            }
-            catch (Exception e) {
-            }
-        }
-    }
 }

@@ -1,4 +1,4 @@
-include 'openmuc-core-api', 'openmuc-core-datamanager', 'openmuc-core-spi', 'openmuc-datalogger-ascii', 'openmuc-datalogger-slotsdb', 'openmuc-driver-canopen', 'openmuc-driver-dlms', 'openmuc-driver-ehz', 'openmuc-driver-iec61850', 'openmuc-driver-iec62056p21', 'openmuc-driver-knx', 'openmuc-driver-mbus', 'openmuc-driver-modbus', 'openmuc-driver-s7plc', 'openmuc-driver-snmp', 'openmuc-server-asciisocket', 'openmuc-server-modbus', 'openmuc-server-restws', 'openmuc-webui-base', 'openmuc-webui-bundleconfigurator', 'openmuc-webui-channelaccesstool', 'openmuc-webui-channelconfigurator', 'openmuc-webui-dataexporter', 'openmuc-webui-dataplotter', 'openmuc-webui-spi', 'openmuc-webui-userconfigurator'
+include 'openmuc-core-api', 'openmuc-core-datamanager', 'openmuc-core-spi', 'openmuc-datalogger-ascii', 'openmuc-datalogger-slotsdb', 'openmuc-driver-canopen', 'openmuc-driver-dlms', 'openmuc-driver-ehz', 'openmuc-driver-iec61850', 'openmuc-driver-iec62056p21', 'openmuc-driver-knx', 'openmuc-driver-mbus', 'openmuc-driver-modbus', 'openmuc-driver-s7plc', 'openmuc-driver-snmp', 'openmuc-driver-wmbus', 'openmuc-server-asciisocket', 'openmuc-server-restws', 'openmuc-webui-base', 'openmuc-webui-bundleconfigurator', 'openmuc-webui-channelaccesstool', 'openmuc-webui-channelconfigurator', 'openmuc-webui-dataexporter', 'openmuc-webui-dataplotter', 'openmuc-webui-spi', 'openmuc-webui-userconfigurator'
 
 project(":openmuc-core-api").projectDir = file("projects/core/api")
 project(":openmuc-core-datamanager").projectDir = file("projects/core/datamanager")
@@ -15,8 +15,8 @@ project(":openmuc-driver-mbus").projectDir = file("projects/driver/mbus")
 project(":openmuc-driver-modbus").projectDir = file("projects/driver/modbus")
 project(":openmuc-driver-s7plc").projectDir = file("projects/driver/s7plc")
 project(":openmuc-driver-snmp").projectDir = file("projects/driver/snmp")
+project(":openmuc-driver-wmbus").projectDir = file("projects/driver/wmbus")
 project(":openmuc-server-asciisocket").projectDir = file("projects/server/asciisocket")
-project(":openmuc-server-modbus").projectDir = file("projects/server/modbus")
 project(":openmuc-server-restws").projectDir = file("projects/server/restws")
 project(":openmuc-webui-base").projectDir = file("projects/webui/base")
 project(":openmuc-webui-bundleconfigurator").projectDir = file("projects/webui/configtools/bundleconfigurator")

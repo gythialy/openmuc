@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -76,8 +76,7 @@ public final class SlotsDbVisualizer extends JFrame {
                 try {
                     FileObject fo = new FileObject(file);
                     res = fo.readFully();
-                }
-                catch (IOException e1) {
+                } catch (IOException e1) {
                     e1.printStackTrace();
                 }
                 if (res != null) {

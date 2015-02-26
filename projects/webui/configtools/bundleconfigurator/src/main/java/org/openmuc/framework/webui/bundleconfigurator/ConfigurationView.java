@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -37,10 +37,7 @@ public final class ConfigurationView implements View {
     private HashMap<String, Object> context = null;
     private final Bundle bundle;
 
-    public ConfigurationView(Bundle bundle,
-                             BundleConfiguration bundleConfiguration,
-                             MetaTypeService meta,
-                             ResourceLoader loader) {
+    public ConfigurationView(Bundle bundle, BundleConfiguration bundleConfiguration, MetaTypeService meta, ResourceLoader loader) {
         template = loader.getResourceAsString("edit.html");
         context = new HashMap<String, Object>();
         this.bundle = bundle;

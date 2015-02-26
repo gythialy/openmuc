@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,10 +33,7 @@ public final class ChannelCollection {
     Device device;
     Action action;
 
-    public ChannelCollection(Integer interval,
-                             Integer timeOffset,
-                             String samplingGroup,
-                             Device device) {
+    public ChannelCollection(Integer interval, Integer timeOffset, String samplingGroup, Device device) {
         this.interval = interval;
         this.timeOffset = timeOffset;
         this.samplingGroup = samplingGroup;
@@ -44,8 +41,7 @@ public final class ChannelCollection {
     }
 
     public long calculateNextActionTime(long timestamp) {
-        return ((interval - (((timestamp % (24 * 60 * 60 * 1000)) - timeOffset) % interval))
-                + timestamp);
+        return ((interval - (((timestamp % (24 * 60 * 60 * 1000)) - timeOffset) % interval)) + timestamp);
     }
 
 }

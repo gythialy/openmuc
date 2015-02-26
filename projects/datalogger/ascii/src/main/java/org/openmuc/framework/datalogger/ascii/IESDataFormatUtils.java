@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -53,19 +53,26 @@ public class IESDataFormatUtils {
      * @return a double as string with max length.
      * @throws WrongScalingException
      */
-    public static String convertDoubleToStringWithMaxLength(double value, int maxLength)
-            throws WrongScalingException {
+    public static String convertDoubleToStringWithMaxLength(double value, int maxLength) throws WrongScalingException {
         String ret;
-        String format = "###0.000";
-        if (value >= 0.0) {
-            format = "+" + format;
+        String format;
+
+        long lValue = (long) (value * 10000.0);
+        if (lValue >= 0) {
+            format = "+###0.000";
+            if (lValue >> 63 != 0) {
+                lValue *= -1l;
+            }
+        } else {
+            format = "###0.000";
         }
+        value = lValue / 10000.0;
+
         DecimalFormat df = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
         ret = df.format(value);
 
         if (ret.length() > maxLength) {
-            throw new WrongScalingException("Double too large for convertion into " + maxLength
-                                            + " max length! Try to scale value.");
+            throw new WrongScalingException("Double too large for convertion into " + maxLength + " max length! Try to scale value.");
         }
         return ret;
     }

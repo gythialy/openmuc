@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  * 
  * This file is part of openMUC.
  * For more information visit http://www.openmuc.org
@@ -59,17 +59,13 @@ class TransmittingFrame {
      * @param linkLayerFrameNumber Linklayer Frame Number
      * @param nsdu                 network layer service data unit
      */
-    public TransmittingFrame(IndividualAddress src,
-                             KNXAddress dst,
-                             int hopCount,
-                             int linkLayerFrameNumber,
-                             boolean addressExtentionType,
+    public TransmittingFrame(IndividualAddress src, KNXAddress dst, int hopCount, int linkLayerFrameNumber, boolean addressExtentionType,
                              byte[] nsdu) {
         init(src, dst, hopCount, linkLayerFrameNumber, addressExtentionType, nsdu);
     }
 
-    private void init(IndividualAddress src, KNXAddress dst, int hopCount, int linkLayerFrameNumber,
-                      boolean addressExtentionType, byte[] nsdu) {
+    private void init(IndividualAddress src, KNXAddress dst, int hopCount, int linkLayerFrameNumber, boolean addressExtentionType, byte[]
+            nsdu) {
         frame = new byte[nsdu.length + 7];
 
         frame[0] = (byte) (frame.length - 1);

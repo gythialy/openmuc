@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -114,8 +114,7 @@ public final class ChannelAccessTool implements WebUiPluginService {
             Double value;
             try {
                 value = new Double(request.getParameter("value"));
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 value = 0.0;
             }
             dataAccessService.getChannel(id).write(new DoubleValue(value));
@@ -133,8 +132,7 @@ public final class ChannelAccessTool implements WebUiPluginService {
                 MeasureView view = new MeasureView(template);
                 view.addToContext("devices", devices);
                 return view;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 return new RedirectView(context.getApplicationPath());
             }
         } else {
@@ -146,8 +144,7 @@ public final class ChannelAccessTool implements WebUiPluginService {
     }
 
     @Override
-    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return true;
     }
 
@@ -167,13 +164,7 @@ public final class ChannelAccessTool implements WebUiPluginService {
     }
 
     private String recordToJson(Record record) {
-        return "{\"timestamp\":"
-               + record.getTimestamp()
-               + ",\"value\":"
-               + record.getValue()
-               + ",\"flag\":\""
-               + record.getFlag()
-               + "\"}";
+        return "{\"timestamp\":" + record.getTimestamp() + ",\"value\":" + record.getValue() + ",\"flag\":\"" + record.getFlag() + "\"}";
     }
 
 }

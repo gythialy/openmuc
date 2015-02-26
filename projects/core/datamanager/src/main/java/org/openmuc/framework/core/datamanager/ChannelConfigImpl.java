@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -76,9 +76,8 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
         }
 
         deviceParent.channelConfigsById.put(id, deviceParent.channelConfigsById.remove(this.id));
-        deviceParent.driverParent.rootConfigParent.channelConfigsById.put(id,
-                                                                          deviceParent.driverParent.rootConfigParent.channelConfigsById
-                                                                                  .remove(this.id));
+        deviceParent.driverParent.rootConfigParent.channelConfigsById
+                .put(id, deviceParent.driverParent.rootConfigParent.channelConfigsById.remove(this.id));
 
         this.id = id;
     }
@@ -161,8 +160,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
     @Override
     public void setListening(Boolean listening) {
         if (samplingInterval != null && listening != null && listening && samplingInterval > 0) {
-            throw new IllegalStateException(
-                    "Listening may not be enabled while sampling is enabled.");
+            throw new IllegalStateException("Listening may not be enabled while sampling is enabled.");
         }
         this.listening = listening;
     }
@@ -175,8 +173,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
     @Override
     public void setSamplingInterval(Integer samplingInterval) {
         if (listening != null && samplingInterval != null && listening && samplingInterval > 0) {
-            throw new IllegalStateException(
-                    "Sampling may not be enabled while listening is enabled.");
+            throw new IllegalStateException("Sampling may not be enabled while listening is enabled.");
         }
         this.samplingInterval = samplingInterval;
     }
@@ -262,8 +259,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
         return deviceParent;
     }
 
-    static void addChannelFromDomNode(Node channelConfigNode, DeviceConfig parentConfig)
-            throws ParseException {
+    static void addChannelFromDomNode(Node channelConfigNode, DeviceConfig parentConfig) throws ParseException {
 
         String id = ChannelConfigImpl.getAttributeValue(channelConfigNode, "id");
         if (id == null) {
@@ -274,8 +270,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
         try {
             config = (ChannelConfigImpl) parentConfig.addChannel(id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ParseException(e);
         }
 
@@ -297,9 +292,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
                     Node nameAttribute = attributes.getNamedItem("id");
 
                     if (nameAttribute != null) {
-                        config.addServerMapping(new ServerMapping(nameAttribute.getTextContent(),
-                                                                  childNode
-                                                                          .getTextContent()));
+                        config.addServerMapping(new ServerMapping(nameAttribute.getTextContent(), childNode.getTextContent()));
                     } else {
                         throw new ParseException("No id attribute specified for serverMapping.");
                     }
@@ -310,18 +303,14 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
                     try {
                         config.valueType = ValueType.valueOf(valueTypeString);
-                    }
-                    catch (IllegalArgumentException e) {
-                        throw new ParseException("found unknown channel value type:"
-                                                 + valueTypeString);
+                    } catch (IllegalArgumentException e) {
+                        throw new ParseException("found unknown channel value type:" + valueTypeString);
                     }
 
-                    if (config.valueType == ValueType.BYTE_ARRAY
-                        || config.valueType == ValueType.STRING) {
+                    if (config.valueType == ValueType.BYTE_ARRAY || config.valueType == ValueType.STRING) {
                         String valueTypeLengthString = getAttributeValue(childNode, "length");
                         if (valueTypeLengthString == null) {
-                            throw new ParseException("length of " + config.valueType.toString()
-                                                     + " value type was not specified");
+                            throw new ParseException("length of " + config.valueType.toString() + " value type was not specified");
                         }
                         config.valueTypeLength = timeStringToMillis(valueTypeLengthString);
                     }
@@ -337,8 +326,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
                     } else if (listeningString.equals("false")) {
                         config.setListening(false);
                     } else {
-                        throw new ParseException(
-                                "\"listening\" tag contains neither \"true\" nor \"false\"");
+                        throw new ParseException("\"listening\" tag contains neither \"true\" nor \"false\"");
                     }
                 } else if (childName.equals("samplingInterval")) {
                     config.setSamplingInterval(timeStringToMillis(childNode.getTextContent()));
@@ -357,18 +345,15 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
                     } else if (disabledString.equals("false")) {
                         config.setDisabled(false);
                     } else {
-                        throw new ParseException(
-                                "\"disabled\" tag contains neither \"true\" nor \"false\"");
+                        throw new ParseException("\"disabled\" tag contains neither \"true\" nor \"false\"");
                     }
                 } else {
                     throw new ParseException("found unknown tag:" + childName);
                 }
             }
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ParseException(e);
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             throw new ParseException(e);
         }
     }
@@ -650,21 +635,20 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
             }
 
             switch (lastChar) {
-            case 's':
-                if (timeString.charAt(timeString.length() - 2) == 'm') {
-                    return Integer.parseInt(timeString.substring(0, timeString.length() - 2));
-                }
-                return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 1000;
-            case 'm':
-                return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 60000;
-            case 'h':
-                return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 3600000;
-            default:
-                throw new ParseException("unknown time string: " + timeString);
+                case 's':
+                    if (timeString.charAt(timeString.length() - 2) == 'm') {
+                        return Integer.parseInt(timeString.substring(0, timeString.length() - 2));
+                    }
+                    return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 1000;
+                case 'm':
+                    return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 60000;
+                case 'h':
+                    return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 3600000;
+                default:
+                    throw new ParseException("unknown time string: " + timeString);
             }
 
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new ParseException(e);
         }
 
@@ -673,9 +657,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
     static void checkIdSyntax(String id) {
         if (!id.matches("[a-zA-Z0-9_-]+")) {
             throw new IllegalArgumentException(
-                    "Invalid ID: \""
-                    + id
-                    + "\". An ID may not be the empty string and must contain only ASCII letters, digits, hyphens and underscores.");
+                    "Invalid ID: \"" + id + "\". An ID may not be the empty string and must contain only ASCII letters, digits, hyphens and underscores.");
         }
     }
 

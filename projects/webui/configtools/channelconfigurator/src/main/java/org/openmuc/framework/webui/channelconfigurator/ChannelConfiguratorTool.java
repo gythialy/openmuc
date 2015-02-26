@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -117,8 +117,7 @@ public final class ChannelConfiguratorTool implements WebUiPluginService {
 
             content = configurator.getContent(context.getLocalPath(), request);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("Exception getting content", e);
             content = Content.createErrorMessage(e, null);
         }
@@ -129,16 +128,14 @@ public final class ChannelConfiguratorTool implements WebUiPluginService {
             view = new AjaxView(content.getHtml());
         } else {
             try {
-                view = new WebconfigView(content.getTitle(),
-                                         config.getLoader().getResourceAsString("index.html"));
+                view = new WebconfigView(content.getTitle(), config.getLoader().getResourceAsString("index.html"));
 
                 ((WebconfigView) view).addToContext("content", content);
 
                 for (Map.Entry<String, Object> entry : content.getContext().entrySet()) {
                     ((WebconfigView) view).addToContext(entry.getKey(), entry.getValue());
                 }
-            }
-            catch (ProcessRequestException e) {
+            } catch (ProcessRequestException e) {
                 logger.error("not initialized", e);
             }
         }
@@ -147,8 +144,7 @@ public final class ChannelConfiguratorTool implements WebUiPluginService {
     }
 
     @Override
-    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return true;
     }
 

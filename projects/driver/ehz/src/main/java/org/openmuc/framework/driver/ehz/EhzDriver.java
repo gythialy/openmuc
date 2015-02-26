@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,14 +23,16 @@ package org.openmuc.framework.driver.ehz;
 
 import gnu.io.CommPortIdentifier;
 import org.openmuc.framework.config.*;
-import org.openmuc.framework.driver.spi.*;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.List;
 
 public class EhzDriver implements DriverService {
 
@@ -39,15 +41,17 @@ public class EhzDriver implements DriverService {
     private static final String ADDR_IEC = "iec";
     private static final String ADDR_SML = "sml";
 
-    private final static DriverInfo info = new DriverInfo("ehz",
-                                                          "Driver for IEC 62056-21 and SML",
-                                                          "?",
-                                                          "?",
-                                                          "?",
-                                                          "?",
-                                                          "?");
-
-    private final static int timeout = 10000;
+    private final static DriverInfo info = new DriverInfo("ehz", // id
+                                                          // description
+                                                          "Driver for IEC 62056-21 and SML.",
+                                                          // device address
+                                                          "N.A.",
+                                                          // parameters
+                                                          "N.A.",
+                                                          // channel address
+                                                          "N.A.",
+                                                          // device scan parameters
+                                                          "N.A.");
 
     @Override
     public DriverInfo getInfo() {
@@ -55,9 +59,8 @@ public class EhzDriver implements DriverService {
     }
 
     @Override
-    public void scanForDevices(String settings, DriverDeviceScanListener listener)
-            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException,
-            ScanInterruptedException {
+    public void scanForDevices(String settings, DriverDeviceScanListener listener) throws UnsupportedOperationException,
+            ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
         Enumeration<?> ports = CommPortIdentifier.getPortIdentifiers();
         while (ports.hasMoreElements()) {
@@ -65,7 +68,7 @@ public class EhzDriver implements DriverService {
             String serialPort = port.getName();
             logger.trace("searching for device at " + serialPort);
             URI deviceAddress = null;
-            Connection connection = null;
+            GeneralConnection connection = null;
             if (deviceAddress == null) {
                 try {
                     connection = new IecConnection(serialPort, 2000);
@@ -74,8 +77,7 @@ public class EhzDriver implements DriverService {
                         deviceAddress = new URI(ADDR_IEC + "://" + serialPort);
                     }
                     connection.close();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     logger.trace(serialPort + " is no iec device");
                 }
             }
@@ -87,13 +89,12 @@ public class EhzDriver implements DriverService {
                         deviceAddress = new URI(ADDR_SML + "://" + serialPort);
                     }
                     connection.close();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     logger.trace(serialPort + " is no sml device");
                 }
             }
             if (deviceAddress != null) {
-                listener.deviceFound(new DeviceScanInfo("", deviceAddress.toString(), "", ""));
+                listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", ""));
             } else {
                 logger.info("no ehz device found at " + serialPort);
             }
@@ -106,99 +107,23 @@ public class EhzDriver implements DriverService {
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.openmuc.framework.driver.spi.DriverService#scanForChannels(org.openmuc.framework.driver.spi.DeviceConnection,
-     * int)
-     */
     @Override
-    public List<ChannelScanInfo> scanForChannels(DeviceConnection connection, String settings)
-            throws UnsupportedOperationException, ConnectionException {
-        return ((Connection) connection.getConnectionHandle()).listChannels(20000);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.spi.DriverService#connect(java.lang.String, java.lang.String, java.lang.String,
-     * int)
-     */
-    @Override
-    public Object connect(String interfaceAddress, String deviceAddress, String settings)
-            throws ArgumentSyntaxException, ConnectionException {
+    public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException, ConnectionException {
         logger.trace("trying to connect to " + deviceAddress);
         try {
             URI device = new URI(deviceAddress);
 
             if (device.getScheme().equals(ADDR_IEC)) {
                 logger.trace("connecting to iec device");
-                return new IecConnection(device.getPath(), timeout);
+                return new IecConnection(device.getPath(), GeneralConnection.timeout);
             } else if (device.getScheme().equals(ADDR_SML)) {
                 logger.trace("connecting to sml device");
                 return new SmlConnection(device.getPath());
             }
             throw new ConnectionException("unrecognized address scheme " + device.getScheme());
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new ConnectionException(e);
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.spi.DriverService#disconnect(org.openmuc.framework.driver.spi.DeviceConnection)
-     */
-    @Override
-    public void disconnect(DeviceConnection connection) {
-        ((Connection) connection.getConnectionHandle()).close();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.spi.DriverService#read(org.openmuc.framework.driver.spi.DeviceConnection,
-     * java.util.List, java.lang.Object, java.lang.String, int)
-     */
-    @Override
-    public Object read(DeviceConnection connection, List<ChannelRecordContainer> containers,
-                       Object containerListHandle, String samplingGroup)
-            throws UnsupportedOperationException, ConnectionException {
-        Connection con = ((Connection) connection.getConnectionHandle());
-
-        con.read(containers, timeout);
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.openmuc.framework.driver.spi.DriverService#startListening(org.openmuc.framework.driver.spi.DeviceConnection,
-     * java.util.List, org.openmuc.framework.driver.spi.RecordsReceivedListener)
-     */
-    @Override
-    public void startListening(DeviceConnection connection, List<ChannelRecordContainer> containers,
-                               RecordsReceivedListener listener)
-            throws UnsupportedOperationException, ConnectionException {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.spi.DriverService#write(org.openmuc.framework.driver.spi.DeviceConnection,
-     * java.util.List, java.lang.Object, int)
-     */
-    @Override
-    public Object write(DeviceConnection connection,
-                        List<ChannelValueContainer> containers,
-                        Object containerListHandle)
-            throws UnsupportedOperationException, ConnectionException {
-        throw new UnsupportedOperationException();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,20 +20,23 @@
  */
 package org.openmuc.framework.driver.snmp;
 
-import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.ByteArrayValue;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Record;
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.DriverInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
 import org.openmuc.framework.driver.snmp.implementation.SnmpDevice;
 import org.openmuc.framework.driver.snmp.implementation.SnmpDevice.SNMPVersion;
 import org.openmuc.framework.driver.snmp.implementation.SnmpDeviceV1V2c;
 import org.openmuc.framework.driver.snmp.implementation.SnmpDeviceV3;
-import org.openmuc.framework.driver.snmp.implementation.SnmpTimeoutException;
-import org.openmuc.framework.driver.spi.*;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Mehran Shakeri
@@ -42,13 +45,7 @@ public final class SnmpDriver implements DriverService {
 
     private final static Logger logger = LoggerFactory.getLogger(SnmpDriver.class);
 
-    private final static DriverInfo info = new DriverInfo("snmp",
-                                                          "snmp v1/v2c/v3 are supported.",
-                                                          "?",
-                                                          "?",
-                                                          "?",
-                                                          "?",
-                                                          "?");
+    private final static DriverInfo info = new DriverInfo("snmp", "snmp v1/v2c/v3 are supported.", "?", "?", "?", "?");
 
     // AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
     public enum SnmpDriverSettingVariableNames {
@@ -64,18 +61,15 @@ public final class SnmpDriver implements DriverService {
 
     ;
 
-    private final static int timeout = 10000;
-
     // exception messages
     private final static String nullDeviceAddressException = "No device address found in config. Please specify one [eg. \"1.1.1.1/161\"].";
     private final static String nullSettingsException = "No device settings found in config. Please specify settings.";
-    private final static String incorrectSettingsFormatException =
-            "Format of setting string is invalid! \n Please use this format: "
-            + "USERNAME=username:SECURITYNAME=securityname:AUTHENTICATIONPASSPHRASE=password:PRIVACYPASSPHRASE=privacy";
-    private final static String incorrectSNMPVersionException = "Incorrect snmp version value. "
-                                                                + "Please choose proper version. Possible values are defined in SNMPVersion enum";
-    private final static String nullSNMPVersionException = "Snmp version is not defined. "
-                                                           + "Please choose proper version. Possible values are defined in SNMPVersion enum";
+    private final static String incorrectSettingsFormatException = "Format of setting string is invalid! \n Please use this format: " +
+            "USERNAME=username:SECURITYNAME=securityname:AUTHENTICATIONPASSPHRASE=password:PRIVACYPASSPHRASE=privacy";
+    private final static String incorrectSNMPVersionException = "Incorrect snmp version value. " + "Please choose proper version. " +
+            "Possible values are defined in SNMPVersion enum";
+    private final static String nullSNMPVersionException = "Snmp version is not defined. " + "Please choose proper version. Possible " +
+            "values are defined in SNMPVersion enum";
 
     @Override
     public DriverInfo getInfo() {
@@ -97,9 +91,8 @@ public final class SnmpDriver implements DriverService {
      *                 eg. "AUTHENTICATIONPASSPHRASE=community,public:STARTIP=1.1.1.1:ENDIP=1.10.1.1"
      */
     @Override
-    public void scanForDevices(String settings, DriverDeviceScanListener listener)
-            throws ArgumentSyntaxException,
-            ScanException, ScanInterruptedException {
+    public void scanForDevices(String settings, DriverDeviceScanListener listener) throws ArgumentSyntaxException, ScanException,
+            ScanInterruptedException {
 
         Map<String, String> settingMapper = settingParser(settings);
 
@@ -107,20 +100,15 @@ public final class SnmpDriver implements DriverService {
         SnmpDeviceV1V2c snmpScanner;
         try {
             snmpScanner = new SnmpDeviceV1V2c(SNMPVersion.V2c);
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             throw new ScanException(e.getMessage());
         }
 
         SnmpDriverDiscoveryListener discoveryListener = new SnmpDriverDiscoveryListener(listener);
         snmpScanner.addEventListener(discoveryListener);
-        String[] communityWords = settingMapper.get(
-                SnmpDriverScanSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()).split(",");
-        snmpScanner.scanSnmpV2cEnabledDevices(settingMapper.get(SnmpDriverScanSettingVariableNames.STARTIP
-                                                                        .toString()),
-                                              settingMapper.get(SnmpDriverScanSettingVariableNames.ENDIP
-                                                                        .toString()),
-                                              communityWords);
+        String[] communityWords = settingMapper.get(SnmpDriverScanSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()).split(",");
+        snmpScanner.scanSnmpV2cEnabledDevices(settingMapper.get(SnmpDriverScanSettingVariableNames.STARTIP.toString()),
+                                              settingMapper.get(SnmpDriverScanSettingVariableNames.ENDIP.toString()), communityWords);
 
     }
 
@@ -136,9 +124,7 @@ public final class SnmpDriver implements DriverService {
      * @throws ArgumentSyntaxException
      */
     @Override
-    public Object connect(String interfaceAddress, String deviceAddress, String settings)
-            throws ConnectionException,
-            ArgumentSyntaxException {
+    public Connection connect(String deviceAddress, String settings) throws ConnectionException, ArgumentSyntaxException {
 
         SnmpDevice device = null;
         SNMPVersion snmpVersion = null;
@@ -153,138 +139,34 @@ public final class SnmpDriver implements DriverService {
             Map<String, String> mappedSettings = settingParser(settings);
 
             try {
-                snmpVersion = SNMPVersion.valueOf(mappedSettings.get(SnmpDriverSettingVariableNames.SNMPVersion
-                                                                             .toString()));
-            }
-            catch (IllegalArgumentException e) {
+                snmpVersion = SNMPVersion.valueOf(mappedSettings.get(SnmpDriverSettingVariableNames.SNMPVersion.toString()));
+            } catch (IllegalArgumentException e) {
                 throw new ArgumentSyntaxException(incorrectSNMPVersionException);
-            }
-            catch (NullPointerException e) {
+            } catch (NullPointerException e) {
                 throw new ArgumentSyntaxException(nullSNMPVersionException);
             }
 
             // create SnmpDevice object based on SNMP version
             switch (snmpVersion) {
-            case V1:
-            case V2c:
-                device = new SnmpDeviceV1V2c(snmpVersion, deviceAddress,
-                                             mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE
-                                                                        .toString()));
-                break;
-            case V3:
-                device = new SnmpDeviceV3(deviceAddress,
-                                          mappedSettings.get(SnmpDriverSettingVariableNames.USERNAME
-                                                                     .toString()),
-                                          mappedSettings.get(SnmpDriverSettingVariableNames.SECURITYNAME
-                                                                     .toString()),
-                                          mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE
-                                                                     .toString()),
-                                          mappedSettings.get(SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE
-                                                                     .toString()));
-                break;
+                case V1:
+                case V2c:
+                    device = new SnmpDeviceV1V2c(snmpVersion, deviceAddress,
+                                                 mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()));
+                    break;
+                case V3:
+                    device = new SnmpDeviceV3(deviceAddress, mappedSettings.get(SnmpDriverSettingVariableNames.USERNAME.toString()),
+                                              mappedSettings.get(SnmpDriverSettingVariableNames.SECURITYNAME.toString()),
+                                              mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()),
+                                              mappedSettings.get(SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE.toString()));
+                    break;
 
-            default:
-                throw new ArgumentSyntaxException(incorrectSNMPVersionException);
+                default:
+                    throw new ArgumentSyntaxException(incorrectSNMPVersionException);
             }
 
         }
 
         return device;
-    }
-
-    @Override
-    public void disconnect(DeviceConnection connection) {
-        connection = null;
-    }
-
-    /**
-     * At least device address and channel address must be specified in the container.<br>
-     * <br>
-     * containers.deviceAddress = device address (eg. 1.1.1.1/161) <br>
-     * containers.channelAddress = OID (eg. 1.3.6.1.2.1.1.0)
-     */
-    @Override
-    public Object read(DeviceConnection connection, List<ChannelRecordContainer> containers,
-                       Object containerListHandle, String samplingGroup)
-            throws ConnectionException {
-
-        SnmpDevice device = (SnmpDevice) connection.getConnectionHandle();
-        return readChannelGroup(device, containers, timeout);
-    }
-
-    @Override
-    public Object write(DeviceConnection connection,
-                        List<ChannelValueContainer> containers,
-                        Object containerListHandle)
-            throws UnsupportedOperationException, ConnectionException {
-
-        // TODO snmp set request will be implemented here
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Read all the channels of the device at once.
-     *
-     * @param device
-     * @param containers
-     * @param timeout
-     * @return Object
-     * @throws ConnectionException
-     */
-    private Object readChannelGroup(SnmpDevice device,
-                                    List<ChannelRecordContainer> containers,
-                                    int timeout)
-            throws ConnectionException {
-
-        new Date().getTime();
-
-        List<String> oids = new ArrayList<String>();
-
-        for (ChannelRecordContainer container : containers) {
-            if (device.getDeviceAddress()
-                      .equalsIgnoreCase(container.getChannel().getDeviceAddress())) {
-                oids.add(container.getChannelAddress());
-            }
-        }
-
-        Map<String, String> values = new HashMap<String, String>();
-
-        try {
-            values = device.getRequestsList(oids);
-            long receiveTime = System.currentTimeMillis();
-
-            for (ChannelRecordContainer container : containers) {
-                // make sure the value exists for corresponding channel
-                if (values.get(container.getChannelAddress()) != null) {
-                    logger.debug("{}: value = '{}'", container.getChannelAddress(),
-                                 values.get(container.getChannelAddress()));
-                    container.setRecord(new Record(new ByteArrayValue(values.get(container.getChannelAddress())
-                                                                            .getBytes()),
-                                                   receiveTime));
-                }
-            }
-        }
-        catch (SnmpTimeoutException e) {
-            for (ChannelRecordContainer container : containers) {
-                container.setRecord(new Record(Flag.TIMEOUT));
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public void startListening(DeviceConnection connection, List<ChannelRecordContainer> containers,
-                               RecordsReceivedListener listener)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<ChannelScanInfo> scanForChannels(DeviceConnection connection, String settings)
-            throws UnsupportedOperationException, ConnectionException {
-        // not supported
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -309,10 +191,10 @@ public final class SnmpDriver implements DriverService {
                 String[] keyValue = setting.split("=", 2);
                 settingsMaper.put(keyValue[0], keyValue[1]);
             }
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new ArgumentSyntaxException(incorrectSettingsFormatException);
         }
         return settingsMaper;
     }
+
 }

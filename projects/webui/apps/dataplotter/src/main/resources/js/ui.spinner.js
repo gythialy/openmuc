@@ -166,10 +166,7 @@
 
             // fix icon centering
             icons = buttons.find('.ui-icon');
-            icons.css({
-                marginLeft: (buttons.innerWidth() - icons.width()) / 2,
-                marginTop: (buttons.innerHeight() - icons.height()) / 2
-            });
+            icons.css({marginLeft: (buttons.innerWidth() - icons.width()) / 2, marginTop: (buttons.innerHeight() - icons.height()) / 2});
 
             // set width of btnContainer to be the same as the buttons
             btnContainer.width(buttons.outerWidth());
@@ -656,10 +653,7 @@
 
         destroy: function (target) {
             this.wrapper.remove();
-            this.element.unbind(eventNamespace).css({
-                width: this.oWidth,
-                marginRight: this.oMargin
-            });
+            this.element.unbind(eventNamespace).css({width: this.oWidth, marginRight: this.oMargin});
 
             $.Widget.prototype.destroy.call(this);
         }

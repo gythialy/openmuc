@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -55,8 +55,7 @@ public class PDOObjectImpl implements PDOObject, Comparable<PDOObjectImpl> {
         }
     }
 
-    private PDOObjectImpl(int position, short length, NumericDataType numericDataType, byte[] data,
-                          ChannelRecordContainer container) {
+    private PDOObjectImpl(int position, short length, NumericDataType numericDataType, byte[] data, ChannelRecordContainer container) {
         this.position = position;
         this.length = length;
         this.numericDataType = numericDataType;

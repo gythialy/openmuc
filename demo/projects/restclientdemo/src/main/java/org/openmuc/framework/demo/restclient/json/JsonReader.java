@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,8 +38,7 @@ public class JsonReader {
         Pattern FieldValueObjetPattern = Pattern.compile("((\\[)|(:)|(,))\\{.*?\\}((\\])|(})|(,))");
         Pattern FieldValueArrayPattern = Pattern.compile("((\\[)|(:)|(,))\\[.*?\\]((\\])|(})|(,))");
         Pattern FieldValueNumberPattern = Pattern
-                .compile(
-                        "((\\[)|(:)|(,))(((-)|(\\+)){0,1})([0-9]{0,})([.eE]{0,1})([0-9]+)((\\])|(})|(,))");
+                .compile("((\\[)|(:)|(,))(((-)|(\\+)){0,1})([0-9]{0,})([.eE]{0,1})([0-9]+)((\\])|(})|(,))");
         Matcher matcher;
 
         ArrayList<JsonFieldInformation> arrayList = new ArrayList<JsonFieldInformation>(tmpMap.keySet());
@@ -164,9 +163,7 @@ public class JsonReader {
             tmpText = tmpText.replace(foundField, "");
             foundField = foundField.replace("\"", "").replace(":", "");
 
-            JsonFieldInformation jfi = new JsonFieldInformation(level,
-                                                                foundField,
-                                                                expectedType(next));
+            JsonFieldInformation jfi = new JsonFieldInformation(level, foundField, expectedType(next));
 
             tmpMap.put(jfi, endIndex);
 
@@ -223,24 +220,24 @@ public class JsonReader {
 
     private static JsonTextType expectedType(char next) {
         switch (next) {
-        case '\"':
-            return JsonTextType.JsonString;
-        case '{':
-            return JsonTextType.JsonObject;
-        case '[':
-            return JsonTextType.JsonArray;
-        case 'f':
-            return JsonTextType.JsonFalse;
-        case 't':
-            return JsonTextType.JsonTrue;
-        case 'n':
-            return JsonTextType.JsonNull;
-        default:
-            if (Character.isDigit(next)) {
-                return JsonTextType.JsonNumber;
-            } else {
-                return null;
-            }
+            case '\"':
+                return JsonTextType.JsonString;
+            case '{':
+                return JsonTextType.JsonObject;
+            case '[':
+                return JsonTextType.JsonArray;
+            case 'f':
+                return JsonTextType.JsonFalse;
+            case 't':
+                return JsonTextType.JsonTrue;
+            case 'n':
+                return JsonTextType.JsonNull;
+            default:
+                if (Character.isDigit(next)) {
+                    return JsonTextType.JsonNumber;
+                } else {
+                    return null;
+                }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -50,9 +50,7 @@ public class DevicesConfigurator extends Configurator {
      * javax.servlet.http.HttpServletRequest)
      */
     @Override
-    public Content getContent(String localPath, HttpServletRequest request)
-            throws ProcessRequestException,
-            IdCollisionException {
+    public Content getContent(String localPath, HttpServletRequest request) throws ProcessRequestException, IdCollisionException {
 
         Content content = new Content();
         ConfigService configService = config.getConfigService();
@@ -76,8 +74,7 @@ public class DevicesConfigurator extends Configurator {
             content.setTitle(title);
             try {
                 content.addToContext("driverInfo", configService.getDriverInfo(driverId));
-            }
-            catch (DriverNotAvailableException e) {
+            } catch (DriverNotAvailableException e) {
                 logger.debug(e.getMessage());
             }
             content.addToContext("driverId", driverId);
@@ -100,7 +97,6 @@ public class DevicesConfigurator extends Configurator {
             }
 
             newDevice.setDescription(Util.tryParseString(request, "description"));
-            newDevice.setInterfaceAddress(Util.tryParseString(request, "interfaceAddress"));
             newDevice.setDeviceAddress(Util.tryParseString(request, "deviceAddress"));
             newDevice.setSettings(Util.tryParseString(request, "settings"));
             newDevice.setSamplingTimeout(Util.tryParseInt(request.getParameter("samplingTimeout")));
@@ -140,18 +136,13 @@ public class DevicesConfigurator extends Configurator {
             List<ChannelScanInfo> infoList = Collections.emptyList();
             try {
                 infoList = configService.scanForChannels(deviceId, "");
-            }
-            catch (UnsupportedOperationException e) {
-                throw new ProcessRequestException("Scanning channels not supported by driver "
-                                                  + driverId);
-            }
-            catch (DriverNotAvailableException e) {
+            } catch (UnsupportedOperationException e) {
+                throw new ProcessRequestException("Scanning channels not supported by driver " + driverId);
+            } catch (DriverNotAvailableException e) {
                 throw new ProcessRequestException("Driver " + driverId + " not available");
-            }
-            catch (ScanException e) {
+            } catch (ScanException e) {
                 throw new ProcessRequestException("Scan error: " + e.getMessage());
-            }
-            catch (ArgumentSyntaxException e) {
+            } catch (ArgumentSyntaxException e) {
                 throw new ProcessRequestException("Settings syntax invalid: " + e.getMessage());
             }
 
@@ -176,8 +167,7 @@ public class DevicesConfigurator extends Configurator {
                 String address = Util.tryParseString(request, channel + "address");
                 String description = Util.tryParseString(request, channel + "description");
                 String valueType = Util.tryParseString(request, channel + "valueType");
-                Integer valueTypeLength = Util.tryParseInt(request.getParameter(channel
-                                                                                + "valueLength"));
+                Integer valueTypeLength = Util.tryParseInt(request.getParameter(channel + "valueLength"));
 
                 DeviceConfig deviceConfig = rootConfig.getDevice(deviceId);
                 ChannelConfig newChannel = deviceConfig.addChannel(channelId);

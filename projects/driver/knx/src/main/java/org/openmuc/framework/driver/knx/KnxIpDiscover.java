@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,14 +41,12 @@ public class KnxIpDiscover {
     private Discoverer discoverer;
     private SearchResponse[] searchResponses;
 
-    public KnxIpDiscover(String interfaceAddress, boolean natAware, boolean mcastResponse)
-            throws IOException {
+    public KnxIpDiscover(String interfaceAddress, boolean natAware, boolean mcastResponse) throws IOException {
         try {
             // System.setProperty("java.net.preferIPv4Stack", "true");
             InetAddress localHost = InetAddress.getByName(interfaceAddress);
             discoverer = new Discoverer(localHost, 0, natAware, mcastResponse);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("can not create discoverer: " + e.getMessage());
             throw new IOException(e);
         }
@@ -63,8 +61,7 @@ public class KnxIpDiscover {
             logger.debug("Starting search (timeout: " + timeout + "s)");
             discoverer.startSearch(timeout, true);
             searchResponses = discoverer.getSearchResponses();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("A network I/O error occurred");
             e.printStackTrace();
             throw new IOException(e);
@@ -92,10 +89,7 @@ public class KnxIpDiscover {
 
             logger.debug("Found " + deviceAddress + " - " + name + " - " + description);
 
-            listener.deviceFound(new DeviceScanInfo(null,
-                                                    deviceAddress.toString(),
-                                                    "",
-                                                    description));
+            listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", description));
         }
 
     }

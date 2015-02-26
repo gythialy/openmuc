@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  * 
  * This file is part of openMUC.
  * For more information visit http://www.openmuc.org
@@ -127,28 +127,18 @@ class Configure {
             configure(memory, RF_POWER, RF_POWER_ARG_DEFAULT, "Default RF output power");
             configure(memory, KNX_MODE, KNX_MODE_ARG_DEFAULT, "Set mode to S2");
             configure(memory, SLEEP_MODE, SLEEP_MODE_ARG_DEFAULT, "Disable sleep mode");
-            configure(memory,
-                      RSSI_MODE,
-                      RSSI_MODE_ARG_DEFAULT,
-                      "Do not append RSSI to received data");
-            configure(memory,
-                      PREAMBLE_LENGTH,
-                      PREAMBLE_LENGTH_ARG_LONG,
-                      "Long preamble (KNX Ready)");
-            configure(memory, BATTERY_THRESHOLD, BATTERY_THRESHOLD_ARG_DEFAULT,
-                      "Threshold battery voltage (2.5V) for alarm");
+            configure(memory, RSSI_MODE, RSSI_MODE_ARG_DEFAULT, "Do not append RSSI to received data");
+            configure(memory, PREAMBLE_LENGTH, PREAMBLE_LENGTH_ARG_LONG, "Long preamble (KNX Ready)");
+            configure(memory, BATTERY_THRESHOLD, BATTERY_THRESHOLD_ARG_DEFAULT, "Threshold battery voltage (2.5V) for alarm");
             configure(memory, TIMEOUT, TIMEOUT_ARG_DEFAULT, "Modem clears buffer after 2s");
             configure(memory, NETWORK_ROLE, NETWORK_ROLE_ARG_DEFAULT, "Transmitter/Receiver");
-            configure(memory, DATA_INTERFACE, (DATA_INTERFACE_ARG_ADDSTARTSTOPBYTE),
-                      "Add start (68h) and stop (16h) byte");
+            configure(memory, DATA_INTERFACE, (DATA_INTERFACE_ARG_ADDSTARTSTOPBYTE), "Add start (68h) and stop (16h) byte");
 
             logger.trace("exit configuration mode");
             sendByte(CONFIG_MODE_EXIT);
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             throw e;
-        }
-        finally {
+        } finally {
             io.release();
         }
     }
@@ -165,262 +155,20 @@ class Configure {
             sendAndWaitForResponse(CONFIG_MODE_ENTER, CONFIG_MODE_GT_PROMPT);
             sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION, CONFIG_MODE_GT_PROMPT);
 
-            int[] memory = new int[]{0x0B,
-                                     0x05,
-                                     0x02,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x64,
-                                     0x00,
-                                     0x05,
-                                     0x3C,
-                                     0x00,
-                                     0x55,
-                                     0x00,
-                                     0x00,
-                                     0x80,
-                                     0x80,
-                                     0x7C,
-                                     0x00,
-                                     0x00,
-                                     0x01,
-                                     0x00,
-                                     0x00,
-                                     0x17,
-                                     0x00,
-                                     0x00,
-                                     0xFF,
-                                     0x00,
-                                     0x12,
-                                     0x34,
-                                     0x56,
-                                     0x78,
-                                     0x90,
-                                     0x00,
-                                     0x01,
-                                     0x02,
-                                     0x03,
-                                     0x04,
-                                     0x05,
-                                     0x06,
-                                     0x04,
-                                     0xFF,
-                                     0x08,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x05,
-                                     0x08,
-                                     0x00,
-                                     0x01,
-                                     0x05,
-                                     0x00,
-                                     0x00,
-                                     0x01,
-                                     0x2B,
-                                     0x00,
-                                     0x00,
-                                     0x44,
-                                     0x06,
-                                     0x02,
-                                     0x00,
-                                     0x00,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     0x00,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     -1,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF,
-                                     0xFF};
+            int[] memory = new int[]{0x0B, 0x05, 0x02, 0x00, 0x00, 0x00, 0x64, 0x00, 0x05, 0x3C, 0x00, 0x55, 0x00, 0x00, 0x80, 0x80,
+                    0x7C, 0x00, 0x00, 0x01, 0x00, 0x00, 0x17, 0x00, 0x00, 0xFF, 0x00, 0x12, 0x34, 0x56, 0x78, 0x90, 0x00, 0x01, 0x02,
+                    0x03, 0x04, 0x05, 0x06, 0x04, 0xFF, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x08, 0x00, 0x01, 0x05, 0x00,
+                    0x00, 0x01, 0x2B, 0x00, 0x00, 0x44, 0x06, 0x02, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                    -1, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF};
 
             for (int i = 0x00; i < 0x60; i++) {
                 sendConfig(i, memory[i]);
@@ -431,11 +179,9 @@ class Configure {
 
             sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION_EXIT, CONFIG_MODE_GT_PROMPT);
             sendByte(CONFIG_MODE_EXIT);
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             throw e;
-        }
-        finally {
+        } finally {
             io.release();
         }
     }
@@ -457,11 +203,9 @@ class Configure {
             serialNumber[3] = memory[SERIAL_NUMBER_3];
             serialNumber[4] = memory[SERIAL_NUMBER_4];
             serialNumber[5] = memory[SERIAL_NUMBER_5];
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             throw e;
-        }
-        finally {
+        } finally {
             io.release();
         }
         return serialNumber;
@@ -484,11 +228,9 @@ class Configure {
             domainAddress[3] = memory[DOMAIN_ADDRESS_3];
             domainAddress[4] = memory[DOMAIN_ADDRESS_4];
             domainAddress[5] = memory[DOMAIN_ADDRESS_5];
-        }
-        catch (KNXException e) {
+        } catch (KNXException e) {
             throw e;
-        }
-        finally {
+        } finally {
             io.release();
         }
         return domainAddress;
@@ -519,14 +261,11 @@ class Configure {
                 sendConfig(SERIAL_NUMBER_4, serialNumber[4]);
                 sendConfig(SERIAL_NUMBER_5, serialNumber[5]);
 
-                sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION_EXIT,
-                                       CONFIG_MODE_GT_PROMPT);
+                sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION_EXIT, CONFIG_MODE_GT_PROMPT);
                 sendByte(CONFIG_MODE_EXIT);
-            }
-            catch (KNXException e) {
+            } catch (KNXException e) {
                 throw e;
-            }
-            finally {
+            } finally {
                 io.release();
             }
         }
@@ -546,8 +285,7 @@ class Configure {
         if (!Arrays.equals(oldDomainAddress, domainAddress)) {
             try {
                 io.acquireUninterruptibly();
-                logger.info("setting domain addres to " + DataUnitBuilder.toHex(domainAddress,
-                                                                                ":"));
+                logger.info("setting domain addres to " + DataUnitBuilder.toHex(domainAddress, ":"));
                 sendAndWaitForResponse(CONFIG_MODE_ENTER, CONFIG_MODE_GT_PROMPT);
                 sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION, CONFIG_MODE_GT_PROMPT);
 
@@ -558,21 +296,17 @@ class Configure {
                 sendConfig(DOMAIN_ADDRESS_4, domainAddress[4]);
                 sendConfig(DOMAIN_ADDRESS_5, domainAddress[5]);
 
-                sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION_EXIT,
-                                       CONFIG_MODE_GT_PROMPT);
+                sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION_EXIT, CONFIG_MODE_GT_PROMPT);
                 sendByte(CONFIG_MODE_EXIT);
-            }
-            catch (KNXException e) {
+            } catch (KNXException e) {
                 throw e;
-            }
-            finally {
+            } finally {
                 io.release();
             }
         }
     }
 
-    private void configure(byte[] memory, byte parameter, byte argument, String description)
-            throws KNXException {
+    private void configure(byte[] memory, byte parameter, byte argument, String description) throws KNXException {
         if (memory[parameter] != argument) {
             sendAndWaitForResponse(CONFIG_MODE_MEMORY_CONFIGURATION, CONFIG_MODE_GT_PROMPT);
             logger.info(description);
@@ -593,15 +327,13 @@ class Configure {
                 available = is.available();
                 is.read(memory, read, available);
                 read += available;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logger.error(e.getMessage());
                 throw new KNXException(e.getMessage(), e);
             }
             try {
                 Thread.sleep(100);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
             timeout -= 100;
             if (timeout == 0) {
@@ -616,8 +348,7 @@ class Configure {
         try {
             os.writeByte(send);
             os.flush();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -649,16 +380,14 @@ class Configure {
                     }
                     try {
                         Thread.sleep(100);
-                    }
-                    catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                     }
                     timeout -= 100;
                     if (timeout == 0) {
                         throw new KNXTimeoutException("configuring failed");
                     }
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logger.error(e.getMessage());
                 throw new KNXException(e.getMessage(), e);
             }

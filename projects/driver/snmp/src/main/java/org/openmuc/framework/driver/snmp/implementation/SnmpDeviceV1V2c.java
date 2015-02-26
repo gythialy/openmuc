@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -62,8 +62,8 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
      * @throws ArgumentSyntaxException
      */
 
-    public SnmpDeviceV1V2c(SNMPVersion version, String address, String authenticationPassphrase)
-            throws ConnectionException, ArgumentSyntaxException {
+    public SnmpDeviceV1V2c(SNMPVersion version, String address, String authenticationPassphrase) throws ConnectionException,
+            ArgumentSyntaxException {
         super(address, authenticationPassphrase);
         setVersion(version);
         setTarget();
@@ -77,23 +77,18 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
      * @throws ArgumentSyntaxException
      * @throws ConnectionException
      */
-    public SnmpDeviceV1V2c(SNMPVersion version)
-            throws ArgumentSyntaxException, ConnectionException {
+    public SnmpDeviceV1V2c(SNMPVersion version) throws ArgumentSyntaxException, ConnectionException {
         setVersion(version);
         try {
             snmp = new Snmp(new DefaultUdpTransportMapping());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException("SNMP initialization failed! \n" + e.getMessage());
         }
-        usm = new USM(SecurityProtocols.getInstance(),
-                      new OctetString(MPv3.createLocalEngineID()),
-                      0);
+        usm = new USM(SecurityProtocols.getInstance(), new OctetString(MPv3.createLocalEngineID()), 0);
         SecurityModels.getInstance().addSecurityModel(usm);
         try {
             snmp.listen();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionException("SNMP listen failed! \n" + e.getMessage());
         }
 
@@ -107,20 +102,20 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
      */
     private void setVersion(SNMPVersion version) throws ArgumentSyntaxException {
         switch (version) {
-        case V1:
-            snmpVersion = SnmpConstants.version1;
-            break;
-        case V2c:
-            snmpVersion = SnmpConstants.version2c;
-            break;
+            case V1:
+                snmpVersion = SnmpConstants.version1;
+                break;
+            case V2c:
+                snmpVersion = SnmpConstants.version2c;
+                break;
 
-        default:
-            throw new ArgumentSyntaxException(
-                    "Given snmp version is not correct or supported! Expected values are [V1,V2c].");
+            default:
+                throw new ArgumentSyntaxException("Given snmp version is not correct or supported! Expected values are [V1,V2c].");
         }
     }
 
-    @Override void setTarget() {
+    @Override
+    void setTarget() {
         target = new CommunityTarget();
         ((CommunityTarget) target).setCommunity(new OctetString(authenticationPassphrase));
         target.setAddress(targetAddress);
@@ -129,7 +124,6 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
         target.setVersion(snmpVersion);
     }
 
-    @Override
     public String getInterfaceAddress() {
         return null;
     }
@@ -139,18 +133,13 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
         return targetAddress.toString();
     }
 
-    @Override
     public String getSettings() {
-        String settings = SnmpDriverSettingVariableNames.SNMPVersion.toString()
-                          + "="
-                          + getSnmpVersionFromSnmpConstantsValue(snmpVersion)
-                          + ":COMMUNITY="
-                          + authenticationPassphrase;
+        String settings = SnmpDriverSettingVariableNames.SNMPVersion.toString() + "=" + getSnmpVersionFromSnmpConstantsValue(
+                snmpVersion) + ":COMMUNITY=" + authenticationPassphrase;
 
         return settings;
     }
 
-    @Override
     public Object getConnectionHandle() {
         return this;
     }
@@ -168,10 +157,7 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
      * @param communityWords
      * @throws ArgumentSyntaxException
      */
-    public void scanSnmpV2cEnabledDevices(String startIPRange,
-                                          String endIPRange,
-                                          String[] communityWords)
-            throws ArgumentSyntaxException {
+    public void scanSnmpV2cEnabledDevices(String startIPRange, String endIPRange, String[] communityWords) throws ArgumentSyntaxException {
 
         // create PDU
         PDU pdu = new PDU();
@@ -187,8 +173,7 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
             startIPRange = ip[0] + "." + ip[1] + "." + ip[2] + ".255";
             ip = endIPRange.split("\\.");
             endIPRange = ip[0] + "." + ip[1] + "." + ip[2] + ".255";
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new ArgumentSyntaxException("Given start ip address is not a valid IPV4 address.");
         }
         String nextIp = startIPRange;
@@ -203,10 +188,8 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
                 // define broadcast address
                 try {
                     targetAddress = GenericAddress.parse("udp:" + nextIp + "/161");
-                }
-                catch (IllegalArgumentException e) {
-                    throw new ArgumentSyntaxException(
-                            "Device address format is wrong! (eg. 1.1.1.255)");
+                } catch (IllegalArgumentException e) {
+                    throw new ArgumentSyntaxException("Device address format is wrong! (eg. 1.1.1.255)");
                 }
 
                 // loop through all community words
@@ -234,14 +217,12 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
                                 Vector vbs = event.getResponse().getVariableBindings();
                                 // check if sent and received OIDs are the same
                                 // or else snmp version may not compatible
-                                if (!ScanOIDs.containsValue(((VariableBinding) vbs.get(0)).getOid()
-                                                                                          .toString())) {
+                                if (!ScanOIDs.containsValue(((VariableBinding) vbs.get(0)).getOid().toString())) {
                                     // wrong version or not correct response!
                                     return;
                                 }
                                 NotifyForNewDevice(event.getPeerAddress(), SNMPVersion.V2c,
-                                                   scannerMakeDescriptionString(
-                                                           parseResponseVectorToHashMap(vbs)));
+                                                   scannerMakeDescriptionString(parseResponseVectorToHashMap(vbs)));
                             }
                         }
                     }
@@ -254,8 +235,7 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
                 nextIp = getNextBroadcastIPV4Address(nextIp);
             } // end of IP loop
 
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             e1.printStackTrace();
         }
 

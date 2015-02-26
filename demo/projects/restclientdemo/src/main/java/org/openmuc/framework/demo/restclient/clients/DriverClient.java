@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,88 +30,76 @@ public class DriverClient {
         ArrayList<String> param = ClientStarter.getParameters(new Option('p', "driver", ""), args);
         switch (code) {
 
-        case 0:
-            if (param == null) {
-                System.out.println("df");
-                ServerClient.sendGET("/driver");
-                return true;
-            } else {
-                for (String drId : param) {
-                    System.out.println(drId);
-                    ServerClient.sendGET("/driver/" + drId);
+            case 0:
+                if (param == null) {
+                    System.out.println("df");
+                    ServerClient.sendGET("/driver");
+                    return true;
+                } else {
+                    for (String drId : param) {
+                        System.out.println(drId);
+                        ServerClient.sendGET("/driver/" + drId);
+                    }
+                    return true;
                 }
-                return true;
-            }
-        case 8:
-            if (param == null) {
+            case 8:
+                if (param == null) {
 
-                ServerClient.sendGET("/driver");
-                return true;
-            } else {
-                System.out.println(
-                        "If option -a (--all) is used you do not have to specify drivers.");
-                return false;
-            }
+                    ServerClient.sendGET("/driver");
+                    return true;
+                } else {
+                    System.out.println("If option -a (--all) is used you do not have to specify drivers.");
+                    return false;
+                }
 
-        case 1:
-            ArrayList<String> wParam = ClientStarter.getParameters(new Option('w', "write", ""),
-                                                                   args);
-            if (param == null) {
-                System.out.println("Option -p (--driver) needs one driver to put a value in");
-                return false;
-            } else if (wParam == null) {
-                System.out.println("Option -w (--write) needs at least two parameters");
-                return false;
-            } else if ((wParam.size() & 01) == 1) {
-                System.out.println(
-                        "Option -w (--write) need an even number of parameters: <chId> <value> ...");
-                return false;
-            } else {
-                ServerClient.sendPUTd("/driver/" + param.get(0), wParam);
-                return true;
-            }
-        case 2:
-            ArrayList<String> gParam = ClientStarter.getParameters(new Option('g', "get", ""),
-                                                                   args);
-            if (param == null || gParam.size() > param.size()) {
-                System.out
-                        .println(
-                                "One or more channels to get config information from are missing as parameter for option -d (--device)");
-                return false;
-            } else if (param == null || gParam.size() < param.size()) {
-                System.out
-                        .println(
-                                "One or more config field names to get are missing as parameter for option -g (--get)");
-                return false;
-            } else {
-                for (String drId : param) {
+            case 1:
+                ArrayList<String> wParam = ClientStarter.getParameters(new Option('w', "write", ""), args);
+                if (param == null) {
+                    System.out.println("Option -p (--driver) needs one driver to put a value in");
+                    return false;
+                } else if (wParam == null) {
+                    System.out.println("Option -w (--write) needs at least two parameters");
+                    return false;
+                } else if ((wParam.size() & 01) == 1) {
+                    System.out.println("Option -w (--write) need an even number of parameters: <chId> <value> ...");
+                    return false;
+                } else {
+                    ServerClient.sendPUTd("/driver/" + param.get(0), wParam);
+                    return true;
                 }
-                return true;
-            }
-        case 4:
-            ArrayList<String> sParam = ClientStarter.getParameters(new Option('s', "set", ""),
-                                                                   args);
-            if (param == null) {
-                System.out.println(
-                        "Option -p (--driver) needs one channel to set config information to");
-                return false;
-            } else if (param.size() > 1) {
-                System.out.println("Option -s (--set) can set only one channel at once");
-                return false;
-            } else if ((sParam.size() & 01) == 1) {
-                System.out
-                        .println(
-                                "Option -s (--set) need an even number of parameters: <Config Field Name> <Value to set> ...");
-                return false;
-            } else {
-                for (String chId : param) {
+            case 2:
+                ArrayList<String> gParam = ClientStarter.getParameters(new Option('g', "get", ""), args);
+                if (param == null || gParam.size() > param.size()) {
+                    System.out.println(
+                            "One or more channels to get config information from are missing as parameter for option -d (--device)");
+                    return false;
+                } else if (param == null || gParam.size() < param.size()) {
+                    System.out.println("One or more config field names to get are missing as parameter for option -g (--get)");
+                    return false;
+                } else {
+                    for (String drId : param) {
+                    }
+                    return true;
                 }
-            }
-        default:
-            System.out
-                    .println(
-                            "Do not use use the options -a (--all), -H (--history), -w (--write), -g (--get) and -s (--set) together.");
-            return false;
+            case 4:
+                ArrayList<String> sParam = ClientStarter.getParameters(new Option('s', "set", ""), args);
+                if (param == null) {
+                    System.out.println("Option -p (--driver) needs one channel to set config information to");
+                    return false;
+                } else if (param.size() > 1) {
+                    System.out.println("Option -s (--set) can set only one channel at once");
+                    return false;
+                } else if ((sParam.size() & 01) == 1) {
+                    System.out.println("Option -s (--set) need an even number of parameters: <Config Field Name> <Value to set> ...");
+                    return false;
+                } else {
+                    for (String chId : param) {
+                    }
+                }
+            default:
+                System.out.println(
+                        "Do not use use the options -a (--all), -H (--history), -w (--write), -g (--get) and -s (--set) together.");
+                return false;
         }
 
     }

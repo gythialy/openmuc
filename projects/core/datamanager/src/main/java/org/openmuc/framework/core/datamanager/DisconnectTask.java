@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,7 +35,7 @@ public final class DisconnectTask extends DeviceTask {
     @Override
     public void run() {
 
-        driver.disconnect(device.connection);
+        device.connection.disconnect();
 
         synchronized (dataManager.disconnected) {
             dataManager.disconnected.add(device);

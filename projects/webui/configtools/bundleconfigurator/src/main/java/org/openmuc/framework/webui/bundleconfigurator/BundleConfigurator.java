@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -108,8 +108,7 @@ public final class BundleConfigurator implements WebUiPluginService {
             BundleConfiguration bundleConfiguration = null;
             try {
                 bundleConfiguration = new BundleConfiguration(bundle, configAdmin, metaTypeService);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 message = "Error: " + e.getMessage();
                 return new RedirectView(pluginContext.getApplicationPath());
             }
@@ -120,9 +119,7 @@ public final class BundleConfigurator implements WebUiPluginService {
             String id = request.getParameter("id");
             Bundle bundle = getBundleById(id);
             try {
-                BundleConfiguration bundleConfiguration = new BundleConfiguration(bundle,
-                                                                                  configAdmin,
-                                                                                  metaTypeService);
+                BundleConfiguration bundleConfiguration = new BundleConfiguration(bundle, configAdmin, metaTypeService);
                 Dictionary<String, String> bundleProperties = new Hashtable<String, String>();
 
                 String[] keys = request.getParameterValues("keyList");
@@ -141,8 +138,7 @@ public final class BundleConfigurator implements WebUiPluginService {
                 bundleConfiguration.setBundleProperties(bundleProperties);
 
                 return new RedirectView(pluginContext.getApplicationPath() + "/edit?id=" + id);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 message = "Error: " + e.getMessage();
                 return new RedirectView(pluginContext.getApplicationPath());
             }
@@ -155,8 +151,7 @@ public final class BundleConfigurator implements WebUiPluginService {
                 try {
                     message = "Info: " + bundle.getSymbolicName() + " uninstalled";
                     bundle.uninstall();
-                }
-                catch (BundleException e) {
+                } catch (BundleException e) {
                     message = "Error: " + e.getMessage();
                 }
             }
@@ -167,8 +162,7 @@ public final class BundleConfigurator implements WebUiPluginService {
                 try {
                     message = "Info: " + bundle.getSymbolicName() + " updated";
                     bundle.update();
-                }
-                catch (BundleException e) {
+                } catch (BundleException e) {
                     message = "Error: " + e.getMessage();
                 }
             }
@@ -179,8 +173,7 @@ public final class BundleConfigurator implements WebUiPluginService {
                 try {
                     message = "Info: " + bundle.getSymbolicName() + " stoped";
                     bundle.stop();
-                }
-                catch (BundleException e) {
+                } catch (BundleException e) {
                     message = "Error: " + e.getMessage();
                 }
             }
@@ -191,8 +184,7 @@ public final class BundleConfigurator implements WebUiPluginService {
                 try {
                     message = "Info: " + bundle.getSymbolicName() + " started";
                     bundle.start();
-                }
-                catch (BundleException e) {
+                } catch (BundleException e) {
                     message = "Error: " + e.getMessage();
                 }
             }
@@ -252,16 +244,14 @@ public final class BundleConfigurator implements WebUiPluginService {
                         message = "Info: Installed Bundle " + fileName;
                     }
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 message = "Error: " + e.getMessage();
             }
         }
     }
 
     @Override
-    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return true;
     }
 

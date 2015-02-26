@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,10 +41,7 @@ public class SnmpDriverDiscoveryListener implements SnmpDiscoveryListener {
 
     @Override
     public void onNewDeviceFound(SnmpDiscoveryEvent e) {
-        DeviceScanInfo newDevice = new DeviceScanInfo(e.getSnmpVersion().toString(),
-                                                      e.getDeviceAddress().toString(),
-                                                      null,
-                                                      e.getDescription());
+        DeviceScanInfo newDevice = new DeviceScanInfo(e.getDeviceAddress().toString(), null, e.getDescription());
         scannerListener.deviceFound(newDevice);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * @author Frederic Robra
  */
-public class IecConnection extends Connection {
+public class IecConnection extends GeneralConnection {
 
     private IecReceiver receiver;
 
@@ -47,8 +47,7 @@ public class IecConnection extends Connection {
         name = "IEC - " + deviceAddress + " - ";
         try {
             receiver = new IecReceiver(deviceAddress);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConnectionException(name + "serial port not found");
         }
     }
@@ -69,8 +68,7 @@ public class IecConnection extends Connection {
      * @see org.openmuc.framework.driver.ehz.Connection#read(java.util.List, int)
      */
     @Override
-    public void read(List<ChannelRecordContainer> containers, int timeout)
-            throws ConnectionException {
+    public void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
         logger.trace(name + "reading channels");
         try {
             long timestamp = System.currentTimeMillis();
@@ -90,14 +88,12 @@ public class IecConnection extends Connection {
             }
 
             handleChannelRecordContainer(containers, values, timestamp);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             logger.error(name + "read failed");
             close();
             throw new ConnectionException(e);
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             logger.error(name + "parsing failed");
             e.printStackTrace();
         }
@@ -127,17 +123,12 @@ public class IecConnection extends Connection {
                 Integer valueTypeLength = null;
                 Boolean readable = true;
                 Boolean writable = false;
-                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress,
-                                                                  description,
-                                                                  valueType,
-                                                                  valueTypeLength,
-                                                                  readable,
+                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength, readable,
                                                                   writable);
                 channelInfos.add(channelInfo);
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             logger.warn(name + "read failed");
         }
@@ -156,8 +147,7 @@ public class IecConnection extends Connection {
             ModeDMessage message = new ModeDMessage(frame);
             message.parse();
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
 

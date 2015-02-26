@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,7 +38,6 @@ public class SnmpChannel implements Channel {
     private ValueType valueType;
     private int samplingInterval;
     private int samplingTimeOffset;
-    private String interfaceAddress;
     private String deviceAddress;
 
     SnmpChannel() {
@@ -100,11 +99,6 @@ public class SnmpChannel implements Channel {
     public String getDriverName() {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public String getInterfaceAddress() {
-        return interfaceAddress;
     }
 
     @Override
@@ -203,16 +197,13 @@ public class SnmpChannel implements Channel {
     }
 
     @Override
-    public List<Record> getLoggedRecords(long startTime)
-            throws DataLoggerNotAvailableException, IOException {
+    public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Record> getLoggedRecords(long startTime, long endTime)
-            throws DataLoggerNotAvailableException,
-            IOException {
+    public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException, IOException {
         // TODO Auto-generated method stub
         return null;
     }

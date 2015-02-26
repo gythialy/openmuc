@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -39,20 +39,20 @@ public final class BundleInfo {
         int state = bundle.getState();
 
         switch (state) {
-        case Bundle.ACTIVE:
-            return "active";
-        case Bundle.INSTALLED:
-            return "installed";
-        case Bundle.RESOLVED:
-            return "resolved";
-        case Bundle.STARTING:
-            return "starting";
-        case Bundle.STOPPING:
-            return "stopping";
-        case Bundle.UNINSTALLED:
-            return "uninstalled";
-        default:
-            return "unknown";
+            case Bundle.ACTIVE:
+                return "active";
+            case Bundle.INSTALLED:
+                return "installed";
+            case Bundle.RESOLVED:
+                return "resolved";
+            case Bundle.STARTING:
+                return "starting";
+            case Bundle.STOPPING:
+                return "stopping";
+            case Bundle.UNINSTALLED:
+                return "uninstalled";
+            default:
+                return "unknown";
         }
     }
 

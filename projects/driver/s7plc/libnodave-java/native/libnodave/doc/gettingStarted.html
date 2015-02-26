@@ -5,12 +5,8 @@
 <li>Provide the user with a demostration of what Libnodave can do.</li>
 <li>Provide a quick test for compatibility with user's hardware and configuration.</li>
 <li>Provide a source code example as a template for your own applications.</li>
-<li>The debug output, obtained with debug option (-d), provides valuable informatioon in case
-    Libnodave fails with some hardware..
-</li>
-<li>The benchmark options let you measure the time needed for transfers of short and long data
-    blocks.
-</li>
+<li>The debug output, obtained with debug option (-d), provides valuable informatioon in case Libnodave fails with some hardware..</li>
+<li>The benchmark options let you measure the time needed for transfers of short and long data blocks.</li>
 <H4>Note on PASCAL source test programs:</H3>
     Basic test programs are also available as Pascal sources. They are not as complete as their
     C coded counterparts. Their main purpose is to test the interface unit <b>nodave.pas</b>.
@@ -78,57 +74,42 @@
     If invoked with the connection as the only argument, all test programs will read some data from
     the memory area of Flags (also known as Merkers).They try to read FD0,FD4 and FD8 as DWORDS and
     FD12 as real.<br>Depending on the contents of this memory, the results may or may no seem
-    reasonable.The obtained values are just the same as if you would observe these variables in
-    Step7
+    reasonable.The obtained values are just the same as if you would observe these variables in Step7
     using the display formats signed,signed,signed and floating point.<br>
     If you specify the option -w, the test programs increment the data, write it back to your PLC
-    <font color=red>(Attention! This changes PLC internal memory!)</font> and read it again, thus
-    demonstrating the effect of
+    <font color=red>(Attention! This changes PLC internal memory!)</font> and read it again, thus demonstrating the effect of
     changes.<br>
-    If you specify the option -c, the test programs write 0 to these memory locations. <font
-            color=red>
-        (Attention! This changes PLC internal memory!)</font>. This is useful if the current memory
-    contents
+    If you specify the option -c, the test programs write 0 to these memory locations. <font color=red>
+        (Attention! This changes PLC internal memory!)</font>. This is useful if the current memory contents
     doesn't make much sense when displayed in the above mentioned format.<br>
-    If you specify the option -b, the test programs try to do block read benchmark tests. Combining
-    -b and
+    If you specify the option -b, the test programs try to do block read benchmark tests. Combining -b and
     -w will also do write benchmark tests.<br>
-    -r option tries to put your PLC into RUN mode.<font color=red>(Attention! May start actions on
-        machinery!).</font><br>
-    -s option tries to put your PLC into STOP mode.<font color=red>(Attention! Will interrupt
-        running machinery!).</font><br>
+    -r option tries to put your PLC into RUN mode.<font color=red>(Attention! May start actions on machinery!).</font><br>
+    -s option tries to put your PLC into STOP mode.<font color=red>(Attention! Will interrupt running machinery!).</font><br>
     --readout option tries to readout program blocks from the PLC and will store them in files named
-    like OB1.mc7.<font color=red>(Attention! I got reports, that this produces ill effects on
-        S7-400!).</font><br>
-    -z reads System State Lists (<b>S</b>ystem-<b>Z</b>ustands<b>l</b>isten from the PLC. These
-    lists exist
-    only in 300/400 family PLCs and provide diagnostic information. Please refer to Siemens
-    documentation about
+    like OB1.mc7.<font color=red>(Attention! I got reports, that this produces ill effects on S7-400!).</font><br>
+    -z reads System State Lists (<b>S</b>ystem-<b>Z</b>ustands<b>l</b>isten from the PLC. These lists exist
+    only in 300/400 family PLCs and provide diagnostic information. Please refer to Siemens documentation about
     the meaning of IDs and indices.<br>
 
     <H3>Test programs to load blocks into CPU</H3>
     <li>This is a quite experimental feature.
-        First you will need correctly formed program blocks stored in files. A possible source are
-        files
+        First you will need correctly formed program blocks stored in files. A possible source are files
         previously read out using --readout. You cannot get them from Step7 as Step7 stores program
-        block in a data base. It has not been tested but may be so that third party programming
-        software
+        block in a data base. It has not been tested but may be so that third party programming software
         that stores program blocks in files uses the same file format.<br>
-        Loading of SDBs (<b>S</b>ystem <b>D</b>ata <b>B</b>locks) is highly dependent of the
-        sequence of
+        Loading of SDBs (<b>S</b>ystem <b>D</b>ata <b>B</b>locks) is highly dependent of the sequence of
         block numbers.
         <H2>Programming a basic application</H2>
         <H4>Preparations</H4>
         The main purpose of this library is to read and write data from and to Siemens PLCs.
         To do so, you need to establish a connection to the PLC.
         First, you need to configure a serial port of your computer or establish a TCP connection.
-        This connection is represented by the type _daveOSserialType, which contains file
-        descriptors
+        This connection is represented by the type _daveOSserialType, which contains file descriptors
         in case of Unix-like systems, handles in case of windows and what other systems supported in
         the future might use for this purpose.
 
-        use setport to initialize the members of a <a
-                href=daveOSserialType.html>_daveOSserialType</a> to something representing
+        use setport to initialize the members of a <a href=daveOSserialType.html>_daveOSserialType</a> to something representing
         a configured serial connection:
 <pre>
     fds.rfd=<a href=setport.html>setPort</a>(argv[adrPos],"38400",'O');
@@ -155,21 +136,18 @@
 <pre>    
     res =daveInitAdapter(di);
 </pre>
-        While currently only MPI-adapters and IBH-NetLinks really need this initialization
-        procedure, it is save to use
+        While currently only MPI-adapters and IBH-NetLinks really need this initialization procedure, it is save to use
         daveInitAdapter() with any protocol type. If it has no meaning for the protocol used, it is
         mapped to a dummy procedure that returns allways success.
 
         After successfully initializing your adapter, you can retrieve a list of reachable partners
         on an MPI network. The function takes the daveInterface structure and a pointer to a buffer
-        of sufficient length as arguments. It returns the real length of the list. If the partners
-        cannot
+        of sufficient length as arguments. It returns the real length of the list. If the partners cannot
         be listed with the protocol used, it just returns a length of 0.
 <pre>    
     listLength = daveListReachablePartners(di,buf1);
 </pre>
-        After successfully initializing your adapter, you can establish a connection to a certain
-        PLC
+        After successfully initializing your adapter, you can establish a connection to a certain PLC
         on the network. To do so, you will first initialize a structure of
         type <a href=daveConnection.html>daveConnection</a>,
         representing the logical connection to a single PLC.
@@ -188,8 +166,7 @@
 <pre>
     res=<a href=daveWriteBytes.html>daveWriteBytes</a>(dc, <a href=area.html>AREA</a>, area_Number, start_address, length, buffer);
 </pre>
-        Usually, you will have to <a href=conversions.html>convert</a> byte sequences from and to
-        the buffer
+        Usually, you will have to <a href=conversions.html>convert</a> byte sequences from and to the buffer
         to use the data in your application.<br>
         After you are done with your data exchanges, call:
 <pre>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -47,8 +47,7 @@ public class ChannelAddress {
     public static ChannelAddress parse(String input) {
         String[] tokens = input.split("/");
         if (tokens.length != 3) {
-            throw new IllegalArgumentException(
-                    "Channel address must be of format 'classId/logicalName/attributeId'");
+            throw new IllegalArgumentException("Channel address must be of format 'classId/logicalName/attributeId'");
         }
 
         int classId = Integer.parseInt(tokens[0]);
@@ -68,19 +67,10 @@ public class ChannelAddress {
             for (int i = 0; i < idString.length(); i += 2) {
                 instanceId[i / 2] = (byte) Integer.parseInt(idString.substring(i, i + 2), 16);
             }
-            result = new ObisCode(instanceId[0],
-                                  instanceId[1],
-                                  instanceId[2],
-                                  instanceId[3],
-                                  instanceId[4],
-                                  instanceId[5]);
+            result = new ObisCode(instanceId[0], instanceId[1], instanceId[2], instanceId[3], instanceId[4], instanceId[5]);
         } else if (tokens.length == 6) {
-            result = new ObisCode(Integer.parseInt(tokens[0]),
-                                  Integer.parseInt(tokens[1]),
-                                  Integer.parseInt(tokens[2]),
-                                  Integer.parseInt(tokens[3]),
-                                  Integer.parseInt(tokens[4]),
-                                  Integer.parseInt(tokens[5]));
+            result = new ObisCode(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]),
+                                  Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), Integer.parseInt(tokens[5]));
         } else {
             throw new IllegalArgumentException("Reduced ID codes are not supported");
         }

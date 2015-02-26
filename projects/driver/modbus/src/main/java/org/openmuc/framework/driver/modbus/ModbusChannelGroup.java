@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -91,8 +91,8 @@ public class ModbusChannelGroup {
             } else {
                 if (!tempFunctionCode.equals(channel.getFunctionCode())) {
                     throw new RuntimeException(
-                            "FunctionCodes of all channels within the samplingGroup '"
-                            + samplingGroup + "' are not equal! Change your openmuc config.");
+                            "FunctionCodes of all channels within the samplingGroup '" + samplingGroup + "' are not equal! Change your " +
+                                    "openmuc config.");
                 }
             }
         }
@@ -116,8 +116,8 @@ public class ModbusChannelGroup {
             } else {
                 if (!tempPrimaryTable.equals(channel.getPrimaryTable())) {
                     throw new RuntimeException(
-                            "Primary tables of all channels within the samplingGroup '"
-                            + samplingGroup + "' are not equal! Change your openmuc config.");
+                            "Primary tables of all channels within the samplingGroup '" + samplingGroup + "' are not equal! Change your " +
+                                    "openmuc config.");
                 }
             }
         }
@@ -139,9 +139,9 @@ public class ModbusChannelGroup {
                     // Does openmuc calls the read method for channels of different devices?
                     // If so, then the check for UnitID has to be modified. Only channels of the same device
                     // need to have the same unitId...
-                    throw new RuntimeException("UnitIds of all channels within the samplingGroup '"
-                                               + samplingGroup
-                                               + "' are not equal! Change your openmuc config.");
+                    throw new RuntimeException(
+                            "UnitIds of all channels within the samplingGroup '" + samplingGroup + "' are not equal! Change your openmuc " +
+                                    "config.");
                 }
             }
         }
@@ -171,15 +171,13 @@ public class ModbusChannelGroup {
         int maximumAddress = startAddress;
 
         for (ModbusChannel channel : channels) {
-            maximumAddress = Math.max(maximumAddress,
-                                      channel.getStartAddress() + channel.getCount());
+            maximumAddress = Math.max(maximumAddress, channel.getStartAddress() + channel.getCount());
         }
 
         count = maximumAddress - startAddress;
     }
 
-    public void setChannelValues(InputRegister[] inputRegisters, ModbusDevice device,
-                                 List<ChannelRecordContainer> containers) {
+    public void setChannelValues(InputRegister[] inputRegisters, List<ChannelRecordContainer> containers) {
 
         for (ModbusChannel channel : channels) {
             // determine start index of the registers which contain the values of the channel
@@ -191,8 +189,7 @@ public class ModbusChannelGroup {
                 registers[i] = inputRegisters[registerIndex + i];
             }
             // now we have a register array which contains the value of the channel
-            ChannelRecordContainer container = searchContainer(channel.getChannelAddress(),
-                                                               containers);
+            ChannelRecordContainer container = searchContainer(channel.getChannelAddress(), containers);
             ModbusDriverUtil util = new ModbusDriverUtil();
             long receiveTime = System.currentTimeMillis();
 
@@ -202,9 +199,7 @@ public class ModbusChannelGroup {
         }
     }
 
-    public void setChannelValues(BitVector bitVector,
-                                 ModbusDevice device,
-                                 List<ChannelRecordContainer> containers) {
+    public void setChannelValues(BitVector bitVector, List<ChannelRecordContainer> containers) {
 
         for (ModbusChannel channel : channels) {
 
@@ -214,21 +209,18 @@ public class ModbusChannelGroup {
             int index = channel.getStartAddress() - getStartAddress();
 
             BooleanValue value = new BooleanValue(bitVector.getBit(index));
-            ChannelRecordContainer container = searchContainer(channel.getChannelAddress(),
-                                                               containers);
+            ChannelRecordContainer container = searchContainer(channel.getChannelAddress(), containers);
             container.setRecord(new Record(value, receiveTime));
         }
     }
 
-    private ChannelRecordContainer searchContainer(String channelAddress,
-                                                   List<ChannelRecordContainer> containers) {
+    private ChannelRecordContainer searchContainer(String channelAddress, List<ChannelRecordContainer> containers) {
         for (ChannelRecordContainer container : containers) {
             if (container.getChannelAddress().toUpperCase().equals(channelAddress.toUpperCase())) {
                 return container;
             }
         }
-        throw new RuntimeException("No ChannelRecordContainer found for channelAddress "
-                                   + channelAddress);
+        throw new RuntimeException("No ChannelRecordContainer found for channelAddress " + channelAddress);
     }
 
     public boolean isEmpty() {

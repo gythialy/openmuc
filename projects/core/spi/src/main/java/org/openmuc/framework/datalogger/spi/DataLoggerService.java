@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -45,7 +45,6 @@ public interface DataLoggerService {
      * the channel with the given <code>channelId</code>.
      * @throws IOException if any kind of error occurs accessing the logged data.
      */
-    public List<Record> getRecords(String channelId, long startTime, long endTime)
-            throws IOException;
+    public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,15 +20,18 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
+import com.google.gson.JsonArray;
 import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.dataaccess.WriteValueContainer;
-import org.openmuc.framework.server.restws.Activator;
+import org.openmuc.framework.server.restws.Const;
 import org.openmuc.framework.server.restws.JsonHelper;
 import org.openmuc.framework.server.restws.PathHandler;
+import org.openmuc.framework.server.restws.RestServer;
+import org.openmuc.framework.server.restws.objects.RestChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,23 +42,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("serial")
 public class DriverResourceServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -2223282905555493215L;
+    private final static Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
 
     private DataAccessService dataAccess;
     private ConfigService configService;
     private RootConfig rootCfg;
 
+    private final ServletLib lib = new ServletLib();
+
     @Override
     public void init() throws ServletException {
-        this.dataAccess = Activator.getDataAccess();
-        this.configService = Activator.getConfigService();
+        this.dataAccess = RestServer.getDataAccessService();
+        this.configService = RestServer.getConfigService();
         this.rootCfg = configService.getConfig();
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
@@ -70,7 +76,6 @@ public class DriverResourceServlet extends HttpServlet {
             queryStr = "";
         }
         if (PathHandler.isValidRequest(pathInfo, queryStr)) {
-
             List<String> drivers = new ArrayList<String>();
 
             Collection<DriverConfig> driverConfig = new ArrayList<DriverConfig>();
@@ -81,97 +86,78 @@ public class DriverResourceServlet extends HttpServlet {
             }
 
             if (pathInfo.equals("/")) {
-
-                out.println(JsonHelper.ListToJsonArray(drivers));
+                out.println(JsonHelper.driverListToJsonObject(drivers));
             } else {
+                String[] pathInfoArray = pathInfo.replaceFirst("/", "").split("/");
+                drvId = pathInfoArray[0].replace("/", "");
                 List<Channel> driverChannels = new ArrayList<Channel>();
-                drvId = pathInfo.replace("/", "");
-                if (drivers.contains(drvId)) {
+                List<String> driverDevices = new ArrayList<String>();
 
+                if (drivers.contains(drvId)) {
                     Collection<DeviceConfig> deviceConfig = new ArrayList<DeviceConfig>();
-                    deviceConfig = rootCfg.getDriver(drvId).getDevices();
+                    DriverConfig drv = rootCfg.getDriver(drvId);
+                    deviceConfig = drv.getDevices();
 
                     Collection<ChannelConfig> channelConfig = new ArrayList<ChannelConfig>();
 
                     for (DeviceConfig dvCf : deviceConfig) {
+                        driverDevices.add(dvCf.getId());
                         channelConfig.addAll(dvCf.getChannels());
                     }
                     for (ChannelConfig chCf : channelConfig) {
                         driverChannels.add(dataAccess.getChannel(chCf.getId()));
                     }
 
-                    out.println(JsonHelper.ChannelRecordListToJsonArray(driverChannels));
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    boolean driverIsRunning = configService.getIdsOfRunningDrivers().contains(drvId);
 
+                    if (pathInfoArray.length > 1) {
+                        if (pathInfoArray[1].equals(Const.CHANNELS)) {
+                            out.println(JsonHelper.channelListWithRunningFlagToJsonObject(driverChannels, driverIsRunning));
+                        } else if (pathInfoArray[1].equals(Const.DEVICES)) {
+                            out.println(JsonHelper.deviceListWithRunningFlagToJsonObject(driverDevices, driverIsRunning));
+                        }
+                    } else if (pathInfoArray.length == 1) {
+                        out.println(JsonHelper.channelRecordListWithRunningFlagToJsonObject(driverChannels, driverIsRunning));
+                    } else {
+                        logger.warn("Requested rest path is not available, Path Info = " + request.getPathInfo());
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested rest path is not available.");
+                    }
                 } else {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    String message = "Requested rest driver is not available, DriverID = " + drvId;
+                    logger.warn(message);
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, message);
                 }
-
             }
-
         } else if (PathHandler.isValidConfigRequest(pathInfo, queryStr)) {
             drvId = pathInfo.split("\\/")[1];
             configField = pathInfo.split("\\/")[2];
             doGetConfigInfo(out, drvId, configField, response);
         } else {
+            logger.warn("Requested rest path is not available, Path Info = " + request.getPathInfo());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
-
+        out.flush();
+        out.close();
     }
 
-    private void doGetConfigInfo(PrintWriter out,
-                                 String drvId,
-                                 String configField,
-                                 HttpServletResponse response)
-            throws IOException {
+    private void doGetConfigInfo(PrintWriter out, String drvId, String configField, HttpServletResponse response) throws IOException {
+
         DriverConfig driverConfig;
         driverConfig = rootCfg.getDriver(drvId);
 
         if (driverConfig != null) {
-            if (configField.equals("samplingTimeout")) {
-                if (driverConfig.getSamplingTimeout() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             driverConfig.getSamplingTimeout()
-                                                                         .toString()));
-                }
-            } else if (configField.equals("devices")) {
-                if (driverConfig.getDevices() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    List<String> devices = new ArrayList<String>();
-                    for (DeviceConfig devCfg : driverConfig.getDevices()) {
-
-                        devices.add(devCfg.getId());
-                    }
-                    out.println(JsonHelper.ListToJsonArray(devices));
-                }
-            } else if (configField.equals("connectRetryInterval")) {
-                if (driverConfig.getConnectRetryInterval() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             driverConfig.getConnectRetryInterval()
-                                                                         .toString()));
-                }
-            } else if (configField.equals("isDisabled")) {
-                if (driverConfig.isDisabled() == null) {
-                    out.println(JsonHelper.ConfigValueToJson(configField, "null"));
-                } else {
-                    out.println(JsonHelper.ConfigValueToJson(configField,
-                                                             driverConfig.isDisabled().toString()));
-                }
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            }
-
+            JsonArray jsa = new JsonArray();
+            jsa.add(JsonHelper.driverConfigToJsonObject(driverConfig).get(configField));
+            out.print(jsa);
+        } else {
+            logger.warn("Requested rest driver is not available, DriverID = " + drvId);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
-
     }
 
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
@@ -184,8 +170,6 @@ public class DriverResourceServlet extends HttpServlet {
         if (queryStr == null) {
             queryStr = "";
         }
-
-        ArrayList<Channel> driverChannels = new ArrayList<Channel>();
         String drvId = pathInfo.replace("/", ""), configField;
 
         List<String> drivers = new ArrayList<String>();
@@ -198,58 +182,34 @@ public class DriverResourceServlet extends HttpServlet {
 
         InputStream in = request.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-        String line, text = "";
-        try {
-            while ((line = br.readLine()) != null) {
-                text += line;
-            }
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        String text = lib.buildString(br);
         in.close();
         if (!request.getContentType().equals("application/json")) {
+            logger.warn("Requested rest was not a json media type. MediaType = " + request.getContentType());
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
         } else if (PathHandler.isValidRequest(pathInfo, queryStr)) {
 
             if (!drivers.contains(drvId)) {
+                logger.warn("Requested rest driver is not available, DriverID = " + drvId);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                Collection<DeviceConfig> deviceConfig = new ArrayList<DeviceConfig>();
-                deviceConfig = rootCfg.getDriver(drvId).getDevices();
-
-                List<ChannelConfig> channelConfigs = new ArrayList<ChannelConfig>();
-
-                for (DeviceConfig dvCf : deviceConfig) {
-                    channelConfigs.addAll(dvCf.getChannels());
-                }
-                for (ChannelConfig chCf : channelConfigs) {
-                    driverChannels.add(dataAccess.getChannel(chCf.getId()));
-                }
-
-                ArrayList<Value> values = JsonHelper.ChannelsJsonToValues(text, driverChannels);
-                List<WriteValueContainer> writeValues = new ArrayList<WriteValueContainer>();
-
+                ArrayList<RestChannel> values = JsonHelper.channelsJsonToRecords(text);
                 if (values != null) {
-                    int i = 0;
-                    ArrayList<Flag> flags = new ArrayList<Flag>();
-                    for (Channel drv : driverChannels) {
-                        WriteValueContainer wvc = drv.getWriteContainer();
-                        wvc.setValue(values.get(i));
-                        writeValues.add(wvc);
-                        ++i;
-                    }
-                    dataAccess.write(writeValues);
-                    for (WriteValueContainer wvc : writeValues) {
-                        flags.add(wvc.getFlag());
-                    }
-                    out.println(JsonHelper.ChannelFlagsToJson(driverChannels, flags));
+                    while (values.iterator().hasNext()) {
+                        RestChannel restC = values.iterator().next();
+                        String id = restC.getId();
+                        Record rec = restC.getRecord();
 
-                } else {
+                        Channel ch = dataAccess.getChannel(id);
 
-                    response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+                        if (ch != null) {
+                            ch.setLatestRecord(rec);
+                        } else {
+                            logger.warn("Requested rest channel is not available, ChannelID = " + id);
+                            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                            break;
+                        }
+                    }
                 }
             }
         } else if (PathHandler.isValidConfigRequest(pathInfo, queryStr)) {
@@ -258,22 +218,20 @@ public class DriverResourceServlet extends HttpServlet {
 
             if (drivers.contains(drvId)) {
                 try {
-                    String configValue = JsonHelper.JsonToConfigValue(text);
+                    String configValue = JsonHelper.jsonToConfigValue(text);
                     doPutConfigInfo(out, configValue, drvId, configField, response);
-                }
-                catch (ConfigWriteException cwe) {
+                } catch (ConfigWriteException cwe) {
                     cwe.printStackTrace();
                 }
             }
         }
+        out.flush();
+        out.close();
     }
 
-    private void doPutConfigInfo(PrintWriter out,
-                                 String configValue,
-                                 String drvId,
-                                 String configField,
-                                 HttpServletResponse response)
+    private void doPutConfigInfo(PrintWriter out, String configValue, String drvId, String configField, HttpServletResponse response)
             throws ConfigWriteException, IOException {
+
         DriverConfig driverConfig;
         driverConfig = rootCfg.getDriver(drvId);
         configValue = configValue.replace("\"", "");
@@ -294,8 +252,7 @@ public class DriverResourceServlet extends HttpServlet {
             } else if (configField.equals("setId")) {
                 try {
                     driverConfig.setId(configValue);
-                }
-                catch (IdCollisionException e) {
+                } catch (IdCollisionException e) {
                     e.printStackTrace();
                 }
                 configService.setConfig(rootCfg);
@@ -303,14 +260,14 @@ public class DriverResourceServlet extends HttpServlet {
             } else if (configField.equals("addDevice")) {
                 try {
                     driverConfig.addDevice(configValue);
-                }
-                catch (IdCollisionException e) {
+                } catch (IdCollisionException e) {
                     e.printStackTrace();
                 }
                 out.println(configValue);
                 configService.setConfig(rootCfg);
                 configService.writeConfigToFile();
             } else {
+                logger.warn("Requested rest configService is not available, configServiceID = " + configField);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         }
@@ -318,13 +275,13 @@ public class DriverResourceServlet extends HttpServlet {
     }
 
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         response.setContentType("application/json");
         response.getWriter();
+
         String pathInfo = request.getPathInfo();
         String queryStr = request.getQueryString();
-        String drvId;
 
         if (pathInfo == null) {
             pathInfo = "/";
@@ -335,39 +292,86 @@ public class DriverResourceServlet extends HttpServlet {
 
         InputStream in = request.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-        String line, text = "";
-        try {
-            while ((line = br.readLine()) != null) {
-                text += line;
-            }
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        drvId = JsonHelper.JsonToConfigValue(text);
-        drvId = drvId.replace("\"", "");
+        String value = JsonHelper.jsonToConfigValue(lib.buildString(br));
         in.close();
-        if (!request.getContentType().equals("application/json") || drvId == null) {
+        if (value == null) {
+            logger.warn("Value is null");
+            response.sendError(HttpServletResponse.SC_NO_CONTENT);
+        } else if (!request.getContentType().equals("application/json")) {
+            logger.warn("Requested rest was not a json media type. MediaType = " + request.getContentType() + " value = " + value);
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-        } else if (pathInfo.equals("/delete") || pathInfo.equals("/delete/")) {
-
-            try {
-                DriverConfig driverConfig;
-                driverConfig = rootCfg.getDriver(drvId);
-                driverConfig.delete();
-                configService.setConfig(rootCfg);
-                configService.writeConfigToFile();
+        } else if (PathHandler.isValidRequest(pathInfo, queryStr)) {
+            if (pathInfo.equals("/")) {
+                try {
+                    value = value.replace("\"", "");
+                    rootCfg.addDriver(value);
+                    configService.setConfig(rootCfg);
+                    configService.writeConfigToFile();
+                } catch (IdCollisionException e) {
+                    e.printStackTrace();
+                } catch (ConfigWriteException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                logger.warn("Requested rest path is not available, Path Info = " + request.getPathInfo());
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
-            catch (ConfigWriteException e) {
-                e.printStackTrace();
-            }
-
         } else {
+            logger.warn("Requested rest path is not available, Path Info = " + request.getPathInfo());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
 
+    }
+
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        response.setContentType("application/json");
+        response.getWriter();
+        String pathInfo = request.getPathInfo();
+        String queryStr = request.getQueryString();
+        String drvId = null;
+
+        if (pathInfo == null) {
+            pathInfo = "/";
+        }
+        if (queryStr == null) {
+            queryStr = "";
+        }
+
+        String[] pathInfoArray = pathInfo.replaceFirst("/", "").split("/");
+
+        drvId = pathInfoArray[0].replace("/", "");
+
+        if (!request.getContentType().equals("application/json") || !PathHandler.isValidRequest(pathInfo, queryStr)) {
+            logger.warn("Requested rest was not a json media type. MediaType = " + request.getContentType() + " DriverID =  " + drvId);
+            response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+        } else if (pathInfoArray.length != 1) {
+            logger.warn("Requested rest path is not available, Path Info = " + request.getPathInfo());
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            try {
+                DriverConfig driverConfig;
+                driverConfig = rootCfg.getDriver(drvId);
+                if (driverConfig == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Driver \"" + drvId + "\" does not exist.");
+                } else {
+                    driverConfig.delete();
+                    configService.setConfig(rootCfg);
+                    configService.writeConfigToFile();
+
+                    if (rootCfg.getDriver(drvId) == null) {
+                        response.setStatus(HttpServletResponse.SC_OK);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not able to delete driver " + drvId);
+                    }
+                }
+
+            } catch (ConfigWriteException e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "ConfigWriteException");
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,8 +40,8 @@ public class S7PlcDevice {
         } else if (address.length == 2) {
             port = Integer.parseInt(address[1]);
         } else {
-            throw new RuntimeException("Invalid device address: '" + deviceAddress
-                                       + "'! Use following format: [ip:port] like localhost:1502 or 127.0.0.1:1502");
+            throw new RuntimeException(
+                    "Invalid device address: '" + deviceAddress + "'! Use following format: [ip:port] like localhost:1502 or 127.0.0.1:1502");
         }
     }
 }

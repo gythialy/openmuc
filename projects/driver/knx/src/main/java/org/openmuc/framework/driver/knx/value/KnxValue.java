@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -36,34 +36,34 @@ public abstract class KnxValue {
         int mainNumber = new Integer(dptID.split("\\.")[0]);
 
         switch (mainNumber) {
-        case 1:
-            return new KnxValueBoolean(dptID);
-        case 2:
-            return new KnxValue1BitControlled(dptID);
-        case 3:
-            return new KnxValue3BitControlled(dptID);
-        case 5:
-            return new KnxValue8BitUnsigned(dptID);
-        case 7:
-            return new KnxValue2ByteUnsigned(dptID);
-        case 9:
-            return new KnxValue2ByteFloat(dptID);
-        case 10:
-            return new KnxValueTime(dptID);
-        case 11:
-            return new KnxValueDate(dptID);
-        case 12:
-            return new KnxValue4ByteUnsigned(dptID);
-        case 13:
-            return new KnxValue4ByteSigned(dptID);
-        case 14:
-            return new KnxValue4ByteFloat(dptID);
-        case 16:
-            return new KnxValueString(dptID);
-        case 19:
-            return new KnxValueDateTime(dptID);
-        default:
-            throw new KNXException("unknown datapoint");
+            case 1:
+                return new KnxValueBoolean(dptID);
+            case 2:
+                return new KnxValue1BitControlled(dptID);
+            case 3:
+                return new KnxValue3BitControlled(dptID);
+            case 5:
+                return new KnxValue8BitUnsigned(dptID);
+            case 7:
+                return new KnxValue2ByteUnsigned(dptID);
+            case 9:
+                return new KnxValue2ByteFloat(dptID);
+            case 10:
+                return new KnxValueTime(dptID);
+            case 11:
+                return new KnxValueDate(dptID);
+            case 12:
+                return new KnxValue4ByteUnsigned(dptID);
+            case 13:
+                return new KnxValue4ByteSigned(dptID);
+            case 14:
+                return new KnxValue4ByteFloat(dptID);
+            case 16:
+                return new KnxValueString(dptID);
+            case 19:
+                return new KnxValueDateTime(dptID);
+            default:
+                throw new KNXException("unknown datapoint");
         }
 
     }

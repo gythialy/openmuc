@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  * 
  * This file is part of openMUC.
  * For more information visit http://www.openmuc.org
@@ -103,8 +103,7 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
      * @param spoofing enable for spoofing the serial number or domain address per send request
      * @throws KNXException
      */
-    public KNXNetworkLinkRC1180(String portID, KNXMediumSettings settings, boolean spoofing)
-            throws KNXException {
+    public KNXNetworkLinkRC1180(String portID, KNXMediumSettings settings, boolean spoofing) throws KNXException {
         this.spoofing = spoofing;
         init(portID, settings);
     }
@@ -152,15 +151,11 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
             } else {
                 domainAddress = connection.getDomainAddress();
             }
-            RFSettings acquiredSettings = new RFSettings(settings.getDeviceAddress(),
-                                                         domainAddress,
-                                                         serialNumber,
+            RFSettings acquiredSettings = new RFSettings(settings.getDeviceAddress(), domainAddress, serialNumber,
                                                          ((RFSettings) settings).isUnidirectional());
 
-            logger.trace("serial number: "
-                         + DataUnitBuilder.toHex(serialNumber, ":")
-                         + "; domain address: "
-                         + DataUnitBuilder.toHex(domainAddress, ":"));
+            logger.trace("serial number: " + DataUnitBuilder.toHex(serialNumber, ":") + "; domain address: " + DataUnitBuilder
+                    .toHex(domainAddress, ":"));
             this.settings = acquiredSettings;
         } else {
             throw new KNXIllegalArgumentException("medium differs");
@@ -228,8 +223,7 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
      * tuwien.auto.calimero.Priority, byte[])
      */
     @Override
-    public void sendRequest(KNXAddress dst, Priority p, byte[] nsdu)
-            throws KNXTimeoutException, KNXLinkClosedException {
+    public void sendRequest(KNXAddress dst, Priority p, byte[] nsdu) throws KNXTimeoutException, KNXLinkClosedException {
         sendRequest(dst, hopCount, nsdu, false);
     }
 
@@ -240,8 +234,7 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
      * tuwien.auto.calimero.Priority, byte[])
      */
     @Override
-    public void sendRequestWait(KNXAddress dst, Priority p, byte[] nsdu) throws KNXTimeoutException,
-            KNXLinkClosedException {
+    public void sendRequestWait(KNXAddress dst, Priority p, byte[] nsdu) throws KNXTimeoutException, KNXLinkClosedException {
         sendRequest(dst, hopCount, nsdu, true);
     }
 
@@ -251,20 +244,14 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
      * @see tuwien.auto.calimero.link.KNXNetworkLink#send(tuwien.auto.calimero.cemi.CEMILData, boolean)
      */
     @Override
-    public void send(CEMILData msg, boolean waitForCon)
-            throws KNXTimeoutException, KNXLinkClosedException {
+    public void send(CEMILData msg, boolean waitForCon) throws KNXTimeoutException, KNXLinkClosedException {
         sendRequest(msg.getDestination(), msg.getHopCount(), msg.getPayload(), waitForCon);
     }
 
-    private void sendRequest(KNXAddress dst, int hopCount, byte[] nsdu, boolean waitForCon)
-            throws KNXTimeoutException,
+    private void sendRequest(KNXAddress dst, int hopCount, byte[] nsdu, boolean waitForCon) throws KNXTimeoutException,
             KNXLinkClosedException {
         if (spoofing) {
-            connection.sendSpoofingRequest(settings.getDeviceAddress(),
-                                           dst,
-                                           hopCount,
-                                           nsdu,
-                                           waitForCon);
+            connection.sendSpoofingRequest(settings.getDeviceAddress(), dst, hopCount, nsdu, waitForCon);
         } else {
             connection.sendRequest(settings.getDeviceAddress(), dst, hopCount, nsdu, waitForCon);
         }

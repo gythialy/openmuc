@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,6 +20,7 @@
  */
 package org.openmuc.driver.dlms;
 
+import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.jdlms.client.ClientConnectionSettings;
 import org.openmuc.jdlms.client.ClientConnectionSettings.Authentication;
 import org.openmuc.jdlms.client.ClientConnectionSettings.ReferencingMethod;
@@ -34,30 +35,16 @@ import java.net.UnknownHostException;
 
 public class AddressParser {
 
-    private final LegacyDeviceAddressParser legacyParser = new LegacyDeviceAddressParser();
+    public ClientConnectionSettings<?> parse(String deviceAddress, SettingsHelper settings) throws UnknownHostException,
+            ArgumentSyntaxException {
 
-    public ClientConnectionSettings<?> parse(String interfaceAddress,
-                                             String deviceAddress,
-                                             SettingsHelper settings)
-            throws UnknownHostException {
-        interfaceAddress.trim();
-        if (interfaceAddress == null || interfaceAddress.isEmpty()) {
-            return legacyParser.parse(deviceAddress, settings);
+        String[] deviceTokens = deviceAddress.split(":");
+
+        if (deviceTokens.length < 4 || deviceTokens.length > 5) {
+            throw new ArgumentSyntaxException("Device address has less than 4 or more than 5 parameters.");
         }
 
-        int pos = interfaceAddress.indexOf(":");
-        if (pos == -1) {
-            throw new IllegalArgumentException("InterfaceAddress must begin with 'protocol:'");
-        }
-
-        pos = deviceAddress.indexOf(":");
-        if (pos == -1) {
-            throw new IllegalArgumentException(
-                    "DeviceAddress must have the format 'server-logical-port:client-logical-port'");
-        }
-
-        String protocol = interfaceAddress.substring(0, interfaceAddress.indexOf(":"))
-                                          .toLowerCase();
+        String protocol = deviceTokens[0].toLowerCase();
 
         ClientConnectionSettings<?> result = null;
 
@@ -65,12 +52,22 @@ public class AddressParser {
 
         referencing = ReferencingMethod.valueOf(settings.getReferencing());
 
+        String oldInterfaceAddress;
+        String oldDeviceAddress;
+        if (deviceTokens.length == 4) {
+            oldInterfaceAddress = deviceTokens[0] + ":" + deviceTokens[1];
+            oldDeviceAddress = deviceTokens[2] + ":" + deviceTokens[3];
+        } else {
+            oldInterfaceAddress = deviceTokens[0] + ":" + deviceTokens[1] + ":" + deviceTokens[2];
+            oldDeviceAddress = deviceTokens[3] + ":" + deviceTokens[4];
+        }
+
         if (protocol.equals("hdlc")) {
-            result = parseHdlc(interfaceAddress, deviceAddress, referencing, settings);
+            result = parseHdlc(oldInterfaceAddress, oldDeviceAddress, referencing, settings);
         } else if (protocol.equals("udp")) {
-            result = parseUdp(interfaceAddress, deviceAddress, referencing, settings);
+            result = parseUdp(oldInterfaceAddress, oldDeviceAddress, referencing, settings);
         } else if (protocol.equals("tcp")) {
-            result = parseTcp(interfaceAddress, deviceAddress, referencing, settings);
+            result = parseTcp(oldInterfaceAddress, oldDeviceAddress, referencing, settings);
         }
 
         if (settings.getPassword() != null) {
@@ -80,9 +77,7 @@ public class AddressParser {
         return result;
     }
 
-    private HdlcClientConnectionSettings parseHdlc(String interfaceAddress,
-                                                   String deviceAddress,
-                                                   ReferencingMethod referencing,
+    private HdlcClientConnectionSettings parseHdlc(String interfaceAddress, String deviceAddress, ReferencingMethod referencing,
                                                    SettingsHelper settings) {
         HdlcClientConnectionSettings result = null;
 
@@ -90,20 +85,18 @@ public class AddressParser {
         String[] deviceTokens = deviceAddress.split(":");
 
         if (interfaceTokens.length < 2 || interfaceTokens.length > 3) {
-            throw new IllegalArgumentException(
-                    "InterfaceAddress has unknown format. Use hdlc:port[:serverPhysical] as pattern");
+            throw new IllegalArgumentException("InterfaceAddress has unknown format. Use hdlc:port[:serverPhysical] as pattern");
         }
         if (deviceTokens.length != 2) {
-            throw new IllegalArgumentException(
-                    "DeviceAddress has unknown format. Use serverLogical:clientLogical");
+            throw new IllegalArgumentException("DeviceAddress has unknown format. Use serverLogical:clientLogical");
         }
 
-        String port = interfaceTokens[1];
-        HdlcAddress client = new HdlcAddress(Integer.parseInt(deviceTokens[1]));
-        HdlcAddress server = null;
+        String serialPort = interfaceTokens[1];
+        HdlcAddress clientAddress = new HdlcAddress(Integer.parseInt(deviceTokens[1]));
+        HdlcAddress serverAddress = null;
 
         if (interfaceTokens.length == 2) {
-            server = new HdlcAddress(Integer.parseInt(deviceTokens[0]));
+            serverAddress = new HdlcAddress(Integer.parseInt(deviceTokens[0]));
         } else {
             int logical = Integer.parseInt(deviceTokens[0]);
             int physical = Integer.parseInt(interfaceTokens[2]);
@@ -113,44 +106,37 @@ public class AddressParser {
                 addressSize = 4;
             }
 
-            server = new HdlcAddress(logical, physical, addressSize);
+            serverAddress = new HdlcAddress(logical, physical, addressSize);
         }
 
-        if (client.isValidAddress() == false) {
+        if (clientAddress.isValidAddress() == false) {
             throw new IllegalArgumentException("Client logical address must be in range [1, 127]");
         }
-        if (server.isValidAddress() == false) {
+        if (serverAddress.isValidAddress() == false) {
             throw new IllegalArgumentException("Server address is invalid");
         }
 
         boolean useHandshake = settings.useHandshake();
         int baudrate = settings.getBaudrate();
 
-        result = new HdlcClientConnectionSettings(port, client, server, referencing).setBaudrate(
-                baudrate)
-                                                                                    .setUseHandshake(
-                                                                                            useHandshake);
+        result = new HdlcClientConnectionSettings(serialPort, clientAddress, serverAddress, referencing).setBaudrate(baudrate)
+                                                                                                        .setUseHandshake(useHandshake);
 
         return result;
     }
 
-    private UdpClientConnectionSettings parseUdp(String interfaceAddress,
-                                                 String deviceAddress,
-                                                 ReferencingMethod referencing,
-                                                 SettingsHelper settings)
-            throws UnknownHostException {
+    private UdpClientConnectionSettings parseUdp(String interfaceAddress, String deviceAddress, ReferencingMethod referencing,
+                                                 SettingsHelper settings) throws UnknownHostException {
         UdpClientConnectionSettings result = null;
 
         String[] interfaceTokens = interfaceAddress.split(":");
         String[] deviceTokens = deviceAddress.split(":");
 
         if (interfaceTokens.length < 2 && interfaceTokens.length > 3) {
-            throw new IllegalArgumentException(
-                    "InterfaceAddress has unknown format. Use udp:serverIp[:serverPort] as a pattern");
+            throw new IllegalArgumentException("InterfaceAddress has unknown format. Use udp:serverIp[:serverPort] as a pattern");
         }
         if (deviceTokens.length != 2) {
-            throw new IllegalArgumentException(
-                    "DeviceAddress has unknown format. Use serverWPort:clientWPort");
+            throw new IllegalArgumentException("DeviceAddress has unknown format. Use serverWPort:clientWPort");
         }
 
         int serverPort = 4059;
@@ -158,35 +144,26 @@ public class AddressParser {
             serverPort = Integer.parseInt(interfaceTokens[2]);
         }
         int clientWPort = Integer.parseInt(deviceTokens[1]);
-        InetSocketAddress serverAddress = new InetSocketAddress(InetAddress.getByName(
-                interfaceTokens[1]), serverPort);
+        InetSocketAddress serverAddress = new InetSocketAddress(InetAddress.getByName(interfaceTokens[1]), serverPort);
         int serverWPort = Integer.parseInt(deviceTokens[0]);
 
-        result = new UdpClientConnectionSettings(serverAddress,
-                                                 serverWPort,
-                                                 clientWPort,
-                                                 referencing);
+        result = new UdpClientConnectionSettings(serverAddress, serverWPort, clientWPort, referencing);
 
         return result;
     }
 
-    private TcpClientConnectionSettings parseTcp(String interfaceAddress,
-                                                 String deviceAddress,
-                                                 ReferencingMethod referencing,
-                                                 SettingsHelper settings)
-            throws UnknownHostException {
+    private TcpClientConnectionSettings parseTcp(String interfaceAddress, String deviceAddress, ReferencingMethod referencing,
+                                                 SettingsHelper settings) throws UnknownHostException {
         TcpClientConnectionSettings result = null;
 
         String[] interfaceTokens = interfaceAddress.split(":");
         String[] deviceTokens = deviceAddress.split(":");
 
         if (interfaceTokens.length < 2 && interfaceTokens.length > 3) {
-            throw new IllegalArgumentException(
-                    "InterfaceAddress has unknown format. Use tcp:serverIp[:serverPort] as a pattern");
+            throw new IllegalArgumentException("InterfaceAddress has unknown format. Use tcp:serverIp[:serverPort] as a pattern");
         }
         if (deviceTokens.length != 2) {
-            throw new IllegalArgumentException(
-                    "DeviceAddress has unknown format. Use serverWPort:clientWPort");
+            throw new IllegalArgumentException("DeviceAddress has unknown format. Use serverWPort:clientWPort");
         }
 
         int serverPort = 4059;
@@ -194,14 +171,10 @@ public class AddressParser {
             serverPort = Integer.parseInt(interfaceTokens[2]);
         }
         int clientWPort = Integer.parseInt(deviceTokens[1]);
-        InetSocketAddress serverAddress = new InetSocketAddress(InetAddress.getByName(
-                interfaceTokens[1]), serverPort);
+        InetSocketAddress serverAddress = new InetSocketAddress(InetAddress.getByName(interfaceTokens[1]), serverPort);
         int serverWPort = Integer.parseInt(deviceTokens[0]);
 
-        result = new TcpClientConnectionSettings(serverAddress,
-                                                 serverWPort,
-                                                 clientWPort,
-                                                 referencing);
+        result = new TcpClientConnectionSettings(serverAddress, serverWPort, clientWPort, referencing);
 
         return result;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,9 +41,8 @@ public enum EPrimaryTable {
             }
         }
         if (returnValue == null) {
-            throw new RuntimeException(enumAsString
-                                       + " is not supported. Use one of the following supported primary tables: "
-                                       + getSupportedValues());
+            throw new RuntimeException(
+                    enumAsString + " is not supported. Use one of the following supported primary tables: " + getSupportedValues());
         }
         return returnValue;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -59,32 +59,32 @@ public class ModbusDriverUtil {
         byte[] registerAsByteArray = inputRegisterToByteArray(registers);
 
         switch (datatype) {
-        case SHORT:
-            registerValue = new ShortValue(ModbusUtil.registerToShort(registerAsByteArray));
-            break;
-        case INT:
-            registerValue = new IntValue(ModbusUtil.registersToInt(registerAsByteArray));
-            break;
-        case FLOAT:
-            registerValue = new FloatValue(ModbusUtil.registersToFloat(registerAsByteArray));
-            break;
-        case DOUBLE:
-            registerValue = new DoubleValue(ModbusUtil.registersToDouble(registerAsByteArray));
-            break;
-        case LONG:
-            registerValue = new LongValue(ModbusUtil.registersToLong(registerAsByteArray));
-            break;
-        case BYTEARRAY:
-            registerValue = new ByteArrayValue(registerAsByteArray);
-            break;
-        case BYTE_HIGH:
-            registerValue = new IntValue(registerAsByteArray[1] & 0xFF);
-            break;
-        case BYTE_LOW:
-            registerValue = new IntValue(registerAsByteArray[0] & 0xFF);
-            break;
-        default:
-            throw new RuntimeException("Datatype " + datatype.toString() + " not supported yet");
+            case SHORT:
+                registerValue = new ShortValue(ModbusUtil.registerToShort(registerAsByteArray));
+                break;
+            case INT:
+                registerValue = new IntValue(ModbusUtil.registersToInt(registerAsByteArray));
+                break;
+            case FLOAT:
+                registerValue = new FloatValue(ModbusUtil.registersToFloat(registerAsByteArray));
+                break;
+            case DOUBLE:
+                registerValue = new DoubleValue(ModbusUtil.registersToDouble(registerAsByteArray));
+                break;
+            case LONG:
+                registerValue = new LongValue(ModbusUtil.registersToLong(registerAsByteArray));
+                break;
+            case BYTEARRAY:
+                registerValue = new ByteArrayValue(registerAsByteArray);
+                break;
+            case BYTE_HIGH:
+                registerValue = new IntValue(registerAsByteArray[1] & 0xFF);
+                break;
+            case BYTE_LOW:
+                registerValue = new IntValue(registerAsByteArray[0] & 0xFF);
+                break;
+            default:
+                throw new RuntimeException("Datatype " + datatype.toString() + " not supported yet");
         }
         return registerValue;
     }
@@ -95,28 +95,28 @@ public class ModbusDriverUtil {
 
         switch (datatype) {
 
-        case SHORT:
-            registers = byteArrayToRegister(ModbusUtil.shortToRegister(value.asShort()));
-            break;
-        case INT:
-            registers = byteArrayToRegister(ModbusUtil.intToRegisters(value.asInt()));
-            break;
-        case DOUBLE:
-            registers = byteArrayToRegister(ModbusUtil.doubleToRegisters(value.asDouble()));
-            break;
-        case FLOAT:
-            registers = byteArrayToRegister(ModbusUtil.floatToRegisters(value.asFloat()));
-            break;
-        case LONG:
-            registers = byteArrayToRegister(ModbusUtil.longToRegisters(value.asLong()));
-            break;
-        case BYTEARRAY:
-            registers = byteArrayToRegister(value.asByteArray());
-            break;
-        case BYTE_HIGH:
-        case BYTE_LOW:
-        default:
-            throw new RuntimeException("Datatype " + datatype.toString() + " not supported yet");
+            case SHORT:
+                registers = byteArrayToRegister(ModbusUtil.shortToRegister(value.asShort()));
+                break;
+            case INT:
+                registers = byteArrayToRegister(ModbusUtil.intToRegisters(value.asInt()));
+                break;
+            case DOUBLE:
+                registers = byteArrayToRegister(ModbusUtil.doubleToRegisters(value.asDouble()));
+                break;
+            case FLOAT:
+                registers = byteArrayToRegister(ModbusUtil.floatToRegisters(value.asFloat()));
+                break;
+            case LONG:
+                registers = byteArrayToRegister(ModbusUtil.longToRegisters(value.asLong()));
+                break;
+            case BYTEARRAY:
+                registers = byteArrayToRegister(value.asByteArray());
+                break;
+            case BYTE_HIGH:
+            case BYTE_LOW:
+            default:
+                throw new RuntimeException("Datatype " + datatype.toString() + " not supported yet");
         }
 
         return registers;
@@ -131,10 +131,7 @@ public class ModbusDriverUtil {
     private byte[] inputRegisterToByteArray(InputRegister[] inputRegister) {
         byte[] registerAsBytes = new byte[inputRegister.length * 2]; // one register = 2 bytes
         for (int i = 0; i < inputRegister.length; i++) {
-            System.arraycopy(inputRegister[i].toBytes(),
-                             0,
-                             registerAsBytes,
-                             i * inputRegister[0].toBytes().length,
+            System.arraycopy(inputRegister[i].toBytes(), 0, registerAsBytes, i * inputRegister[0].toBytes().length,
                              inputRegister[i].toBytes().length);
         }
         return registerAsBytes;
@@ -156,8 +153,7 @@ public class ModbusDriverUtil {
                 j = j + 2;
             }
         } else {
-            throw new RuntimeException(
-                    "conversion vom byteArray to Register is not working for odd number of bytes");
+            throw new RuntimeException("conversion vom byteArray to Register is not working for odd number of bytes");
         }
         return register;
     }

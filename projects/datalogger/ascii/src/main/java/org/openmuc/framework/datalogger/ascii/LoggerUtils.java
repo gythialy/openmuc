@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -48,9 +48,7 @@ public class LoggerUtils {
      * @param endTimestamp
      * @return a list of files which within the timespan
      */
-    public static List<String> getFilenames(int loggingInterval,
-                                            long startTimestamp,
-                                            long endTimestamp) {
+    public static List<String> getFilenames(int loggingInterval, long startTimestamp, long endTimestamp) {
 
         Calendar calendarStart = new GregorianCalendar(Locale.getDefault());
         calendarStart.setTimeInMillis(startTimestamp);
@@ -82,6 +80,7 @@ public class LoggerUtils {
      * @return a filename from timestamp (date) and interval
      */
     public static String getFilename(int loggingInterval, long timestamp) {
+
         Calendar calendar = new GregorianCalendar(Locale.getDefault());
         calendar.setTimeInMillis(timestamp);
         return buildFilename(loggingInterval, calendar);
@@ -95,9 +94,10 @@ public class LoggerUtils {
      * @return logfile name
      */
     public static String buildFilename(int loggingInterval, Calendar calendar) {
+
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(DATE_FORMAT, calendar));
-        sb.append("_");
+        sb.append('_');
         sb.append(String.valueOf(loggingInterval));
         sb.append(AsciiLogger.EXTENSION);
         return sb.toString();
@@ -111,6 +111,7 @@ public class LoggerUtils {
      * @return true if it has a next container entry, if not else.
      */
     public static boolean hasNext(List<LogRecordContainer> containers, int i) {
+
         boolean result = false;
         if (i <= containers.size() - 2) {
             result = true;
@@ -135,9 +136,7 @@ public class LoggerUtils {
             String currentName = file.getName();
             if (currentName.startsWith(date) && currentName.endsWith(AsciiLogger.EXTENSION)) {
 
-                String newName = currentName.substring(0,
-                                                       currentName.length()
-                                                       - AsciiLogger.EXTENSION.length());
+                String newName = currentName.substring(0, currentName.length() - AsciiLogger.EXTENSION.length());
                 newName += AsciiLogger.EXTENSION_OLD;
                 int j = 0;
 
@@ -147,10 +146,11 @@ public class LoggerUtils {
                     ++j;
                     fileWithNewName = new File(directoryPath + newName + j);
                 }
-                file.renameTo(fileWithNewName);
+                if (!file.renameTo(fileWithNewName)) {
+                    logger.error("Could not rename file to " + newName);
+                }
             }
         }
-
     }
 
     /**
@@ -162,12 +162,7 @@ public class LoggerUtils {
     public static Calendar getCalendarTodayZero(Calendar today) {
 
         Calendar calendarZero = new GregorianCalendar(Locale.getDefault());
-        calendarZero.set(today.get(Calendar.YEAR),
-                         today.get(Calendar.MONTH),
-                         today.get(Calendar.DATE),
-                         0,
-                         0,
-                         0);
+        calendarZero.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE), 0, 0, 0);
         calendarZero.set(Calendar.MILLISECOND, 0);
 
         return calendarZero;
@@ -181,10 +176,15 @@ public class LoggerUtils {
      * @return the modified string.
      */
     public static String addSpacesLeft(String value, int size) {
-        while (value.length() < size) {
-            value = " " + value;
+
+        StringBuilder sb = new StringBuilder();
+        int i = value.length();
+        while (i < size) {
+            sb.append(' ');
+            ++i;
         }
-        return value;
+        sb.append(value);
+        return sb.toString();
     }
 
     /**
@@ -195,10 +195,15 @@ public class LoggerUtils {
      * @return the modified string.
      */
     public static String addSpacesRight(String value, int size) {
-        while (value.length() < size) {
-            value = value + " ";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(value);
+        int i = value.length();
+        while (i < size) {
+            sb.append(' ');
+            ++i;
         }
-        return value;
+        return sb.toString();
     }
 
     /**
@@ -208,6 +213,7 @@ public class LoggerUtils {
      * @return a string with the flag and the standard error prefix.
      */
     public static String buildError(Flag flag) {
+
         return IESDataFormatUtils.ERROR + flag.getCode();
     }
 
@@ -245,11 +251,11 @@ public class LoggerUtils {
      * @return column number as int, -1 if name not found
      * @throws IOException
      */
-    public static int getCommentColumnNumberByName(String name, BufferedReader br)
-            throws IOException {
+    public static int getCommentColumnNumberByName(String name, BufferedReader br) throws IOException, NullPointerException {
 
         String line = br.readLine();
-        while (line.startsWith(IESDataFormatUtils.COMMENT)) {
+
+        while (line != null && line.startsWith(IESDataFormatUtils.COMMENT)) {
             if (line.contains(name)) {
                 String columns[] = line.split(IESDataFormatUtils.SEPARATOR);
                 for (int i = 0; i < columns.length; i++) {
@@ -258,7 +264,11 @@ public class LoggerUtils {
                     }
                 }
             }
-            line = br.readLine();
+            try {
+                line = br.readLine();
+            } catch (NullPointerException e) {
+                return -1;
+            }
         }
         return -1;
     }
@@ -270,13 +280,12 @@ public class LoggerUtils {
      * @return the value of a column of a specific col_num
      * @throws IOException
      */
-    public static String getCommentValue(int col_no, int column, BufferedReader br)
-            throws IOException {
+    public static String getCommentValue(int col_no, int column, BufferedReader br) throws IOException {
 
         String line = br.readLine();
         String columnName = String.format("%03d", col_no);
 
-        while (line.startsWith(IESDataFormatUtils.COMMENT)) {
+        while (line != null && line.startsWith(IESDataFormatUtils.COMMENT)) {
             if (line.startsWith(IESDataFormatUtils.COMMENT + columnName)) {
                 String columns[] = line.split(IESDataFormatUtils.SEPARATOR);
                 return columns[column];
@@ -336,40 +345,34 @@ public class LoggerUtils {
     }
 
     public static int getValueTypeLengthFromFile(int columnNumber, File dataFile) {
-        String valueType = getValueTypeAsString(columnNumber, dataFile);
 
+        String valueType = getValueTypeAsString(columnNumber, dataFile);
         return getByteStringLength(valueType);
     }
 
     private static String getValueTypeAsString(int columnNumber, File dataFile) {
+
         BufferedReader br = null;
         String value = "";
 
         try {
-            br = new BufferedReader(new FileReader(dataFile));
-            int column = LoggerUtils.getCommentColumnNumberByName(IESDataFormatUtils.COMMENT_NAME,
-                                                                  br);
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(dataFile), "US-ASCII"));
+            int column = LoggerUtils.getCommentColumnNumberByName(IESDataFormatUtils.COMMENT_NAME, br);
 
             if (column != -1) {
                 value = LoggerUtils.getCommentValue(columnNumber, column, br);
                 value = value.split(IESDataFormatUtils.VALUETYPE_ENDSIGN)[0];
             } else {
-                throw new NoSuchElementException("No element with name \""
-                                                 + IESDataFormatUtils.COMMENT_NAME
-                                                 + "\" found.");
+                throw new NoSuchElementException("No element with name \"" + IESDataFormatUtils.COMMENT_NAME + "\" found.");
             }
-            br.close();
-        }
-        catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
+        } finally {
+            closeBufferdReader(br);
         }
         return value;
     }
@@ -381,35 +384,36 @@ public class LoggerUtils {
      * @return predefined size of a ValueType as int.
      */
     public static int getLengthOfValueType(ValueType valueType) {
+
         int size;
 
         switch (valueType) {
-        case DOUBLE:
-            size = IESDataFormatUtils.VALUE_SIZE_DOUBLE;
-            break;
-        case FLOAT:
-            size = IESDataFormatUtils.VALUE_SIZE_DOUBLE;
-            break;
-        case INTEGER:
-            size = IESDataFormatUtils.VALUE_SIZE_INTEGER;
-            break;
-        case LONG:
-            size = IESDataFormatUtils.VALUE_SIZE_LONG;
-            break;
-        case SHORT:
-            size = IESDataFormatUtils.VALUE_SIZE_SHORT;
-            break;
-        case BYTE_ARRAY:
-            size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
-            break;
-        case STRING:
-            size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
-            break;
-        case BOOLEAN:
-        case BYTE:
-        default:
-            size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
-            break;
+            case DOUBLE:
+                size = IESDataFormatUtils.VALUE_SIZE_DOUBLE;
+                break;
+            case FLOAT:
+                size = IESDataFormatUtils.VALUE_SIZE_DOUBLE;
+                break;
+            case INTEGER:
+                size = IESDataFormatUtils.VALUE_SIZE_INTEGER;
+                break;
+            case LONG:
+                size = IESDataFormatUtils.VALUE_SIZE_LONG;
+                break;
+            case SHORT:
+                size = IESDataFormatUtils.VALUE_SIZE_SHORT;
+                break;
+            case BYTE_ARRAY:
+                size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
+                break;
+            case STRING:
+                size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
+                break;
+            case BOOLEAN:
+            case BYTE:
+            default:
+                size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
+                break;
         }
         return size;
     }
@@ -420,7 +424,8 @@ public class LoggerUtils {
      * @param byteArray
      * @return hexadecimal string
      */
-    public static String ByteArrayToHexString(byte[] byteArray) {
+    public static String byteArrayToHexString(byte[] byteArray) {
+
         char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[byteArray.length * 2];
         for (int j = 0; j < byteArray.length; j++) {
@@ -439,20 +444,27 @@ public class LoggerUtils {
      * @return the length of a ByteString in int.
      */
     private static int getByteStringLength(String string) {
-        String stringArray[] = {""};
+
+        String stringArray[];
         int size;
 
         stringArray = string.split(IESDataFormatUtils.VALUETYPE_SIZE_SEPARATOR);
         try {
-            size = Integer.valueOf(stringArray[1]);
-        }
-        catch (NumberFormatException e) {
+            size = Integer.parseInt(stringArray[1]);
+        } catch (NumberFormatException e) {
             logger.warn(
-                    "Not able to get ValueType length from String. Set length to minimal lenght "
-                    + IESDataFormatUtils.VALUE_SIZE_MINIMAL + ".");
+                    "Not able to get ValueType length from String. Set length to minimal lenght " + IESDataFormatUtils.VALUE_SIZE_MINIMAL
+                            + ".");
             size = IESDataFormatUtils.VALUE_SIZE_MINIMAL;
         }
         return size;
+    }
+
+    private static void closeBufferdReader(BufferedReader br) {
+        try {
+            br.close();
+        } catch (Exception e1) {
+        }
     }
 
 }

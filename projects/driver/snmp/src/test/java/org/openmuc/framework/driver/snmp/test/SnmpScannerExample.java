@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -37,9 +37,8 @@ public class SnmpScannerExample {
     public static void main(String[] args) {
 
         SnmpDriver myDriver = new SnmpDriver();
-        String settings = SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=adminadmin:"
-                          + SnmpDriverScanSettingVariableNames.STARTIP + "=192.168.1.0:"
-                          + SnmpDriverScanSettingVariableNames.ENDIP + "=192.168.10.0";
+        String settings = SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=adminadmin:" + SnmpDriverScanSettingVariableNames
+                .STARTIP + "=192.168.1.0:" + SnmpDriverScanSettingVariableNames.ENDIP + "=192.168.10.0";
 
         class TestListener implements DriverDeviceScanListener {
 
@@ -52,7 +51,6 @@ public class SnmpScannerExample {
                 System.out.println("-----------------------------");
                 System.out.println("New device found: ");
                 System.out.println("Address: " + device.getDeviceAddress());
-                System.out.println("SNMP version: " + device.getInterfaceAddress());
                 System.out.println("Description: " + device.getDescription());
                 System.out.println("-----------------------------");
             }
@@ -63,20 +61,16 @@ public class SnmpScannerExample {
         try {
             myDriver.scanForDevices(settings, listener);
             Thread.sleep(100);
-        }
-        catch (InterruptedException iex) {
+        } catch (InterruptedException iex) {
             System.out.println("Request cancelled: " + iex.getMessage());
 
-        }
-        catch (ArgumentSyntaxException e) {
+        } catch (ArgumentSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (ScanException e) {
+        } catch (ScanException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (ScanInterruptedException e) {
+        } catch (ScanInterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

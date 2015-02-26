@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -163,24 +163,20 @@ public final class DataExporter implements WebUiPluginService {
                 pw.flush();
 
                 return new MessageView("Data exported.", MessageView.INFO);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             return new MessageView("Invalid date format!", MessageView.ERROR);
         }
 
-        return new MessageView("Function not available in evaluation version!",
-                               MessageView.WARNING);
+        return new MessageView("Function not available in evaluation version!", MessageView.WARNING);
     }
 
     @Override
-    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return true;
     }
 

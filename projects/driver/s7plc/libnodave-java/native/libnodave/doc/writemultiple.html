@@ -4,8 +4,7 @@ areas with a single request to the PLC.
 <H2>Basics:</H2>
 First, you have to prepare an "empty" write request, i.e. one that doesn't contain the address of an
 item. You need a variable of type PDU to store the request. To this request, you add the desired
-items using the same parameters you would specify to <a href=daveWriteBytes.html>
-    daveWriteBytes</a>.
+items using the same parameters you would specify to <a href=daveWriteBytes.html> daveWriteBytes</a>.
 You may add up to 20 different items (limit introduced by Siemens PLCs) provided that the result
 data fits into a single response PDU. When you have added all desired items, call
 daveExecWriteRequest which performs the actual data exchange with the PLC. Example:

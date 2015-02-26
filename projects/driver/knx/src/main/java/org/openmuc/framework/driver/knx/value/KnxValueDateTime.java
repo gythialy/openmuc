@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -58,8 +58,7 @@ public class KnxValueDateTime extends KnxValue {
     public Value getOpenMucValue() {
         try {
             return new LongValue(((DPTXlatorDateTime) dptXlator).getValueMilliseconds());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new LongValue(0);
         }
     }
