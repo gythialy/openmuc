@@ -1,0 +1,149 @@
+/* OVERWRITE MAIN LINK COLOR */
+
+a {color:#009474}
+a:hover,a:focus{color:#006956}
+
+/* PAGE HEADER */
+
+@media (min-width: 768px) {
+  .page-header {
+    margin: 40px 0px 25px;
+    padding-bottom: 0px;
+  }
+}
+
+/* TABS */
+
+@media (max-width: 768px) {
+	.nav-tabs > li {
+	  float:none;
+	}
+	
+	.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+		border-left: 1px solid #ddd;
+		border-top: none;
+		border-right: none;
+		border-radius: 0px;
+	}
+}
+
+.nav.nav-tabs {
+	margin-bottom: 20px;
+}
+
+/* NOTIFICATION ALERTS */
+
+.alert.ng-scope.top-right {
+	-webkit-box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.3);
+	-moz-box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.3);
+	box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.3);
+}
+
+.alert.ng-scope.top-right .close {
+	margin-left: 10px;
+}
+
+/* LISTS */
+
+.indent-item {
+	margin-left: 20px;
+}
+
+/* FORMS */
+
+@media (min-width:768px){
+  .form-horizontal .control-label {
+    text-align:left;
+  }
+}
+
+.form-group .glyphicon-info-sign {
+  margin-right: 2px;
+  color: #07947A;
+}
+
+.help-block {
+	font-size: 13px;
+}
+
+/* ALERTS */
+
+.alert-primary {
+	color: #00947a;
+	background-color: #E3F0EE;
+	border-color: #D0DFDC;
+}
+
+.alert.alert-sm {
+	padding: 10px 15px;
+}
+
+/* PANELS */
+
+.panel-link-heading {
+	display: block;
+	cursor: pointer;
+	margin-bottom: 10px;
+}
+
+/* BUTTONS */
+
+.btn-primary {
+  background-color: #009474;
+  border-color: #009474;
+}
+.btn-primary[disabled],
+.btn-primary[disabled]:hover,
+.btn-primary[disabled]:focus {
+  background-color: #009474;
+  border-color: #009474;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.open,
+.open > .dropdown-toggle.btn-primary {
+  background-color: #00816A;
+  border-color: #00816A;
+}
+
+.btn-grid {
+  background-color: #F3F3F3;
+  border-color: #E5E5E5;
+  padding: 20px;
+  font-weight: bold;
+  color: #333;
+}
+.btn-grid:hover,
+.btn-grid:focus,
+.btn-grid.focus,
+.btn-grid:active,
+.btn-grid.active,
+.open > .dropdown-toggle.btn-grid {
+  background-color: #FAFAFA;
+  border-color: #83b8af;
+}
+
+/* ASIDE */
+
+.aside .aside-dialog .aside-header {
+	background: #009474;
+}
+
+/* PAGE HEADER */
+
+@media (max-width: 768px) {
+	.page-header {
+    margin-top: 20px;
+	}
+}
+
+.dropdown-toggle {
+	cursor: pointer;
+}
+
+.display-block{
+	display: block;
+}

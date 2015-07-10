@@ -26,55 +26,55 @@ import java.util.List;
 
 public final class MessageView implements View {
 
-    public static final int INFO = 0;
-    public static final int WARNING = 1;
-    public static final int ERROR = 2;
+	public static final int INFO = 0;
+	public static final int WARNING = 1;
+	public static final int ERROR = 2;
 
-    private String page = "";
-    private final String message;
+	private String page = "";
+	private final String message;
 
-    public MessageView(String page, String message, int type) {
-        this.page = page;
-        this.message = message;
-    }
+	public MessageView(String page, String message, int type) {
+		this.page = page;
+		this.message = message;
+	}
 
-    public MessageView(String message, int type) {
-        this.message = message;
-    }
+	public MessageView(String message, int type) {
+		this.message = message;
+	}
 
-    @Override
-    public List<String> getStyleSheets() {
-        return null;
-    }
+	@Override
+	public List<String> getStyleSheets() {
+		return null;
+	}
 
-    @Override
-    public List<String> getJavaScripts() {
-        return null;
-    }
+	@Override
+	public List<String> getJavaScripts() {
+		return null;
+	}
 
-    @Override
-    public String getTemplate() {
-        return "<div id=\"message\"><p>" + message + "</p></div>";
-    }
+	@Override
+	public String getTemplate() {
+		return "<div id=\"message\"><p>" + message + "</p></div>";
+	}
 
-    @Override
-    public HashMap<String, Object> getContext() {
-        return new HashMap<String, Object>();
-    }
+	@Override
+	public HashMap<String, Object> getContext() {
+		return new HashMap<String, Object>();
+	}
 
-    @Override
-    public String getPage() {
-        return page;
-    }
+	@Override
+	public String getPage() {
+		return page;
+	}
 
-    @Override
-    public String getRedirectLocation() {
-        return null;
-    }
+	@Override
+	public String getRedirectLocation() {
+		return null;
+	}
 
-    @Override
-    public viewtype getViewType() {
-        return null;
-    }
+	@Override
+	public viewtype getViewType() {
+		return null;
+	}
 
 }

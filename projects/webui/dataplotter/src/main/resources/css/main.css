@@ -1,0 +1,34 @@
+.plotter-place-holder {
+  max-width: 90%;
+  min-height: 400px;
+  margin: 5 auto;
+}
+
+#plotter-grid {
+  margin-bottom: 30px;
+}
+
+#plotter-grid .item {
+  margin-bottom: 20px;
+}
+
+#plotter-grid .item .item-label {
+  display: block;
+  padding: 10px 15px 20px 15px;
+  font-weight: bold;
+}
+
+#plotter-grid .item .item-icon {
+  display: block;
+  font-size: 36px;
+  padding-bottom: 15px;
+  color: #00947a;
+}
+
+.nav-tabs > li > a.active, .nav-tabs > li > a.active:hover, .nav-tabs > li > a.active:focus {
+	color: #555;
+	cursor: default;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+}

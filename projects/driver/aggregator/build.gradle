@@ -1,0 +1,12 @@
+dependencies {
+  compile project(':openmuc-core-spi')
+  compile project(':openmuc-core-api')
+}
+
+jar {
+  manifest {
+    name = "OpenMUC Driver - Aggregator"
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+    instruction 'Export-Package', ''
+  }
+}

@@ -26,22 +26,22 @@ import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
 public final class LogRecordContainerImpl implements LogRecordContainer {
 
-    private final String channelId;
-    private final Record record;
+	private final String channelId;
+	private final Record record;
 
-    public LogRecordContainerImpl(String channelId, Record record) {
-        this.channelId = channelId;
-        this.record = record;
-    }
+	public LogRecordContainerImpl(String channelId, Record record) {
+		this.channelId = channelId;
+		this.record = record;
+	}
 
-    @Override
-    public String getChannelId() {
-        return channelId;
-    }
+	@Override
+	public String getChannelId() {
+		return channelId;
+	}
 
-    @Override
-    public Record getRecord() {
-        return record;
-    }
+	@Override
+	public Record getRecord() {
+		return record;
+	}
 
 }

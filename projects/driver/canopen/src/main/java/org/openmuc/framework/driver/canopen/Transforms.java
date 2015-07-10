@@ -20,80 +20,114 @@
  */
 package org.openmuc.framework.driver.canopen;
 
-import org.openmuc.framework.data.*;
-import org.openmuc.jcanopen.datatypes.*;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.jcanopen.datatypes.Integer16;
+import org.openmuc.jcanopen.datatypes.Integer24;
+import org.openmuc.jcanopen.datatypes.Integer32;
+import org.openmuc.jcanopen.datatypes.Integer8;
+import org.openmuc.jcanopen.datatypes.NumericDataType;
+import org.openmuc.jcanopen.datatypes.Real32;
+import org.openmuc.jcanopen.datatypes.Real64;
+import org.openmuc.jcanopen.datatypes.Unsigned16;
+import org.openmuc.jcanopen.datatypes.Unsigned24;
+import org.openmuc.jcanopen.datatypes.Unsigned32;
+import org.openmuc.jcanopen.datatypes.Unsigned8;
 
 /**
  * @author Frederic Robra
+ * 
  */
 public class Transforms {
 
-    public static Value number2Value(Number number) {
-        Value value = null;
-        if (number instanceof Short) {
-            value = new ShortValue(number.shortValue());
-        } else if (number instanceof Integer) {
-            value = new IntValue(number.intValue());
-        } else if (number instanceof Long) {
-            value = new LongValue(number.longValue());
-        } else if (number instanceof Float) {
-            value = new FloatValue(number.floatValue());
-        } else { // if(number instanceof Double) {
-            value = new DoubleValue(number.doubleValue());
-        }
-        return value;
-    }
+	public static Value number2Value(Number number) {
+		Value value = null;
+		if (number instanceof Short) {
+			value = new ShortValue(number.shortValue());
+		}
+		else if (number instanceof Integer) {
+			value = new IntValue(number.intValue());
+		}
+		else if (number instanceof Long) {
+			value = new LongValue(number.longValue());
+		}
+		else if (number instanceof Float) {
+			value = new FloatValue(number.floatValue());
+		}
+		else { // if(number instanceof Double) {
+			value = new DoubleValue(number.doubleValue());
+		}
+		return value;
+	}
 
-    public static Number value2Number(Value value) {
-        Number number = null;
-        if (value instanceof ShortValue) {
-            number = new Short(value.asShort());
-        } else if (value instanceof IntValue) {
-            number = new Integer(value.asInt());
-        } else if (value instanceof LongValue) {
-            number = new Long(value.asLong());
-        } else if (value instanceof FloatValue) {
-            number = new Float(value.asFloat());
-        } else { // if(value instanceof DoubleValue) {
-            number = new Double(value.asDouble());
-        }
-        return number;
-    }
+	public static Number value2Number(Value value) {
+		Number number = null;
+		if (value instanceof ShortValue) {
+			number = new Short(value.asShort());
+		}
+		else if (value instanceof IntValue) {
+			number = new Integer(value.asInt());
+		}
+		else if (value instanceof LongValue) {
+			number = new Long(value.asLong());
+		}
+		else if (value instanceof FloatValue) {
+			number = new Float(value.asFloat());
+		}
+		else { // if(value instanceof DoubleValue) {
+			number = new Double(value.asDouble());
+		}
+		return number;
+	}
 
-    public static int parseHexOrDecValue(String value) {
-        if (value.startsWith("0x")) {
-            value = value.substring(2);
-            return Integer.parseInt(value, 16);
-        } else {
-            return Integer.parseInt(value);
-        }
-    }
+	public static int parseHexOrDecValue(String value) {
+		if (value.startsWith("0x")) {
+			value = value.substring(2);
+			return Integer.parseInt(value, 16);
+		}
+		else {
+			return Integer.parseInt(value);
+		}
+	}
 
-    public static NumericDataType parseDataType(String dataTypeName) {
-        NumericDataType numericDataType = null;
-        if (dataTypeName.equals("UNSIGNED8")) {
-            numericDataType = new Unsigned8((short) 0);
-        } else if (dataTypeName.equals("UNSIGNED16")) {
-            numericDataType = new Unsigned16(0);
-        } else if (dataTypeName.equals("UNSIGNED24")) {
-            numericDataType = new Unsigned24(0);
-        } else if (dataTypeName.equals("UNSIGNED32")) {
-            numericDataType = new Unsigned32(0);
-        } else if (dataTypeName.equals("INTEGER8")) {
-            numericDataType = new Integer8((short) 0);
-        } else if (dataTypeName.equals("INTEGER16")) {
-            numericDataType = new Integer16((short) 0);
-        } else if (dataTypeName.equals("INTEGER24")) {
-            numericDataType = new Integer24(0);
-        } else if (dataTypeName.equals("INTEGER32")) {
-            numericDataType = new Integer32(0);
-        } else if (dataTypeName.equals("REAL32")) {
-            numericDataType = new Real32(0);
-        } else if (dataTypeName.equals("REAL64")) {
-            numericDataType = new Real64(0);
-        }
+	public static NumericDataType parseDataType(String dataTypeName) {
+		NumericDataType numericDataType = null;
+		if (dataTypeName.equals("UNSIGNED8")) {
+			numericDataType = new Unsigned8((short) 0);
+		}
+		else if (dataTypeName.equals("UNSIGNED16")) {
+			numericDataType = new Unsigned16(0);
+		}
+		else if (dataTypeName.equals("UNSIGNED24")) {
+			numericDataType = new Unsigned24(0);
+		}
+		else if (dataTypeName.equals("UNSIGNED32")) {
+			numericDataType = new Unsigned32(0);
+		}
+		else if (dataTypeName.equals("INTEGER8")) {
+			numericDataType = new Integer8((short) 0);
+		}
+		else if (dataTypeName.equals("INTEGER16")) {
+			numericDataType = new Integer16((short) 0);
+		}
+		else if (dataTypeName.equals("INTEGER24")) {
+			numericDataType = new Integer24(0);
+		}
+		else if (dataTypeName.equals("INTEGER32")) {
+			numericDataType = new Integer32(0);
+		}
+		else if (dataTypeName.equals("REAL32")) {
+			numericDataType = new Real32(0);
+		}
+		else if (dataTypeName.equals("REAL64")) {
+			numericDataType = new Real64(0);
+		}
 
-        return numericDataType;
-    }
+		return numericDataType;
+	}
 
 }

@@ -23,14 +23,14 @@ package org.openmuc.framework.config;
 
 public class ArgumentSyntaxException extends Exception {
 
-    public ArgumentSyntaxException(String message) {
-        super(message);
-    }
+	private static final long serialVersionUID = 4793620849675542512L;
 
-    public ArgumentSyntaxException() {
-        super();
-    }
+	public ArgumentSyntaxException(String message) {
+		super(message);
+	}
 
-    private static final long serialVersionUID = 4793620849675542512L;
+	public ArgumentSyntaxException() {
+		super();
+	}
 
 }

@@ -27,45 +27,46 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Frederic Robra
+ * 
  */
 public class SDOObject {
 
-    private static Logger logger = LoggerFactory.getLogger(SDOObject.class);
+	private static Logger logger = LoggerFactory.getLogger(SDOObject.class);
 
-    private final int nodeId;
-    private final int index;
-    private final short subIndex;
-    private NumericDataType numericDataType = null;
+	private final int nodeId;
+	private final int index;
+	private final short subIndex;
+	private NumericDataType numericDataType = null;
 
-    public SDOObject(String channelAddressSyntax) throws ArgumentSyntaxException {
-        String[] address = channelAddressSyntax.split(":");
-        if (address == null || address.length < 4 || !address[0].equals("SDO")) {
-            throw new ArgumentSyntaxException("channel is not a sdo");
-        }
+	public SDOObject(String channelAddressSyntax) throws ArgumentSyntaxException {
+		String[] address = channelAddressSyntax.split(":");
+		if (address == null || address.length < 4 || !address[0].equals("SDO")) {
+			throw new ArgumentSyntaxException("channel is not a sdo");
+		}
 
-        nodeId = Transforms.parseHexOrDecValue(address[1]);
-        index = Transforms.parseHexOrDecValue(address[2]);
-        subIndex = (short) Transforms.parseHexOrDecValue(address[3]);
-        if (address.length > 4) {
-            logger.trace("parsing data type: {}", address[4]);
-            numericDataType = Transforms.parseDataType(address[4]);
-        }
-    }
+		nodeId = Transforms.parseHexOrDecValue(address[1]);
+		index = Transforms.parseHexOrDecValue(address[2]);
+		subIndex = (short) Transforms.parseHexOrDecValue(address[3]);
+		if (address.length > 4) {
+			logger.trace("parsing data type: {}", address[4]);
+			numericDataType = Transforms.parseDataType(address[4]);
+		}
+	}
 
-    public int getNodeId() {
-        return nodeId;
-    }
+	public int getNodeId() {
+		return nodeId;
+	}
 
-    public int getIndex() {
-        return index;
-    }
+	public int getIndex() {
+		return index;
+	}
 
-    public short getSubIndex() {
-        return subIndex;
-    }
+	public short getSubIndex() {
+		return subIndex;
+	}
 
-    public NumericDataType getNumericDataType() {
-        return numericDataType;
-    }
+	public NumericDataType getNumericDataType() {
+		return numericDataType;
+	}
 
 }

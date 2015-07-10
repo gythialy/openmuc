@@ -1,0 +1,13 @@
+
+dependencies {
+  compile project(':openmuc-core-api')
+  compile project(':openmuc-webui-spi')
+}
+
+jar {
+  manifest {
+    name = "OpenMUC WebUI - User Configurator"
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
+}

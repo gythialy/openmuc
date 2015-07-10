@@ -2,12 +2,13 @@ def projectName = 'OpenMUC'
 def projectNameLowerCase = 'openmuc'
 
 configure(allprojects) {
-    apply plugin: 'java'
-    version = '0.14.0'
-    group = 'org.openmuc.framework'
+  apply plugin: 'java'
+  version = '0.15.0'
+  group = 'org.openmuc.framework'
 }
 
 allprojects {
+    
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
             options.encoding = "UTF-8"
@@ -21,110 +22,111 @@ allprojects {
 }
 
 project.ext {
-    distributionProjects = subprojects.findAll {
-        it.getPath() == ':openmuc-core-api' ||
-                it.getPath() == ':openmuc-core-spi' ||
-                it.getPath() == ':openmuc-core-datamanager' ||
-                it.getPath() == ':openmuc-datalogger-ascii' ||
-                it.getPath() == ':openmuc-datalogger-slotsdb' ||
-                it.getPath() == ':openmuc-driver-canopen' ||
-                it.getPath() == ':openmuc-driver-dlms' ||
-                it.getPath() == ':openmuc-driver-ehz' ||
-                it.getPath() == ':openmuc-driver-iec61850' ||
-                it.getPath() == ':openmuc-driver-iec62056p21' ||
-                it.getPath() == ':openmuc-driver-knx' ||
-                it.getPath() == ':openmuc-driver-mbus' ||
-                it.getPath() == ':openmuc-driver-wmbus' ||
-                it.getPath() == ':openmuc-driver-modbus' ||
-                it.getPath() == ':openmuc-driver-s7plc' ||
-                it.getPath() == ':openmuc-driver-snmp' ||
-                it.getPath() == ':openmuc-webui-spi' ||
-                it.getPath() == ':openmuc-webui-base' ||
-                it.getPath() == ':openmuc-webui-bundleconfigurator' ||
-                it.getPath() == ':openmuc-webui-dataplotter' ||
-                it.getPath() == ':openmuc-webui-dataexporter' ||
-                it.getPath() == ':openmuc-webui-channelaccesstool' ||
-                it.getPath() == ':openmuc-webui-channelconfigurator' ||
-                it.getPath() == ':openmuc-webui-userconfigurator' ||
-                it.getPath() == ':openmuc-server-restws' ||
-                it.getPath() == ':openmuc-server-asciisocket'
-    }
+  distributionProjects = subprojects.findAll {
+    it.getPath() == ':openmuc-core-api' ||
+    it.getPath() == ':openmuc-core-spi' ||
+    it.getPath() == ':openmuc-core-datamanager' ||
+    it.getPath() == ':openmuc-datalogger-ascii' ||
+    it.getPath() == ':openmuc-datalogger-slotsdb' ||
+    it.getPath() == ':openmuc-driver-aggregator' ||
+    it.getPath() == ':openmuc-driver-canopen' ||
+    it.getPath() == ':openmuc-driver-dlms' ||
+    it.getPath() == ':openmuc-driver-ehz' ||
+    it.getPath() == ':openmuc-driver-iec61850' ||
+    it.getPath() == ':openmuc-driver-iec62056p21' ||
+    it.getPath() == ':openmuc-driver-knx' ||
+    it.getPath() == ':openmuc-driver-mbus' ||
+    it.getPath() == ':openmuc-driver-modbus' ||
+    it.getPath() == ':openmuc-driver-rest' ||
+    it.getPath() == ':openmuc-driver-s7plc' ||
+    it.getPath() == ':openmuc-driver-snmp' ||
+    it.getPath() == ':openmuc-driver-wmbus' ||
+    it.getPath() == ':openmuc-webui-spi' ||
+    it.getPath() == ':openmuc-webui-base' ||
+    it.getPath() == ':openmuc-webui-channelconfigurator' ||
+    it.getPath() == ':openmuc-webui-dataplotter' ||
+    it.getPath() == ':openmuc-webui-dataexporter' ||
+    it.getPath() == ':openmuc-webui-channelaccesstool' ||
+    it.getPath() == ':openmuc-webui-userconfigurator' ||
+    it.getPath() == ':openmuc-webui-mediaviewer' ||
+    it.getPath() == ':openmuc-server-restws'
+  }
 
-    docProjects = distributionProjects.findAll {
-        it.getPath() == ':openmuc-core-api' ||
-                it.getPath() == ':openmuc-core-spi' ||
-                it.getPath() == ':openmuc-webui-spi'
-    }
+  docProjects = distributionProjects.findAll {
+    it.getPath() == ':openmuc-core-api' ||
+    it.getPath() == ':openmuc-core-spi' ||
+    it.getPath() == ':openmuc-webui-spi'
+  }
 }
 
 configure(subprojects) {
 
-    apply plugin: 'eclipse'
-    apply plugin: 'osgi'
-    apply plugin: 'maven'
-    apply plugin: 'signing'
+  apply plugin: 'eclipse'
+  apply plugin: 'osgi'
+  apply plugin: 'maven'
+  apply plugin: 'signing'
 
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
 
+  repositories {
+    mavenCentral()
+    flatDir {
+      dirs 'dependencies', rootDir.getPath() + "/dependencies"
+    }
+  }
+
+  jar {
+    manifest {
+      version = project.version.replace('-','.');
+      symbolicName = project.name.replace("openmuc","org.openmuc.framework").replace('-','.');
+    }
+  }
+
+  dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+  }
+
+  task copyLibs(type: Copy) {
+    dependsOn(configurations.default.getAllArtifacts().getBuildDependencies())
+
+    into rootDir.getPath() + "/build/libs"
+    from configurations.default.getAllArtifacts().getFiles()
+  }
+
+  build.dependsOn(copyLibs)
+
+  eclipse.pathVariables([GRADLE_USER_HOME:file(gradle.gradleUserHomeDir)])
+  tasks.eclipse.dependsOn(cleanEclipse)
+
+  uploadArchives {
     repositories {
-        mavenCentral()
-        flatDir {
-            dirs 'dependencies', rootDir.getPath() + "/dependencies"
+      mavenDeployer {
+
+	repository(url: project.properties.repository) {
+          authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
         }
-    }
-
-    jar {
-        manifest {
-            version = project.version.replace('-', '.');
-            symbolicName = project.name.replace("openmuc", "org.openmuc.framework").replace('-', '.');
+        snapshotRepository(url: project.properties.snapshotRepository) {
+          authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
         }
+      
+	pom.project {
+	  packaging 'jar'
+	  url 'http://www.openmuc.org/'
+	}
+      }
     }
 
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-    }
+  } 
 
-    task copyLibs(type: Copy) {
-        dependsOn(configurations.default.getAllArtifacts().getBuildDependencies())
-
-        into rootDir.getPath() + "/build/libs"
-        from configurations.default.getAllArtifacts().getFiles()
-    }
-
-    build.dependsOn(copyLibs)
-
-    eclipse.pathVariables([GRADLE_USER_HOME: file(gradle.gradleUserHomeDir)])
-    tasks.eclipse.dependsOn(cleanEclipse)
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-
-                repository(url: project.properties.repository) {
-                    authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
-                }
-                snapshotRepository(url: project.properties.snapshotRepository) {
-                    authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
-                }
-
-                pom.project {
-                    packaging 'jar'
-                    url 'http://www.openmuc.org/'
-                }
-            }
-        }
-
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    artifacts {
-        archives sourcesJar
-    }
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+  
+  artifacts {
+    archives sourcesJar
+  }
 
 }
 
@@ -133,110 +135,109 @@ uploadArchives.enabled = false
 
 configure(docProjects) {
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
 
-    artifacts {
-        archives javadocJar
-    }
+  artifacts {
+    archives javadocJar
+  }
 
-    task copySrc(type: Copy) {
-        dependsOn(sourcesJar)
-        into rootDir.getPath() + "/build/libs"
-        from configurations.archives.getAllArtifacts().getFiles()
-    }
-    copyLibs.dependsOn copySrc
+  task copySrc(type: Copy) {
+    dependsOn(sourcesJar)
+    into rootDir.getPath() + "/build/libs"
+    from configurations.archives.getAllArtifacts().getFiles()
+  }
+  copyLibs.dependsOn copySrc
 }
 
 
 task javadocs(type: Javadoc) {
 
-    source docProjects.collect {
-        project -> project.sourceSets.main.allJava
-    }
+  source docProjects.collect {
+    project -> project.sourceSets.main.allJava
+  }
 
-    exclude '**/internal/**'
+  exclude '**/internal/**'
 
-    destinationDir = new File(buildDir, 'javadoc')
+  destinationDir = new File(buildDir, 'javadoc')
+  
+  classpath = files(distributionProjects.collect { project ->
+    project.sourceSets.main.compileClasspath })
 
-    classpath = files(distributionProjects.collect { project ->
-        project.sourceSets.main.compileClasspath
-    })
-
-    classpath += files(distributionProjects.collect { project ->
-        project.sourceSets.main.output
-    })
+  classpath += files(distributionProjects.collect { project ->
+    project.sourceSets.main.output })
 }
 
 task writeSettings << {
-    Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
-    out.write("include ");
-    boolean first = true;
-    for (Project myproject : distributionProjects) {
-        if (first == true) {
-            first = false;
-        } else {
-            out.write ", ";
-        }
-        out.write "'" + myproject.name + "'"
+  Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
+  out.write("include ");
+  boolean first = true;
+  for (Project myproject: distributionProjects) {
+    if (first == true) {
+      first = false;
     }
-    out.write "\n\n";
-
-    for (Project myproject : distributionProjects) {
-        out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int) (getProjectDir().toString().size() + 1)) + '")\n';
+    else {
+      out.write ", ";
     }
+    out.write "'" + myproject.name + "'"
+  }
+  out .write "\n\n";
 
-    out.close();
+  for (Project myproject: distributionProjects) {
+    out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
+  }
+
+  out.close();
 }
 
 task buildDistProjects {
-    dependsOn(distributionProjects.build)
+  dependsOn(distributionProjects.build)
 }
 
-task(tar, type: Tar) {
-    dependsOn(writeSettings)
-    dependsOn(distributionProjects.build)
-    dependsOn(javadocs)
+task (tar, type: Tar) {
+  dependsOn(writeSettings)
+  dependsOn(distributionProjects.build)
+  dependsOn(javadocs)
 
-    compression = Compression.GZIP
+  compression = Compression.GZIP
 
-    into(project.archivesBaseName) {
-        from('./') {
-            include 'build.gradle'
-            include 'licenses/**'
-            include 'doc/*.txt'
-            include 'doc/userguide/' + projectNameLowerCase + '-doc*.html'
-            include 'doc/userguide/' + projectNameLowerCase + '-doc_img/**'
-            include 'build/libs/**'
-            include 'build/javadoc/**'
+  into(project.archivesBaseName) {
+    from('./') {
+      include 'build.gradle'
+      include 'licenses/**'
+      include 'doc/*.txt'
+      include 'doc/userguide/' + projectNameLowerCase + '-doc*.html'
+      include 'doc/userguide/' + projectNameLowerCase + '-doc_img/**'
+      include 'build/libs/**'
+      include 'build/javadoc/**'
 
-            include 'dependencies/**'
+      include 'dependencies/**'
 
-            include 'demo/framework/felix/**'
-            include 'demo/framework/bundle/**'
-            include 'demo/framework/conf/**'
-            include 'demo/framework/README.txt'
-            include 'demo/framework/run-openmuc.bat.winfile'
-            include 'demo/framework/build.gradle'
-            include 'demo/framework/update-bundles.sh'
-            include 'demo/framework/run-openmuc.sh'
-            include 'demo/projects/**'
+      include 'demo/framework/felix/**'
+      include 'demo/framework/bundle/**'
+      include 'demo/framework/conf/**'
+      include 'demo/framework/README.txt'
+      include 'demo/framework/run-openmuc.bat.winfile'
+      include 'demo/framework/build.gradle'
+      include 'demo/framework/update-bundles.sh'
+      include 'demo/framework/run-openmuc.sh'
+      include 'demo/projects/**'
 
-            exclude '**/projects/**/bin'
-            exclude '**/projects/**/build'
-            exclude '**/projects/**/.settings'
-            exclude '**/projects/**/.project'
-            exclude '**/projects/**/.classpath'
+      exclude '**/projects/**/bin'
+      exclude '**/projects/**/build'
+      exclude '**/projects/**/.settings'
+      exclude '**/projects/**/.project'
+      exclude '**/projects/**/.classpath'
 
-            for (Project myproject : distributionProjects) {
-                include myproject.getProjectDir().toString().substring((int) (getProjectDir().toString().size() + 1)) + '/**';
-            }
-        }
-
-        from('./build/') {
-            include 'settings.gradle'
-        }
+      for (Project myproject: distributionProjects) {
+	include myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '/**';
+      }
     }
+    
+    from('./build/') {
+      include 'settings.gradle'
+    }
+  }
 }

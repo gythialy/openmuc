@@ -4,24 +4,24 @@ def jcanopenv = '0.1.0-SNAPSHOT'
 
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile group: 'org.openmuc.jcanopen', name: 'openmuc-jcanopen', version: jcanopenv
-    embed group: 'org.openmuc.jcanopen', name: 'openmuc-jcanopen', version: jcanopenv
-    embed group: 'net.java.dev.jna', name: 'jna', version: '3.4.0'
+  compile project(':openmuc-core-spi')
+  compile group: 'org.openmuc.jcanopen', name: 'openmuc-jcanopen', version: jcanopenv
+  embed group: 'org.openmuc.jcanopen', name: 'openmuc-jcanopen', version: jcanopenv
+  embed group: 'net.java.dev.jna', name: 'jna', version: '3.4.0'
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - CANopen"
-        instruction 'Bundle-ClassPath', '.,lib/jna-3.4.0.jar,lib/openmuc-jcanopen-' + jcanopenv + '.jar'
-        instruction 'Import-Package', '!org.openmuc.jcanopen*,*'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - CANopen"
+    instruction 'Bundle-ClassPath', '.,lib/jna-3.4.0.jar,lib/openmuc-jcanopen-' + jcanopenv + '.jar'
+    instruction 'Import-Package', '!org.openmuc.jcanopen*,*'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }

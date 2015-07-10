@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="org.openmuc.framework.webui.dataexporter">
+  <implementation class="org.openmuc.framework.webui.dataexporter.DataExporter" />
+  <service>
+    <provide interface="org.openmuc.framework.webui.spi.WebUiPluginService" />
+  </service>
+</component>

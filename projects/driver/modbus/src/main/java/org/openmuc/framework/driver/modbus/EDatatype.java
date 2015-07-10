@@ -23,97 +23,99 @@ package org.openmuc.framework.driver.modbus;
 
 public enum EDatatype {
 
-    BOOLEAN("boolean", 1), // 1 Bit
-    SHORT("short", 1), // 1 Register
-    INT("int", 2), // 2 Registers
-    FLOAT("float", 2), // 2 Registers
-    DOUBLE("double", 4), // 4 Registers
-    LONG("long", 4), // 4 Registers
-    BYTEARRAY("bytearray", 0), // registerCount is calculated dynamically, the 0 will be overwritten
-    BYTE_HIGH("byte_high", 1), BYTE_LOW("byte_low", 1);
+	BOOLEAN("boolean", 1), // 1 Bit
+	SHORT("short", 1), // 1 Register
+	INT("int", 2), // 2 Registers
+	FLOAT("float", 2), // 2 Registers
+	DOUBLE("double", 4), // 4 Registers
+	LONG("long", 4), // 4 Registers
+	BYTEARRAY("bytearray", 0), // registerCount is calculated dynamically, the 0 will be overwritten
+	BYTE_HIGH("byte_high", 1), BYTE_LOW("byte_low", 1);
 
-    private final String datatype;
-    private final int registerCount;
+	private final String datatype;
+	private final int registerCount;
 
-    EDatatype(String datatypeAsString, int registerSize) {
-        datatype = datatypeAsString;
-        registerCount = registerSize;
-    }
+	EDatatype(String datatypeAsString, int registerSize) {
+		datatype = datatypeAsString;
+		registerCount = registerSize;
+	}
 
-    public int getRegisterCount() {
-        return registerCount;
-    }
+	public int getRegisterCount() {
+		return registerCount;
+	}
 
-    @Override
-    public String toString() {
-        return datatype;
-    }
+	@Override
+	public String toString() {
+		return datatype;
+	}
 
-    /**
-     * @param enumAsString
-     * @return the EDatatype
-     */
-    public static EDatatype getEnumFromString(String enumAsString) {
-        EDatatype returnValue = null;
+	/**
+	 * @param enumAsString
+	 * @return the EDatatype
+	 */
+	public static EDatatype getEnumFromString(String enumAsString) {
+		EDatatype returnValue = null;
 
-        if (enumAsString != null) {
+		if (enumAsString != null) {
 
-            for (EDatatype type : EDatatype.values()) {
-                if (enumAsString.equals(type.datatype)) {
-                    returnValue = EDatatype.valueOf(enumAsString.toUpperCase());
-                    break;
-                } else if (enumAsString.toUpperCase().matches("BYTEARRAY\\[\\d+\\]")) {
-                    // Special check for BYTEARRAY[n] datatyp
-                    returnValue = EDatatype.BYTEARRAY;
-                    break;
-                }
-            }
-        }
+			for (EDatatype type : EDatatype.values()) {
+				if (enumAsString.equals(type.datatype)) {
+					returnValue = EDatatype.valueOf(enumAsString.toUpperCase());
+					break;
+				}
+				else if (enumAsString.toUpperCase().matches("BYTEARRAY\\[\\d+\\]")) {
+					// Special check for BYTEARRAY[n] datatyp
+					returnValue = EDatatype.BYTEARRAY;
+					break;
+				}
+			}
+		}
 
-        if (returnValue == null) {
-            throw new RuntimeException(
-                    enumAsString + " is not supported. Use one of the following supported datatypes: " + getSupportedDatatypes());
-        }
+		if (returnValue == null) {
+			throw new RuntimeException(enumAsString
+					+ " is not supported. Use one of the following supported datatypes: " + getSupportedDatatypes());
+		}
 
-        return returnValue;
+		return returnValue;
 
-    }
+	}
 
-    /**
-     * @return all supported datatypes
-     */
-    public static String getSupportedDatatypes() {
+	/**
+	 * @return all supported datatypes
+	 */
+	public static String getSupportedDatatypes() {
 
-        String supported = "";
+		String supported = "";
 
-        for (EDatatype type : EDatatype.values()) {
-            supported += type.toString() + ", ";
-        }
+		for (EDatatype type : EDatatype.values()) {
+			supported += type.toString() + ", ";
+		}
 
-        return supported;
-    }
+		return supported;
+	}
 
-    /**
-     * Checks if the datatype is valid
-     *
-     * @param enumAsString
-     * @return true if valid, otherwise false
-     */
-    public static boolean isValidDatatype(String enumAsString) {
-        boolean returnValue = false;
+	/**
+	 * Checks if the datatype is valid
+	 * 
+	 * @param enumAsString
+	 * @return true if valid, otherwise false
+	 */
+	public static boolean isValidDatatype(String enumAsString) {
+		boolean returnValue = false;
 
-        for (EDatatype type : EDatatype.values()) {
+		for (EDatatype type : EDatatype.values()) {
 
-            if (type.toString().toLowerCase().equals(enumAsString.toLowerCase())) {
-                returnValue = true;
-                break;
-            } else if (enumAsString.toUpperCase().matches("BYTEARRAY\\[\\d+\\]")) {
-                // Special check for BYTEARRAY[n] datatyp
-                returnValue = true;
-                break;
-            }
-        }
+			if (type.toString().toLowerCase().equals(enumAsString.toLowerCase())) {
+				returnValue = true;
+				break;
+			}
+			else if (enumAsString.toUpperCase().matches("BYTEARRAY\\[\\d+\\]")) {
+				// Special check for BYTEARRAY[n] datatyp
+				returnValue = true;
+				break;
+			}
+		}
 
-        return returnValue;
-    }
+		return returnValue;
+	}
 }

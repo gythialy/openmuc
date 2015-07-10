@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-14 Fraunhofer ISE
+ * Copyright 2011-15 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,8 +21,11 @@
 
 Authors:
 Stefan Feuerhahn
-Michael Zillgith
 Marco Mittelsdorf
+Dirk Zimmermann
+
+Former developers:
+Michael Zillgith
 Karsten Müller-Bier
 Simon Fey
 Frederic Robra

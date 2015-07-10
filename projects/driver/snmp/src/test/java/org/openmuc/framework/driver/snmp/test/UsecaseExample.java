@@ -20,6 +20,9 @@
  */
 package org.openmuc.framework.driver.snmp.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.snmp.SnmpDriver;
 import org.openmuc.framework.driver.snmp.SnmpDriver.SnmpDriverSettingVariableNames;
@@ -28,51 +31,49 @@ import org.openmuc.framework.driver.snmp.implementation.SnmpDevice.SNMPVersion;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UsecaseExample {
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
 
-        try {
+		try {
 
-            SnmpDriver snmpDriver = new SnmpDriver();
-            // SNMPVersion=V2c:COMMUNITY=root:SECURITYNAME=root:AUTHENTICATIONPASSPHRASE=adminadmin:PRIVACYPASSPHRASE=adminadmin
-            String settings = SnmpDriverSettingVariableNames.SNMPVersion + "=" + SNMPVersion.V2c + ":" + SnmpDriverSettingVariableNames
-                    .USERNAME + "=root:" + SnmpDriverSettingVariableNames.SECURITYNAME + "=root:" + SnmpDriverSettingVariableNames
-                    .AUTHENTICATIONPASSPHRASE + "=adminadmin:" + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=adminadmin";
-            System.out.println(settings);
-            SnmpDevice myDevice = (SnmpDevice) snmpDriver.connect("192.168.1.1/161", settings);
+			SnmpDriver snmpDriver = new SnmpDriver();
+			// SNMPVersion=V2c:COMMUNITY=root:SECURITYNAME=root:AUTHENTICATIONPASSPHRASE=adminadmin:PRIVACYPASSPHRASE=adminadmin
+			String settings = SnmpDriverSettingVariableNames.SNMPVersion + "=" + SNMPVersion.V2c + ":"
+					+ SnmpDriverSettingVariableNames.USERNAME + "=root:" + SnmpDriverSettingVariableNames.SECURITYNAME
+					+ "=root:" + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=adminadmin:"
+					+ SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=adminadmin";
+			System.out.println(settings);
+			SnmpDevice myDevice = (SnmpDevice) snmpDriver.connect("192.168.1.1/161", settings);
 
-            List<ChannelRecordContainer> containers = new ArrayList<ChannelRecordContainer>();
+			List<ChannelRecordContainer> containers = new ArrayList<ChannelRecordContainer>();
 
-            SnmpChannel ch1 = new SnmpChannel("192.168.1.1/161", "1.3.6.1.2.1.1.1.0");
-            SnmpChannel ch2 = new SnmpChannel("192.168.1.1/161", "1.3.6.1.2.1.25.1.1.0");
-            SnmpChannel ch3 = new SnmpChannel("192.168.1.1/161", "1.3.6.1.2.1.1.5.0");
-            containers.add(new SnmpChannelRecordContainer(ch1));
-            containers.add(new SnmpChannelRecordContainer(ch2));
-            containers.add(new SnmpChannelRecordContainer(ch3));
+			SnmpChannel ch1 = new SnmpChannel("192.168.1.1/161", "1.3.6.1.2.1.1.1.0");
+			SnmpChannel ch2 = new SnmpChannel("192.168.1.1/161", "1.3.6.1.2.1.25.1.1.0");
+			SnmpChannel ch3 = new SnmpChannel("192.168.1.1/161", "1.3.6.1.2.1.1.5.0");
+			containers.add(new SnmpChannelRecordContainer(ch1));
+			containers.add(new SnmpChannelRecordContainer(ch2));
+			containers.add(new SnmpChannelRecordContainer(ch3));
 
-            myDevice.read(containers, null, null);
+			myDevice.read(containers, null, null);
 
-            for (ChannelRecordContainer container : containers) {
-                if (container.getRecord() != null) {
-                    System.out.println(container.getRecord().getValue());
-                }
-            }
+			for (ChannelRecordContainer container : containers) {
+				if (container.getRecord() != null) {
+					System.out.println(container.getRecord().getValue());
+				}
+			}
 
-        } catch (ConnectionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ArgumentSyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ArgumentSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-    }
+	}
 
 }

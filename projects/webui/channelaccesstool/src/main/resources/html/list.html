@@ -1,0 +1,24 @@
+<form ng-submit="accessChannels()" novalidate>
+
+	<table id="access-tool-table" class="table table-hover">
+	  <thead>
+	    <tr>
+	      <th>&nbsp;</th>
+				<th>{{'CHANNEL_ACCESS_TOOL_DEVICE_ID' | translate}}</th>
+				<th>{{'DESCRIPTION' | translate}}</th>
+	    </tr>
+	  </thead>
+	  <tr ng-repeat="device in devices" ng-click="checkedDevices[device.id] = !checkedDevices[device.id]">
+	    <td>
+	     <input type="checkbox" name="checkedDevices" ng-model="checkedDevices[device.id]" ng-true-value="'on'" ng-false-value="'off'" ng-click="$event.stopPropagation()">
+	    </td>
+	    <td>{{device.id}}</td>
+	    <td>{{device.description}}</td>  
+	  </tr>
+	</table>	
+	
+	<div class="text-right">
+    <input type="submit" class="btn btn-primary" value="{{'ACCESS_SELECTED' | translate}}...">
+	</div> 
+
+</form>

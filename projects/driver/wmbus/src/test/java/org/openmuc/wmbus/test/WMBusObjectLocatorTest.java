@@ -22,29 +22,29 @@ package org.openmuc.wmbus.test;
 
 public class WMBusObjectLocatorTest {
 
-    // @Test
-    // public void mbusStyle() {
-    // MBusObjectLocator locator = new MBusObjectLocator("mbus:04/943a");
-    //
-    // Assert.assertEquals(MBusObjectLocator.TYPE_MBUS, locator.getType());
-    //
-    // byte[] difs = locator.getDifs();
-    //
-    // Assert.assertEquals(1, difs.length);
-    // Assert.assertEquals((byte) 4, difs[0]);
-    //
-    // byte[] vifs = locator.getVifs();
-    //
-    // Assert.assertEquals(2, vifs.length);
-    // Assert.assertEquals((byte) 0x94, vifs[0]);
-    // Assert.assertEquals((byte) 0x3a, vifs[1]);
-    //
-    // }
-    //
-    // @Test
-    // public void obisStyle() {
-    // MBusObjectLocator locator = new MBusObjectLocator("1.7.0");
-    //
-    // Assert.assertEquals(MBusObjectLocator.TYPE_OBIS, locator.getType());
-    // }
+	// @Test
+	// public void mbusStyle() {
+	// MBusObjectLocator locator = new MBusObjectLocator("mbus:04/943a");
+	//
+	// Assert.assertEquals(MBusObjectLocator.TYPE_MBUS, locator.getType());
+	//
+	// byte[] difs = locator.getDifs();
+	//
+	// Assert.assertEquals(1, difs.length);
+	// Assert.assertEquals((byte) 4, difs[0]);
+	//
+	// byte[] vifs = locator.getVifs();
+	//
+	// Assert.assertEquals(2, vifs.length);
+	// Assert.assertEquals((byte) 0x94, vifs[0]);
+	// Assert.assertEquals((byte) 0x3a, vifs[1]);
+	//
+	// }
+	//
+	// @Test
+	// public void obisStyle() {
+	// MBusObjectLocator locator = new MBusObjectLocator("1.7.0");
+	//
+	// Assert.assertEquals(MBusObjectLocator.TYPE_OBIS, locator.getType());
+	// }
 }

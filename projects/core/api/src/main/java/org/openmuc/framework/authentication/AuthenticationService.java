@@ -23,17 +23,19 @@ package org.openmuc.framework.authentication;
 import java.util.Set;
 
 /**
+ * 
  * Service interface to get access to the framework wide user management and authentication
+ * 
  */
 public interface AuthenticationService {
 
-    public abstract boolean login(String name, String password);
+	public boolean login(String name, String password);
 
-    public abstract boolean contains(String user);
+	public boolean contains(String user);
 
-    public abstract void delete(String user);
+	public void delete(String user);
 
-    public abstract void register(String user, String pwd);
+	public void register(String user, String pwd);
 
-    public abstract Set<String> getAllUsers();
+	public Set<String> getAllUsers();
 }

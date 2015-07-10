@@ -23,6 +23,6 @@ package org.openmuc.framework.dataaccess;
 
 public class DataLoggerNotAvailableException extends Exception {
 
-    private static final long serialVersionUID = 8154261296935773357L;
+	private static final long serialVersionUID = 8154261296935773357L;
 
 }

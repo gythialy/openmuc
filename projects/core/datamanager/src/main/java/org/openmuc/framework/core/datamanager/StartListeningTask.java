@@ -21,6 +21,8 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.util.List;
+
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.dataaccess.DeviceState;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
@@ -28,55 +30,55 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public final class StartListeningTask extends DeviceTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(StartListeningTask.class);
+	private final static Logger logger = LoggerFactory.getLogger(StartListeningTask.class);
 
-    List<ChannelRecordContainerImpl> selectedChannels;
+	List<ChannelRecordContainerImpl> selectedChannels;
 
-    public StartListeningTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels) {
-        this.dataManager = dataManager;
-        this.device = device;
-        this.selectedChannels = selectedChannels;
-    }
+	public StartListeningTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels) {
+		this.dataManager = dataManager;
+		this.device = device;
+		this.selectedChannels = selectedChannels;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void run() {
+	@Override
+	@SuppressWarnings("unchecked")
+	public void run() {
 
-        try {
-            device.connection.startListening((List<ChannelRecordContainer>) ((List<?>) selectedChannels), dataManager);
-        } catch (UnsupportedOperationException e) {
-            for (ChannelRecordContainer channelRecordContainer : selectedChannels) {
-                ((ChannelRecordContainerImpl) channelRecordContainer).channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
-            }
-        } catch (ConnectionException e) {
-            // Connection to device lost. Signal to device instance and end task
-            // without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id, e.getMessage());
-            device.disconnectedSignal();
-            return;
-        } catch (Exception e) {
-            logger.error("unexpected exception by startListeningFor funtion of driver: " + device.deviceConfig.driverParent.id, e);
-            // TODO set flag?
-        }
+		try {
+			device.connection.startListening((List<ChannelRecordContainer>) ((List<?>) selectedChannels), dataManager);
+		} catch (UnsupportedOperationException e) {
+			for (ChannelRecordContainer channelRecordContainer : selectedChannels) {
+				((ChannelRecordContainerImpl) channelRecordContainer).channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
+			}
+		} catch (ConnectionException e) {
+			// Connection to device lost. Signal to device instance and end task
+			// without notifying DataManager
+			logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+					e.getMessage());
+			device.disconnectedSignal();
+			return;
+		} catch (Exception e) {
+			logger.error("unexpected exception by startListeningFor funtion of driver: "
+					+ device.deviceConfig.driverParent.id, e);
+			// TODO set flag?
+		}
 
-        synchronized (dataManager.tasksFinished) {
-            dataManager.tasksFinished.add(this);
-        }
-        dataManager.interrupt();
-    }
+		synchronized (dataManager.tasksFinished) {
+			dataManager.tasksFinished.add(this);
+		}
+		dataManager.interrupt();
+	}
 
-    @Override
-    public DeviceTaskType getType() {
-        return DeviceTaskType.START_LISTENING_FOR;
-    }
+	@Override
+	public DeviceTaskType getType() {
+		return DeviceTaskType.START_LISTENING_FOR;
+	}
 
-    @Override
-    public void setDeviceState() {
-        device.state = DeviceState.STARTING_TO_LISTEN;
-    }
+	@Override
+	public void setDeviceState() {
+		device.state = DeviceState.STARTING_TO_LISTEN;
+	}
 
 }

@@ -25,51 +25,51 @@ import org.openmuc.framework.data.ValueType;
 
 public class ChannelScanInfo {
 
-    private final String channelAddress;
-    private final String description;
-    private final ValueType valueType;
-    private final Integer valueTypeLength;
-    private final Boolean readable;
-    private final Boolean writable;
+	private final String channelAddress;
+	private final String description;
+	private final ValueType valueType;
+	private final Integer valueTypeLength;
+	private final Boolean readable;
+	private final Boolean writable;
 
-    public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength) {
-        this(channelAddress, description, valueType, valueTypeLength, true, true);
-    }
+	public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength) {
+		this(channelAddress, description, valueType, valueTypeLength, true, true);
+	}
 
-    public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength, Boolean readable,
-                           Boolean writable) {
-        if (channelAddress == null || channelAddress.equals("")) {
-            throw new IllegalArgumentException("Channel Address may not be empty.");
-        }
-        this.channelAddress = channelAddress;
-        this.description = description;
-        this.valueType = valueType;
-        this.valueTypeLength = valueTypeLength;
-        this.readable = readable;
-        this.writable = writable;
-    }
+	public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength,
+			Boolean readable, Boolean writable) {
+		if (channelAddress == null || channelAddress.equals("")) {
+			throw new IllegalArgumentException("Channel Address may not be empty.");
+		}
+		this.channelAddress = channelAddress;
+		this.description = description;
+		this.valueType = valueType;
+		this.valueTypeLength = valueTypeLength;
+		this.readable = readable;
+		this.writable = writable;
+	}
 
-    public String getChannelAddress() {
-        return channelAddress;
-    }
+	public String getChannelAddress() {
+		return channelAddress;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public ValueType getValueType() {
-        return valueType;
-    }
+	public ValueType getValueType() {
+		return valueType;
+	}
 
-    public Integer getValueTypeLength() {
-        return valueTypeLength;
-    }
+	public Integer getValueTypeLength() {
+		return valueTypeLength;
+	}
 
-    public Boolean isReadable() {
-        return readable;
-    }
+	public Boolean isReadable() {
+		return readable;
+	}
 
-    public Boolean isWritable() {
-        return writable;
-    }
+	public Boolean isWritable() {
+		return writable;
+	}
 }

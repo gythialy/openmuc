@@ -25,5 +25,5 @@ import org.openmuc.framework.data.Record;
 
 public interface RecordListener {
 
-    public void newRecord(Record record);
+	public void newRecord(Record record);
 }

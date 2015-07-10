@@ -1,0 +1,25 @@
+<h3 class="sub-category-heading">{{'SCAN_DEVICE' | translate}} {{device.id}}</h3>
+
+<table class="table table-hover" ng-show="channels.length">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>{{'CHANNEL_ID' | translate}}</th>
+      <th>{{'CHANNEL_ADDRESS' | translate}}</th>
+      <th>{{'CHANNEL_DESCRIPTION' | translate}}</th>
+      <th>{{'CHANNEL_VALUE_TYPE' | translate}}</th>
+    </tr>
+  </thead>
+  
+  <tr ng-repeat="channel in channels">
+    <td><input type="checkbox" checklist-model="selectedChannels" checklist-value="channel"></td>
+	  <td>{{channel.configs.id}}</td>
+    <td>{{channel.configs.channelAddress}}</td>
+	  <td>{{channel.configs.description}}</td>
+	  <td>{{channel.configs.valueType}}</td>
+  </tr>
+</table>
+
+<div ng-if="channels.length">
+  <button class="btn btn-primary" ng-click="addChannels()" ng-disabled="selectedChannels.length == 0">{{'ADD_CHANNELS' | translate}}</button>
+</div>

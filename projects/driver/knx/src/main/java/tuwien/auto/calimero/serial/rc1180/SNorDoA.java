@@ -20,35 +20,36 @@
  */
 package tuwien.auto.calimero.serial.rc1180;
 
-import tuwien.auto.calimero.exception.KNXIllegalArgumentException;
-
 import java.util.Arrays;
+
+import tuwien.auto.calimero.exception.KNXIllegalArgumentException;
 
 /**
  * @author Frederic Robra
+ * 
  */
 public class SNorDoA {
 
-    private final boolean AET;
-    private final byte[] number;
+	private final boolean AET;
+	private final byte[] number;
 
-    public SNorDoA(boolean AET, byte[] number) {
-        if (number.length != 6) {
-            throw new KNXIllegalArgumentException("wrong length of SN or DoA");
-        }
-        this.AET = AET;
-        this.number = number;
-    }
+	public SNorDoA(boolean AET, byte[] number) {
+		if (number.length != 6) {
+			throw new KNXIllegalArgumentException("wrong length of SN or DoA");
+		}
+		this.AET = AET;
+		this.number = number;
+	}
 
-    public boolean isSerialNumber() {
-        return !AET;
-    }
+	public boolean isSerialNumber() {
+		return !AET;
+	}
 
-    public boolean isDomainAddress() {
-        return AET;
-    }
+	public boolean isDomainAddress() {
+		return AET;
+	}
 
-    public byte[] get() {
-        return Arrays.copyOf(number, number.length);
-    }
+	public byte[] get() {
+		return Arrays.copyOf(number, number.length);
+	}
 }

@@ -21,407 +21,459 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+
 import org.openmuc.framework.config.ChannelConfig;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.*;
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.ByteValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.TypeConversionException;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.ChannelState;
+import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.dataaccess.ReadRecordContainer;
+import org.openmuc.framework.dataaccess.RecordListener;
+import org.openmuc.framework.dataaccess.WriteValueContainer;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-
 public final class ChannelImpl implements Channel {
 
-    private final static Logger logger = LoggerFactory.getLogger(ChannelImpl.class);
+	private final static Logger logger = LoggerFactory.getLogger(ChannelImpl.class);
 
-    volatile Record currentSample;
-    ChannelRecordContainerImpl driverChannel;
-    volatile ChannelConfigImpl config;
-    ChannelCollection samplingCollection;
-    ChannelCollection loggingCollection;
-    private final Set<RecordListener> listeners = new LinkedHashSet<RecordListener>();
-    private final DataManager dataManager;
-    volatile Object handle;
-    private Timer timer;
-    private List<Record> futureValues;
+	volatile Record latestRecord;
+	ChannelRecordContainerImpl driverChannel;
+	volatile ChannelConfigImpl config;
+	ChannelCollection samplingCollection;
+	ChannelCollection loggingCollection;
+	private final Set<RecordListener> listeners = new LinkedHashSet<RecordListener>();
+	private final DataManager dataManager;
+	volatile Object handle;
+	private Timer timer = null;
+	private List<Record> futureValues;
 
-    public ChannelImpl(DataManager dataManager, ChannelConfigImpl config, ChannelState initState, Flag initFlag, long currentTime,
-                       List<LogChannel> logChannels) {
-        this.dataManager = dataManager;
-        this.config = config;
-        this.timer = new Timer();
-        this.futureValues = new ArrayList<Record>();
+	public ChannelImpl(DataManager dataManager, ChannelConfigImpl config, ChannelState initState, Flag initFlag,
+			long currentTime, List<LogChannel> logChannels) {
+		this.dataManager = dataManager;
+		this.config = config;
+		this.futureValues = new ArrayList<Record>();
 
-        if (config.disabled) {
-            config.state = ChannelState.DISABLED;
-            currentSample = new Record(Flag.DISABLED);
-        } else if (!config.isListening() && config.samplingInterval < 0) {
-            config.state = initState;
-            currentSample = new Record(Flag.SAMPLING_AND_LISTENING_DISABLED);
-        } else {
-            config.state = initState;
-            currentSample = new Record(null, null, initFlag);
-        }
+		if (config.disabled) {
+			config.state = ChannelState.DISABLED;
+			latestRecord = new Record(Flag.DISABLED);
+		}
+		else if (!config.isListening() && config.samplingInterval < 0) {
+			config.state = initState;
+			latestRecord = new Record(Flag.SAMPLING_AND_LISTENING_DISABLED);
+		}
+		else {
+			config.state = initState;
+			latestRecord = new Record(null, null, initFlag);
+		}
 
-        if (config.loggingInterval != ChannelConfig.LOGGING_INTERVAL_DEFAULT) {
-            dataManager.addToLoggingCollections(this, currentTime);
-            logChannels.add(config);
-        }
-    }
+		if (config.loggingInterval != ChannelConfig.LOGGING_INTERVAL_DEFAULT) {
+			dataManager.addToLoggingCollections(this, currentTime);
+			logChannels.add(config);
+		}
+	}
 
-    @Override
-    public String getId() {
-        return config.id;
-    }
+	@Override
+	public String getId() {
+		return config.id;
+	}
 
-    @Override
-    public String getChannelAddress() {
-        return config.channelAddress;
-    }
+	@Override
+	public String getChannelAddress() {
+		return config.channelAddress;
+	}
 
-    @Override
-    public String getDescription() {
-        return config.description;
-    }
+	@Override
+	public String getDescription() {
+		return config.description;
+	}
 
-    @Override
-    public String getUnit() {
-        return config.unit;
-    }
+	@Override
+	public String getUnit() {
+		return config.unit;
+	}
 
-    @Override
-    public ValueType getValueType() {
-        return config.valueType;
-    }
+	@Override
+	public ValueType getValueType() {
+		return config.valueType;
+	}
 
-    @Override
-    public double getScalingFactor() {
-        if (config.scalingFactor == null) {
-            return 1;
-        }
-        return config.scalingFactor;
-    }
+	@Override
+	public double getScalingFactor() {
+		if (config.scalingFactor == null) {
+			return 1;
+		}
+		return config.scalingFactor;
+	}
 
-    @Override
-    public int getSamplingInterval() {
-        return config.samplingInterval;
-    }
+	@Override
+	public int getSamplingInterval() {
+		return config.samplingInterval;
+	}
 
-    @Override
-    public int getSamplingTimeOffset() {
-        return config.samplingTimeOffset;
-    }
+	@Override
+	public int getSamplingTimeOffset() {
+		return config.samplingTimeOffset;
+	}
 
-    @Override
-    public int getLoggingInterval() {
-        return config.loggingInterval;
-    }
+	@Override
+	public int getLoggingInterval() {
+		return config.loggingInterval;
+	}
 
-    @Override
-    public int getLoggingTimeOffset() {
-        return config.loggingTimeOffset;
-    }
+	@Override
+	public int getLoggingTimeOffset() {
+		return config.loggingTimeOffset;
+	}
 
-    @Override
-    public String getDriverName() {
-        return config.deviceParent.driverParent.id;
-    }
+	@Override
+	public String getDriverName() {
+		return config.deviceParent.driverParent.id;
+	}
 
-    @Override
-    public String getDeviceAddress() {
-        return config.deviceParent.deviceAddress;
-    }
+	@Override
+	public String getDeviceAddress() {
+		return config.deviceParent.deviceAddress;
+	}
 
-    @Override
-    public String getDeviceName() {
-        return config.deviceParent.id;
-    }
+	@Override
+	public String getDeviceName() {
+		return config.deviceParent.id;
+	}
 
-    @Override
-    public String getDeviceDescription() {
-        return config.deviceParent.description;
-    }
+	@Override
+	public String getDeviceDescription() {
+		return config.deviceParent.description;
+	}
 
-    @Override
-    public ChannelState getChannelState() {
-        return config.state;
-    }
+	@Override
+	public ChannelState getChannelState() {
+		return config.state;
+	}
 
-    @Override
-    public DeviceState getDeviceState() {
-        return config.deviceParent.device.state;
-    }
+	@Override
+	public DeviceState getDeviceState() {
+		return config.deviceParent.device.state;
+	}
 
-    @Override
-    public void addListener(RecordListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
-    }
+	@Override
+	public void addListener(RecordListener listener) {
+		synchronized (listeners) {
+			listeners.add(listener);
+		}
+	}
 
-    @Override
-    public void removeListener(RecordListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
-    }
+	@Override
+	public void removeListener(RecordListener listener) {
+		synchronized (listeners) {
+			listeners.remove(listener);
+		}
+	}
 
-    @Override
-    public Record getLatestRecord() {
-        return currentSample;
-    }
+	@Override
+	public Record getLatestRecord() {
+		return latestRecord;
+	}
 
-    @Override
-    public void setLatestRecord(Record record) {
-        setNewRecord(record);
-    }
+	@Override
+	public void setLatestRecord(Record record) {
+		setNewRecord(record);
+	}
 
-    @Override
-    public Record getLoggedRecord(long timestamp) throws DataLoggerNotAvailableException, IOException {
-        List<Record> records = dataManager.getDataLogger().getRecords(config.id, timestamp, timestamp);
-        if (records.size() > 0) {
-            return records.get(0);
-        } else {
-            return null;
-        }
-    }
+	@Override
+	public Record getLoggedRecord(long timestamp) throws DataLoggerNotAvailableException, IOException {
+		List<Record> records = dataManager.getDataLogger().getRecords(config.id, timestamp, timestamp);
+		if (records.size() > 0) {
+			return records.get(0);
+		}
+		else {
+			return null;
+		}
+	}
 
-    @Override
-    public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
-        return dataManager.getDataLogger().getRecords(config.id, startTime, System.currentTimeMillis());
-    }
+	@Override
+	public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
+		return dataManager.getDataLogger().getRecords(config.id, startTime, System.currentTimeMillis());
+	}
 
-    @Override
-    public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException, IOException {
-        Long currentTime = System.currentTimeMillis();
-        List<Record> toReturn = dataManager.getDataLogger().getRecords(config.id, startTime, endTime);
-        for (Record record : futureValues) {
-            if (record.getTimestamp() >= currentTime) {
-                if (record.getTimestamp() <= endTime) {
-                    toReturn.add(record);
-                } else {
-                    break;
-                }
-            }
-        }
-        return toReturn;
-    }
+	@Override
+	public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException,
+			IOException {
+		Long currentTime = System.currentTimeMillis();
+		List<Record> toReturn = dataManager.getDataLogger().getRecords(config.id, startTime, endTime);
+		for (Record record : futureValues) {
+			if (record.getTimestamp() >= currentTime) {
+				if (record.getTimestamp() <= endTime) {
+					toReturn.add(record);
+				}
+				else {
+					break;
+				}
+			}
+		}
+		return toReturn;
+	}
 
-    void setNewRecord(Record record) {
+	Record setNewRecord(Record record) {
 
-        if (record.getFlag() == Flag.VALID) {
-            Double scalingFactor = config.scalingFactor;
-            Double scalingOffset = config.valueOffset;
+		Record convertedRecord = null;
 
-            try {
-                if (scalingFactor != null) {
-                    record = new Record(new DoubleValue(record.getValue().asDouble() * scalingFactor), record.getTimestamp(),
-                                        record.getFlag());
-                }
-                if (scalingOffset != null) {
-                    record = new Record(new DoubleValue(record.getValue().asDouble() + scalingOffset), record.getTimestamp(),
-                                        record.getFlag());
-                }
-            } catch (TypeConversionException e) {
-                logger.error(
-                        "Unable to apply scaling factor because a TypeConversionError occured. ByteArrays or Strings cannot be scaled!");
-            }
+		if (record.getFlag() == Flag.VALID) {
+			Double scalingFactor = config.scalingFactor;
+			Double scalingOffset = config.valueOffset;
 
-            switch (config.valueType) {
-                case BOOLEAN:
-                    currentSample = new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(), record.getFlag());
-                    break;
-                case BYTE:
-                    currentSample = new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(), record.getFlag());
-                    break;
-                case SHORT:
-                    currentSample = new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(), record.getFlag());
-                    break;
-                case INTEGER:
-                    currentSample = new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(), record.getFlag());
-                    break;
-                case LONG:
-                    currentSample = new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(), record.getFlag());
-                    break;
-                case FLOAT:
-                    currentSample = new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(), record.getFlag());
-                    break;
-                case DOUBLE:
-                    currentSample = new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(), record.getFlag());
-                    break;
-                case BYTE_ARRAY:
-                    currentSample = new Record(new ByteArrayValue(record.getValue().asByteArray()), record.getTimestamp(),
-                                               record.getFlag());
-                    break;
-                case STRING:
-                    currentSample = new Record(new StringValue(record.getValue().toString()), record.getTimestamp(), record.getFlag());
-                    break;
-            }
+			if (scalingFactor != null) {
+				try {
+					record = new Record(new DoubleValue(record.getValue().asDouble() * scalingFactor),
+							record.getTimestamp(), record.getFlag());
+				} catch (TypeConversionException e) {
+					logger.error("Unable to apply scaling factor because a TypeConversionError occured.", e);
+				}
+			}
+			if (scalingOffset != null) {
+				try {
+					record = new Record(new DoubleValue(record.getValue().asDouble() + scalingOffset),
+							record.getTimestamp(), record.getFlag());
+				} catch (TypeConversionException e) {
+					logger.error("Unable to apply scaling offset because a TypeConversionError occured.", e);
+				}
+			}
 
-        } else {
-            currentSample = new Record(currentSample.getValue(), currentSample.getTimestamp(), record.getFlag());
-        }
-        notifyListeners();
-    }
+			try {
+				switch (config.valueType) {
+				case BOOLEAN:
+					convertedRecord = new Record(new BooleanValue(record.getValue().asBoolean()),
+							record.getTimestamp(), record.getFlag());
+					break;
+				case BYTE:
+					convertedRecord = new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				case SHORT:
+					convertedRecord = new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				case INTEGER:
+					convertedRecord = new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				case LONG:
+					convertedRecord = new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				case FLOAT:
+					convertedRecord = new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				case DOUBLE:
+					convertedRecord = new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				case BYTE_ARRAY:
+					convertedRecord = new Record(new ByteArrayValue(record.getValue().asByteArray()),
+							record.getTimestamp(), record.getFlag());
+					break;
+				case STRING:
+					convertedRecord = new Record(new StringValue(record.getValue().toString()), record.getTimestamp(),
+							record.getFlag());
+					break;
+				}
+			} catch (TypeConversionException e) {
+				logger.error("Unable to convert value to configured value type because a TypeConversionError occured.",
+						e);
+				convertedRecord = record;
+			}
 
-    private void notifyListeners() {
-        if (listeners.size() != 0) {
-            synchronized (listeners) {
-                for (RecordListener listener : listeners) {
-                    config.deviceParent.device.dataManager.executor.execute(new ListenerNotifier(listener, currentSample));
-                }
-            }
-        }
-    }
+		}
+		else {
+			convertedRecord = new Record(latestRecord.getValue(), latestRecord.getTimestamp(), record.getFlag());
+		}
 
-    ChannelRecordContainerImpl createChannelRecordContainer() {
-        return new ChannelRecordContainerImpl(this);
-    }
+		latestRecord = convertedRecord;
+		notifyListeners();
 
-    void setFlag(Flag flag) {
-        if (flag != currentSample.getFlag()) {
-            currentSample = new Record(currentSample.getValue(), currentSample.getTimestamp(), flag);
-            notifyListeners();
-        }
-    }
+		return convertedRecord;
+	}
 
-    public void setNewDeviceState(ChannelState state, Flag flag) {
-        if (config.disabled) {
-            config.state = ChannelState.DISABLED;
-            setFlag(Flag.DISABLED);
-        } else if (!config.isListening() && config.samplingInterval < 0) {
-            config.state = state;
-            setFlag(Flag.SAMPLING_AND_LISTENING_DISABLED);
-        } else {
-            config.state = state;
-            setFlag(flag);
-        }
-    }
+	private void notifyListeners() {
+		if (listeners.size() != 0) {
+			synchronized (listeners) {
+				for (RecordListener listener : listeners) {
+					config.deviceParent.device.dataManager.executor
+							.execute(new ListenerNotifier(listener, latestRecord));
+				}
+			}
+		}
+	}
 
-    @Override
-    public Flag write(Value value) {
-        CountDownLatch writeTaskFinishedSignal = new CountDownLatch(1);
-        WriteValueContainerImpl writeValueContainer = new WriteValueContainerImpl(this);
+	ChannelRecordContainerImpl createChannelRecordContainer() {
+		return new ChannelRecordContainerImpl(this);
+	}
 
-        Value adjustedValue = value;
+	void setFlag(Flag flag) {
+		if (flag != latestRecord.getFlag()) {
+			latestRecord = new Record(latestRecord.getValue(), latestRecord.getTimestamp(), flag);
+			notifyListeners();
+		}
+	}
 
-        Double valueOffset = config.valueOffset;
-        Double scalingFactor = config.scalingFactor;
+	public void setNewDeviceState(ChannelState state, Flag flag) {
+		if (config.disabled) {
+			config.state = ChannelState.DISABLED;
+			setFlag(Flag.DISABLED);
+		}
+		else if (!config.isListening() && config.samplingInterval < 0) {
+			config.state = state;
+			setFlag(Flag.SAMPLING_AND_LISTENING_DISABLED);
+		}
+		else {
+			config.state = state;
+			setFlag(flag);
+		}
+	}
 
-        if (valueOffset != null) {
-            adjustedValue = new DoubleValue(adjustedValue.asDouble() - valueOffset);
-        }
-        if (scalingFactor != null) {
-            adjustedValue = new DoubleValue(adjustedValue.asDouble() / scalingFactor);
-        }
-        writeValueContainer.setValue(adjustedValue);
+	@Override
+	public Flag write(Value value) {
 
-        List<WriteValueContainerImpl> writeValueContainerList = new ArrayList<WriteValueContainerImpl>(1);
-        writeValueContainerList.add(writeValueContainer);
-        WriteTask writeTask = new WriteTask(dataManager, config.deviceParent.device, writeValueContainerList, writeTaskFinishedSignal);
-        synchronized (dataManager.newWriteTasks) {
-            dataManager.newWriteTasks.add(writeTask);
-        }
-        dataManager.interrupt();
-        try {
-            writeTaskFinishedSignal.await();
-        } catch (InterruptedException e) {
-        }
+		if (config.deviceParent.driverParent.getId().equals("virtual")) {
+			setLatestRecord(new Record(value, System.currentTimeMillis()));
+			return Flag.VALID;
+		}
 
-        currentSample = new Record(value, System.currentTimeMillis(), writeValueContainer.getFlag());
-        notifyListeners();
+		CountDownLatch writeTaskFinishedSignal = new CountDownLatch(1);
+		WriteValueContainerImpl writeValueContainer = new WriteValueContainerImpl(this);
 
-        return writeValueContainer.getFlag();
-    }
+		Value adjustedValue = value;
 
-    @Override
-    public synchronized void write(List<Record> values) {
-        this.futureValues = values;
+		Double valueOffset = config.valueOffset;
+		Double scalingFactor = config.scalingFactor;
 
-        Collections.sort(values, new Comparator<Record>() {
-            @Override
-            public int compare(Record o1, Record o2) {
-                return o1.getTimestamp().compareTo(o2.getTimestamp());
-            }
-        });
+		if (valueOffset != null) {
+			adjustedValue = new DoubleValue(adjustedValue.asDouble() - valueOffset);
+		}
+		if (scalingFactor != null) {
+			adjustedValue = new DoubleValue(adjustedValue.asDouble() / scalingFactor);
+		}
+		writeValueContainer.setValue(adjustedValue);
 
-        timer.cancel();
-        timer = new Timer();
+		List<WriteValueContainerImpl> writeValueContainerList = new ArrayList<WriteValueContainerImpl>(1);
+		writeValueContainerList.add(writeValueContainer);
+		WriteTask writeTask = new WriteTask(dataManager, config.deviceParent.device, writeValueContainerList,
+				writeTaskFinishedSignal);
+		synchronized (dataManager.newWriteTasks) {
+			dataManager.newWriteTasks.add(writeTask);
+		}
+		dataManager.interrupt();
+		try {
+			writeTaskFinishedSignal.await();
+		} catch (InterruptedException e) {
+		}
 
-        for (final Record value : futureValues) {
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    write(value.getValue());
-                }
-            }, new Date(value.getTimestamp()));
-        }
-    }
+		latestRecord = new Record(value, System.currentTimeMillis(), writeValueContainer.getFlag());
+		notifyListeners();
 
-    @Override
-    public Record read() {
-        CountDownLatch readTaskFinishedSignal = new CountDownLatch(1);
+		return writeValueContainer.getFlag();
+	}
 
-        ChannelRecordContainerImpl readValueContainer = new ChannelRecordContainerImpl(this);
-        List<ChannelRecordContainerImpl> readValueContainerList = new ArrayList<ChannelRecordContainerImpl>(1);
-        readValueContainerList.add(readValueContainer);
+	@Override
+	public synchronized void write(List<Record> values) {
+		this.futureValues = values;
 
-        ReadTask readTask = new ReadTask(dataManager, config.deviceParent.device, readValueContainerList, readTaskFinishedSignal);
-        synchronized (dataManager.newReadTasks) {
-            dataManager.newReadTasks.add(readTask);
-        }
-        dataManager.interrupt();
+		Collections.sort(values, new Comparator<Record>() {
+			@Override
+			public int compare(Record o1, Record o2) {
+				return o1.getTimestamp().compareTo(o2.getTimestamp());
+			}
+		});
 
-        try {
-            readTaskFinishedSignal.await();
-        } catch (InterruptedException e) {
-        }
+		if (timer != null) {
+			timer.cancel();
+		}
 
-        Record record = readValueContainer.record;
-        if (record == null) {
-            logger.debug("ERROR: Read received null as record");
-        }
-        if (record.getFlag() == Flag.VALID) {
-            Value adjustedValue = record.getValue();
+		timer = new Timer("Timer ChannelImpl " + config.getId());
 
-            Double scalingFactor = config.scalingFactor;
-            Double scalingOffset = config.valueOffset;
+		long currentTimestamp = System.currentTimeMillis();
 
-            try {
-                if (scalingFactor != null) {
-                    adjustedValue = new DoubleValue(adjustedValue.asDouble() * scalingFactor);
-                }
-                if (scalingOffset != null) {
-                    adjustedValue = new DoubleValue(adjustedValue.asDouble() + scalingOffset);
-                }
-                record = new Record(adjustedValue, record.getTimestamp());
-            } catch (TypeConversionException e) {
-                logger.error(
-                        "Unable to apply scaling factor because a TypeConversionError occured. ByteArrays or Strings cannot be scaled!");
-            }
-        }
+		for (final Record value : futureValues) {
 
-        return record;
-    }
+			if ((currentTimestamp - value.getTimestamp()) < 1000l) {
 
-    @Override
-    public boolean isConnected() {
-        if (config.state == ChannelState.CONNECTED || config.state == ChannelState.SAMPLING || config.state == ChannelState.LISTENING) {
-            return true;
-        }
-        return false;
-    }
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						write(value.getValue());
+					}
+				}, new Date(value.getTimestamp()));
+			}
+		}
+	}
 
-    @Override
-    public WriteValueContainer getWriteContainer() {
-        return new WriteValueContainerImpl(this);
-    }
+	@Override
+	public Record read() {
+		CountDownLatch readTaskFinishedSignal = new CountDownLatch(1);
 
-    @Override
-    public ReadRecordContainer getReadContainer() {
-        return new ChannelRecordContainerImpl(this);
-    }
+		ChannelRecordContainerImpl readValueContainer = new ChannelRecordContainerImpl(this);
+		List<ChannelRecordContainerImpl> readValueContainerList = new ArrayList<ChannelRecordContainerImpl>(1);
+		readValueContainerList.add(readValueContainer);
+
+		ReadTask readTask = new ReadTask(dataManager, config.deviceParent.device, readValueContainerList,
+				readTaskFinishedSignal);
+		synchronized (dataManager.newReadTasks) {
+			dataManager.newReadTasks.add(readTask);
+		}
+		dataManager.interrupt();
+
+		try {
+			readTaskFinishedSignal.await();
+		} catch (InterruptedException e) {
+		}
+
+		return setNewRecord(readValueContainer.record);
+	}
+
+	@Override
+	public boolean isConnected() {
+		if (config.state == ChannelState.CONNECTED || config.state == ChannelState.SAMPLING
+				|| config.state == ChannelState.LISTENING) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public WriteValueContainer getWriteContainer() {
+		return new WriteValueContainerImpl(this);
+	}
+
+	@Override
+	public ReadRecordContainer getReadContainer() {
+		return new ChannelRecordContainerImpl(this);
+	}
 
 }

@@ -1,3 +1,17 @@
+v0.15.0 03-Jul-2015
+-------------------
+- complete rewrite of the Web UI, it is now based on Angular JS,
+  Velocity is no longer needed, it is reponsive so it looks well on
+  smart phones and tablets
+- the REST server now supports: channel scan, changing the
+  configuration, basic authentication over TLS/SSL
+- OpenMUC now requires Java 1.7 instead of Java 1.6
+- added new aggregator driver that be used to easily log average
+  values
+- added REST driver that can access other OpenMUC devices that have a
+  REST server
+- improved ASCII logger
+
 v0.14.0 24-Feb-2015
 -------------------
 - added wirless M-Bus driver

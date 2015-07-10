@@ -1,0 +1,20 @@
+<div class="page-header">
+  <h1>{{ 'DASHBOARD' | translate }}</h1>
+</div>
+
+<br />
+
+<div id="dashboard-grid" class="row">
+
+  <div ng-repeat="app in availableApps">
+    <div class="item col-md-3 text-center">
+      <a ui-sref="{{app.alias}}.index" class="btn btn-grid btn-block">
+        <span class="item-icon" aria-hidden="true">
+          <img src="{{app.alias}}/images/icon.png" />
+        </span>
+        {{app.name}}
+      </a>
+    </div>
+  </div>
+
+</div>

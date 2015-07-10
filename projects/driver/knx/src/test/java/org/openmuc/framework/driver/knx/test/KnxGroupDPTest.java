@@ -20,9 +20,15 @@
  */
 package org.openmuc.framework.driver.knx.test;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Map;
+
 import org.junit.Test;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.driver.knx.KnxGroupDP;
+
 import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.dptxlator.DPT;
 import tuwien.auto.calimero.dptxlator.TranslatorTypes;
@@ -30,43 +36,39 @@ import tuwien.auto.calimero.dptxlator.TranslatorTypes.MainType;
 import tuwien.auto.calimero.exception.KNXException;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 /**
  * @author Frederic Robra
+ * 
  */
 public class KnxGroupDPTest {
 
-    @Test
-    public void test() throws KNXException {
-        @SuppressWarnings("unchecked")
-        Map<Integer, MainType> mainTypes = TranslatorTypes.getAllMainTypes();
-        KnxGroupDP dp = null;
-        GroupAddress main = new GroupAddress(new byte[]{0x08, 0x00});
-        for (Map.Entry<Integer, MainType> mainType : mainTypes.entrySet()) {
-            @SuppressWarnings("unchecked")
-            Map<String, DPT> subTypes = mainType.getValue().getSubTypes();
+	@Test
+	public void test() throws KNXException {
+		@SuppressWarnings("unchecked")
+		Map<Integer, MainType> mainTypes = TranslatorTypes.getAllMainTypes();
+		KnxGroupDP dp = null;
+		GroupAddress main = new GroupAddress(new byte[] { 0x08, 0x00 });
+		for (Map.Entry<Integer, MainType> mainType : mainTypes.entrySet()) {
+			@SuppressWarnings("unchecked")
+			Map<String, DPT> subTypes = mainType.getValue().getSubTypes();
 
-            for (Map.Entry<String, DPT> subType : subTypes.entrySet()) {
-                DPT dpt = subType.getValue();
-                System.out.println("testing: " + dpt.toString());
-                try {
-                    dp = new KnxGroupDP(main, dpt.getDescription(), dpt.getID());
-                } catch (KNXException e) {
-                    fail("could not create KnxGroupDP with: " + dpt.toString());
-                }
-                try {
-                    dp.getKnxValue().setDPTValue(dpt.getLowerValue());
-                    dp.getKnxValue().setDPTValue(dpt.getUpperValue());
-                } catch (KNXFormatException e) {
-                    fail("could not set upper and lower value to KnxGroupDP: " + dpt.toString());
-                }
-                assertTrue(dp.getKnxValue().getOpenMucValue() instanceof Value);
-            }
-        }
-    }
+			for (Map.Entry<String, DPT> subType : subTypes.entrySet()) {
+				DPT dpt = subType.getValue();
+				System.out.println("testing: " + dpt.toString());
+				try {
+					dp = new KnxGroupDP(main, dpt.getDescription(), dpt.getID());
+				} catch (KNXException e) {
+					fail("could not create KnxGroupDP with: " + dpt.toString());
+				}
+				try {
+					dp.getKnxValue().setDPTValue(dpt.getLowerValue());
+					dp.getKnxValue().setDPTValue(dpt.getUpperValue());
+				} catch (KNXFormatException e) {
+					fail("could not set upper and lower value to KnxGroupDP: " + dpt.toString());
+				}
+				assertTrue(dp.getKnxValue().getOpenMucValue() instanceof Value);
+			}
+		}
+	}
 
 }

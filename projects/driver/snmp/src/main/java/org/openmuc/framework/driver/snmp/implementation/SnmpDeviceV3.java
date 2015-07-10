@@ -33,136 +33,155 @@ import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 
 /**
+ * 
  * @author Mehran Shakeri
+ * 
  */
 public class SnmpDeviceV3 extends SnmpDevice {
 
-    // private UserTarget target; // snmp v3 target
-    private final String username;
-    private final String securityName;
-    private final OID authenticationProtocol;
-    private final String authenticationPassphrase;
-    private final OID privacyProtocol;
-    private final String privacyPassphrase;
+	// private UserTarget target; // snmp v3 target
+	private final String username;
+	private final String securityName;
+	private final OID authenticationProtocol;
+	private final String authenticationPassphrase;
+	private final OID privacyProtocol;
+	private final String privacyPassphrase;
 
-    /**
-     * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
-     *
-     * @param address                  Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
-     * @param username                 String containing username
-     * @param securityName             the security name of the user (typically the user name). [required by snmp4j library]
-     * @param authenticationProtocol   the authentication protocol ID to be associated with this user. If set to <code>null</code>, this
-     *                                 user
-     *                                 only supports unauthenticated messages. [required by snmp4j library] eg. AuthMD5.ID
-     * @param authenticationPassphrase the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *                                 also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
-     *                                 bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * @param privacyProtocol          the privacy protocol ID to be associated with this user. If set to <code>null</code>, this user only
-     *                                 supports not encrypted messages. [required by snmp4j library] eg. PrivDES.ID
-     * @param privacyPassphrase        the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
-     *                                 <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
-     *                                 length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * @throws ConnectionException
-     * @throws ArgumentSyntaxException
-     */
+	/**
+	 * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
+	 * 
+	 * @param address
+	 *            Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
+	 * @param username
+	 *            String containing username
+	 * @param securityName
+	 *            the security name of the user (typically the user name). [required by snmp4j library]
+	 * @param authenticationProtocol
+	 *            the authentication protocol ID to be associated with this user. If set to <code>null</code>, this user
+	 *            only supports unauthenticated messages. [required by snmp4j library] eg. AuthMD5.ID
+	 * @param authenticationPassphrase
+	 *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
+	 *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+	 *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
+	 *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+	 * @param privacyProtocol
+	 *            the privacy protocol ID to be associated with this user. If set to <code>null</code>, this user only
+	 *            supports not encrypted messages. [required by snmp4j library] eg. PrivDES.ID
+	 * @param privacyPassphrase
+	 *            the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
+	 *            <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
+	 *            length of <code>authenticationPassphrase</code> is less than 8 bytes an
+	 *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+	 * 
+	 * @throws ConnectionException
+	 * @throws ArgumentSyntaxException
+	 */
 
-    public SnmpDeviceV3(String address, String username, String securityName, OID authenticationProtocol, String
-            authenticationPassphrase, OID privacyProtocol, String privacyPassphrase) throws ConnectionException, ArgumentSyntaxException {
-        super(address, authenticationPassphrase);
+	public SnmpDeviceV3(String address, String username, String securityName, OID authenticationProtocol,
+			String authenticationPassphrase, OID privacyProtocol, String privacyPassphrase) throws ConnectionException,
+			ArgumentSyntaxException {
+		super(address, authenticationPassphrase);
 
-        this.username = username;
-        this.securityName = securityName;
-        this.authenticationProtocol = authenticationProtocol;
-        this.authenticationPassphrase = authenticationPassphrase;
-        this.privacyProtocol = privacyProtocol;
-        this.privacyPassphrase = privacyPassphrase;
-    }
+		this.username = username;
+		this.securityName = securityName;
+		this.authenticationProtocol = authenticationProtocol;
+		this.authenticationPassphrase = authenticationPassphrase;
+		this.privacyProtocol = privacyProtocol;
+		this.privacyPassphrase = privacyPassphrase;
+	}
 
-    /**
-     * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
-     * Default values: authenticationProtocol = AuthMD5.ID; privacyProtocol = PrivDES.ID;
-     *
-     * @param address                  Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
-     * @param username                 String containing username
-     * @param securityName             the security name of the user (typically the user name). [required by snmp4j library]
-     * @param authenticationPassphrase the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *                                 also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
-     *                                 bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * @param privacyPassphrase        the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
-     *                                 <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
-     *                                 length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * @throws ConnectionException
-     * @throws ArgumentSyntaxException
-     */
+	/**
+	 * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
+	 * Default values: authenticationProtocol = AuthMD5.ID; privacyProtocol = PrivDES.ID;
+	 * 
+	 * @param address
+	 *            Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
+	 * @param username
+	 *            String containing username
+	 * @param securityName
+	 *            the security name of the user (typically the user name). [required by snmp4j library]
+	 * @param authenticationPassphrase
+	 *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
+	 *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+	 *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
+	 *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+	 * @param privacyPassphrase
+	 *            the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
+	 *            <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
+	 *            length of <code>authenticationPassphrase</code> is less than 8 bytes an
+	 *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+	 * 
+	 * @throws ConnectionException
+	 * @throws ArgumentSyntaxException
+	 */
 
-    public SnmpDeviceV3(String address, String username, String securityName, String authenticationPassphrase, String privacyPassphrase)
-            throws ConnectionException, ArgumentSyntaxException {
-        super(address, authenticationPassphrase);
+	public SnmpDeviceV3(String address, String username, String securityName, String authenticationPassphrase,
+			String privacyPassphrase) throws ConnectionException, ArgumentSyntaxException {
+		super(address, authenticationPassphrase);
 
-        this.username = username;
-        this.securityName = securityName;
-        authenticationProtocol = AuthMD5.ID;
-        this.authenticationPassphrase = authenticationPassphrase;
-        privacyProtocol = PrivDES.ID;
-        this.privacyPassphrase = privacyPassphrase;
-    }
+		this.username = username;
+		this.securityName = securityName;
+		authenticationProtocol = AuthMD5.ID;
+		this.authenticationPassphrase = authenticationPassphrase;
+		privacyProtocol = PrivDES.ID;
+		this.privacyPassphrase = privacyPassphrase;
+	}
 
-    @Override
-    void setTarget() {
-        int securityLevel = -1;
-        if (authenticationPassphrase == null || authenticationPassphrase.trim().equals("")) {
-            // No Authentication and no Privacy
-            securityLevel = SecurityLevel.NOAUTH_NOPRIV;
-        } else {
-            // With Authentication
-            if (privacyPassphrase == null || privacyPassphrase.trim().equals("")) {
-                // No Privacy
-                securityLevel = SecurityLevel.AUTH_NOPRIV;
-            } else {
-                // With Privacy
-                securityLevel = SecurityLevel.AUTH_PRIV;
-            }
+	@Override
+	void setTarget() {
+		int securityLevel = -1;
+		if (authenticationPassphrase == null || authenticationPassphrase.trim().equals("")) {
+			// No Authentication and no Privacy
+			securityLevel = SecurityLevel.NOAUTH_NOPRIV;
+		}
+		else {
+			// With Authentication
+			if (privacyPassphrase == null || privacyPassphrase.trim().equals("")) {
+				// No Privacy
+				securityLevel = SecurityLevel.AUTH_NOPRIV;
+			}
+			else {
+				// With Privacy
+				securityLevel = SecurityLevel.AUTH_PRIV;
+			}
 
-        }
-        snmp.getUSM().addUser(new OctetString(username),
-                              new UsmUser(new OctetString(securityName), authenticationProtocol, new OctetString(authenticationPassphrase),
-                                          privacyProtocol, new OctetString(privacyPassphrase)));
-        // create the target
-        target = new UserTarget();
-        target.setAddress(targetAddress);
-        target.setRetries(retries);
-        target.setTimeout(timeout);
-        target.setVersion(SnmpConstants.version3);
-        target.setSecurityLevel(securityLevel);
-        target.setSecurityName(new OctetString(securityName));
-    }
+		}
+		snmp.getUSM().addUser(
+				new OctetString(username),
+				new UsmUser(new OctetString(securityName), authenticationProtocol, new OctetString(
+						authenticationPassphrase), privacyProtocol, new OctetString(privacyPassphrase)));
+		// create the target
+		target = new UserTarget();
+		target.setAddress(targetAddress);
+		target.setRetries(retries);
+		target.setTimeout(timeout);
+		target.setVersion(SnmpConstants.version3);
+		target.setSecurityLevel(securityLevel);
+		target.setSecurityName(new OctetString(securityName));
+	}
 
-    public String getInterfaceAddress() {
-        return null;
-    }
+	public String getInterfaceAddress() {
+		return null;
+	}
 
-    @Override
-    public String getDeviceAddress() {
-        return targetAddress.toString();
-    }
+	@Override
+	public String getDeviceAddress() {
+		return targetAddress.toString();
+	}
 
-    public String getSettings() {
-        String settings = SnmpDriverSettingVariableNames.SNMPVersion
-                .toString() + "=" + SNMPVersion.V3 + ":" + SnmpDriverSettingVariableNames.USERNAME + "=" + username + ":" +
-                SnmpDriverSettingVariableNames.SECURITYNAME + "=" + securityName + ":" + SnmpDriverSettingVariableNames
-                .AUTHENTICATIONPASSPHRASE + "=" + authenticationPassphrase + ":" + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "="
-                + privacyPassphrase;
+	public String getSettings() {
+		String settings = SnmpDriverSettingVariableNames.SNMPVersion.toString() + "=" + SNMPVersion.V3 + ":"
+				+ SnmpDriverSettingVariableNames.USERNAME + "=" + username + ":"
+				+ SnmpDriverSettingVariableNames.SECURITYNAME + "=" + securityName + ":"
+				+ SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=" + authenticationPassphrase + ":"
+				+ SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=" + privacyPassphrase;
 
-        return settings;
+		return settings;
 
-    }
+	}
 
-    public Object getConnectionHandle() {
-        return this;
-    }
+	public Object getConnectionHandle() {
+		return this;
+	}
 
 }

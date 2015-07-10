@@ -1,0 +1,51 @@
+<div class="alert alert-sm alert-warning" ng-show="!drivers.length">
+  <b class="small">{{'NO_DEVICES' | translate}}</b>
+</div>
+
+<div>
+  <div ng-repeat="driver in drivers">
+    
+    <a name="{{driver.id}}"></a>
+    <div class="well well-sm"><b>{{'DRIVER' | translate}} "{{driver.id}}"</b></div>
+    
+    <div class="alert alert-sm alert-warning" ng-show="!driver.devices.length">
+      <b class="small">{{'NO_DEVICES' | translate}}</b>
+    </div>      
+    
+    <table class="table table-hover" ng-show="driver.devices.length">
+      <thead>
+        <tr>
+          <th>{{'DEVICE_ID' | translate}}</th>
+          <th>{{'DESCRIPTION' | translate}}</th>
+          <th>{{'ACTION' | translate}}</th>
+          <th class="text-center">{{'STATE' | translate}}</th>
+        </tr>
+      </thead>
+      
+      <tr ng-repeat="device in driver.devices">
+        <td>{{device.id}}</td>
+        <td>{{device.configs.description}}</td>
+        <td>
+          <a ui-sref="channelconfigurator.channels.index" class="btn btn-default btn-sm" data-title="{{'OPEN' | translate}}" bs-tooltip>
+            <span class="item-icon fa fa-folder-open" aria-hidden="true"></span>
+          </a>
+          <a ui-sref="channelconfigurator.devices.edit({id: device.id})" class="btn btn-default btn-sm" data-title="{{'EDIT' | translate}}" bs-tooltip>
+            <span class="item-icon fa fa-pencil" aria-hidden="true"></span>
+          </a>
+          <a ng-click="deleteDevice(device.id)" class="btn btn-default btn-sm" data-title="{{'DELETE' | translate}}" bs-tooltip>
+            <span class="item-icon fa fa-trash-o" aria-hidden="true"></span>
+          </a>
+          <a ui-sref="channelconfigurator.devices.scan({id: device.id})" class="btn btn-default btn-sm" ng-if="device.data.state == 'CONNECTED'" data-title="{{'SEARCH' | translate}}" bs-tooltip>
+            <span class="item-icon fa fa-search" aria-hidden="true"></span>
+          </a>
+        </td>
+        <td class="text-center">{{device.data.state}}</td>
+      </tr>
+    </table>
+	  
+    <div class="text-right">
+      <a ui-sref="channelconfigurator.devices.new({driverId: driver.id})" class="btn btn-primary">{{'ADD_DEVICE' | translate}}...</a>
+    </div>
+    <br /><br />
+  </div>
+</div>

@@ -21,52 +21,52 @@
 
 package org.openmuc.framework.driver.dummy;
 
+import java.util.List;
+
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 
-import java.util.List;
-
 final class DummyListener extends Thread {
 
-    private List<ChannelRecordContainer> containers;
-    private final RecordsReceivedListener listener;
+	private List<ChannelRecordContainer> containers;
+	private final RecordsReceivedListener listener;
 
-    Double p = Math.random();
+	Double p = Math.random();
 
-    public DummyListener(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) {
-        this.containers = containers;
-        this.listener = listener;
-    }
+	public DummyListener(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) {
+		this.containers = containers;
+		this.listener = listener;
+	}
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                return;
-            }
-            long receiveTime = System.currentTimeMillis();
-            synchronized (containers) {
-                for (ChannelRecordContainer container : containers) {
-                    container.setRecord(new Record(new DoubleValue(Math.sin(p)), receiveTime));
-                    p += 1.0 / 90 % 2 * Math.PI;
-                }
-                listener.newRecords(containers);
-            }
-        }
-    }
+	@Override
+	public void run() {
+		while (true) {
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				return;
+			}
+			long receiveTime = System.currentTimeMillis();
+			synchronized (containers) {
+				for (ChannelRecordContainer container : containers) {
+					container.setRecord(new Record(new DoubleValue(Math.sin(p)), receiveTime));
+					p += 1.0 / 90 % 2 * Math.PI;
+				}
+				listener.newRecords(containers);
+			}
+		}
+	}
 
-    public void setNewContainers(List<ChannelRecordContainer> containers) {
-        synchronized (containers) {
-            this.containers = containers;
-        }
-    }
+	public void setNewContainers(List<ChannelRecordContainer> containers) {
+		synchronized (containers) {
+			this.containers = containers;
+		}
+	}
 
-    public void shutdown() {
-        interrupt();
-    }
+	public void shutdown() {
+		interrupt();
+	}
 
 }

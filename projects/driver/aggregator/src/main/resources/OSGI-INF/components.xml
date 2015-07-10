@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="org.openmuc.framework.driver.aggregator.Aggregator">
+  <implementation class="org.openmuc.framework.driver.aggregator.Aggregator" />
+  <service>
+    <provide interface="org.openmuc.framework.driver.spi.DriverService" />
+  </service>
+    <reference name="dataAccessService"
+	     interface="org.openmuc.framework.dataaccess.DataAccessService"
+	     bind="setDataAccessService"
+	     unbind="unsetDataAccessService" /> 
+</component>

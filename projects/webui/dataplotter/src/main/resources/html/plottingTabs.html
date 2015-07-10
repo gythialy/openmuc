@@ -1,0 +1,15 @@
+<div ng-controller="TabsController">
+  <div ng-if="!confFile">
+		<ul class="nav nav-tabs">
+		  <li role="presentation" ng-class="{active: isDataPlotterPage()}"><a ui-sref="dataplotter.data">{{'DATA_PLOTTER' | translate}}</a></li>
+		  <li role="presentation" ng-class="{active: isLivePlotterPage()}"><a ui-sref="dataplotter.live">{{'LIVE_PLOTTER' | translate}}</a></li>
+		</ul>
+  </div>
+  <div ng-if="confFile">
+    <ul class="nav nav-tabs">
+	    <li role="presentation" ng-repeat="plotter in confFile">
+	      <a ng-class="{active: isPlotterPageActive(plotter.type, plotter.name)}" ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})">{{plotter.name}}</a>
+	    </li>
+    </ul>
+  </div>
+</div>

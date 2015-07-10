@@ -21,6 +21,7 @@
 package org.openmuc.framework.driver.knx;
 
 import org.openmuc.framework.driver.knx.value.KnxValue;
+
 import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.datapoint.CommandDP;
 import tuwien.auto.calimero.exception.KNXException;
@@ -28,34 +29,36 @@ import tuwien.auto.calimero.serial.rc1180.SNorDoA;
 
 /**
  * @author frobra
+ * 
  */
 public class KnxGroupDP extends CommandDP {
 
-    private final KnxValue value;
-    private SNorDoA address;
+	private final KnxValue value;
+	private SNorDoA address;
 
-    /**
-     * @throws KNXException
-     */
-    public KnxGroupDP(GroupAddress main, String name, String dptID) throws KNXException {
-        super(main, name, Integer.parseInt(dptID.split("\\.")[0]), dptID);
-        value = KnxValue.createKnxValue(dptID);
-        address = null;
-    }
+	/**
+	 * @throws KNXException
+	 * 
+	 */
+	public KnxGroupDP(GroupAddress main, String name, String dptID) throws KNXException {
+		super(main, name, Integer.parseInt(dptID.split("\\.")[0]), dptID);
+		value = KnxValue.createKnxValue(dptID);
+		address = null;
+	}
 
-    /**
-     * @return the value
-     */
-    public KnxValue getKnxValue() {
-        return value;
-    }
+	/**
+	 * @return the value
+	 */
+	public KnxValue getKnxValue() {
+		return value;
+	}
 
-    public void setAddress(boolean AET, byte[] SNorDoA) {
-        address = new SNorDoA(AET, SNorDoA);
-    }
+	public void setAddress(boolean AET, byte[] SNorDoA) {
+		address = new SNorDoA(AET, SNorDoA);
+	}
 
-    public SNorDoA getAddress() {
-        return address;
-    }
+	public SNorDoA getAddress() {
+		return address;
+	}
 
 }

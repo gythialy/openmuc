@@ -26,31 +26,31 @@ import org.openmuc.framework.driver.spi.DriverService;
 
 public final class DisconnectTask extends DeviceTask {
 
-    public DisconnectTask(DriverService driver, Device device, DataManager dataManager) {
-        this.driver = driver;
-        this.device = device;
-        this.dataManager = dataManager;
-    }
+	public DisconnectTask(DriverService driver, Device device, DataManager dataManager) {
+		this.driver = driver;
+		this.device = device;
+		this.dataManager = dataManager;
+	}
 
-    @Override
-    public void run() {
+	@Override
+	public void run() {
 
-        device.connection.disconnect();
+		device.connection.disconnect();
 
-        synchronized (dataManager.disconnected) {
-            dataManager.disconnected.add(device);
-        }
-        dataManager.interrupt();
+		synchronized (dataManager.disconnected) {
+			dataManager.disconnected.add(device);
+		}
+		dataManager.interrupt();
 
-    }
+	}
 
-    @Override
-    public DeviceTaskType getType() {
-        return DeviceTaskType.DISCONNECT;
-    }
+	@Override
+	public DeviceTaskType getType() {
+		return DeviceTaskType.DISCONNECT;
+	}
 
-    @Override
-    public void setDeviceState() {
-        device.state = DeviceState.DISCONNECTING;
-    }
+	@Override
+	public void setDeviceState() {
+		device.state = DeviceState.DISCONNECTING;
+	}
 }

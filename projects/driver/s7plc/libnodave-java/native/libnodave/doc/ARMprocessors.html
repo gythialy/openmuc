@@ -3,7 +3,7 @@ Libnodave did not work on ARM processors. It seemed that the processor cannot ac
 non word boundary (odd address). The following code did not work:
 <pre>
     ((PDUHeader*)p->header)->plen=daveSwapIed_16(len);
-</pre>
+</pre>    
 Here the pointer p->header has been set two an odd address. The offset of plen in the
 structure PDUHeader is even, hence the resulting pointer points at an odd address.
 The ARM seems to take the previous lower word boundary instead of the calculated address.

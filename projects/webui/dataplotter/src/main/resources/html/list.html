@@ -1,0 +1,36 @@
+<div id="dashboard-grid" class="row">
+
+  <div ng-if="confFile">
+	  <div ng-repeat="plotter in confFile">
+	    <div class="item col-md-3 text-center">
+	      <a ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})" class="btn btn-grid btn-block">
+	        <span class="item-icon" aria-hidden="true">
+	          <img src="dataplotter/images/icon.png" />
+	        </span>
+	        {{plotter.name}}
+	      </a>
+	    </div>
+	  </div>
+  </div>
+
+  <div ng-if="!confFile">
+	  <div class="item col-md-3 text-center">
+	    <a ui-sref="dataplotter.data" class="btn btn-grid btn-block">
+	      <span class="item-icon" aria-hidden="true">
+	        <img src="dataplotter/images/icon.png" />
+	      </span>
+	      {{'DATA_PLOTTER' | translate}}
+	    </a>
+	  </div>
+
+    <div class="item col-md-3 text-center">
+      <a ui-sref="dataplotter.live" class="btn btn-grid btn-block">
+        <span class="item-icon" aria-hidden="true">
+          <img src="dataplotter/images/icon.png" />
+        </span>
+        {{'LIVE_PLOTTER' | translate}}
+      </a>
+    </div>
+  </div>
+  
+</div>

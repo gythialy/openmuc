@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="org.openmuc.framework.driver.rest">
+  <implementation class="org.openmuc.framework.driver.rest.RestDriverImpl" /> 
+  <service>
+    <provide interface="org.openmuc.framework.driver.spi.DriverService" />
+  </service>
+  <reference name="ssdpHandler"
+	   interface="de.hsoffenburg.ssdp.service.SSDPServiceHandlerInterface"
+	   bind="setSSDPHandler"
+	   unbind="unsetSSDPHandler"
+	   cardinality="1..1" />
+</component> 

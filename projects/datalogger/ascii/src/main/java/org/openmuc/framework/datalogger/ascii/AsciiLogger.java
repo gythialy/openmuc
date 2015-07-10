@@ -20,7 +20,24 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 import org.openmuc.framework.data.Record;
+import org.openmuc.framework.datalogger.ascii.utils.Const;
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.DataLoggerService;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
@@ -28,160 +45,215 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-
 public class AsciiLogger implements DataLoggerService {
 
-    private final static Logger logger = LoggerFactory.getLogger(AsciiLogger.class);
+	private final static Logger logger = LoggerFactory.getLogger(AsciiLogger.class);
 
-    public final static String DEFAULT_DIR = System.getProperty("user.dir") + "/asciidata/";
-    public final static String EXTENSION = ".dat";
-    public final static String EXTENSION_OLD = ".old";
+	private final String loggerDirectory;
+	private final HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
+	private boolean isFillUpFiles = false;
 
-    private final String loggerDirectory;
-    private final HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
+	protected void activate(ComponentContext context) {
 
-    protected void activate(ComponentContext context) {
-        logger.info("Activating Ascii Logger");
-    }
+		logger.info("Activating Ascii Logger");
+		setSystemProperties();
+	}
 
-    protected void deactivate(ComponentContext context) {
-        logger.info("Deactivating Ascii Logger");
-    }
+	protected void deactivate(ComponentContext context) {
 
-    /**
-     *
-     */
-    public AsciiLogger() {
-        loggerDirectory = AsciiLogger.DEFAULT_DIR;
-        createDirectory();
-    }
+		logger.info("Deactivating Ascii Logger");
+	}
 
-    public AsciiLogger(String loggerDirectory) {
-        this.loggerDirectory = loggerDirectory;
-        createDirectory();
-    }
+	/**
+	 * 
+	 */
+	public AsciiLogger() {
 
-    private void createDirectory() {
-        logger.debug("using directory: " + loggerDirectory);
-        File asciidata = new File(loggerDirectory);
-        if (!asciidata.exists()) {
-            if (!asciidata.mkdir()) {
-                logger.error("Could not create logger directory: " + asciidata.getAbsolutePath());
-                // TODO: weitere Behandlung,
-            }
-        }
-    }
+		loggerDirectory = Const.DEFAULT_DIR;
+		createDirectory();
+	}
 
-    @Override
-    public String getId() {
-        return "asciilogger";
-    }
+	public AsciiLogger(String loggerDirectory) {
 
-    public boolean text(String test) {
-        return true;
-    }
+		this.loggerDirectory = loggerDirectory;
+		createDirectory();
+	}
 
-    @Override
-    public void setChannelsToLog(List<LogChannel> channels) {
+	private void createDirectory() {
 
-        logChannelList.clear();
+		logger.trace("using directory: " + loggerDirectory);
+		File asciidata = new File(loggerDirectory);
+		if (!asciidata.exists()) {
+			if (!asciidata.mkdir()) {
+				logger.error("Could not create logger directory: " + asciidata.getAbsolutePath());
+				// TODO: weitere Behandlung,
+			}
+		}
+	}
 
-        logger.debug("channels to log:");
-        for (LogChannel channel : channels) {
+	@Override
+	public String getId() {
+		return "asciilogger";
+	}
 
-            logger.debug("channel.getId() " + channel.getId());
-            logger.debug("channel.getLoggingInterval() " + channel.getLoggingInterval());
-            logChannelList.put(channel.getId(), channel);
-        }
+	public boolean text(String test) {
+		return true;
+	}
 
-        Calendar calendar = new GregorianCalendar(Locale.getDefault());
-        LoggerUtils loggerUtils = new LoggerUtils();
-        loggerUtils.renameOldFiles(loggerDirectory, calendar);
+	/**
+	 * Will called if OpenMUC starts the logger
+	 */
+	@Override
+	public void setChannelsToLog(List<LogChannel> channels) {
 
-    }// @Override
-    // public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
+		Calendar calendar = new GregorianCalendar(Locale.getDefault());
+		logChannelList.clear();
 
-    // int loggingInterval = this.logChannelList.get(id).getLoggingInterval();
-    // LogFileReader reader = new LogFileReader(loggerDirectory, id, loggingInterval);
-    // return reader.getValues(startTime, endTime);
-    // }
-    //
-    // @Override
-    // public List<Record> getValues(String id, long startTimestamp) throws IOException {
-    // return getValues(id, startTimestamp, System.currentTimeMillis());
-    // }
-    //
-    // @Override
-    // public List<Record> getValues(String id, long startTimestamp, long endTimestamp) throws IOException {
-    // int loggingInterval = this.logChannelList.get(id).getLoggingInterval();
-    // LogFileReader reader = new LogFileReader(loggerDirectory, id, loggingInterval);
-    // return reader.getValues(startTimestamp, endTimestamp);
-    // }
-    //
-    // @Override
-    // public Record getValue(String id, long timestamp) throws IOException {
-    // int loggingInterval = this.logChannelList.get(id).getLoggingInterval();
-    // LogFileReader reader = new LogFileReader(loggerDirectory, id, loggingInterval);
-    // reader.getValue(timestamp);
-    // return null;
-    // }
+		logger.trace("channels to log:");
+		for (LogChannel channel : channels) {
 
-    @Override
-    public void log(List<LogRecordContainer> containers, long timestamp) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("channel.getId() " + channel.getId());
+				logger.trace("channel.getLoggingInterval() " + channel.getLoggingInterval());
+			}
+			logChannelList.put(channel.getId(), channel);
+		}
 
-        HashMap<Integer, LogIntervalContainerGroup> logIntervalGroups = new HashMap<Integer, LogIntervalContainerGroup>();
+		if (isFillUpFiles) {
+			Map<String, Boolean> areHeaderIdentical = isHeaderIdentical(channels, calendar);
 
-        // add each container to a group with the same logging interval
-        for (LogRecordContainer container : containers) {
+			for (Entry<String, Boolean> entry : areHeaderIdentical.entrySet()) {
+				String key = entry.getKey();
 
-            int logInterval = -1;
+				if (!entry.getValue()) {
+					// rename files in old files, because of configuration is changed
+					LoggerUtils.renameToOldFile(loggerDirectory, key, calendar);
+				}
+				else {
+					// Fill file up with error flag 32 (DATA_LOGGING_NOT_ACTIVE)
+					LoggerUtils.fillUpFileWithErrorCode(loggerDirectory, key, calendar);
+				}
+			}
+		}
+		else {
+			LoggerUtils.renameOldFiles(loggerDirectory, calendar);
+		}
 
-            if (logChannelList.containsKey(container.getChannelId())) {
-                logInterval = logChannelList.get(container.getChannelId()).getLoggingInterval();
-            } else {
-                // TODO there might be a change in the channel config file
-            }
+	}
 
-            if (logIntervalGroups.containsKey(logInterval)) {
-                // add the container to an existing group
-                LogIntervalContainerGroup group = logIntervalGroups.get(logInterval);
-                group.add(container);
-            } else {
-                // create a new group and add the container
-                LogIntervalContainerGroup group = new LogIntervalContainerGroup();
-                group.add(container);
-                logIntervalGroups.put(logInterval, group);
-            }
+	@Override
+	public synchronized void log(List<LogRecordContainer> containers, long timestamp) {
 
-        }
+		HashMap<List<Integer>, LogIntervalContainerGroup> logIntervalGroups = new HashMap<List<Integer>, LogIntervalContainerGroup>();
 
-        // alle gruppen loggen
-        Iterator<Entry<Integer, LogIntervalContainerGroup>> it = logIntervalGroups.entrySet().iterator();
-        Integer logInterval;
-        while (it.hasNext()) {
-            logInterval = it.next().getKey();
-            LogIntervalContainerGroup group = logIntervalGroups.get(logInterval);
-            LogFileWriter fileOutHandler = new LogFileWriter();
-            fileOutHandler.log(group, logInterval, new Date(timestamp), logChannelList);
-        }
-    }
+		// add each container to a group with the same logging interval
+		for (LogRecordContainer container : containers) {
 
-    @Override
-    public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
+			int logInterval = -1;
+			int logTimeOffset = 0;
+			List<Integer> logTimeArray = Arrays.asList(logInterval, logTimeOffset);
 
-        LogChannel logChannel = logChannelList.get(channelId);
-        LogFileReader reader = null;
-        if (logChannel != null) {
-            int loggingInterval = logChannel.getLoggingInterval();
-            reader = new LogFileReader(loggerDirectory, channelId, loggingInterval);
-            return reader.getValues(startTime, endTime);
-        } else {
-            throw new IOException("ChannelID (" + channelId + ") not available.");
-        }
-    }
+			if (logChannelList.containsKey(container.getChannelId())) {
+				logInterval = logChannelList.get(container.getChannelId()).getLoggingInterval();
+				logTimeOffset = logChannelList.get(container.getChannelId()).getLoggingTimeOffset();
+				logTimeArray = Arrays.asList(logInterval, logTimeOffset);
+			}
+			else {
+				// TODO there might be a change in the channel config file
+			}
+
+			if (logIntervalGroups.containsKey(logTimeArray)) {
+				// add the container to an existing group
+				LogIntervalContainerGroup group = logIntervalGroups.get(logTimeArray);
+				group.add(container);
+			}
+			else {
+				// create a new group and add the container
+				LogIntervalContainerGroup group = new LogIntervalContainerGroup();
+				group.add(container);
+				logIntervalGroups.put(logTimeArray, group);
+			}
+
+		}
+
+		// alle gruppen loggen
+		Iterator<Entry<List<Integer>, LogIntervalContainerGroup>> it = logIntervalGroups.entrySet().iterator();
+		List<Integer> logTimeArray;
+
+		while (it.hasNext()) {
+
+			logTimeArray = it.next().getKey();
+			LogIntervalContainerGroup group = logIntervalGroups.get(logTimeArray);
+			LogFileWriter fileOutHandler = new LogFileWriter();
+			fileOutHandler.log(group, logTimeArray.get(0), logTimeArray.get(1), new Date(timestamp), logChannelList);
+		}
+	}
+
+	@Override
+	public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
+
+		LogChannel logChannel = logChannelList.get(channelId);
+		LogFileReader reader = null;
+
+		if (logChannel != null) {
+			reader = new LogFileReader(loggerDirectory, logChannel);
+			return reader.getValues(startTime, endTime);
+		}// TODO: hier einfügen das nach Loggdateien gesucht werden sollen die vorhanden sind aber nicht geloggt werden,
+			// z.B für server only ohne Logging. Das suchen sollte nur beim ersten mal passieren (start).
+		else {
+			throw new IOException("ChannelID (" + channelId + ") not available. It's not a logging Channel.");
+		}
+	}
+
+	private void setSystemProperties() {
+
+		String fillUpProperty = System.getProperty("org.openmuc.framework.datalogger.ascii.fillUpFiles");
+
+		if (fillUpProperty != null) {
+			isFillUpFiles = Boolean.parseBoolean(fillUpProperty);
+		}
+	}
+
+	private Map<String, Boolean> isHeaderIdentical(List<LogChannel> channels, Calendar calendar) {
+
+		Map<String, Boolean> areHeaderIdentical = new TreeMap<String, Boolean>();
+		Map<String, List<LogChannel>> logChannelMap = new TreeMap<String, List<LogChannel>>();
+		LogFileHeader logFileHeader = new LogFileHeader();
+		String key = "";
+
+		for (LogChannel logChannel : channels) {
+
+			if (logChannel.getLoggingTimeOffset() != 0) {
+				key = logChannel.getLoggingInterval() + "_" + logChannel.getLoggingTimeOffset();
+			}
+			else {
+				key = logChannel.getLoggingInterval().toString();
+			}
+
+			if (!logChannelMap.containsKey(key)) {
+				List<LogChannel> logChannelList = new ArrayList<LogChannel>();
+				logChannelList.add(logChannel);
+				logChannelMap.put(key, logChannelList);
+			}
+			else {
+				logChannelMap.get(key).add(logChannel);
+			}
+		}
+
+		List<LogChannel> logChannels;
+
+		for (Entry<String, List<LogChannel>> entry : logChannelMap.entrySet()) {
+
+			key = entry.getKey();
+			logChannels = entry.getValue();
+			String fileName = LoggerUtils.buildFilename(key, calendar);
+
+			String headerGenerated = logFileHeader.getIESDataFormatHeaderString(fileName, logChannels);
+			String oldHeader = LoggerUtils.getHeaderFromFile(loggerDirectory + fileName, key);
+			boolean isToFillUp = headerGenerated.equals(oldHeader);
+			areHeaderIdentical.put(key, isToFillUp);
+		}
+		return areHeaderIdentical;
+	}
 
 }

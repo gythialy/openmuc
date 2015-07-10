@@ -1,0 +1,47 @@
+<h3 class="sub-category-heading">{{'SCAN_DRIVER' | translate}} {{driver.id}}</h3>
+
+<form name="scanDriverForm" class="form-horizontal" ng-submit="scanDriver()" novalidate>
+  <div class="form-group">
+    <label for="settings" class="col-sm-2 control-label">
+      <span class="item-icon fa fa-info-circle" aria-hidden="true" data-title="{{'SCAN_DRIVER_SETTINGS_HINT' | translate}}" data-placement="right" data-container="body" bs-tooltip></span>
+      Settings
+    </label>
+    <div class="col-sm-4">
+      <input type="text" class="form-control" name="settings" ng-model="settings">
+    </div>
+  </div>
+  <div class="col-sm-6 text-right">
+    <button class="btn btn-primary" ng-disabled="scanDriverForm.submitted">
+      <span ng-show="scanDriverForm.submitted">{{'SCANNING' | translate}} <i class="fa fa-spinner fa-pulse"></i></span>
+      <span ng-show="!scanDriverForm.submitted">{{'SCAN_FOR_DEVICES' | translate}}</span>
+    </button>
+  </div>
+</form>
+
+<br />
+<br />
+<br />
+
+<table class="table table-hover" ng-show="devices.length">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>{{'DEVICE_ID' | translate}}</th>
+      <th>{{'DEVICE_DESCRIPTION' | translate}}</th>
+      <th>{{'DEVICE_ADDRESS' | translate}}</th>
+      <th>{{'DEVICE_SETTINGS' | translate}}</th>
+    </tr>
+  </thead>
+  
+  <tr ng-repeat="device in devices">
+    <td><input type="checkbox" checklist-model="selectedDevices" checklist-value="device"></td>
+	  <td>{{device.configs.id}}</td>
+	  <td>{{device.configs.description}}</td>
+	  <td>{{device.configs.deviceAddress}}</td>
+	  <td>{{device.configs.settings}}</td>
+  </tr>
+</table>
+
+<div ng-if="devices.length">
+  <button class="btn btn-primary" ng-click="addDevices()" ng-disabled="selectedDevices.length == 0">{{'ADD_DEVICES' | translate}}</button>
+</div>

@@ -1,0 +1,45 @@
+<div class="alert alert-warning alert-sm">{{'LATEST_RECORD_UPDATED_EVERY_SECOND' | translate}}</div>
+
+<div ng-repeat="device in checkedDevices">
+
+  <div class="alert alert-primary"><b>{{device.id}}</b></div>
+
+  <div class="table-responsive">
+    <table class="table table-hover">
+	    <thead>
+	      <tr>
+	        <th>{{'CHANNEL_ACCESS_TOOL_CHANNEL_ID' | translate}}</th>
+	        <th>{{'LATEST_RECORD' | translate}}</th>
+	        <th>{{'WRITE' | translate}}</th>
+	        <th>{{'DESCRIPTION' | translate}}</th>
+	      </tr>
+	    </thead>
+	    <tr ng-repeat="channel in device.channels">
+	      <td>{{channel.id}}</td>
+	      <td>
+	        <div>
+	          <b>{{'VALUE' | translate}}:</b> {{channel.records.value | intArrayToHexArray}} <span> {{channel.data.unit}}</span>
+	        </div>
+	        <div>
+	          <b>{{'TIME' | translate}}:</b> {{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss a'}}
+	        </div>
+	        <div>
+	          <b>{{'FLAG' | translate}}:</b> {{channel.records.flag}}
+	        </div>
+	      </td>
+	      <td>
+	        <form class="form-inline" ng-submit="writeValue()">
+	          <input type="text" class="form-control" ng-model="channel.newValue" />
+	          <input type="submit" class="btn btn-default" value="{{'WRITE_VALUE' | translate}}" />
+	        </form>
+	      </td>
+	      <td>{{device.data.description}}</td>
+	    </tr>
+	  </table>
+  </div>
+
+</div>
+
+<br />
+
+<a ui-sref="channelaccesstool.index" class="btn btn-default">{{'BACK_TO_SELECTION' | translate}}</a>
