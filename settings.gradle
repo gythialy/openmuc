@@ -1,4 +1,4 @@
-include 'openmuc-core-api', 'openmuc-core-datamanager', 'openmuc-core-spi', 'openmuc-datalogger-ascii', 'openmuc-datalogger-slotsdb', 'openmuc-driver-aggregator', 'openmuc-driver-canopen', 'openmuc-driver-dlms', 'openmuc-driver-ehz', 'openmuc-driver-iec61850', 'openmuc-driver-iec62056p21', 'openmuc-driver-knx', 'openmuc-driver-mbus', 'openmuc-driver-modbus', 'openmuc-driver-rest', 'openmuc-driver-s7plc', 'openmuc-driver-snmp', 'openmuc-driver-wmbus', 'openmuc-server-restws', 'openmuc-webui-base', 'openmuc-webui-channelaccesstool', 'openmuc-webui-channelconfigurator', 'openmuc-webui-dataexporter', 'openmuc-webui-dataplotter', 'openmuc-webui-mediaviewer', 'openmuc-webui-spi', 'openmuc-webui-userconfigurator'
+include 'openmuc-core-api', 'openmuc-core-datamanager', 'openmuc-core-spi', 'openmuc-datalogger-ascii', 'openmuc-datalogger-slotsdb', 'openmuc-driver-aggregator', 'openmuc-driver-canopen', 'openmuc-driver-dlms', 'openmuc-driver-ehz', 'openmuc-driver-iec61850', 'openmuc-driver-iec62056p21', 'openmuc-driver-knx', 'openmuc-driver-mbus', 'openmuc-driver-modbus', 'openmuc-driver-s7plc', 'openmuc-driver-snmp', 'openmuc-driver-wmbus', 'openmuc-server-restws', 'openmuc-webui-base', 'openmuc-webui-channelaccesstool', 'openmuc-webui-channelconfigurator', 'openmuc-webui-dataexporter', 'openmuc-webui-dataplotter', 'openmuc-webui-mediaviewer', 'openmuc-webui-spi', 'openmuc-webui-userconfigurator'
 
 project(":openmuc-core-api").projectDir = file("projects/core/api")
 project(":openmuc-core-datamanager").projectDir = file("projects/core/datamanager")
@@ -14,7 +14,7 @@ project(":openmuc-driver-iec62056p21").projectDir = file("projects/driver/iec620
 project(":openmuc-driver-knx").projectDir = file("projects/driver/knx")
 project(":openmuc-driver-mbus").projectDir = file("projects/driver/mbus")
 project(":openmuc-driver-modbus").projectDir = file("projects/driver/modbus")
-project(":openmuc-driver-rest").projectDir = file("projects/driver/rest")
+//project(":openmuc-driver-rest").projectDir = file("projects/driver/rest")
 project(":openmuc-driver-s7plc").projectDir = file("projects/driver/s7plc")
 project(":openmuc-driver-snmp").projectDir = file("projects/driver/snmp")
 project(":openmuc-driver-wmbus").projectDir = file("projects/driver/wmbus")
