@@ -175,10 +175,12 @@ public class LogFileReader {
 				unixTimestampColumn = LoggerUtils.getColumnNumberByName(line, Const.TIMESTAMP_STRING);
 			}
 
-			firstValueLine = raf.readLine();
-			rowSize = firstValueLine.length() + 1;
+            currentPosition = raf.getFilePointer();
+            firstValueLine = raf.readLine();
+            raf.seek(raf.getFilePointer() - 2);
+            int offset = raf.read() == '\r' ? 2 : 1;
+            rowSize = firstValueLine.length() + offset;
 
-			currentPosition = raf.getFilePointer() - rowSize;
 			firstTimestamp = (long) (Double.valueOf((firstValueLine.split(Const.SEPARATOR))[unixTimestampColumn]) * 1000);
 
 			if (nextFile || startTimestamp < firstTimestamp) {
