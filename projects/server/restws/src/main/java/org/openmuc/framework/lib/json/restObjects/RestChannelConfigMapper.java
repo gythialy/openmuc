@@ -26,59 +26,57 @@ import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException
 
 public class RestChannelConfigMapper {
 
-	public static RestChannelConfig getRestChannelConfig(ChannelConfig cc) {
+    public static RestChannelConfig getRestChannelConfig(ChannelConfig cc) {
 
-		RestChannelConfig rcc = new RestChannelConfig();
-		rcc.setChannelAddress(cc.getChannelAddress());
-		rcc.setDescription(cc.getDescription());
-		rcc.setDisabled(cc.isDisabled());
-		rcc.setId(cc.getId());
-		rcc.setListening(cc.isListening());
-		rcc.setLoggingInterval(cc.getLoggingInterval());
-		rcc.setLoggingTimeOffset(cc.getLoggingTimeOffset());
-		rcc.setSamplingGroup(cc.getSamplingGroup());
-		rcc.setSamplingInterval(cc.getSamplingInterval());
-		rcc.setSamplingTimeOffset(cc.getSamplingTimeOffset());
-		rcc.setScalingFactor(cc.getScalingFactor());
-		// rcc.setServerMappings(cc.getServerMappings());
-		rcc.setUnit(cc.getUnit());
-		rcc.setValueOffset(cc.getValueOffset());
-		rcc.setValueType(cc.getValueType());
-		rcc.setValueTypeLength(cc.getValueTypeLength());
-		return rcc;
-	}
+        RestChannelConfig rcc = new RestChannelConfig();
+        rcc.setChannelAddress(cc.getChannelAddress());
+        rcc.setDescription(cc.getDescription());
+        rcc.setDisabled(cc.isDisabled());
+        rcc.setId(cc.getId());
+        rcc.setListening(cc.isListening());
+        rcc.setLoggingInterval(cc.getLoggingInterval());
+        rcc.setLoggingTimeOffset(cc.getLoggingTimeOffset());
+        rcc.setSamplingGroup(cc.getSamplingGroup());
+        rcc.setSamplingInterval(cc.getSamplingInterval());
+        rcc.setSamplingTimeOffset(cc.getSamplingTimeOffset());
+        rcc.setScalingFactor(cc.getScalingFactor());
+        // rcc.setServerMappings(cc.getServerMappings());
+        rcc.setUnit(cc.getUnit());
+        rcc.setValueOffset(cc.getValueOffset());
+        rcc.setValueType(cc.getValueType());
+        rcc.setValueTypeLength(cc.getValueTypeLength());
+        return rcc;
+    }
 
-	public static void setChannelConfig(ChannelConfig cc, RestChannelConfig rcc, String idFromUrl)
-			throws IdCollisionException, RestConfigIsNotCorrectException {
+    public static void setChannelConfig(ChannelConfig cc, RestChannelConfig rcc, String idFromUrl) throws IdCollisionException,
+            RestConfigIsNotCorrectException {
 
-		if (cc == null) {
-			throw new RestConfigIsNotCorrectException("ChannelConfig is null!");
-		}
-		else {
-			if (rcc != null) {
-				if (rcc.getId() != null && !rcc.getId().equals("") && !idFromUrl.equals(rcc.getId())) {
-					cc.setId(rcc.getId());
-				}
-				cc.setChannelAddress(rcc.getChannelAddress());
-				cc.setDescription(rcc.getDescription());
-				cc.setDisabled(rcc.isDisabled());
-				cc.setListening(rcc.isListening());
-				cc.setLoggingInterval(rcc.getLoggingInterval());
-				cc.setLoggingTimeOffset(rcc.getLoggingTimeOffset());
-				cc.setSamplingGroup(rcc.getSamplingGroup());
-				cc.setSamplingInterval(rcc.getSamplingInterval());
-				cc.setSamplingTimeOffset(rcc.getSamplingTimeOffset());
-				cc.setScalingFactor(rcc.getScalingFactor());
-				// cc.setServerMappings(rcc.getServerMappings());
-				cc.setUnit(rcc.getUnit());
-				cc.setValueOffset(rcc.getValueOffset());
-				cc.setValueType(rcc.getValueType());
-				cc.setValueTypeLength(rcc.getValueTypeLength());
-			}
-			else {
-				throw new RestConfigIsNotCorrectException();
-			}
-		}
-	}
+        if (cc == null) {
+            throw new RestConfigIsNotCorrectException("ChannelConfig is null!");
+        } else {
+            if (rcc != null) {
+                if (rcc.getId() != null && !rcc.getId().equals("") && !idFromUrl.equals(rcc.getId())) {
+                    cc.setId(rcc.getId());
+                }
+                cc.setChannelAddress(rcc.getChannelAddress());
+                cc.setDescription(rcc.getDescription());
+                cc.setDisabled(rcc.isDisabled());
+                cc.setListening(rcc.isListening());
+                cc.setLoggingInterval(rcc.getLoggingInterval());
+                cc.setLoggingTimeOffset(rcc.getLoggingTimeOffset());
+                cc.setSamplingGroup(rcc.getSamplingGroup());
+                cc.setSamplingInterval(rcc.getSamplingInterval());
+                cc.setSamplingTimeOffset(rcc.getSamplingTimeOffset());
+                cc.setScalingFactor(rcc.getScalingFactor());
+                // cc.setServerMappings(rcc.getServerMappings());
+                cc.setUnit(rcc.getUnit());
+                cc.setValueOffset(rcc.getValueOffset());
+                cc.setValueType(rcc.getValueType());
+                cc.setValueTypeLength(rcc.getValueTypeLength());
+            } else {
+                throw new RestConfigIsNotCorrectException();
+            }
+        }
+    }
 
 }

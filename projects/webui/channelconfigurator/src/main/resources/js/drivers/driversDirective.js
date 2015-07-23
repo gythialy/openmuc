@@ -1,16 +1,16 @@
-(function(){
+(function () {
 
-	var injectParams = [];
-	
-	var DriversFormDirective = function() {
-		return {
-			restrict: 'E',
-			templateUrl: 'channelconfigurator/html/drivers/form.html'
-		};
-	};
+    var injectParams = [];
 
-	DriversFormDirective.$inject = injectParams;
+    var DriversFormDirective = function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'channelconfigurator/html/drivers/form.html'
+        };
+    };
 
-	angular.module('openmuc.drivers').directive('driversForm', DriversFormDirective);
+    DriversFormDirective.$inject = injectParams;
+
+    angular.module('openmuc.drivers').directive('driversForm', DriversFormDirective);
 
 })();

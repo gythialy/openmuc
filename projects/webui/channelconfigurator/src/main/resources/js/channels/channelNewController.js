@@ -1,49 +1,49 @@
-(function(){
-	
-	var injectParams = ['$scope', '$stateParams', '$state', '$alert', '$translate', 'ChannelsService', 'DevicesService'];
-	
-	var ChannelNewController = function($scope, $stateParams, $state, $alert, $translate, ChannelsService, DevicesService) {
+(function () {
 
-		$translate('CHANNEL_CREATED_SUCCESSFULLY').then(function(text) {
-			$scope.channelOKText = text;
-		});
-		
-		$translate('CHANNEL_CREATED_ERROR').then(function(text) {
-			$scope.channelErrorText = text;
-		});
+    var injectParams = ['$scope', '$stateParams', '$state', '$alert', '$translate', 'ChannelsService', 'DevicesService'];
 
-		if ($stateParams.deviceId) {
-			$scope.device = DevicesService.getDevice($stateParams.deviceId);
-		} else {
-			$scope.device = [];
-		}
+    var ChannelNewController = function ($scope, $stateParams, $state, $alert, $translate, ChannelsService, DevicesService) {
 
-		$scope.channel = {
-			device: $scope.device.id,
-			configs: {
-				disabled: false
-			}
-		};
+        $translate('CHANNEL_CREATED_SUCCESSFULLY').then(function (text) {
+            $scope.channelOKText = text;
+        });
 
-		$scope.saveChannel = function() {
-			
-			if ($scope.channelForm.$valid) {
-				ChannelsService.create($scope.channel).then(function(resp){
-					$alert({content: $scope.channelOKText, type: 'success'});
-					return $state.go('channelconfigurator.channels.index');
-				}, function(error) {
-					$alert({content: $scope.channelErrorText + error.statusText, type: 'warning'});
-					return $state.go('channelconfigurator.channels.index');
-				});
-			} else {
-				$scope.channelForm.submitted = true;
-			}
-		};
-				
-	};
+        $translate('CHANNEL_CREATED_ERROR').then(function (text) {
+            $scope.channelErrorText = text;
+        });
 
-	ChannelNewController.$inject = injectParams;
+        if ($stateParams.deviceId) {
+            $scope.device = DevicesService.getDevice($stateParams.deviceId);
+        } else {
+            $scope.device = [];
+        }
 
-	angular.module('openmuc.channels').controller('ChannelNewController', ChannelNewController);
+        $scope.channel = {
+            device: $scope.device.id,
+            configs: {
+                disabled: false
+            }
+        };
+
+        $scope.saveChannel = function () {
+
+            if ($scope.channelForm.$valid) {
+                ChannelsService.create($scope.channel).then(function (resp) {
+                    $alert({content: $scope.channelOKText, type: 'success'});
+                    return $state.go('channelconfigurator.channels.index');
+                }, function (error) {
+                    $alert({content: $scope.channelErrorText + error.statusText, type: 'warning'});
+                    return $state.go('channelconfigurator.channels.index');
+                });
+            } else {
+                $scope.channelForm.submitted = true;
+            }
+        };
+
+    };
+
+    ChannelNewController.$inject = injectParams;
+
+    angular.module('openmuc.channels').controller('ChannelNewController', ChannelNewController);
 
 })();

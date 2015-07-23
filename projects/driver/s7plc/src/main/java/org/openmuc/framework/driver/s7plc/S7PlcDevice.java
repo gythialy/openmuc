@@ -22,30 +22,26 @@ package org.openmuc.framework.driver.s7plc;
 
 public class S7PlcDevice {
 
-	private Integer port;
+    private Integer port;
 
-	public S7PlcDevice(String addr) {
-		setSlaveAddress(addr);
-	}
+    public S7PlcDevice(String addr) {
+        setSlaveAddress(addr);
+    }
 
-	/**
-	 * 
-	 * @param deviceAddress
-	 *            e.g. localhost:1502
-	 */
-	private void setSlaveAddress(String deviceAddress) {
-		String[] address = deviceAddress.toLowerCase().split(":");
+    /**
+     * @param deviceAddress e.g. localhost:1502
+     */
+    private void setSlaveAddress(String deviceAddress) {
+        String[] address = deviceAddress.toLowerCase().split(":");
 
-		port = 102;
+        port = 102;
 
-		if (address.length == 1) {
-		}
-		else if (address.length == 2) {
-			port = Integer.parseInt(address[1]);
-		}
-		else {
-			throw new RuntimeException("Invalid device address: '" + deviceAddress
-					+ "'! Use following format: [ip:port] like localhost:1502 or 127.0.0.1:1502");
-		}
-	}
+        if (address.length == 1) {
+        } else if (address.length == 2) {
+            port = Integer.parseInt(address[1]);
+        } else {
+            throw new RuntimeException(
+                    "Invalid device address: '" + deviceAddress + "'! Use following format: [ip:port] like localhost:1502 or 127.0.0.1:1502");
+        }
+    }
 }

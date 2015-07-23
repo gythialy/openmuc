@@ -1,43 +1,43 @@
-(function(){
+(function () {
 
-	var injectParams = ['$scope', '$http', '$alert', '$state', '$translate', 'DevicesService', 'DriversService'];
-	
-	var DevicesController = function($scope, $http, $alert, $state, $translate, DevicesService, DriversService) {
+    var injectParams = ['$scope', '$http', '$alert', '$state', '$translate', 'DevicesService', 'DriversService'];
 
-		$translate('DEVICE_DELETED_SUCCESSFULLY').then(function(text) {
-			$scope.deviceOKText = text;
-		});
-		
-		
-		$scope.drivers = [];
-		
-		DriversService.getDrivers().then(function(drivers){
-			$scope.drivers = drivers;
+    var DevicesController = function ($scope, $http, $alert, $state, $translate, DevicesService, DriversService) {
 
-			$.each($scope.drivers, function(index, driver) {
-				DevicesService.getDevices(driver).then(function(devices){
-					$scope.drivers[index]['devices'] = devices;
-				});
-			});
-		});
+        $translate('DEVICE_DELETED_SUCCESSFULLY').then(function (text) {
+            $scope.deviceOKText = text;
+        });
 
-		$scope.deleteDevice = function(deviceName) {
-			DevicesService.destroy(deviceName).then(function(data) {
-				$alert({content: $scope.deviceOKText, type: 'success'});
-				return $state.go('channelconfigurator.devices.index');
-			});
 
-			$.each($scope.drivers, function(index, driver) {
-				DevicesService.getDevices(driver).then(function(devices){
-					$scope.drivers[index]['devices'] = devices;
-				});
-			});
-		};
-		
-	};
+        $scope.drivers = [];
 
-	DevicesController.$inject = injectParams;
+        DriversService.getDrivers().then(function (drivers) {
+            $scope.drivers = drivers;
 
-	angular.module('openmuc.devices').controller('DevicesController', DevicesController);
-	
+            $.each($scope.drivers, function (index, driver) {
+                DevicesService.getDevices(driver).then(function (devices) {
+                    $scope.drivers[index]['devices'] = devices;
+                });
+            });
+        });
+
+        $scope.deleteDevice = function (deviceName) {
+            DevicesService.destroy(deviceName).then(function (data) {
+                $alert({content: $scope.deviceOKText, type: 'success'});
+                return $state.go('channelconfigurator.devices.index');
+            });
+
+            $.each($scope.drivers, function (index, driver) {
+                DevicesService.getDevices(driver).then(function (devices) {
+                    $scope.drivers[index]['devices'] = devices;
+                });
+            });
+        };
+
+    };
+
+    DevicesController.$inject = injectParams;
+
+    angular.module('openmuc.devices').controller('DevicesController', DevicesController);
+
 })();

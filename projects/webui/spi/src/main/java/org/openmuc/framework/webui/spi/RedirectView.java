@@ -26,45 +26,45 @@ import java.util.List;
 
 public final class RedirectView implements View {
 
-	private final String redirectLocation;
+    private final String redirectLocation;
 
-	public RedirectView(String redirectLocation) {
-		this.redirectLocation = redirectLocation;
-	}
+    public RedirectView(String redirectLocation) {
+        this.redirectLocation = redirectLocation;
+    }
 
-	@Override
-	public List<String> getStyleSheets() {
-		return null;
-	}
+    @Override
+    public List<String> getStyleSheets() {
+        return null;
+    }
 
-	@Override
-	public List<String> getJavaScripts() {
-		return null;
-	}
+    @Override
+    public List<String> getJavaScripts() {
+        return null;
+    }
 
-	@Override
-	public String getTemplate() {
-		return null;
-	}
+    @Override
+    public String getTemplate() {
+        return null;
+    }
 
-	@Override
-	public HashMap<String, Object> getContext() {
-		return null;
-	}
+    @Override
+    public HashMap<String, Object> getContext() {
+        return null;
+    }
 
-	@Override
-	public String getPage() {
-		return null;
-	}
+    @Override
+    public String getPage() {
+        return null;
+    }
 
-	@Override
-	public String getRedirectLocation() {
-		return redirectLocation;
-	}
+    @Override
+    public String getRedirectLocation() {
+        return redirectLocation;
+    }
 
-	@Override
-	public viewtype getViewType() {
-		return null;
-	}
+    @Override
+    public viewtype getViewType() {
+        return null;
+    }
 
 }

@@ -20,28 +20,28 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
+import org.openmuc.framework.datalogger.spi.LogRecordContainer;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openmuc.framework.datalogger.spi.LogRecordContainer;
-
 public class LogIntervalContainerGroup {
 
-	List<LogRecordContainer> containers;
+    List<LogRecordContainer> containers;
 
-	public LogIntervalContainerGroup() {
+    public LogIntervalContainerGroup() {
 
-		containers = new ArrayList<LogRecordContainer>();
-	}
+        containers = new ArrayList<LogRecordContainer>();
+    }
 
-	public void add(LogRecordContainer container) {
+    public void add(LogRecordContainer container) {
 
-		containers.add(container);
-	}
+        containers.add(container);
+    }
 
-	public List<LogRecordContainer> getList() {
+    public List<LogRecordContainer> getList() {
 
-		return containers;
-	}
+        return containers;
+    }
 
 }

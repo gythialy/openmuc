@@ -21,34 +21,30 @@
 
 package org.openmuc.framework.datalogger.spi;
 
+import org.openmuc.framework.data.Record;
+
 import java.io.IOException;
 import java.util.List;
 
-import org.openmuc.framework.data.Record;
-
 public interface DataLoggerService {
 
-	public String getId();
+    public String getId();
 
-	public void setChannelsToLog(List<LogChannel> channels);
+    public void setChannelsToLog(List<LogChannel> channels);
 
-	public void log(List<LogRecordContainer> containers, long timestamp);
+    public void log(List<LogRecordContainer> containers, long timestamp);
 
-	/**
-	 * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
-	 * the channel with the given <code>channelId</code>.
-	 * 
-	 * @param channelId
-	 *            the channel ID.
-	 * @param startTime
-	 *            the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
-	 * @param endTime
-	 *            the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
-	 * @return a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
-	 *         the channel with the given <code>channelId</code>.
-	 * @throws IOException
-	 *             if any kind of error occurs accessing the logged data.
-	 */
-	public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
+    /**
+     * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
+     * the channel with the given <code>channelId</code>.
+     *
+     * @param channelId the channel ID.
+     * @param startTime the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param endTime   the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @return a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
+     * the channel with the given <code>channelId</code>.
+     * @throws IOException if any kind of error occurs accessing the logged data.
+     */
+    public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
 
 }

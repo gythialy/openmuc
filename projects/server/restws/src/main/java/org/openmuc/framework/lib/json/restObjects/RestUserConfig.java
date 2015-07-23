@@ -22,50 +22,50 @@ package org.openmuc.framework.lib.json.restObjects;
 
 public class RestUserConfig {
 
-	private String id;
-	private String password;
-	private String oldPassword;
-	private String[] groups;
-	private String description;
+    private String id;
+    private String password;
+    private String oldPassword;
+    private String[] groups;
+    private String description;
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getOldPassword() {
-		return oldPassword;
-	}
+    public String getOldPassword() {
+        return oldPassword;
+    }
 
-	public void setOldPassword(String oldPassword) {
-		this.oldPassword = oldPassword;
-	}
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
 
-	public String[] getGroups() {
-		return groups;
-	}
+    public String[] getGroups() {
+        return groups;
+    }
 
-	public void setGroups(String[] groups) {
-		this.groups = groups;
-	}
+    public void setGroups(String[] groups) {
+        this.groups = groups;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 }

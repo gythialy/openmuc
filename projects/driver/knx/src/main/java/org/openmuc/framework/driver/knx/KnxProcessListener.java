@@ -20,11 +20,6 @@
  */
 package org.openmuc.framework.driver.knx;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.knx.value.KnxValue;
@@ -32,87 +27,89 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.DetachEvent;
 import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.process.ProcessEvent;
 import tuwien.auto.calimero.process.ProcessListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author frobra
- * 
  */
 public class KnxProcessListener implements ProcessListener {
 
-	private static Logger logger = LoggerFactory.getLogger(KnxProcessListener.class);
+    private static Logger logger = LoggerFactory.getLogger(KnxProcessListener.class);
 
-	private List<ChannelRecordContainer> containers;
-	private RecordsReceivedListener listener;
-	private final Map<GroupAddress, byte[]> cachedValues;
+    private List<ChannelRecordContainer> containers;
+    private RecordsReceivedListener listener;
+    private final Map<GroupAddress, byte[]> cachedValues;
 
-	public KnxProcessListener() {
-		cachedValues = new LinkedHashMap<GroupAddress, byte[]>();
+    public KnxProcessListener() {
+        cachedValues = new LinkedHashMap<GroupAddress, byte[]>();
 
-		containers = null;
-		listener = null;
-	}
+        containers = null;
+        listener = null;
+    }
 
-	public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-			RecordsReceivedListener listener) {
-		this.containers = containers;
-		this.listener = listener;
-	}
+    public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) {
+        this.containers = containers;
+        this.listener = listener;
+    }
 
-	public synchronized void unregisterOpenMucListener() {
-		containers = null;
-		listener = null;
-	}
+    public synchronized void unregisterOpenMucListener() {
+        containers = null;
+        listener = null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tuwien.auto.calimero.process.ProcessListener#groupWrite(tuwien.auto.calimero.process.ProcessEvent)
-	 */
-	@Override
-	public void groupWrite(ProcessEvent e) {
-		if (listener != null) {
-			long timestamp = System.currentTimeMillis();
-			for (ChannelRecordContainer container : containers) {
-				KnxGroupDP groupDP = (KnxGroupDP) container.getChannelHandle();
-				if (groupDP.getMainAddress().equals(e.getDestination())) {
-					KnxValue value = groupDP.getKnxValue();
-					value.setData(e.getASDU());
-					logger.debug("Group write: " + e.getDestination());
+    /*
+     * (non-Javadoc)
+     *
+     * @see tuwien.auto.calimero.process.ProcessListener#groupWrite(tuwien.auto.calimero.process.ProcessEvent)
+     */
+    @Override
+    public void groupWrite(ProcessEvent e) {
+        if (listener != null) {
+            long timestamp = System.currentTimeMillis();
+            for (ChannelRecordContainer container : containers) {
+                KnxGroupDP groupDP = (KnxGroupDP) container.getChannelHandle();
+                if (groupDP.getMainAddress().equals(e.getDestination())) {
+                    KnxValue value = groupDP.getKnxValue();
+                    value.setData(e.getASDU());
+                    logger.debug("Group write: " + e.getDestination());
 
-					Record record = new Record(value.getOpenMucValue(), timestamp, Flag.VALID);
+                    Record record = new Record(value.getOpenMucValue(), timestamp, Flag.VALID);
 
-					listener.newRecords(createNewRecords(container, record));
-					break;
-				}
-			}
-		}
-		cachedValues.put(e.getDestination(), e.getASDU());
-	}
+                    listener.newRecords(createNewRecords(container, record));
+                    break;
+                }
+            }
+        }
+        cachedValues.put(e.getDestination(), e.getASDU());
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tuwien.auto.calimero.process.ProcessListener#detached(tuwien.auto.calimero.DetachEvent)
-	 */
-	@Override
-	public void detached(DetachEvent e) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see tuwien.auto.calimero.process.ProcessListener#detached(tuwien.auto.calimero.DetachEvent)
+     */
+    @Override
+    public void detached(DetachEvent e) {
 
-	}
+    }
 
-	public Map<GroupAddress, byte[]> getCachedValues() {
-		return cachedValues;
-	}
+    public Map<GroupAddress, byte[]> getCachedValues() {
+        return cachedValues;
+    }
 
-	private static List<ChannelRecordContainer> createNewRecords(ChannelRecordContainer container, Record record) {
-		List<ChannelRecordContainer> recordContainers = new ArrayList<ChannelRecordContainer>();
-		container.setRecord(record);
-		recordContainers.add(container);
-		return recordContainers;
-	}
+    private static List<ChannelRecordContainer> createNewRecords(ChannelRecordContainer container, Record record) {
+        List<ChannelRecordContainer> recordContainers = new ArrayList<ChannelRecordContainer>();
+        container.setRecord(record);
+        recordContainers.add(container);
+        return recordContainers;
+    }
 
 }

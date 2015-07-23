@@ -20,8 +20,6 @@
  */
 package org.openmuc.framework.driver.modbustcp.test;
 
-import java.util.ArrayList;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,122 +28,119 @@ import org.openmuc.framework.driver.modbus.EPrimaryTable;
 import org.openmuc.framework.driver.modbus.ModbusChannel;
 import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
 
+import java.util.ArrayList;
+
 /**
  * This test class tests various parameter combination of the channel address
- * 
+ *
  * @author Marco Mittelsdorf
- * 
  */
 public class ModbusTcpChannelTest {
 
-	private ArrayList<String> validAddressCombinations;
+    private ArrayList<String> validAddressCombinations;
 
-	@Before
-	public void setUp() {
-		validAddressCombinations = new ArrayList<String>();
+    @Before
+    public void setUp() {
+        validAddressCombinations = new ArrayList<String>();
 
-		validAddressCombinations.add("READ:COILS:BOOLEAN");
-		validAddressCombinations.add("READ:DISCRETE_INPUTS:BOOLEAN");
+        validAddressCombinations.add("READ:COILS:BOOLEAN");
+        validAddressCombinations.add("READ:DISCRETE_INPUTS:BOOLEAN");
 
-		validAddressCombinations.add("READ:HOLDING_REGISTERS:SHORT");
-		validAddressCombinations.add("READ:HOLDING_REGISTERS:INT");
-		validAddressCombinations.add("READ:HOLDING_REGISTERS:FLOAT");
-		validAddressCombinations.add("READ:HOLDING_REGISTERS:DOUBLE");
-		validAddressCombinations.add("READ:HOLDING_REGISTERS:LONG");
+        validAddressCombinations.add("READ:HOLDING_REGISTERS:SHORT");
+        validAddressCombinations.add("READ:HOLDING_REGISTERS:INT");
+        validAddressCombinations.add("READ:HOLDING_REGISTERS:FLOAT");
+        validAddressCombinations.add("READ:HOLDING_REGISTERS:DOUBLE");
+        validAddressCombinations.add("READ:HOLDING_REGISTERS:LONG");
 
-		// TODO read holding register bytearray
+        // TODO read holding register bytearray
 
-		validAddressCombinations.add("READ:INPUT_REGISTERS:SHORT");
-		validAddressCombinations.add("READ:INPUT_REGISTERS:INT");
-		validAddressCombinations.add("READ:INPUT_REGISTERS:FLOAT");
-		validAddressCombinations.add("READ:INPUT_REGISTERS:DOUBLE");
-		validAddressCombinations.add("READ:INPUT_REGISTERS:LONG");
+        validAddressCombinations.add("READ:INPUT_REGISTERS:SHORT");
+        validAddressCombinations.add("READ:INPUT_REGISTERS:INT");
+        validAddressCombinations.add("READ:INPUT_REGISTERS:FLOAT");
+        validAddressCombinations.add("READ:INPUT_REGISTERS:DOUBLE");
+        validAddressCombinations.add("READ:INPUT_REGISTERS:LONG");
 
-		// TODO read input register bytearray
+        // TODO read input register bytearray
 
-		validAddressCombinations.add("WRITE:COILS:BOOLEAN");
-		validAddressCombinations.add("WRITE:HOLDING_REGISTERS:SHORT");
-		validAddressCombinations.add("WRITE:HOLDING_REGISTERS:INT");
-		validAddressCombinations.add("WRITE:HOLDING_REGISTERS:FLOAT");
-		validAddressCombinations.add("WRITE:HOLDING_REGISTERS:DOUBLE");
-		validAddressCombinations.add("WRITE:HOLDING_REGISTERS:LONG");
+        validAddressCombinations.add("WRITE:COILS:BOOLEAN");
+        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:SHORT");
+        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:INT");
+        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:FLOAT");
+        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:DOUBLE");
+        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:LONG");
 
-		// TODO write holding register bytearray
+        // TODO write holding register bytearray
 
-	}
+    }
 
-	@Test
-	public void testValidReadAddresses() {
+    @Test
+    public void testValidReadAddresses() {
 
-		ArrayList<String> validAddresses = new ArrayList<String>();
+        ArrayList<String> validAddresses = new ArrayList<String>();
 
-		validAddresses.add("0:DISCRETE_INPUTS:0:BOOLEAN");
-		validAddresses.add("0:COILS:0:BOOLEAN");
+        validAddresses.add("0:DISCRETE_INPUTS:0:BOOLEAN");
+        validAddresses.add("0:COILS:0:BOOLEAN");
 
-		validAddresses.add("0:INPUT_REGISTERS:0:SHORT");
-		validAddresses.add("0:INPUT_REGISTERS:0:INT");
-		validAddresses.add("0:INPUT_REGISTERS:0:FLOAT");
-		validAddresses.add("0:INPUT_REGISTERS:0:DOUBLE");
-		validAddresses.add("0:INPUT_REGISTERS:0:LONG");
+        validAddresses.add("0:INPUT_REGISTERS:0:SHORT");
+        validAddresses.add("0:INPUT_REGISTERS:0:INT");
+        validAddresses.add("0:INPUT_REGISTERS:0:FLOAT");
+        validAddresses.add("0:INPUT_REGISTERS:0:DOUBLE");
+        validAddresses.add("0:INPUT_REGISTERS:0:LONG");
 
-		validAddresses.add("0:HOLDING_REGISTERS:0:SHORT");
-		validAddresses.add("0:HOLDING_REGISTERS:0:INT");
-		validAddresses.add("0:HOLDING_REGISTERS:0:FLOAT");
-		validAddresses.add("0:HOLDING_REGISTERS:0:DOUBLE");
-		validAddresses.add("0:HOLDING_REGISTERS:0:LONG");
+        validAddresses.add("0:HOLDING_REGISTERS:0:SHORT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:INT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:FLOAT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:DOUBLE");
+        validAddresses.add("0:HOLDING_REGISTERS:0:LONG");
 
-		for (String channelAddress : validAddresses) {
-			try {
-				ModbusChannel channel = new ModbusChannel(channelAddress, EAccess.READ);
-				String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(),
-						channel.getDatatype());
-				if (!validAddressCombinations.contains(testString.toUpperCase())) {
-					Assert.fail(testString + "is not a valid paramaeter combination");
-				}
-				else {
-					System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
-				}
+        for (String channelAddress : validAddresses) {
+            try {
+                ModbusChannel channel = new ModbusChannel(channelAddress, EAccess.READ);
+                String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(), channel.getDatatype());
+                if (!validAddressCombinations.contains(testString.toUpperCase())) {
+                    Assert.fail(testString + "is not a valid paramaeter combination");
+                } else {
+                    System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
+                }
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail("unexpected exception");
-			}
-		}
-	}
+            } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail("unexpected exception");
+            }
+        }
+    }
 
-	@Test
-	public void testValidWriteAddresses() {
+    @Test
+    public void testValidWriteAddresses() {
 
-		ArrayList<String> validAddresses = new ArrayList<String>();
+        ArrayList<String> validAddresses = new ArrayList<String>();
 
-		validAddresses.add("0:COILS:0:BOOLEAN");
+        validAddresses.add("0:COILS:0:BOOLEAN");
 
-		validAddresses.add("0:HOLDING_REGISTERS:0:SHORT");
-		validAddresses.add("0:HOLDING_REGISTERS:0:INT");
-		validAddresses.add("0:HOLDING_REGISTERS:0:FLOAT");
-		validAddresses.add("0:HOLDING_REGISTERS:0:DOUBLE");
-		validAddresses.add("0:HOLDING_REGISTERS:0:LONG");
+        validAddresses.add("0:HOLDING_REGISTERS:0:SHORT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:INT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:FLOAT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:DOUBLE");
+        validAddresses.add("0:HOLDING_REGISTERS:0:LONG");
 
-		for (String channelAddress : validAddresses) {
-			try {
-				ModbusChannel channel = new ModbusChannel(channelAddress, EAccess.WRITE);
-				String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(),
-						channel.getDatatype());
-				if (!validAddressCombinations.contains(testString.toUpperCase())) {
-					Assert.fail(testString + "is not a valid paramaeter combination");
-				}
-				else {
-					System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail("unexpected exception");
-			}
-		}
-	}
+        for (String channelAddress : validAddresses) {
+            try {
+                ModbusChannel channel = new ModbusChannel(channelAddress, EAccess.WRITE);
+                String testString = concatenate(channel.getAccessFlag(), channel.getPrimaryTable(), channel.getDatatype());
+                if (!validAddressCombinations.contains(testString.toUpperCase())) {
+                    Assert.fail(testString + "is not a valid paramaeter combination");
+                } else {
+                    System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail("unexpected exception");
+            }
+        }
+    }
 
-	private String concatenate(EAccess a, EPrimaryTable p, EDatatype d) {
-		return a.toString() + ":" + p.toString() + ":" + d.toString();
-	}
+    private String concatenate(EAccess a, EPrimaryTable p, EDatatype d) {
+        return a.toString() + ":" + p.toString() + ":" + d.toString();
+    }
 
 }

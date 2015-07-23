@@ -20,45 +20,45 @@
  */
 package org.openmuc.framework.webui.dataexporter;
 
-import java.util.Hashtable;
-
 import org.openmuc.framework.webui.spi.WebUiPluginService;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 
+import java.util.Hashtable;
+
 public final class DataExporter implements WebUiPluginService {
 
-	private Bundle bundle;
+    private Bundle bundle;
 
-	protected void activate(ComponentContext context) {
-		bundle = context.getBundleContext().getBundle();
-	}
+    protected void activate(ComponentContext context) {
+        bundle = context.getBundleContext().getBundle();
+    }
 
-	@Override
-	public String getAlias() {
-		return "dataexporter";
-	}
+    @Override
+    public String getAlias() {
+        return "dataexporter";
+    }
 
-	@Override
-	public String getName() {
-		return "Data Exporter";
-	}
+    @Override
+    public String getName() {
+        return "Data Exporter";
+    }
 
-	@Override
-	public Hashtable<String, String> getResources() {
-		Hashtable<String, String> resources = new Hashtable<String, String>();
+    @Override
+    public Hashtable<String, String> getResources() {
+        Hashtable<String, String> resources = new Hashtable<String, String>();
 
-		resources.put("html", "html");
-		resources.put("css", "css");
-		resources.put("js", "js");
-		resources.put("images", "images");
+        resources.put("html", "html");
+        resources.put("css", "css");
+        resources.put("js", "js");
+        resources.put("images", "images");
 
-		return resources;
-	}
+        return resources;
+    }
 
-	@Override
-	public Bundle getContextBundle() {
-		return bundle;
-	}
+    @Override
+    public Bundle getContextBundle() {
+        return bundle;
+    }
 
 }

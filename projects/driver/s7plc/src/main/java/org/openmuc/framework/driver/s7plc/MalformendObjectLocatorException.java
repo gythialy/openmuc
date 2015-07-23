@@ -22,10 +22,10 @@ package org.openmuc.framework.driver.s7plc;
 
 public class MalformendObjectLocatorException extends Exception {
 
-	public MalformendObjectLocatorException(String msg) {
-		super(msg);
-	}
+    public MalformendObjectLocatorException(String msg) {
+        super(msg);
+    }
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 }

@@ -20,10 +20,6 @@
  */
 package org.openmuc.framework.webui.base;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.webui.spi.WebUiPluginService;
 import org.osgi.service.component.ComponentContext;
@@ -32,115 +28,119 @@ import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class WebUiBase {
 
-	private final static Logger logger = LoggerFactory.getLogger(WebUiBase.class);
+    private final static Logger logger = LoggerFactory.getLogger(WebUiBase.class);
 
-	final Map<String, WebUiPluginService> pluginsByAlias = new ConcurrentHashMap<String, WebUiPluginService>();
-	private volatile HttpService httpService;
-	private AuthenticationService authService;
+    final Map<String, WebUiPluginService> pluginsByAlias = new ConcurrentHashMap<String, WebUiPluginService>();
+    private volatile HttpService httpService;
+    private AuthenticationService authService;
 
-	private volatile WebUiBaseServlet servlet;
+    private volatile WebUiBaseServlet servlet;
 
-	protected void activate(ComponentContext context) throws Exception {
-		logger.info("Activating WebUI Base");
+    protected void activate(ComponentContext context) throws Exception {
+        logger.info("Activating WebUI Base");
 
-		servlet = new WebUiBaseServlet(this);
+        servlet = new WebUiBaseServlet(this);
 
-		BundleHttpContext bundleHttpContext = new BundleHttpContext(context.getBundleContext().getBundle(), authService);
+        BundleHttpContext bundleHttpContext = new BundleHttpContext(context.getBundleContext().getBundle(), authService);
 
-		try {
-			httpService.registerResources("/app", "/app", bundleHttpContext);
-			httpService.registerResources("/assets", "/assets", bundleHttpContext);
-			httpService.registerResources("/openmuc/css", "/css", bundleHttpContext);
-			httpService.registerResources("/openmuc/images", "/images", bundleHttpContext);
-			httpService.registerResources("/openmuc/html", "/html", bundleHttpContext);
-			httpService.registerResources("/openmuc/js", "/js", bundleHttpContext);
-			httpService.registerResources("/media", "/media", bundleHttpContext);
-			httpService.registerResources("/conf/webui", "/conf/webui", bundleHttpContext);
-			httpService.registerServlet("/", servlet, null, bundleHttpContext);
-		} catch (Exception e) {
-		}
+        try {
+            httpService.registerResources("/app", "/app", bundleHttpContext);
+            httpService.registerResources("/assets", "/assets", bundleHttpContext);
+            httpService.registerResources("/openmuc/css", "/css", bundleHttpContext);
+            httpService.registerResources("/openmuc/images", "/images", bundleHttpContext);
+            httpService.registerResources("/openmuc/html", "/html", bundleHttpContext);
+            httpService.registerResources("/openmuc/js", "/js", bundleHttpContext);
+            httpService.registerResources("/media", "/media", bundleHttpContext);
+            httpService.registerResources("/conf/webui", "/conf/webui", bundleHttpContext);
+            httpService.registerServlet("/", servlet, null, bundleHttpContext);
+        } catch (Exception e) {
+        }
 
-		synchronized (pluginsByAlias) {
-			for (WebUiPluginService plugin : pluginsByAlias.values()) {
-				registerResources(plugin);
-			}
-		}
+        synchronized (pluginsByAlias) {
+            for (WebUiPluginService plugin : pluginsByAlias.values()) {
+                registerResources(plugin);
+            }
+        }
 
-	}
+    }
 
-	protected void deactivate(ComponentContext context) {
-		logger.info("Deactivating WebUI Base");
-		httpService.unregister("/openmuc");
-		httpService.unregister("/openmuc/css");
-		httpService.unregister("/openmuc/images");
-		httpService.unregister("/openmuc/js");
-		httpService.unregister("/js");
-	}
+    protected void deactivate(ComponentContext context) {
+        logger.info("Deactivating WebUI Base");
+        httpService.unregister("/openmuc");
+        httpService.unregister("/openmuc/css");
+        httpService.unregister("/openmuc/images");
+        httpService.unregister("/openmuc/js");
+        httpService.unregister("/js");
+    }
 
-	protected void setHttpService(HttpService httpService) {
-		this.httpService = httpService;
-	}
+    protected void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
 
-	protected void unsetHttpService(HttpService httpService) {
-		this.httpService = null;
-	}
+    protected void unsetHttpService(HttpService httpService) {
+        this.httpService = null;
+    }
 
-	protected void setWebUiPluginService(WebUiPluginService uiPlugin) {
+    protected void setWebUiPluginService(WebUiPluginService uiPlugin) {
 
-		synchronized (pluginsByAlias) {
-			if (!pluginsByAlias.containsValue(uiPlugin)) {
-				pluginsByAlias.put(uiPlugin.getAlias(), uiPlugin);
-				registerResources(uiPlugin);
-			}
-		}
-		logger.info("WebUI plugin registered: " + uiPlugin.getName());
-	}
+        synchronized (pluginsByAlias) {
+            if (!pluginsByAlias.containsValue(uiPlugin)) {
+                pluginsByAlias.put(uiPlugin.getAlias(), uiPlugin);
+                registerResources(uiPlugin);
+            }
+        }
+        logger.info("WebUI plugin registered: " + uiPlugin.getName());
+    }
 
-	protected void unsetWebUiPluginService(WebUiPluginService uiPlugin) {
-		unregisterResources(uiPlugin);
-		pluginsByAlias.remove(uiPlugin.getAlias());
-		logger.info("WebUI plugin deregistered: " + uiPlugin.getName());
-	}
+    protected void unsetWebUiPluginService(WebUiPluginService uiPlugin) {
+        unregisterResources(uiPlugin);
+        pluginsByAlias.remove(uiPlugin.getAlias());
+        logger.info("WebUI plugin deregistered: " + uiPlugin.getName());
+    }
 
-	protected void setAuthenticationService(AuthenticationService authService) {
-		this.authService = authService;
-	}
+    protected void setAuthenticationService(AuthenticationService authService) {
+        this.authService = authService;
+    }
 
-	protected void unsetAuthenticationService(AuthenticationService authService) {
-		this.authService = null;
-	}
+    protected void unsetAuthenticationService(AuthenticationService authService) {
+        this.authService = null;
+    }
 
-	private void registerResources(WebUiPluginService plugin) {
-		if (servlet != null && httpService != null) {
+    private void registerResources(WebUiPluginService plugin) {
+        if (servlet != null && httpService != null) {
 
-			BundleHttpContext bundleHttpContext = new BundleHttpContext(plugin.getContextBundle(), authService);
+            BundleHttpContext bundleHttpContext = new BundleHttpContext(plugin.getContextBundle(), authService);
 
-			Set<String> aliases = plugin.getResources().keySet();
-			for (String alias : aliases) {
-				try {
+            Set<String> aliases = plugin.getResources().keySet();
+            for (String alias : aliases) {
+                try {
 
-					httpService.registerResources("/" + plugin.getAlias() + "/" + alias,
-							plugin.getResources().get(alias), bundleHttpContext);
+                    httpService
+                            .registerResources("/" + plugin.getAlias() + "/" + alias, plugin.getResources().get(alias), bundleHttpContext);
 
-				} catch (NamespaceException e) {
-					logger.error("Servlet with alias \"/" + plugin.getAlias() + "/" + alias + "\" already registered");
-				}
-			}
-		}
-	}
+                } catch (NamespaceException e) {
+                    logger.error("Servlet with alias \"/" + plugin.getAlias() + "/" + alias + "\" already registered");
+                }
+            }
+        }
+    }
 
-	private void unregisterResources(WebUiPluginService plugin) {
-		Set<String> aliases = plugin.getResources().keySet();
+    private void unregisterResources(WebUiPluginService plugin) {
+        Set<String> aliases = plugin.getResources().keySet();
 
-		for (String alias : aliases) {
-			httpService.unregister("/" + plugin.getAlias() + "/" + alias);
-		}
-	}
+        for (String alias : aliases) {
+            httpService.unregister("/" + plugin.getAlias() + "/" + alias);
+        }
+    }
 
-	public AuthenticationService getAuthenticationService() {
-		return authService;
-	}
+    public AuthenticationService getAuthenticationService() {
+        return authService;
+    }
 
 }

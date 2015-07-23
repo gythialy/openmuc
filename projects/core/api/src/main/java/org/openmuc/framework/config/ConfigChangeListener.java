@@ -23,5 +23,5 @@ package org.openmuc.framework.config;
 
 public interface ConfigChangeListener {
 
-	public void configurationChanged();
+    public void configurationChanged();
 }

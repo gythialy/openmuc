@@ -21,39 +21,38 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public final class SlotsDatabaseUtil {
 
-	private final static Logger logger = LoggerFactory.getLogger(SlotsDatabaseUtil.class);
+    private final static Logger logger = LoggerFactory.getLogger(SlotsDatabaseUtil.class);
 
-	public static void printWholeFile(File file) throws IOException {
-		if (!file.getName().contains(SlotsDb.FILE_EXTENSION)) {
-			System.err.println(file.getName() + " is not a \"" + SlotsDb.FILE_EXTENSION + "\" file.");
-			return;
-		}
-		else {
-			DataInputStream dis = new DataInputStream(new FileInputStream(file));
-			try {
-				if (file.length() >= 16) {
-					logger.debug("StartTimestamp: " + dis.readLong() + "  -  StepIntervall: " + dis.readLong());
-					while (dis.available() >= 9) {
-						logger.debug(dis.readDouble() + "  -\t  Flag: " + dis.readByte());
-					}
-				}
-			} finally {
-				dis.close();
-			}
-		}
-	}
+    public static void printWholeFile(File file) throws IOException {
+        if (!file.getName().contains(SlotsDb.FILE_EXTENSION)) {
+            System.err.println(file.getName() + " is not a \"" + SlotsDb.FILE_EXTENSION + "\" file.");
+            return;
+        } else {
+            DataInputStream dis = new DataInputStream(new FileInputStream(file));
+            try {
+                if (file.length() >= 16) {
+                    logger.debug("StartTimestamp: " + dis.readLong() + "  -  StepIntervall: " + dis.readLong());
+                    while (dis.available() >= 9) {
+                        logger.debug(dis.readDouble() + "  -\t  Flag: " + dis.readByte());
+                    }
+                }
+            } finally {
+                dis.close();
+            }
+        }
+    }
 
-	public static void printWholeFile(String filename) throws IOException {
-		printWholeFile(new File(filename));
-	}
+    public static void printWholeFile(String filename) throws IOException {
+        printWholeFile(new File(filename));
+    }
 }

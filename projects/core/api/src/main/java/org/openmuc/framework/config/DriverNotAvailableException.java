@@ -23,6 +23,6 @@ package org.openmuc.framework.config;
 
 public class DriverNotAvailableException extends Exception {
 
-	private static final long serialVersionUID = -4469071016884028955L;
+    private static final long serialVersionUID = -4469071016884028955L;
 
 }

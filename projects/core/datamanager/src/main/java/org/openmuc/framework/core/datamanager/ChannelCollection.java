@@ -26,22 +26,22 @@ import java.util.List;
 
 public final class ChannelCollection {
 
-	List<ChannelImpl> channels = new LinkedList<ChannelImpl>();
-	int interval;
-	int timeOffset;
-	String samplingGroup;
-	Device device;
-	Action action;
+    List<ChannelImpl> channels = new LinkedList<ChannelImpl>();
+    int interval;
+    int timeOffset;
+    String samplingGroup;
+    Device device;
+    Action action;
 
-	public ChannelCollection(Integer interval, Integer timeOffset, String samplingGroup, Device device) {
-		this.interval = interval;
-		this.timeOffset = timeOffset;
-		this.samplingGroup = samplingGroup;
-		this.device = device;
-	}
+    public ChannelCollection(Integer interval, Integer timeOffset, String samplingGroup, Device device) {
+        this.interval = interval;
+        this.timeOffset = timeOffset;
+        this.samplingGroup = samplingGroup;
+        this.device = device;
+    }
 
-	public long calculateNextActionTime(long timestamp) {
-		return ((interval - (((timestamp % (24 * 60 * 60 * 1000)) - timeOffset) % interval)) + timestamp);
-	}
+    public long calculateNextActionTime(long timestamp) {
+        return ((interval - (((timestamp % (24 * 60 * 60 * 1000)) - timeOffset) % interval)) + timestamp);
+    }
 
 }

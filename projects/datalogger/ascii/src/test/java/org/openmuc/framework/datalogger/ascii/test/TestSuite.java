@@ -20,63 +20,63 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 @RunWith(Suite.class)
-@SuiteClasses({ LogFileReaderTestSingleFile.class, LogFileReaderTestBrokenFile.class,
-		LogFileReaderTestMultipleFiles.class, LogFileWriterTest.class, MiscTests.class })
+@SuiteClasses({LogFileReaderTestSingleFile.class, LogFileReaderTestBrokenFile.class, LogFileReaderTestMultipleFiles.class,
+                      LogFileWriterTest.class, MiscTests.class})
 public class TestSuite {
 
-	private static final String TESTFOLDER = "test";
+    private static final String TESTFOLDER = "test";
 
-	@BeforeClass
-	public static void setUp() {
-		System.out.println("setting up");
-		createTestFolder();
-	}
+    @BeforeClass
+    public static void setUp() {
+        System.out.println("setting up");
+        createTestFolder();
+    }
 
-	@AfterClass
-	public static void tearDown() {
-		System.out.println("tearing down");
-		deleteTestFolder();
-	}
+    @AfterClass
+    public static void tearDown() {
+        System.out.println("tearing down");
+        deleteTestFolder();
+    }
 
-	public static void createTestFolder() {
+    public static void createTestFolder() {
 
-		File testFolder = new File(TESTFOLDER);
-		if (!testFolder.exists()) {
-			testFolder.mkdir();
-		}
-	}
+        File testFolder = new File(TESTFOLDER);
+        if (!testFolder.exists()) {
+            testFolder.mkdir();
+        }
+    }
 
-	public static void deleteTestFolder() {
-		File testFolder = new File(TESTFOLDER);
-		try {
-			deleteRecursive(testFolder);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    public static void deleteTestFolder() {
+        File testFolder = new File(TESTFOLDER);
+        try {
+            deleteRecursive(testFolder);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-	private static boolean deleteRecursive(File path) throws FileNotFoundException {
-		if (!path.exists()) {
-			throw new FileNotFoundException(path.getAbsolutePath());
-		}
-		boolean ret = true;
-		if (path.isDirectory()) {
-			for (File f : path.listFiles()) {
-				ret = ret && deleteRecursive(f);
-			}
-		}
-		return ret && path.delete();
-	}
+    private static boolean deleteRecursive(File path) throws FileNotFoundException {
+        if (!path.exists()) {
+            throw new FileNotFoundException(path.getAbsolutePath());
+        }
+        boolean ret = true;
+        if (path.isDirectory()) {
+            for (File f : path.listFiles()) {
+                ret = ret && deleteRecursive(f);
+            }
+        }
+        return ret && path.delete();
+    }
 
 }

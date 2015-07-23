@@ -1,12 +1,11 @@
-
 dependencies {
-  compile project(':openmuc-core-api')
-  compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
+    compile project(':openmuc-core-api')
+    compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
 }
 
 jar {
-  manifest {
-    name = "OpenMUC WebUI - SPI"
-    instruction 'Export-Package', '*'
-  }
+    manifest {
+        name = "OpenMUC WebUI - SPI"
+        instruction 'Export-Package', '*'
+    }
 }

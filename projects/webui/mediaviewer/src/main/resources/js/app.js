@@ -1,5 +1,5 @@
-(function(){
-		
-	angular.module('openmuc.mediaviewer', []);
+(function () {
+
+    angular.module('openmuc.mediaviewer', []);
 
 })();

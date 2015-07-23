@@ -24,24 +24,22 @@ package org.openmuc.framework.dataaccess;
 import java.util.List;
 
 /**
- * 
  * Service interface to get access to the measurement and control data of connected communication devices.
- * 
  */
 public interface DataAccessService {
 
-	public Channel getChannel(String id);
+    public Channel getChannel(String id);
 
-	public Channel getChannel(String id, ChannelChangeListener channelChangeListener);
+    public Channel getChannel(String id, ChannelChangeListener channelChangeListener);
 
-	public List<String> getAllIds();
+    public List<String> getAllIds();
 
-	public List<LogicalDevice> getLogicalDevices(String type);
+    public List<LogicalDevice> getLogicalDevices(String type);
 
-	public List<LogicalDevice> getLogicalDevices(String type, LogicalDeviceChangeListener logicalDeviceChangeListener);
+    public List<LogicalDevice> getLogicalDevices(String type, LogicalDeviceChangeListener logicalDeviceChangeListener);
 
-	public void read(List<ReadRecordContainer> values);
+    public void read(List<ReadRecordContainer> values);
 
-	public void write(List<WriteValueContainer> values);
+    public void write(List<WriteValueContainer> values);
 
 }

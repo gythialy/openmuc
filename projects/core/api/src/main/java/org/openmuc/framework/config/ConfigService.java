@@ -21,48 +21,47 @@
 
 package org.openmuc.framework.config;
 
+import org.openmuc.framework.dataaccess.DeviceState;
+
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.openmuc.framework.dataaccess.DeviceState;
-
 public interface ConfigService {
 
-	public void lock();
+    public void lock();
 
-	public boolean tryLock();
+    public boolean tryLock();
 
-	public void unlock();
+    public void unlock();
 
-	public RootConfig getConfig();
+    public RootConfig getConfig();
 
-	public RootConfig getConfig(ConfigChangeListener listener);
+    public RootConfig getConfig(ConfigChangeListener listener);
 
-	public void stopListeningForConfigChange(ConfigChangeListener listener);
+    public void stopListeningForConfigChange(ConfigChangeListener listener);
 
-	public void setConfig(RootConfig config);
+    public void setConfig(RootConfig config);
 
-	public void writeConfigToFile() throws ConfigWriteException;
+    public void writeConfigToFile() throws ConfigWriteException;
 
-	public void reloadConfigFromFile() throws FileNotFoundException, ParseException;
+    public void reloadConfigFromFile() throws FileNotFoundException, ParseException;
 
-	public RootConfig getEmptyConfig();
+    public RootConfig getEmptyConfig();
 
-	public List<DeviceScanInfo> scanForDevices(String driverId, String settings) throws DriverNotAvailableException,
-			UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException;
+    public List<DeviceScanInfo> scanForDevices(String driverId, String settings) throws DriverNotAvailableException,
+            UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException;
 
-	public void scanForDevices(String driverId, String settings, DeviceScanListener scanListener)
-			throws DriverNotAvailableException;
+    public void scanForDevices(String driverId, String settings, DeviceScanListener scanListener) throws DriverNotAvailableException;
 
-	public void interruptDeviceScan(String driverId) throws DriverNotAvailableException, UnsupportedOperationException;
+    public void interruptDeviceScan(String driverId) throws DriverNotAvailableException, UnsupportedOperationException;
 
-	public List<ChannelScanInfo> scanForChannels(String deviceId, String settings) throws DriverNotAvailableException,
-			UnsupportedOperationException, ArgumentSyntaxException, ScanException;
+    public List<ChannelScanInfo> scanForChannels(String deviceId, String settings) throws DriverNotAvailableException,
+            UnsupportedOperationException, ArgumentSyntaxException, ScanException;
 
-	public DriverInfo getDriverInfo(String driverId) throws DriverNotAvailableException;
+    public DriverInfo getDriverInfo(String driverId) throws DriverNotAvailableException;
 
-	public List<String> getIdsOfRunningDrivers();
+    public List<String> getIdsOfRunningDrivers();
 
-	public DeviceState getDeviceState(String deviceId);
+    public DeviceState getDeviceState(String deviceId);
 
 }

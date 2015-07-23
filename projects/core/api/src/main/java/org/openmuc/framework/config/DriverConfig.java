@@ -25,32 +25,32 @@ import java.util.Collection;
 
 public interface DriverConfig {
 
-	public static final int SAMPLING_TIMEOUT_DEFAULT = 0;
-	public static final int CONNECT_RETRY_INTERVAL_DEFAULT = 60000;
-	public static final boolean DISABLED_DEFAULT = false;
+    public static final int SAMPLING_TIMEOUT_DEFAULT = 0;
+    public static final int CONNECT_RETRY_INTERVAL_DEFAULT = 60000;
+    public static final boolean DISABLED_DEFAULT = false;
 
-	public String getId();
+    public String getId();
 
-	public void setId(String id) throws IdCollisionException;
+    public void setId(String id) throws IdCollisionException;
 
-	public Integer getSamplingTimeout();
+    public Integer getSamplingTimeout();
 
-	public void setSamplingTimeout(Integer timeout);
+    public void setSamplingTimeout(Integer timeout);
 
-	public Integer getConnectRetryInterval();
+    public Integer getConnectRetryInterval();
 
-	public void setConnectRetryInterval(Integer interval);
+    public void setConnectRetryInterval(Integer interval);
 
-	public Boolean isDisabled();
+    public Boolean isDisabled();
 
-	public void setDisabled(Boolean disabled);
+    public void setDisabled(Boolean disabled);
 
-	public DeviceConfig addDevice(String deviceId) throws IdCollisionException;
+    public DeviceConfig addDevice(String deviceId) throws IdCollisionException;
 
-	public DeviceConfig getDevice(String deviceId);
+    public DeviceConfig getDevice(String deviceId);
 
-	public Collection<DeviceConfig> getDevices();
+    public Collection<DeviceConfig> getDevices();
 
-	public void delete();
+    public void delete();
 
 }

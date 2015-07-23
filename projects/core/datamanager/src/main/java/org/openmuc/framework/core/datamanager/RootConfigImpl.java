@@ -21,226 +21,207 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.openmuc.framework.config.ChannelConfig;
-import org.openmuc.framework.config.DeviceConfig;
-import org.openmuc.framework.config.DriverConfig;
-import org.openmuc.framework.config.IdCollisionException;
-import org.openmuc.framework.config.ParseException;
-import org.openmuc.framework.config.RootConfig;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+
 public final class RootConfigImpl implements RootConfig {
 
-	private String dataLogSource = null;
+    private String dataLogSource = null;
 
-	final HashMap<String, DriverConfigImpl> driverConfigsById = new LinkedHashMap<String, DriverConfigImpl>();
-	final HashMap<String, DeviceConfigImpl> deviceConfigsById = new HashMap<String, DeviceConfigImpl>();
-	final HashMap<String, ChannelConfigImpl> channelConfigsById = new HashMap<String, ChannelConfigImpl>();
+    final HashMap<String, DriverConfigImpl> driverConfigsById = new LinkedHashMap<String, DriverConfigImpl>();
+    final HashMap<String, DeviceConfigImpl> deviceConfigsById = new HashMap<String, DeviceConfigImpl>();
+    final HashMap<String, ChannelConfigImpl> channelConfigsById = new HashMap<String, ChannelConfigImpl>();
 
-	// TODO really needed?:
-	List<LogChannel> logChannels;
+    // TODO really needed?:
+    List<LogChannel> logChannels;
 
-	@Override
-	public String getDataLogSource() {
-		return dataLogSource;
-	}
+    @Override
+    public String getDataLogSource() {
+        return dataLogSource;
+    }
 
-	@Override
-	public void setDataLogSource(String source) {
-		dataLogSource = source;
-	}
+    @Override
+    public void setDataLogSource(String source) {
+        dataLogSource = source;
+    }
 
-	static RootConfigImpl createFromFile(File configFile) throws ParseException, FileNotFoundException {
-		if (configFile == null) {
-			throw new NullPointerException("configFileName is null or the empty string.");
-		}
+    static RootConfigImpl createFromFile(File configFile) throws ParseException, FileNotFoundException {
+        if (configFile == null) {
+            throw new NullPointerException("configFileName is null or the empty string.");
+        }
 
-		if (!configFile.exists()) {
-			throw new FileNotFoundException();
-		}
+        if (!configFile.exists()) {
+            throw new FileNotFoundException();
+        }
 
-		DocumentBuilderFactory docBFac = DocumentBuilderFactory.newInstance();
-		docBFac.setIgnoringComments(true);
+        DocumentBuilderFactory docBFac = DocumentBuilderFactory.newInstance();
+        docBFac.setIgnoringComments(true);
 
-		Document doc;
-		try {
-			doc = docBFac.newDocumentBuilder().parse(configFile);
-		} catch (Exception e) {
-			throw new ParseException(e);
-		}
+        Document doc;
+        try {
+            doc = docBFac.newDocumentBuilder().parse(configFile);
+        } catch (Exception e) {
+            throw new ParseException(e);
+        }
 
-		Node rootNode = doc.getDocumentElement();
+        Node rootNode = doc.getDocumentElement();
 
-		if (!rootNode.getNodeName().equals("configuration")) {
-			throw new ParseException("root node in configuration is not of type \"configuration\"");
-		}
+        if (!rootNode.getNodeName().equals("configuration")) {
+            throw new ParseException("root node in configuration is not of type \"configuration\"");
+        }
 
-		return getRootConfigFromDomNode(rootNode);
+        return getRootConfigFromDomNode(rootNode);
 
-	}
+    }
 
-	static RootConfigImpl getRootConfigFromDomNode(Node rootConfigNode) throws ParseException {
+    static RootConfigImpl getRootConfigFromDomNode(Node rootConfigNode) throws ParseException {
 
-		RootConfigImpl rootConfig = new RootConfigImpl();
+        RootConfigImpl rootConfig = new RootConfigImpl();
 
-		NodeList rootConfigChildren = rootConfigNode.getChildNodes();
+        NodeList rootConfigChildren = rootConfigNode.getChildNodes();
 
-		for (int i = 0; i < rootConfigChildren.getLength(); i++) {
-			Node childNode = rootConfigChildren.item(i);
-			String childName = childNode.getNodeName();
-			if (childName.equals("#text")) {
-				continue;
-			}
-			else if (childName.equals("driver")) {
-				DriverConfigImpl.addDriverFromDomNode(childNode, rootConfig);
-			}
-			else if (childName.equals("dataLogSource")) {
-				rootConfig.dataLogSource = childNode.getTextContent();
-			}
-			else {
-				throw new ParseException("found unknown tag:" + childName);
-			}
-		}
+        for (int i = 0; i < rootConfigChildren.getLength(); i++) {
+            Node childNode = rootConfigChildren.item(i);
+            String childName = childNode.getNodeName();
+            if (childName.equals("#text")) {
+                continue;
+            } else if (childName.equals("driver")) {
+                DriverConfigImpl.addDriverFromDomNode(childNode, rootConfig);
+            } else if (childName.equals("dataLogSource")) {
+                rootConfig.dataLogSource = childNode.getTextContent();
+            } else {
+                throw new ParseException("found unknown tag:" + childName);
+            }
+        }
 
-		return rootConfig;
-	}
+        return rootConfig;
+    }
 
-	void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException,
-			ParserConfigurationException, TransformerException {
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException, ParserConfigurationException,
+            TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
-		StreamResult result = new StreamResult(new FileWriter(configFile));
+        StreamResult result = new StreamResult(new FileWriter(configFile));
 
-		DocumentBuilder docBuild = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document doc = docBuild.newDocument();
+        DocumentBuilder docBuild = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = docBuild.newDocument();
 
-		doc.appendChild(getDomElement(doc));
-		DOMSource source = new DOMSource(doc);
-		transformer.transform(source, result);
+        doc.appendChild(getDomElement(doc));
+        DOMSource source = new DOMSource(doc);
+        transformer.transform(source, result);
 
-	}
+    }
 
-	Element getDomElement(Document document) {
-		Element rootConfigElement = document.createElement("configuration");
+    Element getDomElement(Document document) {
+        Element rootConfigElement = document.createElement("configuration");
 
-		if (dataLogSource != null) {
-			Node loggerChild = document.createElement("dataLogSource");
-			loggerChild.setTextContent(dataLogSource);
-			rootConfigElement.appendChild(loggerChild);
-		}
+        if (dataLogSource != null) {
+            Node loggerChild = document.createElement("dataLogSource");
+            loggerChild.setTextContent(dataLogSource);
+            rootConfigElement.appendChild(loggerChild);
+        }
 
-		for (DriverConfig driverConfig : driverConfigsById.values()) {
-			rootConfigElement.appendChild(((DriverConfigImpl) driverConfig).getDomElement(document));
-		}
+        for (DriverConfig driverConfig : driverConfigsById.values()) {
+            rootConfigElement.appendChild(((DriverConfigImpl) driverConfig).getDomElement(document));
+        }
 
-		return rootConfigElement;
-	}
+        return rootConfigElement;
+    }
 
-	@Override
-	public DriverConfig getOrAddDriver(String id) {
-		try {
-			return addDriver(id);
-		} catch (IdCollisionException e) {
-			return driverConfigsById.get(id);
-		}
-	}
+    @Override
+    public DriverConfig getOrAddDriver(String id) {
+        try {
+            return addDriver(id);
+        } catch (IdCollisionException e) {
+            return driverConfigsById.get(id);
+        }
+    }
 
-	@Override
-	public DriverConfig addDriver(String id) throws IdCollisionException {
-		if (id == null) {
-			throw new IllegalArgumentException("The driver ID may not be null");
-		}
-		ChannelConfigImpl.checkIdSyntax(id);
+    @Override
+    public DriverConfig addDriver(String id) throws IdCollisionException {
+        if (id == null) {
+            throw new IllegalArgumentException("The driver ID may not be null");
+        }
+        ChannelConfigImpl.checkIdSyntax(id);
 
-		if (driverConfigsById.containsKey(id)) {
-			throw new IdCollisionException("Collision with the driver ID:" + id);
-		}
-		DriverConfigImpl driverConfig = new DriverConfigImpl(id, this);
-		driverConfigsById.put(id, driverConfig);
-		return driverConfig;
-	}
+        if (driverConfigsById.containsKey(id)) {
+            throw new IdCollisionException("Collision with the driver ID:" + id);
+        }
+        DriverConfigImpl driverConfig = new DriverConfigImpl(id, this);
+        driverConfigsById.put(id, driverConfig);
+        return driverConfig;
+    }
 
-	@Override
-	public DriverConfig getDriver(String id) {
-		return driverConfigsById.get(id);
-	}
+    @Override
+    public DriverConfig getDriver(String id) {
+        return driverConfigsById.get(id);
+    }
 
-	@Override
-	public DeviceConfig getDevice(String id) {
-		return deviceConfigsById.get(id);
-	}
+    @Override
+    public DeviceConfig getDevice(String id) {
+        return deviceConfigsById.get(id);
+    }
 
-	@Override
-	public ChannelConfig getChannel(String id) {
-		return channelConfigsById.get(id);
-	}
+    @Override
+    public ChannelConfig getChannel(String id) {
+        return channelConfigsById.get(id);
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Collection<DriverConfig> getDrivers() {
-		return (Collection<DriverConfig>) (Collection<?>) Collections
-				.unmodifiableCollection(driverConfigsById.values());
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<DriverConfig> getDrivers() {
+        return (Collection<DriverConfig>) (Collection<?>) Collections.unmodifiableCollection(driverConfigsById.values());
+    }
 
-	@Override
-	protected RootConfigImpl clone() {
-		RootConfigImpl configClone = new RootConfigImpl();
-		configClone.dataLogSource = dataLogSource;
-		for (DriverConfigImpl driverConfig : driverConfigsById.values()) {
-			configClone.addDriver(driverConfig.clone(configClone));
-		}
-		return configClone;
-	}
+    @Override
+    protected RootConfigImpl clone() {
+        RootConfigImpl configClone = new RootConfigImpl();
+        configClone.dataLogSource = dataLogSource;
+        for (DriverConfigImpl driverConfig : driverConfigsById.values()) {
+            configClone.addDriver(driverConfig.clone(configClone));
+        }
+        return configClone;
+    }
 
-	RootConfigImpl cloneWithDefaults() {
-		RootConfigImpl configClone = new RootConfigImpl();
-		if (dataLogSource != null) {
-			configClone.dataLogSource = dataLogSource;
-		}
-		else {
-			configClone.dataLogSource = "";
-		}
-		for (DriverConfigImpl driverConfig : driverConfigsById.values()) {
-			configClone.addDriver(driverConfig.cloneWithDefaults(configClone));
-		}
-		return configClone;
-	}
+    RootConfigImpl cloneWithDefaults() {
+        RootConfigImpl configClone = new RootConfigImpl();
+        if (dataLogSource != null) {
+            configClone.dataLogSource = dataLogSource;
+        } else {
+            configClone.dataLogSource = "";
+        }
+        for (DriverConfigImpl driverConfig : driverConfigsById.values()) {
+            configClone.addDriver(driverConfig.cloneWithDefaults(configClone));
+        }
+        return configClone;
+    }
 
-	private void addDriver(DriverConfigImpl driverConfig) {
-		driverConfigsById.put(driverConfig.getId(), driverConfig);
-		for (DeviceConfigImpl deviceConfig : driverConfig.deviceConfigsById.values()) {
-			deviceConfigsById.put(deviceConfig.getId(), deviceConfig);
-			for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
-				channelConfigsById.put(channelConfig.getId(), channelConfig);
-			}
-		}
-	}
+    private void addDriver(DriverConfigImpl driverConfig) {
+        driverConfigsById.put(driverConfig.getId(), driverConfig);
+        for (DeviceConfigImpl deviceConfig : driverConfig.deviceConfigsById.values()) {
+            deviceConfigsById.put(deviceConfig.getId(), deviceConfig);
+            for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
+                channelConfigsById.put(channelConfig.getId(), channelConfig);
+            }
+        }
+    }
 
 }

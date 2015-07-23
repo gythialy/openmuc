@@ -1,25 +1,27 @@
-  <driver id="snmp">
+<driver id="snmp">
     <samplingTimeout>2s</samplingTimeout>
     <connectRetryInterval>5s</connectRetryInterval>
     <disabled>false</disabled>
     <device id="V2c19216811161">
-      <description>[1.3.6.1.2.1.1.1.0 = Linux test-aitor 2.4.37 #7585 Sat Oct 10 02:08:51 CEST 2009 mips, 1.3.6.1.2.1.1.3.0 = 1:01:23.00, 1.3.6.1.2.1.1.6.0 = unknown, 1.3.6.1.2.1.1.2.0 = 1.3.6.1.4.1.8072.3.2.10, 1.3.6.1.2.1.1.4.0 = root, 1.3.6.1.2.1.1.5.0 = root]</description>
-      <deviceAddress>192.168.1.1/161</deviceAddress>
-      <interfaceAddress>V2c</interfaceAddress>
-      <settings>USERNAME=root:SECURITYNAME=root:AUTHENTICATIONPASSPHRASE=adminadmin:PRIVACYPASSPHRASE=adminadmin</settings>
-      <samplingTimeout>2s</samplingTimeout>
-      <connectRetryInterval>5s</connectRetryInterval>
-      <disabled>false</disabled>
-      <channel id="memory">
-        <description>idontcare</description>
-        <channelAddress>1.3.6.1.2.1.25.2.3.1.5.101</channelAddress>
-        <valueType>STRING</valueType>
-        <listening>false</listening>
-        <samplingInterval>100ms</samplingInterval>
-        <samplingTimeOffset>0</samplingTimeOffset>
-        <loggingInterval>5s</loggingInterval>
-        <loggingTimeOffset>0</loggingTimeOffset>
-      </channel>
+        <description>[1.3.6.1.2.1.1.1.0 = Linux test-aitor 2.4.37 #7585 Sat Oct 10 02:08:51 CEST 2009 mips, 1.3.6.1.2.1.1.3.0 = 1:01:23.00,
+            1.3.6.1.2.1.1.6.0 = unknown, 1.3.6.1.2.1.1.2.0 = 1.3.6.1.4.1.8072.3.2.10, 1.3.6.1.2.1.1.4.0 = root, 1.3.6.1.2.1.1.5.0 = root]
+        </description>
+        <deviceAddress>192.168.1.1/161</deviceAddress>
+        <interfaceAddress>V2c</interfaceAddress>
+        <settings>USERNAME=root:SECURITYNAME=root:AUTHENTICATIONPASSPHRASE=adminadmin:PRIVACYPASSPHRASE=adminadmin</settings>
+        <samplingTimeout>2s</samplingTimeout>
+        <connectRetryInterval>5s</connectRetryInterval>
+        <disabled>false</disabled>
+        <channel id="memory">
+            <description>idontcare</description>
+            <channelAddress>1.3.6.1.2.1.25.2.3.1.5.101</channelAddress>
+            <valueType>STRING</valueType>
+            <listening>false</listening>
+            <samplingInterval>100ms</samplingInterval>
+            <samplingTimeOffset>0</samplingTimeOffset>
+            <loggingInterval>5s</loggingInterval>
+            <loggingTimeOffset>0</loggingTimeOffset>
+        </channel>
     </device>
-  </driver>
+</driver>
 

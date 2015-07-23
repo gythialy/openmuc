@@ -22,14 +22,14 @@ package org.openmuc.framework.driver.aggregator.exeptions;
 
 public class AggregationException extends Exception {
 
-	private final String message;
+    private final String message;
 
-	public AggregationException(String message) {
-		this.message = message;
-	}
+    public AggregationException(String message) {
+        this.message = message;
+    }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

@@ -25,20 +25,20 @@ import java.util.Collection;
 
 public interface RootConfig {
 
-	public String getDataLogSource();
+    public String getDataLogSource();
 
-	public void setDataLogSource(String source);
+    public void setDataLogSource(String source);
 
-	public DriverConfig addDriver(String id) throws IdCollisionException;
+    public DriverConfig addDriver(String id) throws IdCollisionException;
 
-	public DriverConfig getOrAddDriver(String id);
+    public DriverConfig getOrAddDriver(String id);
 
-	public DriverConfig getDriver(String id);
+    public DriverConfig getDriver(String id);
 
-	public DeviceConfig getDevice(String id);
+    public DeviceConfig getDevice(String id);
 
-	public ChannelConfig getChannel(String id);
+    public ChannelConfig getChannel(String id);
 
-	public Collection<DriverConfig> getDrivers();
+    public Collection<DriverConfig> getDrivers();
 
 }

@@ -1,13 +1,13 @@
-(function(){
+(function () {
 
-	var injectParams = ['$scope', '$http', '$alert'];
-	
-	var OptionsController = function($scope, $http, $alert) {
-		$scope.options = [];
-	};
+    var injectParams = ['$scope', '$http', '$alert'];
 
-	OptionsController.$inject = injectParams;
+    var OptionsController = function ($scope, $http, $alert) {
+        $scope.options = [];
+    };
 
-	angular.module('openmuc.options').controller('OptionsController', OptionsController);
-	
+    OptionsController.$inject = injectParams;
+
+    angular.module('openmuc.options').controller('OptionsController', OptionsController);
+
 })();

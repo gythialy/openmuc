@@ -22,46 +22,45 @@
 package org.openmuc.framework.driver.ehz.iec62056_21;
 
 public class DataSet {
-	private String address = null;
-	private String value = null;
-	private String unit = null;
+    private String address = null;
+    private String value = null;
+    private String unit = null;
 
-	public DataSet(String dataSet) {
-		int bracket = dataSet.indexOf('(');
+    public DataSet(String dataSet) {
+        int bracket = dataSet.indexOf('(');
 
-		address = dataSet.substring(0, bracket);
+        address = dataSet.substring(0, bracket);
 
-		dataSet = dataSet.substring(bracket);
+        dataSet = dataSet.substring(bracket);
 
-		int separator = dataSet.indexOf('*');
+        int separator = dataSet.indexOf('*');
 
-		if (separator == -1) {
-			value = dataSet.substring(1, dataSet.length() - 2);
-		}
-		else {
-			value = dataSet.substring(1, separator);
-			unit = dataSet.substring(separator + 1, dataSet.length() - 1);
-		}
-	}
+        if (separator == -1) {
+            value = dataSet.substring(1, dataSet.length() - 2);
+        } else {
+            value = dataSet.substring(1, separator);
+            unit = dataSet.substring(separator + 1, dataSet.length() - 1);
+        }
+    }
 
-	public String getAddress() {
-		return address;
-	}
+    public String getAddress() {
+        return address;
+    }
 
-	public double getVal() {
-		try {
-			return Double.parseDouble(value);
-		} catch (NumberFormatException e) {
-			return Double.NaN;
-		}
-	}
+    public double getVal() {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return Double.NaN;
+        }
+    }
 
-	public String getValue() {
-		return value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	public String getUnit() {
-		return unit;
-	}
+    public String getUnit() {
+        return unit;
+    }
 
 }

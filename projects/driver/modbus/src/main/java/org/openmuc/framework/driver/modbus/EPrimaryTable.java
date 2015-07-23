@@ -25,48 +25,48 @@ package org.openmuc.framework.driver.modbus;
  */
 public enum EPrimaryTable {
 
-	COILS, //
-	DISCRETE_INPUTS, //
-	INPUT_REGISTERS, //
-	HOLDING_REGISTERS;
+    COILS, //
+    DISCRETE_INPUTS, //
+    INPUT_REGISTERS, //
+    HOLDING_REGISTERS;
 
-	public static EPrimaryTable getEnumfromString(String enumAsString) {
-		EPrimaryTable returnValue = null;
-		if (enumAsString != null) {
-			for (EPrimaryTable value : EPrimaryTable.values()) {
-				if (enumAsString.toUpperCase().equals(value.toString())) {
-					returnValue = EPrimaryTable.valueOf(enumAsString.toUpperCase());
-					break;
-				}
-			}
-		}
-		if (returnValue == null) {
-			throw new RuntimeException(enumAsString
-					+ " is not supported. Use one of the following supported primary tables: " + getSupportedValues());
-		}
-		return returnValue;
-	}
+    public static EPrimaryTable getEnumfromString(String enumAsString) {
+        EPrimaryTable returnValue = null;
+        if (enumAsString != null) {
+            for (EPrimaryTable value : EPrimaryTable.values()) {
+                if (enumAsString.toUpperCase().equals(value.toString())) {
+                    returnValue = EPrimaryTable.valueOf(enumAsString.toUpperCase());
+                    break;
+                }
+            }
+        }
+        if (returnValue == null) {
+            throw new RuntimeException(
+                    enumAsString + " is not supported. Use one of the following supported primary tables: " + getSupportedValues());
+        }
+        return returnValue;
+    }
 
-	/**
-	 * @return all supported values as a comma separated string
-	 */
-	public static String getSupportedValues() {
-		String supported = "";
-		for (EPrimaryTable value : EPrimaryTable.values()) {
-			supported += value.toString() + ", ";
-		}
-		return supported;
-	}
+    /**
+     * @return all supported values as a comma separated string
+     */
+    public static String getSupportedValues() {
+        String supported = "";
+        for (EPrimaryTable value : EPrimaryTable.values()) {
+            supported += value.toString() + ", ";
+        }
+        return supported;
+    }
 
-	public static boolean isValidValue(String enumAsString) {
-		boolean returnValue = false;
-		for (EPrimaryTable type : EPrimaryTable.values()) {
-			if (type.toString().toLowerCase().equals(enumAsString.toLowerCase())) {
-				returnValue = true;
-				break;
-			}
-		}
-		return returnValue;
-	}
+    public static boolean isValidValue(String enumAsString) {
+        boolean returnValue = false;
+        for (EPrimaryTable type : EPrimaryTable.values()) {
+            if (type.toString().toLowerCase().equals(enumAsString.toLowerCase())) {
+                returnValue = true;
+                break;
+            }
+        }
+        return returnValue;
+    }
 
 }

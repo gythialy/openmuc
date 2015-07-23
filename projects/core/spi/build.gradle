@@ -1,11 +1,10 @@
-
 dependencies {
-  compile project(':openmuc-core-api') 
+    compile project(':openmuc-core-api')
 }
 
 jar {
-  manifest {
-    name = "OpenMUC Core - SPI"
-    instruction 'Export-Package', '*'
-  }
+    manifest {
+        name = "OpenMUC Core - SPI"
+        instruction 'Export-Package', '*'
+    }
 }

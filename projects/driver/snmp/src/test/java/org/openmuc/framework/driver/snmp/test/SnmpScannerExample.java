@@ -31,50 +31,49 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 
 public class SnmpScannerExample {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
 
-		SnmpDriver myDriver = new SnmpDriver();
-		String settings = SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=adminadmin:"
-				+ SnmpDriverScanSettingVariableNames.STARTIP + "=192.168.1.0:"
-				+ SnmpDriverScanSettingVariableNames.ENDIP + "=192.168.10.0";
+        SnmpDriver myDriver = new SnmpDriver();
+        String settings = SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=adminadmin:" + SnmpDriverScanSettingVariableNames
+                .STARTIP + "=192.168.1.0:" + SnmpDriverScanSettingVariableNames.ENDIP + "=192.168.10.0";
 
-		class TestListener implements DriverDeviceScanListener {
+        class TestListener implements DriverDeviceScanListener {
 
-			@Override
-			public void scanProgressUpdate(int progress) {
-			}
+            @Override
+            public void scanProgressUpdate(int progress) {
+            }
 
-			@Override
-			public void deviceFound(DeviceScanInfo device) {
-				System.out.println("-----------------------------");
-				System.out.println("New device found: ");
-				System.out.println("Address: " + device.getDeviceAddress());
-				System.out.println("Description: " + device.getDescription());
-				System.out.println("-----------------------------");
-			}
+            @Override
+            public void deviceFound(DeviceScanInfo device) {
+                System.out.println("-----------------------------");
+                System.out.println("New device found: ");
+                System.out.println("Address: " + device.getDeviceAddress());
+                System.out.println("Description: " + device.getDescription());
+                System.out.println("-----------------------------");
+            }
 
-		}
-		;
-		TestListener listener = new TestListener();
-		try {
-			myDriver.scanForDevices(settings, listener);
-			Thread.sleep(100);
-		} catch (InterruptedException iex) {
-			System.out.println("Request cancelled: " + iex.getMessage());
+        }
+        ;
+        TestListener listener = new TestListener();
+        try {
+            myDriver.scanForDevices(settings, listener);
+            Thread.sleep(100);
+        } catch (InterruptedException iex) {
+            System.out.println("Request cancelled: " + iex.getMessage());
 
-		} catch (ArgumentSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ScanException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ScanInterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        } catch (ArgumentSyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ScanException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ScanInterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 }

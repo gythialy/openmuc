@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="org.openmuc.driver.dlms">
-  <implementation class="org.openmuc.driver.dlms.DlmsDriver" /> 
-  <service>
-    <provide interface="org.openmuc.framework.driver.spi.DriverService" />
-  </service>
+    <implementation class="org.openmuc.driver.dlms.DlmsDriver"/>
+    <service>
+        <provide interface="org.openmuc.framework.driver.spi.DriverService"/>
+    </service>
 </component> 

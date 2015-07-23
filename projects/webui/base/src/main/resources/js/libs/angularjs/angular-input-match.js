@@ -5,45 +5,46 @@
  * @link https://github.com/TheSharpieOne/angular-input-match
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
-(function(window, angular, undefined){
-	
-'use strict';
+(function (window, angular, undefined) {
 
-angular.module('validation.match', []);
+    'use strict';
 
-angular.module('validation.match').directive('match', match);
+    angular.module('validation.match', []);
 
-function match ($parse) {
-    return {
-        require: '?ngModel',
-        restrict: 'A',
-        link: function(scope, elem, attrs, ctrl) {
-            if(!ctrl) {
-                if(console && console.warn){
-                    console.warn('Match validation requires ngModel to be on the element');
+    angular.module('validation.match').directive('match', match);
+
+    function match($parse) {
+        return {
+            require: '?ngModel',
+            restrict: 'A',
+            link: function (scope, elem, attrs, ctrl) {
+                if (!ctrl) {
+                    if (console && console.warn) {
+                        console.warn('Match validation requires ngModel to be on the element');
+                    }
+                    return;
                 }
-                return;
-            }
 
-            var matchGetter = $parse(attrs.match);
+                var matchGetter = $parse(attrs.match);
 
-            scope.$watch(getMatchValue, function(){
-                ctrl.$validate();
-            });
+                scope.$watch(getMatchValue, function () {
+                    ctrl.$validate();
+                });
 
-            ctrl.$validators.match = function(){
-                return ctrl.$viewValue === getMatchValue();
-            };
+                ctrl.$validators.match = function () {
+                    return ctrl.$viewValue === getMatchValue();
+                };
 
-            function getMatchValue(){
-                var match = matchGetter(scope);
-                if(angular.isObject(match) && match.hasOwnProperty('$viewValue')){
-                    match = match.$viewValue;
+                function getMatchValue() {
+                    var match = matchGetter(scope);
+                    if (angular.isObject(match) && match.hasOwnProperty('$viewValue')) {
+                        match = match.$viewValue;
+                    }
+                    return match;
                 }
-                return match;
             }
-        }
-    };
-}
-match.$inject = ["$parse"];
+        };
+    }
+
+    match.$inject = ["$parse"];
 })(window, window.angular);

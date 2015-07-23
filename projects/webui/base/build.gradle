@@ -1,24 +1,24 @@
 configurations.create('embed')
 
 dependencies {
-  compile project(':openmuc-core-api')
-  compile project(':openmuc-webui-spi')
-  compile group: 'com.google.code.gson', name: 'gson', version: 2.3
-  embed group: 'com.google.code.gson', name: 'gson', version: 2.3
+    compile project(':openmuc-core-api')
+    compile project(':openmuc-webui-spi')
+    compile group: 'com.google.code.gson', name: 'gson', version: 2.3
+    embed group: 'com.google.code.gson', name: 'gson', version: 2.3
 }
 
 jar {
-  manifest {
-    name = "OpenMUC WebUI - Base"
-    instruction 'Bundle-ClassPath', '.,lib/gson-2.3.jar'
-    instruction 'Import-Package', '!com.google.gson.*,*'
-    instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
-  }
+    manifest {
+        name = "OpenMUC WebUI - Base"
+        instruction 'Bundle-ClassPath', '.,lib/gson-2.3.jar'
+        instruction 'Import-Package', '!com.google.gson.*,*'
+        instruction 'Export-Package', ''
+        instruction 'Service-Component', 'OSGI-INF/components.xml'
+    }
 }
 
 jar {
-  into('lib') {
-    from configurations.embed
-  }
+    into('lib') {
+        from configurations.embed
+    }
 }

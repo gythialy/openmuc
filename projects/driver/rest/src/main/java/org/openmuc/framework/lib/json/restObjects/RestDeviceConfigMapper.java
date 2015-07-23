@@ -26,42 +26,40 @@ import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException
 
 public class RestDeviceConfigMapper {
 
-	public static RestDeviceConfig getRestDeviceConfig(DeviceConfig dc) {
+    public static RestDeviceConfig getRestDeviceConfig(DeviceConfig dc) {
 
-		RestDeviceConfig rdc = new RestDeviceConfig();
-		rdc.setConnectRetryInterval(dc.getConnectRetryInterval());
-		rdc.setDescription(dc.getDescription());
-		rdc.setDeviceAddress(dc.getDeviceAddress());
-		rdc.isDisabled(dc.isDisabled());
-		rdc.setId(dc.getId());
-		rdc.setSamplingTimeout(dc.getSamplingTimeout());
-		rdc.setSettings(dc.getSettings());
-		return rdc;
-	}
+        RestDeviceConfig rdc = new RestDeviceConfig();
+        rdc.setConnectRetryInterval(dc.getConnectRetryInterval());
+        rdc.setDescription(dc.getDescription());
+        rdc.setDeviceAddress(dc.getDeviceAddress());
+        rdc.isDisabled(dc.isDisabled());
+        rdc.setId(dc.getId());
+        rdc.setSamplingTimeout(dc.getSamplingTimeout());
+        rdc.setSettings(dc.getSettings());
+        return rdc;
+    }
 
-	public static void setDeviceConfig(DeviceConfig dc, RestDeviceConfig rdc, String idFromUrl)
-			throws IdCollisionException, RestConfigIsNotCorrectException {
+    public static void setDeviceConfig(DeviceConfig dc, RestDeviceConfig rdc, String idFromUrl) throws IdCollisionException,
+            RestConfigIsNotCorrectException {
 
-		if (dc == null) {
-			throw new RestConfigIsNotCorrectException("DriverConfig is null!");
-		}
-		else {
+        if (dc == null) {
+            throw new RestConfigIsNotCorrectException("DriverConfig is null!");
+        } else {
 
-			if (rdc != null) {
-				if (rdc.getId() != null && !rdc.getId().equals("") && !idFromUrl.equals(rdc.getId())) {
-					dc.setId(rdc.getId());
-				}
-				dc.setConnectRetryInterval(rdc.getConnectRetryInterval());
-				dc.setDescription(rdc.getDescription());
-				dc.setDeviceAddress(rdc.getDeviceAddress());
-				dc.setDisabled(rdc.getDisabled());
-				dc.setSamplingTimeout(rdc.getSamplingTimeout());
-				dc.setSettings(rdc.getSettings());
-			}
-			else {
-				throw new RestConfigIsNotCorrectException();
-			}
-		}
+            if (rdc != null) {
+                if (rdc.getId() != null && !rdc.getId().equals("") && !idFromUrl.equals(rdc.getId())) {
+                    dc.setId(rdc.getId());
+                }
+                dc.setConnectRetryInterval(rdc.getConnectRetryInterval());
+                dc.setDescription(rdc.getDescription());
+                dc.setDeviceAddress(rdc.getDeviceAddress());
+                dc.setDisabled(rdc.getDisabled());
+                dc.setSamplingTimeout(rdc.getSamplingTimeout());
+                dc.setSettings(rdc.getSettings());
+            } else {
+                throw new RestConfigIsNotCorrectException();
+            }
+        }
 
-	}
+    }
 }

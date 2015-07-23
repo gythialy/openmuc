@@ -22,79 +22,72 @@ package org.openmuc.framework.driver.knx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.log.LogLevel;
 import tuwien.auto.calimero.log.LogWriter;
 
 /**
  * @author frobra
- * 
  */
 public class KnxLogWriter extends LogWriter {
 
-	private static Logger logger = LoggerFactory.getLogger(KnxLogWriter.class);
+    private static Logger logger = LoggerFactory.getLogger(KnxLogWriter.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tuwien.auto.calimero.log.LogWriter#write(java.lang.String, tuwien.auto.calimero.log.LogLevel,
-	 * java.lang.String)
-	 */
-	@Override
-	public void write(String logService, LogLevel level, String msg) {
-		write(logService, level, msg, null);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see tuwien.auto.calimero.log.LogWriter#write(java.lang.String, tuwien.auto.calimero.log.LogLevel,
+     * java.lang.String)
+     */
+    @Override
+    public void write(String logService, LogLevel level, String msg) {
+        write(logService, level, msg, null);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tuwien.auto.calimero.log.LogWriter#write(java.lang.String, tuwien.auto.calimero.log.LogLevel,
-	 * java.lang.String, java.lang.Throwable)
-	 */
-	@Override
-	public void write(String logService, LogLevel level, String msg, Throwable t) {
-		String logMsg = logService + " - " + msg;
-		// Logger logger = LoggerFactory.getLogger(logService);
-		if (level.equals(LogLevel.TRACE)) {
-			logger.trace(logMsg);
-		}
-		else if (level.equals(LogLevel.INFO)) {
-			logger.debug(logMsg);
-		}
-		else if (level.equals(LogLevel.WARN)) {
-			logger.info(logMsg);
-		}
-		else if (level.equals(LogLevel.ERROR)) {
-			logger.warn(logMsg);
-		}
-		else if (level.equals(LogLevel.FATAL)) {
-			logger.error(logMsg);
-		}
-		else {
-			logger.debug(level.toString().toUpperCase() + " " + logMsg);
-		}
+    /*
+     * (non-Javadoc)
+     *
+     * @see tuwien.auto.calimero.log.LogWriter#write(java.lang.String, tuwien.auto.calimero.log.LogLevel,
+     * java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public void write(String logService, LogLevel level, String msg, Throwable t) {
+        String logMsg = logService + " - " + msg;
+        // Logger logger = LoggerFactory.getLogger(logService);
+        if (level.equals(LogLevel.TRACE)) {
+            logger.trace(logMsg);
+        } else if (level.equals(LogLevel.INFO)) {
+            logger.debug(logMsg);
+        } else if (level.equals(LogLevel.WARN)) {
+            logger.info(logMsg);
+        } else if (level.equals(LogLevel.ERROR)) {
+            logger.warn(logMsg);
+        } else if (level.equals(LogLevel.FATAL)) {
+            logger.error(logMsg);
+        } else {
+            logger.debug(level.toString().toUpperCase() + " " + logMsg);
+        }
 
-		if (logger.isTraceEnabled() && t != null) {
-			t.printStackTrace();
-		}
-	}
+        if (logger.isTraceEnabled() && t != null) {
+            t.printStackTrace();
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tuwien.auto.calimero.log.LogWriter#flush()
-	 */
-	@Override
-	public void flush() {
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see tuwien.auto.calimero.log.LogWriter#flush()
+     */
+    @Override
+    public void flush() {
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tuwien.auto.calimero.log.LogWriter#close()
-	 */
-	@Override
-	public void close() {
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see tuwien.auto.calimero.log.LogWriter#close()
+     */
+    @Override
+    public void close() {
+    }
 
 }

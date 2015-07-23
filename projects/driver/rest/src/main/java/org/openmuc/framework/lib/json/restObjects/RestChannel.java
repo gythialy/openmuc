@@ -25,32 +25,32 @@ import org.openmuc.framework.data.ValueType;
 
 public class RestChannel {
 
-	private String id;
-	private ValueType type;
-	private Record record;
+    private String id;
+    private ValueType type;
+    private Record record;
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public ValueType getType() {
-		return type;
-	}
+    public ValueType getType() {
+        return type;
+    }
 
-	public void setType(ValueType type) {
-		this.type = type;
-	}
+    public void setType(ValueType type) {
+        this.type = type;
+    }
 
-	public Record getRecord() {
-		return record;
-	}
+    public Record getRecord() {
+        return record;
+    }
 
-	public void setRecord(Record record) {
-		this.record = record;
-	}
+    public void setRecord(Record record) {
+        this.record = record;
+    }
 
 }

@@ -21,18 +21,18 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-
 public final class ListenTask {
 
-	boolean startListening;
-	List<ChannelRecordContainer> selectedChannels;
+    boolean startListening;
+    List<ChannelRecordContainer> selectedChannels;
 
-	public ListenTask(boolean startListening) {
-		selectedChannels = new LinkedList<ChannelRecordContainer>();
-		this.startListening = startListening;
-	}
+    public ListenTask(boolean startListening) {
+        selectedChannels = new LinkedList<ChannelRecordContainer>();
+        this.startListening = startListening;
+    }
 }

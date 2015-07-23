@@ -28,22 +28,21 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 /**
  * In scanner we need to notify a listener which is given in arguments and also we have to create another listener in
  * order to listen to SNMP scanner in SnmpDevice. So we notify given listener in callback method of SnmpDevice listener
- * 
+ *
  * @author Mehran Shakeri
- * 
  */
 public class SnmpDriverDiscoveryListener implements SnmpDiscoveryListener {
 
-	private final DriverDeviceScanListener scannerListener;
+    private final DriverDeviceScanListener scannerListener;
 
-	public SnmpDriverDiscoveryListener(DriverDeviceScanListener listener) {
-		scannerListener = listener;
-	}
+    public SnmpDriverDiscoveryListener(DriverDeviceScanListener listener) {
+        scannerListener = listener;
+    }
 
-	@Override
-	public void onNewDeviceFound(SnmpDiscoveryEvent e) {
-		DeviceScanInfo newDevice = new DeviceScanInfo(e.getDeviceAddress().toString(), null, e.getDescription());
-		scannerListener.deviceFound(newDevice);
-	}
+    @Override
+    public void onNewDeviceFound(SnmpDiscoveryEvent e) {
+        DeviceScanInfo newDevice = new DeviceScanInfo(e.getDeviceAddress().toString(), null, e.getDescription());
+        scannerListener.deviceFound(newDevice);
+    }
 
 }

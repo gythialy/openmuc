@@ -26,59 +26,59 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
 public class SnmpChannelRecordContainer implements ChannelRecordContainer {
 
-	private Record snmpRecord;
-	private SnmpChannel snmpChannel;
+    private Record snmpRecord;
+    private SnmpChannel snmpChannel;
 
-	SnmpChannelRecordContainer() {
-	}
+    SnmpChannelRecordContainer() {
+    }
 
-	SnmpChannelRecordContainer(SnmpChannel channel) {
-		snmpChannel = channel;
-	}
+    SnmpChannelRecordContainer(SnmpChannel channel) {
+        snmpChannel = channel;
+    }
 
-	SnmpChannelRecordContainer(Record record, SnmpChannel channel) {
-		snmpChannel = channel;
-		snmpRecord = record;
-	}
+    SnmpChannelRecordContainer(Record record, SnmpChannel channel) {
+        snmpChannel = channel;
+        snmpRecord = record;
+    }
 
-	@Override
-	public Record getRecord() {
-		return snmpRecord;
-	}
+    @Override
+    public Record getRecord() {
+        return snmpRecord;
+    }
 
-	@Override
-	public Channel getChannel() {
-		return snmpChannel;
-	}
+    @Override
+    public Channel getChannel() {
+        return snmpChannel;
+    }
 
-	@Override
-	public String getChannelAddress() {
-		return snmpChannel.getChannelAddress();
-	}
+    @Override
+    public String getChannelAddress() {
+        return snmpChannel.getChannelAddress();
+    }
 
-	@Override
-	public Object getChannelHandle() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Object getChannelHandle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void setChannelHandle(Object handle) {
-		snmpChannel = (SnmpChannel) handle;
-	}
+    @Override
+    public void setChannelHandle(Object handle) {
+        snmpChannel = (SnmpChannel) handle;
+    }
 
-	@Override
-	public void setRecord(Record record) {
-		snmpRecord = new Record(record.getValue(), record.getTimestamp(), record.getFlag());
-	}
+    @Override
+    public void setRecord(Record record) {
+        snmpRecord = new Record(record.getValue(), record.getTimestamp(), record.getFlag());
+    }
 
-	@Override
-	public ChannelRecordContainer copy() {
-		SnmpChannelRecordContainer clone = new SnmpChannelRecordContainer();
-		clone.setChannelHandle(snmpChannel);
-		clone.setRecord(snmpRecord);
+    @Override
+    public ChannelRecordContainer copy() {
+        SnmpChannelRecordContainer clone = new SnmpChannelRecordContainer();
+        clone.setChannelHandle(snmpChannel);
+        clone.setRecord(snmpRecord);
 
-		return clone;
-	}
+        return clone;
+    }
 
 }

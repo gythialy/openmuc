@@ -25,92 +25,91 @@ import java.nio.charset.Charset;
 
 public class StringValue implements Value {
 
-	private final String value;
+    private final String value;
 
-	private static final Charset charset = Charset.forName("US-ASCII");
+    private static final Charset charset = Charset.forName("US-ASCII");
 
-	public StringValue(String value) {
-		this.value = value;
-	}
+    public StringValue(String value) {
+        this.value = value;
+    }
 
-	@Override
-	public double asDouble() {
-		try {
-			return Double.parseDouble(value);
-		} catch (NumberFormatException e) {
-			throw new TypeConversionException();
-		}
-	}
+    @Override
+    public double asDouble() {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new TypeConversionException();
+        }
+    }
 
-	@Override
-	public float asFloat() {
-		try {
-			return Float.parseFloat(value);
-		} catch (NumberFormatException e) {
-			throw new TypeConversionException();
-		}
-	}
+    @Override
+    public float asFloat() {
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException e) {
+            throw new TypeConversionException();
+        }
+    }
 
-	@Override
-	public long asLong() {
-		try {
-			return Long.parseLong(value);
-		} catch (NumberFormatException e) {
-			throw new TypeConversionException();
-		}
-	}
+    @Override
+    public long asLong() {
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            throw new TypeConversionException();
+        }
+    }
 
-	@Override
-	public int asInt() {
-		try {
-			return Integer.parseInt(value);
-		} catch (NumberFormatException e) {
-			throw new TypeConversionException();
-		}
-	}
+    @Override
+    public int asInt() {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new TypeConversionException();
+        }
+    }
 
-	@Override
-	public short asShort() {
-		try {
-			return Short.parseShort(value);
-		} catch (NumberFormatException e) {
-			throw new TypeConversionException();
-		}
-	}
+    @Override
+    public short asShort() {
+        try {
+            return Short.parseShort(value);
+        } catch (NumberFormatException e) {
+            throw new TypeConversionException();
+        }
+    }
 
-	@Override
-	public byte asByte() {
-		try {
-			return Byte.parseByte(value);
-		} catch (NumberFormatException e) {
-			throw new TypeConversionException();
-		}
-	}
+    @Override
+    public byte asByte() {
+        try {
+            return Byte.parseByte(value);
+        } catch (NumberFormatException e) {
+            throw new TypeConversionException();
+        }
+    }
 
-	@Override
-	public boolean asBoolean() {
-		if ("true".equals(value)) {
-			return true;
-		}
-		else if ("false".equals(value)) {
-			return false;
-		}
-		throw new TypeConversionException();
-	}
+    @Override
+    public boolean asBoolean() {
+        if ("true".equals(value)) {
+            return true;
+        } else if ("false".equals(value)) {
+            return false;
+        }
+        throw new TypeConversionException();
+    }
 
-	@Override
-	public byte[] asByteArray() {
-		return value.getBytes(charset);
-	}
+    @Override
+    public byte[] asByteArray() {
+        return value.getBytes(charset);
+    }
 
-	@Override
-	public String toString() {
-		return value;
-	}
+    @Override
+    public String toString() {
+        return value;
+    }
 
-	@Override
-	public String asString() {
-		return toString();
-	}
+    @Override
+    public String asString() {
+        return toString();
+    }
 
 }

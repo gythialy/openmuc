@@ -21,28 +21,28 @@
 
 package org.openmuc.framework.webui.spi;
 
-import java.util.Hashtable;
-
 import org.osgi.framework.Bundle;
+
+import java.util.Hashtable;
 
 public interface WebUiPluginService {
 
-	/**
-	 * @return Name of WebUI-Plugin, displayed in OpenMUC main menu on top
-	 */
-	public String getName();
+    /**
+     * @return Name of WebUI-Plugin, displayed in OpenMUC main menu on top
+     */
+    public String getName();
 
-	/**
-	 * @return Alias of the WebUI-Plugin. The Alias is the identifier in the URL.
-	 */
-	public String getAlias();
+    /**
+     * @return Alias of the WebUI-Plugin. The Alias is the identifier in the URL.
+     */
+    public String getAlias();
 
-	/**
-	 * add additional resources if needed
-	 * 
-	 * @return the resources as a hash table.
-	 */
-	public Hashtable<String, String> getResources();
+    /**
+     * add additional resources if needed
+     *
+     * @return the resources as a hash table.
+     */
+    public Hashtable<String, String> getResources();
 
-	public Bundle getContextBundle();
+    public Bundle getContextBundle();
 }

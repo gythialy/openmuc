@@ -26,17 +26,17 @@ import org.openmuc.framework.dataaccess.RecordListener;
 
 public final class ListenerNotifier extends Thread {
 
-	RecordListener listener;
-	Record record;
+    RecordListener listener;
+    Record record;
 
-	public ListenerNotifier(RecordListener listener, Record record) {
-		this.listener = listener;
-		this.record = record;
-	}
+    public ListenerNotifier(RecordListener listener, Record record) {
+        this.listener = listener;
+        this.record = record;
+    }
 
-	@Override
-	public void run() {
-		listener.newRecord(record);
-	}
+    @Override
+    public void run() {
+        listener.newRecord(record);
+    }
 
 }

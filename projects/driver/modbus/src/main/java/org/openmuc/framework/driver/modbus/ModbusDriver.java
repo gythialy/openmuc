@@ -40,59 +40,55 @@ import org.slf4j.LoggerFactory;
  */
 public final class ModbusDriver implements DriverService {
 
-	private final static Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
+    private final static Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
 
-	private final static DriverInfo info = new DriverInfo("modbus", "ModbusTCP and ModbusRTU are supported.", "?", "?",
-			"?", "?");
+    private final static DriverInfo info = new DriverInfo("modbus", "ModbusTCP and ModbusRTU are supported.", "?", "?", "?", "?");
 
-	// TODO get it from channel.xml
-	private final static int timeoutInMillisecons = 10000;
+    // TODO get it from channel.xml
+    private final static int timeoutInMillisecons = 10000;
 
-	@Override
-	public DriverInfo getInfo() {
-		return info;
-	}
+    @Override
+    public DriverInfo getInfo() {
+        return info;
+    }
 
-	@Override
-	public Connection connect(String deviceAddress, String settings) throws ConnectionException {
+    @Override
+    public Connection connect(String deviceAddress, String settings) throws ConnectionException {
 
-		// TODO refactor exception handling in this method
+        // TODO refactor exception handling in this method
 
-		ModbusConnection connection;
+        ModbusConnection connection;
 
-		if (settings.equals("")) {
-			throw new ConnectionException("no device settings found in config. Please specify settings.");
-		}
-		else {
-			String[] settingsArray = settings.split(":");
-			String mode = settingsArray[0];
-			if (mode.equalsIgnoreCase("RTU")) {
-				try {
-					connection = new ModbusRTUConnection(deviceAddress, settingsArray, timeoutInMillisecons);
-				} catch (ModbusConfigurationException e) {
-					logger.error("Unable to create ModbusRTUConnection", e);
-					throw new ConnectionException();
-				}
-			}
-			else if (mode.equalsIgnoreCase("TCP")) {
-				connection = new ModbusTCPConnection(deviceAddress, timeoutInMillisecons);
-			}
-			else {
-				throw new ConnectionException("Unknown Mode. Use RTU or TCP.");
-			}
-		}
-		return connection;
-	}
+        if (settings.equals("")) {
+            throw new ConnectionException("no device settings found in config. Please specify settings.");
+        } else {
+            String[] settingsArray = settings.split(":");
+            String mode = settingsArray[0];
+            if (mode.equalsIgnoreCase("RTU")) {
+                try {
+                    connection = new ModbusRTUConnection(deviceAddress, settingsArray, timeoutInMillisecons);
+                } catch (ModbusConfigurationException e) {
+                    logger.error("Unable to create ModbusRTUConnection", e);
+                    throw new ConnectionException();
+                }
+            } else if (mode.equalsIgnoreCase("TCP")) {
+                connection = new ModbusTCPConnection(deviceAddress, timeoutInMillisecons);
+            } else {
+                throw new ConnectionException("Unknown Mode. Use RTU or TCP.");
+            }
+        }
+        return connection;
+    }
 
-	@Override
-	public void scanForDevices(String settings, DriverDeviceScanListener listener)
-			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void scanForDevices(String settings, DriverDeviceScanListener listener) throws UnsupportedOperationException,
+            ArgumentSyntaxException, ScanException, ScanInterruptedException {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void interruptDeviceScan() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void interruptDeviceScan() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
 
 }

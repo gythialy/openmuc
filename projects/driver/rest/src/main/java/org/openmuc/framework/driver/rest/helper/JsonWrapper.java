@@ -20,54 +20,54 @@
  */
 package org.openmuc.framework.driver.rest.helper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
 public class JsonWrapper {
 
-	public String fromRecord(Record remoteRecord, ValueType valueType) {
+    public String fromRecord(Record remoteRecord, ValueType valueType) {
 
-		ToJson toJson = new ToJson();
-		toJson.addRecord(remoteRecord, valueType);
+        ToJson toJson = new ToJson();
+        toJson.addRecord(remoteRecord, valueType);
 
-		return toJson.toString();
-	}
+        return toJson.toString();
+    }
 
-	public List<ChannelScanInfo> toChannelList(InputStream stream) throws IOException {
+    public List<ChannelScanInfo> toChannelList(InputStream stream) throws IOException {
 
-		String jsonString = getStringFromInputStream(stream);
-		FromJson fromJson = new FromJson(jsonString);
+        String jsonString = getStringFromInputStream(stream);
+        FromJson fromJson = new FromJson(jsonString);
 
-		return fromJson.getChannelScanInfoList();
-	}
+        return fromJson.getChannelScanInfoList();
+    }
 
-	public Record toRecord(InputStream stream, ValueType valueType) throws IOException {
+    public Record toRecord(InputStream stream, ValueType valueType) throws IOException {
 
-		String jsonString = getStringFromInputStream(stream);
-		FromJson fromJson = new FromJson(jsonString);
+        String jsonString = getStringFromInputStream(stream);
+        FromJson fromJson = new FromJson(jsonString);
 
-		return fromJson.getRecord(valueType);
-	}
+        return fromJson.getRecord(valueType);
+    }
 
-	private String getStringFromInputStream(InputStream stream) throws IOException {
+    private String getStringFromInputStream(InputStream stream) throws IOException {
 
-		BufferedReader streamReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-		StringBuilder responseStrBuilder = new StringBuilder();
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+        StringBuilder responseStrBuilder = new StringBuilder();
 
-		String inputStr;
-		while ((inputStr = streamReader.readLine()) != null) {
-			responseStrBuilder.append(inputStr);
-		}
+        String inputStr;
+        while ((inputStr = streamReader.readLine()) != null) {
+            responseStrBuilder.append(inputStr);
+        }
 
-		return responseStrBuilder.toString();
-	}
+        return responseStrBuilder.toString();
+    }
 }

@@ -20,204 +20,197 @@
  */
 package org.openmuc.framework.driver.snmp.test;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
-import org.openmuc.framework.dataaccess.Channel;
-import org.openmuc.framework.dataaccess.ChannelState;
-import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
-import org.openmuc.framework.dataaccess.DeviceState;
-import org.openmuc.framework.dataaccess.ReadRecordContainer;
-import org.openmuc.framework.dataaccess.RecordListener;
-import org.openmuc.framework.dataaccess.WriteValueContainer;
+import org.openmuc.framework.dataaccess.*;
+
+import java.io.IOException;
+import java.util.List;
 
 public class SnmpChannel implements Channel {
 
-	private String id;
-	private String address;
-	private String description;
-	private String unit;
-	private ValueType valueType;
-	private int samplingInterval;
-	private int samplingTimeOffset;
-	private String deviceAddress;
+    private String id;
+    private String address;
+    private String description;
+    private String unit;
+    private ValueType valueType;
+    private int samplingInterval;
+    private int samplingTimeOffset;
+    private String deviceAddress;
 
-	SnmpChannel() {
-	}
+    SnmpChannel() {
+    }
 
-	SnmpChannel(String deviceAddress, String address) {
-		this.address = address;
-		this.deviceAddress = deviceAddress;
-	}
+    SnmpChannel(String deviceAddress, String address) {
+        this.address = address;
+        this.deviceAddress = deviceAddress;
+    }
 
-	@Override
-	public String getId() {
-		return id;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	@Override
-	public String getChannelAddress() {
-		return address;
-	}
+    @Override
+    public String getChannelAddress() {
+        return address;
+    }
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+    @Override
+    public String getDescription() {
+        return description;
+    }
 
-	@Override
-	public String getUnit() {
-		return unit;
-	}
+    @Override
+    public String getUnit() {
+        return unit;
+    }
 
-	@Override
-	public ValueType getValueType() {
-		return valueType;
-	}
+    @Override
+    public ValueType getValueType() {
+        return valueType;
+    }
 
-	@Override
-	public int getSamplingInterval() {
-		return samplingInterval;
-	}
+    @Override
+    public int getSamplingInterval() {
+        return samplingInterval;
+    }
 
-	@Override
-	public int getSamplingTimeOffset() {
-		return samplingTimeOffset;
-	}
+    @Override
+    public int getSamplingTimeOffset() {
+        return samplingTimeOffset;
+    }
 
-	@Override
-	public int getLoggingInterval() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getLoggingInterval() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public int getLoggingTimeOffset() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getLoggingTimeOffset() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public String getDriverName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getDriverName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getDeviceAddress() {
-		return deviceAddress;
-	}
+    @Override
+    public String getDeviceAddress() {
+        return deviceAddress;
+    }
 
-	@Override
-	public String getDeviceName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getDeviceName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getDeviceDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getDeviceDescription() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public ChannelState getChannelState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ChannelState getChannelState() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public DeviceState getDeviceState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public DeviceState getDeviceState() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void addListener(RecordListener listener) {
-		// TODO Auto-generated method stub
+    @Override
+    public void addListener(RecordListener listener) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void removeListener(RecordListener listener) {
-		// TODO Auto-generated method stub
+    @Override
+    public void removeListener(RecordListener listener) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public boolean isConnected() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isConnected() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public Record getLatestRecord() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Record getLatestRecord() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void setLatestRecord(Record record) {
-		// TODO Auto-generated method stub
+    @Override
+    public void setLatestRecord(Record record) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public Flag write(Value value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Flag write(Value value) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void write(List<Record> records) {
-		// TODO Auto-generated method stub
+    @Override
+    public void write(List<Record> records) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public WriteValueContainer getWriteContainer() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public WriteValueContainer getWriteContainer() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Record read() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Record read() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public ReadRecordContainer getReadContainer() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ReadRecordContainer getReadContainer() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Record getLoggedRecord(long time) throws DataLoggerNotAvailableException, IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Record getLoggedRecord(long time) throws DataLoggerNotAvailableException, IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException,
-			IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException, IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public double getScalingFactor() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public double getScalingFactor() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

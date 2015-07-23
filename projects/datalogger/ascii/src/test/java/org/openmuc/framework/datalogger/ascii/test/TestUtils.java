@@ -26,19 +26,19 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TestUtils {
-	public static final String TESTFOLDER = "test";
-	public static final String TESTFOLDERPATH = System.getProperty("user.dir") + "/" + TESTFOLDER + "/";
+    public static final String TESTFOLDER = "test";
+    public static final String TESTFOLDERPATH = System.getProperty("user.dir") + "/" + TESTFOLDER + "/";
 
-	static Date stringToDate(String format, String strDate) {
+    static Date stringToDate(String format, String strDate) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.GERMAN);
-		Date date = null;
-		try {
-			date = sdf.parse(strDate);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.GERMAN);
+        Date date = null;
+        try {
+            date = sdf.parse(strDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-		return date;
-	}
+        return date;
+    }
 }

@@ -23,22 +23,22 @@ package org.openmuc.framework.config;
 
 public class ParseException extends Exception {
 
-	private static final long serialVersionUID = -1629042625080748627L;
+    private static final long serialVersionUID = -1629042625080748627L;
 
-	public ParseException() {
-		super();
-	}
+    public ParseException() {
+        super();
+    }
 
-	public ParseException(String s) {
-		super(s);
-	}
+    public ParseException(String s) {
+        super(s);
+    }
 
-	public ParseException(Throwable cause) {
-		super(cause);
-	}
+    public ParseException(Throwable cause) {
+        super(cause);
+    }
 
-	public ParseException(String s, Throwable cause) {
-		super(s, cause);
-	}
+    public ParseException(String s, Throwable cause) {
+        super(s, cause);
+    }
 
 }

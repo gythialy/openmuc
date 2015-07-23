@@ -1,49 +1,49 @@
-(function(){
-	
-	var injectParams = ['$scope', '$stateParams', '$state', '$alert', '$translate', 'DevicesService', 'DriversService'];
-	
-	var DeviceNewController = function($scope, $stateParams, $state, $alert, $translate, DevicesService, DriversService) {
+(function () {
 
-		$translate('DEVICE_CREATED_SUCCESSFULLY').then(function(text) {
-			$scope.deviceOKText = text;
-		});
-		
-		$translate('DEVICE_CREATED_ERROR').then(function(text) {
-			$scope.deviceErrorText = text;
-		});
-		
-		if ($stateParams.driverId) {
-			$scope.driver = DriversService.getDriver($stateParams.driverId);
-		} else {
-			$scope.driver = [];
-		}
+    var injectParams = ['$scope', '$stateParams', '$state', '$alert', '$translate', 'DevicesService', 'DriversService'];
 
-		$scope.device = {
-			driver: $scope.driver.id,
-			configs: {
-				disabled: false
-			}
-		};
-		
-		$scope.saveDevice = function() {
-			
-			if ($scope.deviceForm.$valid) {
-				DevicesService.create($scope.device).then(function(resp){
-					$alert({content: $scope.deviceOKText, type: 'success'});
-					return $state.go('channelconfigurator.devices.index');
-				}, function(error) {
-					$alert({content: $scope.deviceErrorText, type: 'warning'});
-					return $state.go('channelconfigurator.devices.index');
-				});
-			} else {
-				$scope.deviceForm.submitted = true;
-			}
-		}
-		
-	};
+    var DeviceNewController = function ($scope, $stateParams, $state, $alert, $translate, DevicesService, DriversService) {
 
-	DeviceNewController.$inject = injectParams;
+        $translate('DEVICE_CREATED_SUCCESSFULLY').then(function (text) {
+            $scope.deviceOKText = text;
+        });
 
-	angular.module('openmuc.devices').controller('DeviceNewController', DeviceNewController);
+        $translate('DEVICE_CREATED_ERROR').then(function (text) {
+            $scope.deviceErrorText = text;
+        });
+
+        if ($stateParams.driverId) {
+            $scope.driver = DriversService.getDriver($stateParams.driverId);
+        } else {
+            $scope.driver = [];
+        }
+
+        $scope.device = {
+            driver: $scope.driver.id,
+            configs: {
+                disabled: false
+            }
+        };
+
+        $scope.saveDevice = function () {
+
+            if ($scope.deviceForm.$valid) {
+                DevicesService.create($scope.device).then(function (resp) {
+                    $alert({content: $scope.deviceOKText, type: 'success'});
+                    return $state.go('channelconfigurator.devices.index');
+                }, function (error) {
+                    $alert({content: $scope.deviceErrorText, type: 'warning'});
+                    return $state.go('channelconfigurator.devices.index');
+                });
+            } else {
+                $scope.deviceForm.submitted = true;
+            }
+        }
+
+    };
+
+    DeviceNewController.$inject = injectParams;
+
+    angular.module('openmuc.devices').controller('DeviceNewController', DeviceNewController);
 
 })();

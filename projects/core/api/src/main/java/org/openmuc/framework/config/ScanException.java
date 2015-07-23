@@ -23,22 +23,22 @@ package org.openmuc.framework.config;
 
 public class ScanException extends Exception {
 
-	private static final long serialVersionUID = 4691826793044327594L;
+    private static final long serialVersionUID = 4691826793044327594L;
 
-	public ScanException() {
-		super();
-	}
+    public ScanException() {
+        super();
+    }
 
-	public ScanException(String s) {
-		super(s);
-	}
+    public ScanException(String s) {
+        super(s);
+    }
 
-	public ScanException(Throwable cause) {
-		super(cause);
-	}
+    public ScanException(Throwable cause) {
+        super(cause);
+    }
 
-	public ScanException(String s, Throwable cause) {
-		super(s, cause);
-	}
+    public ScanException(String s, Throwable cause) {
+        super(s, cause);
+    }
 
 }
