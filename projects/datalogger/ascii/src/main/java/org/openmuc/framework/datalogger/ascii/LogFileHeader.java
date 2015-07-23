@@ -73,6 +73,7 @@ public class LogFileHeader {
 			}
 		}
 
+		sb.append(Const.LINESEPARATOR);
 		return sb.toString();
 	}
 
@@ -105,6 +106,7 @@ public class LogFileHeader {
 		}
 		appendColumnHeaderTimestamp(sb0);
 		sb0.append(sb1);
+		sb0.append(Const.LINESEPARATOR);
 		return sb0.toString();
 	}
 
@@ -167,13 +169,13 @@ public class LogFileHeader {
 		String seperator = Const.SEPARATOR;
 
 		// write general header informations
-		appendStrings(sb, "#ies_format_version: ", String.valueOf(Const.ISEFORMATVERSION), "\n");
-		appendStrings(sb, "#file: ", filename, "\n");
-		appendStrings(sb, "#file_info: ", Const.FILEINFO, "\n");
-		appendStrings(sb, "#timezone: ", getDiffLocalUTC(), "\n");
-		appendStrings(sb, "#timestep_sec: ", timestep_sec, "\n");
+		appendStrings(sb, "#ies_format_version: ", String.valueOf(Const.ISEFORMATVERSION), Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#file: ", filename, Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#file_info: ", Const.FILEINFO, Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#timezone: ", getDiffLocalUTC(), Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#timestep_sec: ", timestep_sec, Const.LINESEPARATOR_STRING);
 		appendStrings(sb, "#", "col_no", seperator, "col_name", seperator, "confidential", seperator, "measured",
-				seperator, "unit", seperator, "category", seperator, Const.COMMENT_NAME, "\n");
+				seperator, "unit", seperator, "category", seperator, Const.COMMENT_NAME, Const.LINESEPARATOR_STRING);
 		createRow(sb, "001", "YYYYMMDD", "FALSE", "FALSE", "0", "time", "INTEGER", 8, "Date [human readable]");
 		createRow(sb, "002", "hhmmss", "FALSE", "FALSE", "0", "time", "SHORT", 6, "Time [human readable]");
 		createRow(sb, "003", "unixtimestamp", "FALSE", "FALSE", "s", "time", "DOUBLE", 14,
@@ -215,7 +217,7 @@ public class LogFileHeader {
 		}
 		appendStrings(sb, com_sign, col_no, seperator, col_name, seperator, confidential, seperator, measured,
 				seperator, unit, seperator, category, seperator, valueType, vtSizeSep, valueTypeLengthString,
-				vtEndSign, comment, "\n");
+				vtEndSign, comment, Const.LINESEPARATOR_STRING);
 	}
 
 	/**

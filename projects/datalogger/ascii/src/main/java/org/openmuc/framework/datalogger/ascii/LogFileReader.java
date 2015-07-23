@@ -25,10 +25,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.DoubleValue;
@@ -85,14 +82,16 @@ public class LogFileReader {
 
 		for (int i = 0; i < filenames.size(); i++) {
 			Boolean nextFile = false;
-			logger.trace("using " + filenames.get(i));
+			if (logger.isTraceEnabled()) {
+				logger.trace("using " + filenames.get(i));
+			}
 
 			String filepath;
-			if (path.endsWith("/")) {
+			if (path.endsWith(File.separator)) {
 				filepath = path + filenames.get(i);
 			}
 			else {
-				filepath = path + "/" + filenames.get(i);
+				filepath = path + File.separatorChar + filenames.get(i);
 			}
 
 			if (i > 0) {
@@ -101,7 +100,9 @@ public class LogFileReader {
 			List<Record> fileRecords = processFile(filepath, nextFile);
 			if (fileRecords != null) {
 				allRecords.addAll(fileRecords);
-				logger.trace("read records: " + fileRecords.size());
+				if (logger.isTraceEnabled()) {
+					logger.trace("read records: " + fileRecords.size());
+				}
 			}
 			else {
 				// some error occurred while processing the file so no records will be added
@@ -161,7 +162,7 @@ public class LogFileReader {
 		long rowSize;
 		long firstTimestamp = 0;
 		String firstValueLine = null;
-		long actualTimestamp = 0;
+		long currentTimestamp = 0;
 
 		RandomAccessFile raf = LoggerUtils.getRandomAccessFile(new File(filepath), "r");
 		if (raf == null) {
@@ -175,11 +176,12 @@ public class LogFileReader {
 				unixTimestampColumn = LoggerUtils.getColumnNumberByName(line, Const.TIMESTAMP_STRING);
 			}
 
-            currentPosition = raf.getFilePointer();
-            firstValueLine = raf.readLine();
-            raf.seek(raf.getFilePointer() - 2);
-            int offset = raf.read() == '\r' ? 2 : 1;
-            rowSize = firstValueLine.length() + offset;
+			firstValueLine = raf.readLine();
+
+			rowSize = firstValueLine.length() + 1; // +1 because of "\n"
+
+			// rewind the position to the start of the firstValue line
+			currentPosition = raf.getFilePointer() - rowSize;
 
 			firstTimestamp = (long) (Double.valueOf((firstValueLine.split(Const.SEPARATOR))[unixTimestampColumn]) * 1000);
 
@@ -191,10 +193,13 @@ public class LogFileReader {
 				long filepos = getFilePosition(loggingInterval, startTimestamp, firstTimestamp, currentPosition,
 						rowSize);
 				raf.seek(filepos);
-				actualTimestamp = startTimestamp;
-				while ((line = raf.readLine()) != null && actualTimestamp <= endTimestamp) {
+
+				currentTimestamp = startTimestamp;
+
+				while ((line = raf.readLine()) != null && currentTimestamp <= endTimestamp) {
+
 					processLine(line, channelColumn, records);
-					actualTimestamp += loggingInterval;
+					currentTimestamp += loggingInterval;
 				}
 				raf.close();
 			}
@@ -241,6 +246,11 @@ public class LogFileReader {
 				Record record = convertLogfileEntryToRecord(columnValue[channelColumn], timestampMS);
 				records.add(record);
 			}
+			else {
+				// for debugging
+				// SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+				// logger.trace("timestampMS: " + sdf.format(timestampMS) + "  " + timestampMS);
+			}
 		} catch (NumberFormatException e) {
 			logger.debug("It's not a timestamp.");
 			e.printStackTrace();
@@ -276,19 +286,27 @@ public class LogFileReader {
 	 * @param startTimestamp
 	 * @return the position of the start timestamp as long.
 	 */
-	private long getFilePosition(int loggingInterval, long startTimestamp, long firstTimestamp, long firstValuePos,
-			long rowSize) {
+	private long getFilePosition(int loggingInterval, long startTimestamp, long firstTimestampOfFile,
+			long firstValuePos, long rowSize) {
 
-		long pos = 0;
+		long timeOffsetMs = startTimestamp - firstTimestampOfFile;
+		long numberOfLinesToSkip = timeOffsetMs / loggingInterval;
 
-		Calendar calendar = new GregorianCalendar(Locale.getDefault());
-		calendar.setTimeInMillis(startTimestamp);
+		// if offset isn't a multiple of loggingInterval add an additional line
+		if (timeOffsetMs % loggingInterval != 0) {
+			++numberOfLinesToSkip;
+		}
 
-		pos = (calendar.getTimeInMillis() - firstTimestamp) / loggingInterval * rowSize + firstValuePos;
+		long pos = numberOfLinesToSkip * rowSize + firstValuePos;
 
-		// System.out.println("loggingInterval = " + loggingInterval + ", startTimestamp = " + startTimestamp
-		// + ", firstTimestamp = " + firstTimestamp + ", firstValuePos = " + firstValuePos + ", rowSize = "
-		// + rowSize + ", pos = " + pos);
+		// for debugging
+		// logger.trace("pos             " + pos);
+		// logger.trace("startTimestamp  " + startTimestamp);
+		// logger.trace("firstTimestamp  " + firstTimestampOfFile);
+		// logger.trace("loggingInterval " + loggingInterval);
+		// logger.trace("rowSize         " + rowSize);
+		// logger.trace("firstValuePos   " + firstValuePos);
+
 		return pos;
 	}
 

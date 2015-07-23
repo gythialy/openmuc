@@ -3,7 +3,7 @@ def projectNameLowerCase = 'openmuc'
 
 configure(allprojects) {
   apply plugin: 'java'
-  version = '0.15.0'
+  version = '0.15.1'
   group = 'org.openmuc.framework'
 }
 
@@ -29,7 +29,6 @@ project.ext {
     it.getPath() == ':openmuc-datalogger-ascii' ||
     it.getPath() == ':openmuc-datalogger-slotsdb' ||
     it.getPath() == ':openmuc-driver-aggregator' ||
-    it.getPath() == ':openmuc-driver-canopen' ||
     it.getPath() == ':openmuc-driver-dlms' ||
     it.getPath() == ':openmuc-driver-ehz' ||
     it.getPath() == ':openmuc-driver-iec61850' ||
@@ -230,6 +229,7 @@ task (tar, type: Tar) {
       exclude '**/projects/**/.settings'
       exclude '**/projects/**/.project'
       exclude '**/projects/**/.classpath'
+      exclude '**/projects/**/.gradle'
 
       for (Project myproject: distributionProjects) {
 	include myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '/**';

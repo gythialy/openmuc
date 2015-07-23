@@ -544,7 +544,7 @@ public class LoggerUtils {
 				if (line != null) {
 					sb.append(line);
 					while (line != null && line.startsWith(Const.COMMENT_SIGN)) {
-						sb.append('\n');
+						sb.append(Const.LINESEPARATOR);
 						line = br.readLine();
 						sb.append(line);
 					}
@@ -653,7 +653,7 @@ public class LoggerUtils {
 					if (readedBytes == 1) {
 						charString = new String(byti, Const.CHAR_SET);
 
-						if (charString.equals("\n")) {
+						if (charString.equals(Const.LINESEPARATOR_STRING)) {
 							lastLogLine = raf.readLine();
 						}
 						else {
@@ -727,7 +727,7 @@ public class LoggerUtils {
 			unixTimeStamp += loggingIntervall;
 			setLoggerTimestamps(line, unixTimeStamp);
 			line.append(errorValues);
-			line.append('\n');
+			line.append(Const.LINESEPARATOR);
 
 			out.append(line.toString());
 		}

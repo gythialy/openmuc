@@ -236,19 +236,8 @@
 	    				
 	    				if (typeof(channelData.value) == "number") {
 	    					
-	    					if (channelData.value % 1. != 0.) {
-	    						channelData.value = Math.floor(1000. * channelData.value)/1000.;
-	    					}
 	    					
-	    					var y = channelData.value;
-		    				//if (channelData.value) {
-		    				//	console.log("if");
-		    				//	var y = channelData.value;
-		    				//} else {
-			    			//	console.log("else");	
-		    				//	var newValue = $scope.data[i].values[$scope.data[i].values.length - 1];
-		    				//	var y = newValue.y - 1;
-		    				//}
+	    					var y = ChannelsService.valuesDisplayPrecision(channelData.value, 0.001);
 		    				
 		    				// rotate x values to the left
 		    			    $.each($scope.data[i].values, function(j, newData) {

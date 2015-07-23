@@ -82,7 +82,7 @@ public class LogFileWriter {
 		// TODO match column with container id, so that they don't get mixed up
 		String logLine = setLoggingStringBuilder(logRecordContainer, logChannelList, date);
 
-		out.println(logLine);
+		out.print(logLine); // print because of println makes different newline char on different systems
 		out.flush();
 		out.close();
 	}
@@ -146,7 +146,8 @@ public class LogFileWriter {
 							byte[] byteArray = logRecordContainer.get(i).getRecord().getValue().asByteArray();
 							if (byteArray.length > size) {
 								value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-								logger.error("The byte array is too big, max Size = " + size + ", ChannelId: "
+								logger.error("The byte array is too big, length is " + byteArray.length
+										+ " but max. length allowed is " + size + ", ChannelId: "
 										+ logRecordContainer.get(i).getChannelId());
 							}
 							else {
@@ -166,7 +167,8 @@ public class LogFileWriter {
 							}
 							if (value.length() > size) {
 								value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-								logger.error("The string is too big, max Size = " + size + ", ChannelId: "
+								logger.error("The string is too big, length is " + value.length()
+										+ " but max. length allowed is " + size + ", ChannelId: "
 										+ logRecordContainer.get(i).getChannelId());
 							}
 							break;
@@ -202,6 +204,7 @@ public class LogFileWriter {
 				sb.append(Const.SEPARATOR);
 			}
 		}
+		sb.append(Const.LINESEPARATOR); // All systems with the same newline charter
 		return sb.toString();
 	}
 
@@ -265,7 +268,7 @@ public class LogFileWriter {
 				String headerString = header.getIESDataFormatHeaderString(group, file.getName(), loggingInterval,
 						logChannelList);
 
-				out.println(headerString);
+				out.print(headerString);
 				out.flush();
 			}
 		} catch (UnsupportedEncodingException e) {

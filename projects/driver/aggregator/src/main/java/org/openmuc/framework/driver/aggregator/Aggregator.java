@@ -54,24 +54,57 @@ import org.slf4j.LoggerFactory;
  * through the channel config file.
  * <p>
  * Example: <br>
- * Channel A (channelA) is sampled and logged every 10 seconds. Now you want a channel B (channelB) which contains the
- * same values as channel A but in a 1 minute resolution by using the 'average' as aggregation type. You can achieve
- * this by simply adding the aggregator driver to your channel config file and define a the channel B as follows:
+ * Channel A (channelA) is sampled and logged every 10 seconds.
  * 
  * <pre>
- * &lt;channelid="channelB"&gt;
- *   &lt;channelAddress&gt;channelA:avg&lt;/channelAddress&gt;
- *   &lt;samplingInterval&gt;60s&lt;/samplingInterval&gt;
- *   &lt;loggingInterval&gt;60s&lt;/loggingInterval&gt;
+ * &lt;channelid="channelA"&gt;
+ *   &lt;samplingInterval&gt;10s&lt;/samplingInterval&gt;
+ *   &lt;loggingInterval&gt;10s&lt;/loggingInterval&gt;
  * &lt;/channel&gt;
+ * </pre>
+ * 
+ * 
+ * Now you want a channel B (channelB) which contains the same values as channel A but in a 1 minute resolution by using
+ * the 'average' as aggregation type. You can achieve this by simply adding the aggregator driver to your channel config
+ * file and define a the channel B as follows:
+ * 
+ * <pre>
+ * &lt;driver id="aggregator"&gt;
+ *   &lt;device id="aggregatordevice"&gt;
+ *     &lt;channelid="channelB"&gt;
+ *       &lt;channelAddress&gt;channelA:avg&lt;/channelAddress&gt;
+ *       &lt;samplingInterval&gt;60s&lt;/samplingInterval&gt;
+ *       &lt;loggingInterval&gt;60s&lt;/loggingInterval&gt;
+ *     &lt;/channel&gt;
+ *   &lt;/device&gt;
+ * &lt;/driver&gt;
  * </pre>
  * 
  * The new (aggregated) channel has the id channelB. The channel address consists of the channel id of the original
  * channel and the aggregation type which is channelA:avg in this example. OpenMUC calls the read method of the
  * aggregator every minute. The aggregator then gets all logged records from channelA of the last minute, calculates the
  * average and sets this value for the record of channelB.
+ * 
  * <p>
- * Note: There are more aggregation types then "avg" available.
+ * 
+ * NOTE: It's recommended to specify the samplingTimeOffset for channelB. It should be between samplingIntervalB -
+ * samplingIntervalA and samplingIntervalB. In this example: 50 < offset < 60. This constraint ensures that values are
+ * AGGREGATED CORRECTLY. At hh:mm:55 the aggregator gets the logged values of channelA and at hh:mm:60 respectively
+ * hh:mm:00 the aggregated value is logged.
+ * 
+ * <pre>
+ * &lt;driver id="aggregator"&gt;
+ *   &lt;device id="aggregatordevice"&gt;
+ *     &lt;channelid="channelB"&gt;
+ *       &lt;channelAddress&gt;channelA:avg&lt;/channelAddress&gt;
+ *       &lt;samplingInterval&gt;60s&lt;/samplingInterval&gt;
+ *       &lt;samplingTimeOffset&gt;55s&lt;/samplingTimeOffset&gt;
+ *       &lt;loggingInterval&gt;60s&lt;/loggingInterval&gt;
+ *     &lt;/channel&gt;
+ *   &lt;/device&gt;
+ * &lt;/driver&gt;
+ * </pre>
+ * 
  * 
  */
 // TODO: might add an adjustable percentage of errors in records accepted
@@ -110,17 +143,8 @@ public class Aggregator implements DriverService, Connection {
 	public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
 			throws UnsupportedOperationException, ConnectionException {
 
-		long currentTimestamp = System.currentTimeMillis();
-
-		// remove milliseconds e.g. 10:45:00.015 --> 10:45:00.000
-		currentTimestamp /= 1000;
-		currentTimestamp *= 1000;
-
-		// endTimestamp must be slightly before the currentTimestamp
-		// Example: Aggregate a channel from 10:30:00 to 10:45:00 to 15 min values.
-		// 10:45:00 should be the timestamp of the aggregated value therefore the aggregator has to get logged values
-		// from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
-		long endTimestamp = currentTimestamp - 1;
+		long currentTimestamp = getCurrentTimestamp();
+		long endTimestamp = getEndTimestamp(currentTimestamp);
 
 		for (ChannelRecordContainer container : containers) {
 
@@ -134,19 +158,24 @@ public class Aggregator implements DriverService, Connection {
 
 				// NOTE: logging, not sampling interval because aggregator accesses logged values
 				long sourceLoggingInterval = sourceChannel.getLoggingInterval();
-
 				long aggregationInterval = aggregatedChannel.getSamplingInterval();
-				checkIntervals(sourceLoggingInterval, aggregationInterval);
+				long aggregationSamplingTimeOffset = aggregatedChannel.getSamplingTimeOffset();
+				checkIntervals(sourceLoggingInterval, aggregationInterval, aggregationSamplingTimeOffset);
 
 				long startTimestamp = currentTimestamp - aggregationInterval;
 				List<Record> records = sourceChannel.getLoggedRecords(startTimestamp, endTimestamp);
 
-				// for debugging
+				// for debugging - KEEP IT!
+				// if (records.size() > 0) {
 				// SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
-				// logger.debug("start:       " + sdf.format(startTimestamp));
-				// logger.debug("end:         " + sdf.format(endTimestamp));
+				// for (Record r : records) {
+				// logger.debug("List records: " + sdf.format(r.getTimestamp()) + " " + r.getValue().asDouble());
+				// }
+				// logger.debug("start:       " + sdf.format(startTimestamp) + "  timestamp = " + startTimestamp);
+				// logger.debug("end:         " + sdf.format(endTimestamp) + "  timestamp = " + endTimestamp);
 				// logger.debug("List start:  " + sdf.format(records.get(0).getTimestamp()));
 				// logger.debug("List end:    " + sdf.format(records.get(records.size() - 1).getTimestamp()));
+				// }
 
 				checkNumberOfRecords(records, sourceLoggingInterval, aggregationInterval);
 
@@ -181,28 +210,55 @@ public class Aggregator implements DriverService, Connection {
 	}
 
 	/**
-	 * Checks limitations of the sampling/aggregating intervals
+	 * @return the current timestamp where milliseconds are set to 000: e.g. 10:45:00.015 --> 10:45:00.000
+	 */
+	private long getCurrentTimestamp() {
+		return (System.currentTimeMillis() / 1000) * 1000;
+	}
+
+	/**
+	 * endTimestamp must be slightly before the currentTimestamp Example: Aggregate a channel from 10:30:00 to 10:45:00
+	 * to 15 min values. 10:45:00 should be the timestamp of the aggregated value therefore the aggregator has to get
+	 * logged values from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
+	 * 
+	 * @param currentTimestamp
+	 * @return
+	 */
+	private long getEndTimestamp(long currentTimestamp) {
+		return currentTimestamp - 1;
+	}
+
+	/**
+	 * Checks limitations of the sampling/aggregating intervals and sourceSamplingOffset
 	 * 
 	 * @param sourceLoggingInterval
 	 * @param aggregationInterval
+	 * @param sourceSamplingOffset
 	 * @throws AggregationException
 	 */
-	private void checkIntervals(long sourceLoggingInterval, long aggregationInterval) throws AggregationException {
+	private void checkIntervals(long sourceLoggingInterval, long aggregationInterval, long aggregationSamplingTimeOffset)
+			throws AggregationException {
 
+		// check 1
+		// -------
 		if (aggregationInterval < sourceLoggingInterval) {
 			throw new AggregationException(
 					"Sampling interval of aggregator channel must be bigger than logging interval of source channel");
 		}
 
+		// check 2
+		// -------
 		long remainder = aggregationInterval % sourceLoggingInterval;
 		if (remainder != 0) {
 			throw new AggregationException(
 					"Sampling interval of aggregator channel must be a multiple of the logging interval of the source channel");
 		}
 
+		// check 3
+		// -------
 		if (sourceLoggingInterval < 1000) {
-			// FIXME (priority low) milliseconds are cut from the endTimestamp (refer to read method). If the sampling
-			// interval of the aggregator channel is smaller than 1 second this might lead to errors.
+			// FIXME (priority low) milliseconds are cut from the endTimestamp (refer to read method). If the logging
+			// interval of the source channel is smaller than 1 second this might lead to errors.
 			throw new AggregationException("Logging interval of source channel musst be >= 1 second");
 		}
 

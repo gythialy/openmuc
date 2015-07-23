@@ -39,6 +39,8 @@ public class Const {
 	public static final String DATE_FORMAT = "%1$tY%1$tm%1$td"; // Date in YYYYMMDD
 	public static final String TIME_FORMAT = "%1$tH%1$tM%1$tS"; // Time in HHMMSS
 	public static final String SEPARATOR = ";\t";
+	public static final char LINESEPARATOR = '\n';
+	public static final String LINESEPARATOR_STRING = "\n";
 	public static final String ERROR = "err";
 	public static final String COL_NUM = "col_no";
 	public static final String DATATYPE_NAME = "value_type";

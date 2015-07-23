@@ -12,10 +12,9 @@
       </channel>
       <channel id="CurrentChannel">
         <channelAddress>dummy/channel/address/current</channelAddress>
-        <unit>kW</unit>
-        <samplingInterval>100ms</samplingInterval>
+        <unit>kW</unit> 
+       <samplingInterval>100ms</samplingInterval>
         <loggingInterval>5s</loggingInterval>
-        <loggingTimeOffset>1s</loggingTimeOffset>
       </channel>
       <channel id="listeningChannel">
         <channelAddress>dummy</channelAddress>
@@ -55,19 +54,40 @@
         <channelAddress>VoltageChannel:AVG</channelAddress>
         <valueType>DOUBLE</valueType>
         <samplingInterval>15s</samplingInterval>
+        <samplingTimeOffset>13s</samplingTimeOffset>
         <loggingInterval>15s</loggingInterval>
       </channel>
       <channel id="VoltageChannelLAST">
         <channelAddress>VoltageChannel:LAST</channelAddress>
         <valueType>DOUBLE</valueType>
         <samplingInterval>15s</samplingInterval>
+        <samplingTimeOffset>13s</samplingTimeOffset>
         <loggingInterval>15s</loggingInterval>
       </channel>
       <channel id="VoltageChannelDIFF">
         <channelAddress>VoltageChannel:DIFF</channelAddress>
         <valueType>DOUBLE</valueType>
         <samplingInterval>15s</samplingInterval>
+        <samplingTimeOffset>13s</samplingTimeOffset>
         <loggingInterval>15s</loggingInterval>
+      </channel>
+    </device>
+  </driver>
+  <driver id="rest">
+    <samplingTimeout>10s</samplingTimeout>
+    <connectRetryInterval>10s</connectRetryInterval>
+    <device id="rest_client_device">
+      <description>Connects to his own server</description>
+      <deviceAddress>http://127.0.0.1:8888/rest</deviceAddress>
+      <settings>admin:admin</settings>
+      <channel id="VoltageChannel_over_Rest">
+        <channelAddress>VoltageChannel</channelAddress>
+        <samplingInterval>5s</samplingInterval>
+      </channel>
+      <channel id="ByteArrayChannel_over_Rest">
+        <channelAddress>ByteArrayChannel</channelAddress>
+        <valueType length="26">BYTE_ARRAY</valueType>
+        <samplingInterval>5s</samplingInterval>
       </channel>
     </device>
   </driver>

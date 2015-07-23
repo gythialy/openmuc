@@ -44,26 +44,27 @@ public class IESDataFormatUtils {
 		String ret;
 
 		String format;
-		long lValue = (long) (value * 10000.0);
-		value = lValue / 10000.0;
+		double valueWork = value;
+		long lValue = (long) (valueWork * 10000.0);
+		valueWork = lValue / 10000.0;
 
 		if (lValue >= 0) {
 
 			if (lValue >> 63 != 0) {
-				value *= -1l;
+				valueWork *= -1l;
 			}
-			format = '+' + getFormat(value);
+			format = '+' + getFormat(valueWork);
 		}
 		else {
-			format = getFormat(value);
+			format = getFormat(valueWork);
 		}
 
 		DecimalFormat df = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
-		ret = df.format(value);
+		ret = df.format(valueWork);
 
 		if (ret.length() > maxLength) {
-			throw new WrongScalingException("Double too large for convertion into " + maxLength
-					+ " max length! Try to scale value.");
+			throw new WrongScalingException("Double value (" + value + ") too large for convertion into max length "
+					+ maxLength + "! Try to scale value.");
 		}
 		return ret;
 	}

@@ -72,7 +72,7 @@ public class LogFileWriterTest {
 	static String ch08 = "STRING";
 	static String ch09 = "BYTE_ARRAY";
 	static String dummy = "dummy";
-	static String[] channelIds = new String[] { ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08 };
+	static String[] channelIds = new String[] { ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09 };
 	static String time = " 23:55:00";
 	static String testStringValueIncorrectASCII = "qwertzuiopü+asdfghjklöä#<yxcvbnm,.-^1234567890ß °!§$%&/()=?QWERTZUIOPÜ*ASDFGHJKLÖÄ'>YXCVBNM;:_"; // 94
 																																					// Zeichen
@@ -173,7 +173,7 @@ public class LogFileWriterTest {
 			LogRecordContainer container7 = new LogRecordContainerImpl(ch07, new Record(new ByteValue(byteValue), time));
 			LogRecordContainer container8 = new LogRecordContainerImpl(ch08, new Record(new StringValue(testString),
 					time));
-			LogRecordContainer container9 = new LogRecordContainerImpl(ch08, new Record(new ByteArrayValue(
+			LogRecordContainer container9 = new LogRecordContainerImpl(ch09, new Record(new ByteArrayValue(
 					testByteArray), time));
 
 			LogIntervalContainerGroup group = new LogIntervalContainerGroup();

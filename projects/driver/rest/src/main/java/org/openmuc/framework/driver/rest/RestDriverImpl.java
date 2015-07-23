@@ -20,13 +20,7 @@
  */
 package org.openmuc.framework.driver.rest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.config.DeviceScanInfo;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
 import org.openmuc.framework.driver.spi.Connection;
@@ -34,20 +28,9 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 
-import de.hsoffenburg.ssdp.service.SSDPServiceDescription;
-import de.hsoffenburg.ssdp.service.SSDPServiceHandlerInterface;
-import de.hsoffenburg.ssdp.service.listener.SSDPDiscoveryResponseListener;
-
 public class RestDriverImpl implements DriverService {
 
 	// private final static Logger logger = LoggerFactory.getLogger(RestDriverImpl.class);
-
-	private final List<DeviceScanInfo> deviceList;
-	private SSDPDiscoveryResponseListener callback;
-	private final String searchTarget = "openmuc:rest";
-	private final Map<String, SSDPServiceDescription> providers;
-
-	private SSDPServiceHandlerInterface ssdpHandler;
 
 	private final static int timeout = 10000;
 
@@ -55,7 +38,7 @@ public class RestDriverImpl implements DriverService {
 			// description
 			"Driver to connect this OpenMUC instance with another, remote OpenMUC instance with rest.",
 			// device address
-			"uuid:ABCDEFG:openmuc:restws:1",
+			"https://adress:port or http://adress:port",
 			// settings
 			"username:password",
 			// channel address
@@ -65,70 +48,34 @@ public class RestDriverImpl implements DriverService {
 
 	public RestDriverImpl() {
 
-		deviceList = new ArrayList<DeviceScanInfo>();
-		providers = new HashMap<String, SSDPServiceDescription>();
-	}
-
-	private void initialize() {
-
-		callback = new SSDPDiscoveryResponseListener() {
-
-			@Override
-			public synchronized void serviceProvidedBy(SSDPServiceDescription provider) {
-
-				DeviceScanInfo device = new DeviceScanInfo(provider.getUsn(), "", "OpenMUC at: "
-						+ provider.getLocation());
-
-				for (DeviceScanInfo knownDevice : deviceList) {
-					if (knownDevice.getDeviceAddress().equals(provider.getUsn())) {
-						/* skip already registered device. */
-						return;
-					}
-				}
-				deviceList.add(device);
-				providers.put(provider.getUsn(), provider);
-			}
-
-			@Override
-			public String getSearchTarget() {
-
-				return searchTarget;
-			}
-
-			@Override
-			public boolean discoverServicesOnLocalhost() {
-
-				return false;
-			}
-		};
-
-		ssdpHandler.discoverService(callback);
 	}
 
 	@Override
 	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
 			ConnectionException {
 
-		String FIX_IP = "IP_";
 		RestConnection connection;
+
+		String HTTP = "http://";
+		String HTTPS = "https://";
 
 		if (settings == null || settings.isEmpty() || settings.trim().isEmpty() || !settings.contains(":")) {
 			throw new ArgumentSyntaxException("Invalid User Credentials provided in settings: " + settings
 					+ ". Expected Format: username:password");
 		}
-		if (deviceAddress.startsWith(FIX_IP)) {
-			deviceAddress = deviceAddress.replaceFirst(FIX_IP, "");
+		if (deviceAddress == null || deviceAddress.isEmpty() || deviceAddress.trim().isEmpty()
+				|| !deviceAddress.contains(":")) {
+			throw new ArgumentSyntaxException("Invalid address or port: " + deviceAddress
+					+ ". Expected Format: https://adress:port or http://adress:port");
+		}
+		else if (deviceAddress.startsWith(HTTP) || deviceAddress.startsWith(HTTPS)) {
 			connection = new RestConnection(deviceAddress, settings, timeout);
 			connection.connect();
 			return connection;
 		}
-		else if (providers.get(deviceAddress) != null) {
-			connection = new RestConnection(providers.get(deviceAddress).getLocation(), settings, timeout);
-			connection.connect();
-			return connection;
-		}
 		else {
-			throw new ConnectionException("Device with USN: " + deviceAddress + " not detected (yet) on the network.");
+			throw new ConnectionException("Invalid address or port: " + deviceAddress
+					+ ". Expected Format: https://adress:port or http://adress:port");
 		}
 
 	}
@@ -143,34 +90,13 @@ public class RestDriverImpl implements DriverService {
 	public void scanForDevices(String settings, DriverDeviceScanListener listener)
 			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException {
 
-		ssdpHandler.discoverService(callback);
-		try {
-			for (int i = 0; i < 10; i++) {
-				Thread.sleep(1000);
-				listener.scanProgressUpdate(i * 10);
-				for (DeviceScanInfo info : deviceList) {
-					listener.deviceFound(info);
-				}
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void interruptDeviceScan() throws UnsupportedOperationException {
 
-		/* not supported */
+		throw new UnsupportedOperationException();
 	}
 
-	public void setSSDPHandler(SSDPServiceHandlerInterface ssdpHandler) {
-
-		this.ssdpHandler = ssdpHandler;
-		initialize();
-	}
-
-	public void unsetSSDPHandler(SSDPServiceHandlerInterface ssdpHandler) {
-
-		this.ssdpHandler = null;
-	}
 }

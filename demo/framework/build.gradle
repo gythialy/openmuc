@@ -7,7 +7,7 @@ configurations.create('osgibundles')
 configurations.osgibundles.transitive = false;
 
 dependencies {
-  def openmucversion = '0.15.0'
+  def openmucversion = '0.15.1'
 
   osgibundles files('../../build/libs/openmuc-core-api-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-core-spi-' + openmucversion + '.jar')
@@ -15,6 +15,7 @@ dependencies {
   osgibundles files('../../build/libs/openmuc-datalogger-ascii-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-datalogger-slotsdb-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-driver-aggregator-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs/openmuc-driver-rest-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-webui-spi-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-webui-base-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-webui-channelconfigurator-' + openmucversion + '.jar')
@@ -27,6 +28,11 @@ dependencies {
 
   osgibundles files('../projects/simpleappdemo/build/libs/openmuc-demo-simpleapp-' + openmucversion + '.jar')
   osgibundles files('../projects/dummydriver/build/libs/openmuc-driver-dummy-' + openmucversion + '.jar')
+  
+  //--------------------------------------------------------------------------------------------------
+  // Apache commons codec, is needed by openmuc-driver-rest
+  //--------------------------------------------------------------------------------------------------
+  osgibundles group: 'commons-codec', name: 'commons-codec', version: '1.8'
 
   //--------------------------------------------------------------------------------------------------
   // The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)

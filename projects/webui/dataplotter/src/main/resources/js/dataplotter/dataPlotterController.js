@@ -13,25 +13,17 @@
 		if ($scope.dataPlotter && $scope.dataPlotter.startDate) {
 			$scope.startDate = new Date(parseInt($scope.dataPlotter.startDate));
 		} else {
+			//default start time of plot interval 16 hours in the past (rounded to full hrs)
 			var now = new Date();
-			//round to full hours
-			if(now.getMinutes()>30){
-				now.setMilliseconds(now.getMilliseconds() + 60 *60000); 
-			}
-			now.setMinutes(0);
-			$scope.startDate = new Date(now - (16 * 60 *60000));
+			$scope.startDate = new Date(now.setHours(now.getHours()-16, 0, 0, 0));
 		}
 
 		if ($scope.dataPlotter && $scope.dataPlotter.endDate) {
 			$scope.endDate = new Date(parseInt($scope.dataPlotter.endDate));
 		} else {
+			//default final time of plot interval next full hour in the future
 			var now = new Date();
-			//round to full hours
-			if(now.getMinutes()>30){
-				now.setMilliseconds(now.getMilliseconds() + 60 *60000); 
-			}
-			now.setMinutes(0);	
-			$scope.endDate = new Date(now);
+			$scope.endDate = new Date(now.setHours(now.getHours()+1, 0, 0, 0));
 
 		}
 		
@@ -185,16 +177,20 @@
         };
         
 		$scope.xAxisTickFormat = function () {
-	        var xRange = xRangeHrs();
-	        if(xRange <= 48){
-	        	return function (d) {
-	        		return d3.time.format('%X')(new Date(d));
-	        	};
-	        }else{
-	        	return function (d) {
-	        		return d3.time.format('%x')(new Date(d));
-	        	};
-	        };
+	        
+			return function (d) {
+				return d3.time.format('%m.%d. %H:%M')(new Date(d));
+			};
+			//var xRange = xRangeHrs();
+	        //if(xRange <= 48){
+	        //	return function (d) {
+	        //		return d3.time.format('%X')(new Date(d));
+	        //	};
+	        //}else{
+	        //	return function (d) {
+	        //		return d3.time.format('%x')(new Date(d));
+	        //	};
+	        //};
 	        
 	     };
 	

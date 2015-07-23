@@ -58,8 +58,6 @@ import org.openmuc.framework.driver.spi.ChannelValueContainer;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RestConnection implements Connection {
 
@@ -71,7 +69,7 @@ public class RestConnection implements Connection {
 	private boolean isHTTPS;
 	private String authString;
 
-	private final static Logger logger = LoggerFactory.getLogger(RestConnection.class);
+	// private final static Logger logger = LoggerFactory.getLogger(RestConnection.class);
 
 	public RestConnection(String deviceAddress, String credentials, int timeout) throws ConnectionException {
 

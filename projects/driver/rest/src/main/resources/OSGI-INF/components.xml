@@ -4,9 +4,4 @@
   <service>
     <provide interface="org.openmuc.framework.driver.spi.DriverService" />
   </service>
-  <reference name="ssdpHandler"
-	   interface="de.hsoffenburg.ssdp.service.SSDPServiceHandlerInterface"
-	   bind="setSSDPHandler"
-	   unbind="unsetSSDPHandler"
-	   cardinality="1..1" />
 </component> 

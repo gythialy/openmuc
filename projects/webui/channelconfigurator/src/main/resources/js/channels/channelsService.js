@@ -41,6 +41,17 @@
 			});
 		};
 
+		this.valuesDisplayPrecision = function(numeric_value, precision){
+			//nasty way of default argument in js...
+			if(typeof(precision)==='undefined') precision = 0.001;
+			
+			if(numeric_value % 1. != 0.){
+				return Math.floor(numeric_value / precision) * precision;
+			}else{
+				return numeric_value;
+			}
+		};
+		
 		this.getChannels = function(device) {
     		var req = {
     			method: 'GET',
@@ -82,6 +93,8 @@
     			},
     		};
     		
+    		var self = this;
+    		
     		return $http(req).then(function(response){
     			var values = [];
     			
@@ -89,11 +102,12 @@
     			var timeSeriesStringRegExp = /(\d{13}),(-*\d*\.\d*);/;
     			var isTimeSeriesStringChannel = false;
     			
+    			
     			$.each(response.data.records, function(index, value) {
     				if ($.isNumeric(value.value)) {
     				
     					//if content of value is numeric, append (timestamp, value) to array
-    					values.push({x: value.timestamp, y: value.value});
+    					values.push({x: value.timestamp, y: self.valuesDisplayPrecision(value.value, 0.001)});
     			
     				}else if(typeof(value.value) == "string"){
     					
@@ -125,7 +139,7 @@
     							var timestamp = parseInt(stringPair[0]);
     							if(timestamp<latestTimestamp && timestamp>from){
     								var valAtTime = parseFloat(stringPair[1]);	
-    								values.push({x: timestamp, y: valAtTime});
+    								values.push({x: timestamp, y: self.valuesDisplayPrecision(valAtTime, 0.001)});
     								//console.log(timestamp);
     								//console.log(valAtTime);
     								latestTimestamp = timestamp;

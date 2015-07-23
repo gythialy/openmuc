@@ -1,3 +1,9 @@
+v0.15.1 22-Jul-2015
+-------------------
+- fixes bug building and running OpenMUC on Windows
+- fixes in ASCII Logger, aggregator driver, knx driver and rest driver
+- removed CANopen driver because it cannot be supported at the moment
+
 v0.15.0 03-Jul-2015
 -------------------
 - complete rewrite of the Web UI, it is now based on Angular JS,

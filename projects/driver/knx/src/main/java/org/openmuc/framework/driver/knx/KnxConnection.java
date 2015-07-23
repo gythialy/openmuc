@@ -77,10 +77,14 @@ public class KnxConnection implements Connection {
 		URI deviceURI = null;
 		URI interfaceURI = null;
 		try {
-			deviceURI = new URI(deviceAddress);
-			// if (interfaceAddress != null) {
-			// interfaceURI = new URI(interfaceAddress);
-			// }
+			String[] deviceAddressSubStrings = deviceAddress.split("\\s+");
+			if (deviceAddressSubStrings.length == 2) {
+				interfaceURI = new URI(deviceAddressSubStrings[0]);
+				deviceURI = new URI(deviceAddressSubStrings[1]);
+			}
+			else {
+				deviceURI = new URI(deviceAddress);
+			}
 		} catch (URISyntaxException e) {
 			logger.error("wrong format of interface address");
 			throw new ArgumentSyntaxException();
