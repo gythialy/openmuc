@@ -22,16 +22,16 @@ package org.openmuc.framework.driver.snmp.implementation;
 
 public class SnmpTimeoutException extends Exception {
 
-    private static final long serialVersionUID = 1493311619722487397L;
-    private final String message;
+	private static final long serialVersionUID = 1493311619722487397L;
+	private final String message;
 
-    public SnmpTimeoutException(String message) {
-        this.message = message;
-    }
+	public SnmpTimeoutException(String message) {
+		this.message = message;
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 
 }

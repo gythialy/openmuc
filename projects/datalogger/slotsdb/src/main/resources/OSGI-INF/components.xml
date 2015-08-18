@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="org.openmuc.framework.datalogger.slotsdb">
-    <implementation class="org.openmuc.framework.datalogger.slotsdb.SlotsDb"/>
-    <service>
-        <provide interface="org.openmuc.framework.datalogger.spi.DataLoggerService"/>
-    </service>
+  <implementation class="org.openmuc.framework.datalogger.slotsdb.SlotsDb" /> 
+  <service>
+    <provide interface="org.openmuc.framework.datalogger.spi.DataLoggerService" />
+  </service>
 </component> 

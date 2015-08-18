@@ -20,129 +20,145 @@
  */
 package org.openmuc.framework.driver.aggregator;
 
+import java.util.List;
+
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.driver.aggregator.exeptions.SomethingWrongWithRecordException;
 import org.openmuc.framework.driver.aggregator.exeptions.WrongChannelAddressFormatException;
-
-import java.util.List;
 
 /**
  * Provides static methods which perform the aggregation according to the aggregation type.
  */
 public class AggregatorLogic {
 
-    final static double SHORT_MAX = 65535.0;
+	final static double SHORT_MAX = 65535.0;
 
-    /**
-     * Calculates the average of the all records
-     *
-     * @param recordList
-     * @return the average
-     * @throws SomethingWrongWithRecordException
-     */
-    public static double getAverage(List<Record> recordList) throws SomethingWrongWithRecordException {
+	/**
+	 * Calculates the average of the all records
+	 * 
+	 * @param recordList
+	 * @return the average
+	 * @throws SomethingWrongWithRecordException
+	 */
+	public static double getAverage(List<Record> recordList) throws SomethingWrongWithRecordException {
 
-        double sum = 0;
+		double sum = 0;
 
-        for (Record record : recordList) {
-            sum = sum + AggregatorUtil.getDoubleRecordValue(record);
-        }
+		for (Record record : recordList) {
+			sum = sum + AggregatorUtil.getDoubleRecordValue(record);
+		}
 
-        double average = sum / recordList.size();
+		double average = sum / recordList.size();
 
-        return average;
-    }
+		return average;
+	}
 
-    /**
-     * Returns the value of the last record of the list
-     * <p/>
-     * Can be used for energy aggregation. Smart meter sums the energy automatically therefore the last value contains
-     * the aggregated value
-     *
-     * @param recordList
-     * @return the value of the last record of the list
-     * @throws SomethingWrongWithRecordException
-     */
-    public static double getLast(List<Record> recordList) throws SomethingWrongWithRecordException {
-        return AggregatorUtil.getDoubleRecordValue(getLastRecordOfList(recordList));
-    }
+	/**
+	 * Returns the value of the last record of the list
+	 * <p>
+	 * Can be used for energy aggregation. Smart meter sums the energy automatically therefore the last value contains
+	 * the aggregated value
+	 * 
+	 * @param recordList
+	 * @return the value of the last record of the list
+	 * @throws SomethingWrongWithRecordException
+	 */
+	public static double getLast(List<Record> recordList) throws SomethingWrongWithRecordException {
 
-    /**
-     * Calculates the difference between the last and first value of the list.
-     * <p/>
-     * Can be used to determine the energy per interval
-     *
-     * @param recordList
-     * @return the difference
-     * @throws SomethingWrongWithRecordException
-     */
-    public static double getDiffBetweenLastAndFirstRecord(List<Record> recordList) throws SomethingWrongWithRecordException {
+		return AggregatorUtil.getDoubleRecordValue(getLastRecordOfList(recordList));
+	}
 
-        if (recordList.size() < 2) {
-            throw new SomethingWrongWithRecordException("List holds less than 2 records, calculation of difference not possible.");
-        }
+	/**
+	 * Calculates the difference between the last and first value of the list.
+	 * <p>
+	 * Can be used to determine the energy per interval
+	 * 
+	 * @param recordList
+	 * @return the difference
+	 * @throws SomethingWrongWithRecordException
+	 */
+	public static double getDiffBetweenLastAndFirstRecord(List<Record> recordList)
+			throws SomethingWrongWithRecordException {
 
-        double end = AggregatorUtil.getDoubleRecordValue(getLastRecordOfList(recordList));
-        double start = AggregatorUtil.getDoubleRecordValue(recordList.get(0));
-        double diff = end - start;
-        return diff;
-    }
+		if (recordList.size() < 2) {
+			throw new SomethingWrongWithRecordException(
+					"List holds less than 2 records, calculation of difference not possible.");
+		}
 
-    public static double getPulsesEnergy(Channel sourceChannel, List<Record> recordList, AggregatorChannelAddress address, Channel
-            aggregatedChannel) throws SomethingWrongWithRecordException, WrongChannelAddressFormatException {
+		double end = AggregatorUtil.getDoubleRecordValue(getLastRecordOfList(recordList));
+		double start = AggregatorUtil.getDoubleRecordValue(recordList.get(0));
+		double diff = end - start;
+		return diff;
+	}
 
-        double aggregatedValue;
-        double pulsesPerWh = address.getOptionalSeting();
-        if (pulsesPerWh > 0) {
-            aggregatedValue = AggregatorLogic
-                    .getImpulsValue(sourceChannel, recordList, aggregatedChannel.getSamplingInterval(), pulsesPerWh);
-        } else {
-            throw new WrongChannelAddressFormatException("optionalLongSetting (pulses per Wh) has to be greater then 0.");
-        }
+	public static double getPulsesEnergy(Channel sourceChannel, List<Record> recordList,
+			AggregatorChannelAddress address, Channel aggregatedChannel) throws SomethingWrongWithRecordException,
+			WrongChannelAddressFormatException {
 
-        return aggregatedValue;
-    }
+		double aggregatedValue;
+		double pulsesPerWh = address.getOptionalSeting1();
+		double maxCounterValue = address.getOptionalSeting2();
 
-    private static double getImpulsValue(Channel sourceChannel, List<Record> recordList, long samplingInterval, double pulsesPerX) throws
-            SomethingWrongWithRecordException {
+		if (pulsesPerWh > 0) {
+			if (pulsesPerWh <= 0) {
+				maxCounterValue = SHORT_MAX; // if optionalLongSetting1 is negative or null then set default value
+			}
+			aggregatedValue = AggregatorLogic.getImpulsValue(sourceChannel, recordList,
+					aggregatedChannel.getSamplingInterval(), pulsesPerWh, maxCounterValue);
+		}
+		else {
+			throw new WrongChannelAddressFormatException(
+					"optionalLongSetting1 (pulses per Wh) has to be greater then 0.");
+		}
 
-        if (recordList.size() < 1) {
-            throw new SomethingWrongWithRecordException("List holds less than 1 records, calculation of pulses not possible.");
-        }
+		return aggregatedValue;
+	}
 
-        Record lastRecord = getLastRecordOfList(recordList);
-        double past = AggregatorUtil.getDoubleRecordValue(lastRecord);
-        double actual = AggregatorUtil.getWaitForLatestRecordValue(sourceChannel, lastRecord);
-        double power = calcPulsesValue(actual, past, pulsesPerX, samplingInterval);
-        return power;
-    }
+	private static double getImpulsValue(Channel sourceChannel, List<Record> recordList, long samplingInterval,
+			double pulsesPerX, double maxCounterValue) throws SomethingWrongWithRecordException {
 
-    private static Record getLastRecordOfList(List<Record> recordList) throws SomethingWrongWithRecordException {
+		if (recordList.size() < 1) {
+			throw new SomethingWrongWithRecordException(
+					"List holds less than 1 records, calculation of pulses not possible.");
+		}
 
-        if (recordList.isEmpty()) {
-            throw new SomethingWrongWithRecordException("Empty record list.");
-        } else if (recordList.size() == 1) {
-            // only one record in list which is automatically the last one.
-            return recordList.get(0);
-        } else {
-            return recordList.get(recordList.size() - 1);
-        }
-    }
+		Record lastRecord = getLastRecordOfList(recordList);
+		double past = AggregatorUtil.getDoubleRecordValue(lastRecord);
+		double actual = AggregatorUtil.getWaitForLatestRecordValue(sourceChannel, lastRecord);
+		double power = calcPulsesValue(actual, past, pulsesPerX, samplingInterval, maxCounterValue);
+		return power;
+	}
 
-    private static double calcPulsesValue(double actualPulses, double pulsesHist, double pulsesPerX, long loggingInterval) {
+	private static Record getLastRecordOfList(List<Record> recordList) throws SomethingWrongWithRecordException {
 
-        double power;
-        double pulses = actualPulses - pulsesHist;
+		if (recordList.isEmpty()) {
+			throw new SomethingWrongWithRecordException("Empty record list.");
+		}
+		else if (recordList.size() == 1) {
+			// only one record in list which is automatically the last one.
+			return recordList.get(0);
+		}
+		else {
+			return recordList.get(recordList.size() - 1);
+		}
+	}
 
-        if (pulses >= 0.0) {
-            pulses = actualPulses - pulsesHist;
-        } else {
-            pulses = (SHORT_MAX - pulsesHist) + actualPulses;
-        }
-        power = pulses / pulsesPerX * (loggingInterval / 1000.);
+	private static double calcPulsesValue(double actualPulses, double pulsesHist, double pulsesPerX,
+			long loggingInterval, double maxCounterValue) {
 
-        return power;
-    }
+		double power;
+		double pulses = actualPulses - pulsesHist;
+
+		if (pulses >= 0.0) {
+			pulses = actualPulses - pulsesHist;
+		}
+		else {
+			pulses = (maxCounterValue - pulsesHist) + actualPulses;
+		}
+		power = pulses / pulsesPerX * (loggingInterval / 1000.);
+
+		return power;
+	}
 
 }

@@ -30,69 +30,73 @@ import org.openmuc.framework.driver.spi.DriverService;
 
 public class RestDriverImpl implements DriverService {
 
-    // private final static Logger logger = LoggerFactory.getLogger(RestDriverImpl.class);
+	// private final static Logger logger = LoggerFactory.getLogger(RestDriverImpl.class);
 
-    private final static int timeout = 10000;
+	private final static int timeout = 10000;
 
-    private final static DriverInfo info = new DriverInfo("rest", // id
-                                                          // description
-                                                          "Driver to connect this OpenMUC instance with another, remote OpenMUC instance " +
-                                                                  "with rest.",
-                                                          // device address
-                                                          "https://adress:port or http://adress:port",
-                                                          // settings
-                                                          "username:password",
-                                                          // channel address
-                                                          "/rest/channels/channelid",
-                                                          // device scan settings
-                                                          "N.A.");
+	private final static DriverInfo info = new DriverInfo("rest", // id
+			// description
+			"Driver to connect this OpenMUC instance with another, remote OpenMUC instance with rest.",
+			// device address
+			"https://adress:port or http://adress:port",
+			// settings
+			"username:password",
+			// channel address
+			"/rest/channels/channelid",
+			// device scan settings
+			"N.A.");
 
-    public RestDriverImpl() {
+	public RestDriverImpl() {
 
-    }
+	}
 
-    @Override
-    public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException, ConnectionException {
+	@Override
+	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
+			ConnectionException {
 
-        RestConnection connection;
+		RestConnection connection;
 
-        String HTTP = "http://";
-        String HTTPS = "https://";
+		String HTTP = "http://";
+		String HTTPS = "https://";
 
-        if (settings == null || settings.isEmpty() || settings.trim().isEmpty() || !settings.contains(":")) {
-            throw new ArgumentSyntaxException(
-                    "Invalid User Credentials provided in settings: " + settings + ". Expected Format: username:password");
-        }
-        if (deviceAddress == null || deviceAddress.isEmpty() || deviceAddress.trim().isEmpty() || !deviceAddress.contains(":")) {
-            throw new ArgumentSyntaxException(
-                    "Invalid address or port: " + deviceAddress + ". Expected Format: https://adress:port or http://adress:port");
-        } else if (deviceAddress.startsWith(HTTP) || deviceAddress.startsWith(HTTPS)) {
-            connection = new RestConnection(deviceAddress, settings, timeout);
-            connection.connect();
-            return connection;
-        } else {
-            throw new ConnectionException(
-                    "Invalid address or port: " + deviceAddress + ". Expected Format: https://adress:port or http://adress:port");
-        }
+		if (settings == null || settings.isEmpty() || settings.trim().isEmpty() || !settings.contains(":")) {
+			throw new ArgumentSyntaxException("Invalid User Credentials provided in settings: " + settings
+					+ ". Expected Format: username:password");
+		}
+		if (deviceAddress == null || deviceAddress.isEmpty() || deviceAddress.trim().isEmpty()
+				|| !deviceAddress.contains(":")) {
+			throw new ArgumentSyntaxException("Invalid address or port: " + deviceAddress
+					+ ". Expected Format: https://adress:port or http://adress:port");
+		}
+		else if (deviceAddress.startsWith(HTTP) || deviceAddress.startsWith(HTTPS)) {
+			connection = new RestConnection(deviceAddress, settings, timeout);
+			connection.connect();
+			return connection;
+		}
+		else {
+			throw new ConnectionException("Invalid address or port: " + deviceAddress
+					+ ". Expected Format: https://adress:port or http://adress:port");
+		}
 
-    }
+	}
 
-    @Override
-    public DriverInfo getInfo() {
+	@Override
+	public DriverInfo getInfo() {
 
-        return info;
-    }
+		return info;
+	}
 
-    @Override
-    public void scanForDevices(String settings, DriverDeviceScanListener listener) throws UnsupportedOperationException, ArgumentSyntaxException, ScanException {
+	@Override
+	public void scanForDevices(String settings, DriverDeviceScanListener listener)
+			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException {
 
-        throw new UnsupportedOperationException();
-    }
+		throw new UnsupportedOperationException();
+	}
 
-    @Override
-    public void interruptDeviceScan() throws UnsupportedOperationException {
+	@Override
+	public void interruptDeviceScan() throws UnsupportedOperationException {
 
-        throw new UnsupportedOperationException();
-    }
+		throw new UnsupportedOperationException();
+	}
 
 }

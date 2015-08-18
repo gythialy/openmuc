@@ -1,0 +1,37 @@
+/*
+ * Copyright 2011-15 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+Third-party open-source software
+--------------------------------
+
+Various bundles/modules that make up the OpenMUC framework depend on
+different third party open source software libraries. Some of these
+libraries are embedded as jar files in the respective bundle for
+convenience. Information about the licenses of open source software
+packaged with OpenMUC can be found in the following folders of the
+distribution:
+
+/dependencies 
+/demo/framework/dependencies
+/projects/{my/project}/dependencies
+
+You may request the source code of the dependencies by sending a mail
+through our website at openmuc.org.

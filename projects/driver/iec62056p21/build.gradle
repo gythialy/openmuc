@@ -1,27 +1,27 @@
+
 configurations.create('embed')
 
 def j62056version = "1.2"
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile files('../../../dependencies/rxtxcomm_api-2.2pre2.jar')
-
-    compile group: 'org.openmuc', name: 'j62056', version: j62056version
-    embed group: 'org.openmuc', name: 'j62056', version: j62056version
+  compile project(':openmuc-core-spi')
+  
+  compile group: 'org.openmuc', name: 'j62056', version: j62056version
+  embed group: 'org.openmuc', name: 'j62056', version: j62056version
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - IEC 62056-21 Mode C"
-        instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
-        instruction 'Import-Package', '!org.openmuc.j62056*,gnu.io,*'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - IEC 62056-21 Mode C"
+    instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
+    instruction 'Import-Package', '!org.openmuc.j62056*,gnu.io,*'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }

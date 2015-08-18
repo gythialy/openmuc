@@ -1,26 +1,27 @@
+
 configurations.create('embed')
 
-def calimerovers = '2.0.0-SNAPSHOT'
+def calimerovers = '2.1'
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile files('../../../dependencies/rxtxcomm_api-2.2pre2.jar')
-    compile group: 'calimero', name: 'calimero-core', version: calimerovers
-    embed group: 'calimero', name: 'calimero-core', version: calimerovers
+  compile project(':openmuc-core-spi')
+  compile files('../../../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar')
+  compile group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
+  embed  group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - KNX"
-        instruction 'Bundle-ClassPath', '.,lib/calimero-core-' + calimerovers + '.jar'
-        instruction 'Import-Package', '!tuwien.auto.calimero*,*'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - KNX"
+    instruction 'Bundle-ClassPath', '.,lib/calimero-core-' + calimerovers + '.jar'
+    instruction 'Import-Package', '!tuwien.auto.calimero*,*'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }

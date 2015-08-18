@@ -20,72 +20,75 @@
  */
 package org.openmuc.framework.driver.aggregator;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
-
 /**
  * Enum which defines the aggregation types
+ * 
  */
 public enum EAggregationType {
 
-    AVG, //
-    LAST, //
-    DIFF, //
-    PULSES_ENERGY; //
+	AVG, //
+	LAST, //
+	DIFF, //
+	PULSES_ENERGY; //
 
-    private final static Logger logger = LoggerFactory.getLogger(EAggregationType.class);
+	private final static Logger logger = LoggerFactory.getLogger(EAggregationType.class);
 
-    /**
-     * Parses the name of the aggregation type to the corresponding aggregation type object
-     *
-     * @param enumAsString
-     * @return aggregation type object on success, otherwise null
-     */
-    public static EAggregationType getEnumfromString(String enumAsString) {
-        EAggregationType returnValue = null;
-        if (enumAsString != null) {
-            for (EAggregationType value : EAggregationType.values()) {
-                if (enumAsString.equalsIgnoreCase(value.toString())) {
-                    returnValue = EAggregationType.valueOf(enumAsString.toUpperCase(Locale.ENGLISH));
-                    break;
-                }
-            }
-        }
-        if (returnValue == null) {
-            logger.error(enumAsString + " is not supported. Use one of the following values: " + getSupportedValues());
-        }
-        return returnValue;
-    }
+	/**
+	 * Parses the name of the aggregation type to the corresponding aggregation type object
+	 * 
+	 * @param enumAsString
+	 * @return aggregation type object on success, otherwise null
+	 */
+	public static EAggregationType getEnumfromString(String enumAsString) {
+		EAggregationType returnValue = null;
+		if (enumAsString != null) {
+			for (EAggregationType value : EAggregationType.values()) {
+				if (enumAsString.equalsIgnoreCase(value.toString())) {
+					returnValue = EAggregationType.valueOf(enumAsString.toUpperCase(Locale.ENGLISH));
+					break;
+				}
+			}
+		}
+		if (returnValue == null) {
+			logger.error(enumAsString + " is not supported. Use one of the following values: " + getSupportedValues());
+		}
+		return returnValue;
+	}
 
-    /**
-     * @return all supported values as a comma separated string.
-     */
-    public static String getSupportedValues() {
-        StringBuilder supported = new StringBuilder();
-        for (EAggregationType value : EAggregationType.values()) {
-            supported.append(value.toString());
-            supported.append(", ");
-        }
-        return supported.toString();
-    }
+	/**
+	 * @return all supported values as a comma separated string.
+	 */
+	public static String getSupportedValues() {
 
-    /**
-     * Checks if the string matches with one of the enum values.
-     *
-     * @param enumAsString
-     * @return true on success, otherwise false
-     */
-    public static boolean isValidValue(String enumAsString) {
-        boolean returnValue = false;
-        for (EAggregationType type : EAggregationType.values()) {
-            if (type.toString().equalsIgnoreCase(enumAsString)) {
-                returnValue = true;
-                break;
-            }
-        }
-        return returnValue;
-    }
+		StringBuilder supported = new StringBuilder();
+		for (EAggregationType value : EAggregationType.values()) {
+			supported.append(value.toString());
+			supported.append(", ");
+		}
+		return supported.toString();
+	}
+
+	/**
+	 * Checks if the string matches with one of the enum values.
+	 * 
+	 * @param enumAsString
+	 * @return true on success, otherwise false
+	 */
+	public static boolean isValidValue(String enumAsString) {
+
+		boolean returnValue = false;
+		for (EAggregationType type : EAggregationType.values()) {
+			if (type.toString().equalsIgnoreCase(enumAsString)) {
+				returnValue = true;
+				break;
+			}
+		}
+		return returnValue;
+	}
 
 }

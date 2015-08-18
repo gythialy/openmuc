@@ -21,87 +21,96 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
-import org.openmuc.framework.data.Record;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+
+import org.openmuc.framework.data.Record;
+
 /**
  * Class providing a graphical UI to view the content of a .opm file
+ * 
  */
 public final class SlotsDbVisualizer extends JFrame {
 
-    private static final long serialVersionUID = 1L;
-    JFileChooser fc = new JFileChooser();
-    File file;
-    String[][] rowData = {{"0", "0", "0"}};
-    String[] columnNames = {"Time", "Value", "State"};
-    JTable table = new JTable(rowData, columnNames);
-    JScrollPane content = new JScrollPane(table);
+	private static final long serialVersionUID = 1L;
+	JFileChooser fc = new JFileChooser();
+	File file;
+	String[][] rowData = { { "0", "0", "0" } };
+	String[] columnNames = { "Time", "Value", "State" };
+	JTable table = new JTable(rowData, columnNames);
+	JScrollPane content = new JScrollPane(table);
 
-    public SlotsDbVisualizer() {
+	public SlotsDbVisualizer() {
 
-        JTextField fileNameField = new JTextField(15);
-        fileNameField.setEditable(false);
+		JTextField fileNameField = new JTextField(15);
+		fileNameField.setEditable(false);
 
-        JMenuBar menuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("File");
-        JMenuItem openItem = new JMenuItem("Open");
-        openItem.addActionListener(new openFileListener());
+		JMenuBar menuBar = new JMenuBar();
+		JMenu fileMenu = new JMenu("File");
+		JMenuItem openItem = new JMenuItem("Open");
+		openItem.addActionListener(new openFileListener());
 
-        menuBar.add(fileMenu);
-        fileMenu.add(openItem);
+		menuBar.add(fileMenu);
+		fileMenu.add(openItem);
 
-        setJMenuBar(menuBar);
-        setContentPane(content);
-        setTitle(SlotsDb.FILE_EXTENSION + " File Viewer");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
-        setLocationRelativeTo(null);
+		setJMenuBar(menuBar);
+		setContentPane(content);
+		setTitle(SlotsDb.FILE_EXTENSION + " File Viewer");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		pack();
+		setLocationRelativeTo(null);
 
-    }
+	}
 
-    class openFileListener implements ActionListener {
+	class openFileListener implements ActionListener {
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int ret = fc.showOpenDialog(SlotsDbVisualizer.this);
-            if (ret == JFileChooser.APPROVE_OPTION) {
-                file = fc.getSelectedFile();
-                java.util.List<Record> res = null;
-                try {
-                    FileObject fo = new FileObject(file);
-                    res = fo.readFully();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                if (res != null) {
-                    String[][] tblData = new String[res.size()][3];
-                    Calendar cal = Calendar.getInstance();
-                    for (int i = 0; i < res.size(); i++) {
-                        cal.setTimeInMillis(res.get(i).getTimestamp());
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int ret = fc.showOpenDialog(SlotsDbVisualizer.this);
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				file = fc.getSelectedFile();
+				java.util.List<Record> res = null;
+				try {
+					FileObject fo = new FileObject(file);
+					res = fo.readFully();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				if (res != null) {
+					String[][] tblData = new String[res.size()][3];
+					Calendar cal = Calendar.getInstance();
+					for (int i = 0; i < res.size(); i++) {
+						cal.setTimeInMillis(res.get(i).getTimestamp());
 
-                        // tblData[i][0] = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(cal.getTime());
-                        tblData[i][0] = res.get(i).getTimestamp().toString();
-                        tblData[i][1] = Double.toString(res.get(i).getValue().asDouble());
-                        tblData[i][2] = Integer.toString(res.get(i).getFlag().getCode());
-                    }
-                    table = new JTable(tblData, columnNames);
-                    content = new JScrollPane(table);
-                    setContentPane(content);
-                    invalidate();
-                    validate();
-                }
-            }
-        }
-    }
+						// tblData[i][0] = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(cal.getTime());
+						tblData[i][0] = res.get(i).getTimestamp().toString();
+						tblData[i][1] = Double.toString(res.get(i).getValue().asDouble());
+						tblData[i][2] = Integer.toString(res.get(i).getFlag().getCode());
+					}
+					table = new JTable(tblData, columnNames);
+					content = new JScrollPane(table);
+					setContentPane(content);
+					invalidate();
+					validate();
+				}
+			}
+		}
+	}
 
-    public static void main(String[] args) {
-        JFrame window = new SlotsDbVisualizer();
-        window.setVisible(true);
-    }
+	public static void main(String[] args) {
+		JFrame window = new SlotsDbVisualizer();
+		window.setVisible(true);
+	}
 }

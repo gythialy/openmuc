@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="org.openmuc.framework.driver.iec62056p21">
-    <implementation class="org.openmuc.framework.driver.iec62056p21.Iec62056Driver"/>
-    <service>
-        <provide interface="org.openmuc.framework.driver.spi.DriverService"/>
-    </service>
+  <implementation class="org.openmuc.framework.driver.iec62056p21.Iec62056Driver" />
+  <service>
+    <provide interface="org.openmuc.framework.driver.spi.DriverService" />
+  </service>
 </component>

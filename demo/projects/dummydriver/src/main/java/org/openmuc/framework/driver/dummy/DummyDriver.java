@@ -1,24 +1,11 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
- *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
  *
- * OpenMUC is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenMUC is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ * You are free to use code of this sample file in any
+ * way you like and without any restrictions.
  *
  */
-
 package org.openmuc.framework.driver.dummy;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
@@ -46,7 +33,7 @@ public final class DummyDriver implements DriverService {
 			"N.A.",
 			// channel address
 			"dummy/channel/address/[a-z A-Z]",
-			// device scan parameters
+			// device scan settings
 			"N.A.");
 
 	private volatile boolean scanRunning = false;

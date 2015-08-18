@@ -22,5 +22,5 @@
 package org.openmuc.framework.core.datamanager;
 
 public enum DeviceTaskType {
-    CONNECT, DISCONNECT, SAMPLE, READ, WRITE, START_LISTENING_FOR;
+	CONNECT, DISCONNECT, SAMPLE, READ, WRITE, START_LISTENING_FOR;
 }

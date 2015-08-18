@@ -20,318 +20,352 @@
  */
 package org.openmuc.framework.lib.json;
 
-import com.google.gson.*;
-import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.DeviceState;
-import org.openmuc.framework.lib.json.exceptions.MissingJsonObjectException;
-import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException;
-import org.openmuc.framework.lib.json.restObjects.*;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DriverConfig;
+import org.openmuc.framework.config.IdCollisionException;
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.ByteValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.lib.json.exceptions.MissingJsonObjectException;
+import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException;
+import org.openmuc.framework.lib.json.restObjects.RestChannel;
+import org.openmuc.framework.lib.json.restObjects.RestChannelConfig;
+import org.openmuc.framework.lib.json.restObjects.RestChannelConfigMapper;
+import org.openmuc.framework.lib.json.restObjects.RestDeviceConfig;
+import org.openmuc.framework.lib.json.restObjects.RestDeviceConfigMapper;
+import org.openmuc.framework.lib.json.restObjects.RestDriverConfig;
+import org.openmuc.framework.lib.json.restObjects.RestDriverConfigMapper;
+import org.openmuc.framework.lib.json.restObjects.RestRecord;
+import org.openmuc.framework.lib.json.restObjects.RestValue;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
 public class FromJson {
 
-    private final Gson gson;
-    private final JsonObject jsonObject;
+	private final Gson gson;
+	private final JsonObject jsonObject;
 
-    public FromJson(String jsonString) {
+	public FromJson(String jsonString) {
 
-        gson = new Gson();
-        jsonObject = gson.fromJson(jsonString, JsonObject.class);
-    }
+		gson = new Gson();
+		jsonObject = gson.fromJson(jsonString, JsonObject.class);
+	}
 
-    public Gson getGson() {
+	public Gson getGson() {
 
-        return gson;
-    }
+		return gson;
+	}
 
-    public JsonObject getJsonObject() {
+	public JsonObject getJsonObject() {
 
-        return jsonObject;
-    }
+		return jsonObject;
+	}
 
-    public Record getRecord(ValueType valueType) throws ClassCastException {
+	public Record getRecord(ValueType valueType) throws ClassCastException {
 
-        Record record = null;
-        JsonElement jse = jsonObject.get(Const.RECORD);
+		Record record = null;
+		JsonElement jse = jsonObject.get(Const.RECORD);
 
-        if (!jse.isJsonNull()) {
-            record = getRecord(gson.fromJson(jse, RestRecord.class), valueType);
-        }
-        return record;
-    }
+		if (!jse.isJsonNull()) {
+			record = getRecord(gson.fromJson(jse, RestRecord.class), valueType);
+		}
+		return record;
+	}
 
-    public ArrayList<Record> getRecordArrayList(ValueType valueType) throws ClassCastException {
+	public ArrayList<Record> getRecordArrayList(ValueType valueType) throws ClassCastException {
 
-        ArrayList<Record> recordList = new ArrayList<Record>();
+		ArrayList<Record> recordList = new ArrayList<Record>();
 
-        JsonElement jse = jsonObject.get(Const.RECORDS);
-        if (jse != null && jse.isJsonArray()) {
-            JsonArray jsa = jse.getAsJsonArray();
+		JsonElement jse = jsonObject.get(Const.RECORDS);
+		if (jse != null && jse.isJsonArray()) {
+			JsonArray jsa = jse.getAsJsonArray();
 
-            Iterator<JsonElement> iteratorJsonArray = jsa.iterator();
-            while (iteratorJsonArray.hasNext()) {
-                recordList.add(getRecord(valueType));
-            }
-        }
-        if (recordList.size() == 0) {
-            recordList = null;
-        }
-        return recordList;
-    }
+			Iterator<JsonElement> iteratorJsonArray = jsa.iterator();
+			while (iteratorJsonArray.hasNext()) {
+				recordList.add(getRecord(valueType));
+			}
+		}
+		if (recordList.size() == 0) {
+			recordList = null;
+		}
+		return recordList;
+	}
 
-    public Value getValue(ValueType valueType) throws ClassCastException {
+	public Value getValue(ValueType valueType) throws ClassCastException {
 
-        Value value = null;
-        JsonElement jse = jsonObject.get(Const.RECORD);
+		Value value = null;
+		JsonElement jse = jsonObject.get(Const.RECORD);
 
-        if (!jse.isJsonNull()) {
-            Record record = getRecord(valueType);
-            if (record != null) {
-                value = record.getValue();
-            }
-        }
-        return value;
-    }
+		if (!jse.isJsonNull()) {
+			Record record = getRecord(valueType);
+			if (record != null) {
+				value = record.getValue();
+			}
+		}
+		return value;
+	}
 
-    public boolean isRunning() {
+	public boolean isRunning() {
 
-        return jsonObject.get(Const.RUNNING).getAsBoolean();
-    }
+		return jsonObject.get(Const.RUNNING).getAsBoolean();
+	}
 
-    public DeviceState getDeviceState() {
+	public DeviceState getDeviceState() {
 
-        DeviceState ret = null;
-        JsonElement jse = jsonObject.get(Const.STATE);
+		DeviceState ret = null;
+		JsonElement jse = jsonObject.get(Const.STATE);
 
-        if (!jse.isJsonNull()) {
-            ret = gson.fromJson(jse, DeviceState.class);
-        }
-        return ret;
-    }
+		if (!jse.isJsonNull()) {
+			ret = gson.fromJson(jse, DeviceState.class);
+		}
+		return ret;
+	}
 
-    public void setChannelConfig(ChannelConfig channelConfig, String id) throws JsonSyntaxException, IdCollisionException,
-            RestConfigIsNotCorrectException, MissingJsonObjectException {
+	public void setChannelConfig(ChannelConfig channelConfig, String id) throws JsonSyntaxException,
+			IdCollisionException, RestConfigIsNotCorrectException, MissingJsonObjectException {
 
-        JsonElement jse = jsonObject.get(Const.CONFIGS);
+		JsonElement jse = jsonObject.get(Const.CONFIGS);
 
-        if (!jse.isJsonNull()) {
-            RestChannelConfigMapper.setChannelConfig(channelConfig, gson.fromJson(jse, RestChannelConfig.class), id);
-        } else {
-            throw new MissingJsonObjectException();
-        }
-    }
+		if (!jse.isJsonNull()) {
+			RestChannelConfigMapper.setChannelConfig(channelConfig, gson.fromJson(jse, RestChannelConfig.class), id);
+		}
+		else {
+			throw new MissingJsonObjectException();
+		}
+	}
 
-    public void setDeviceConfig(DeviceConfig deviceConfig, String id) throws JsonSyntaxException, IdCollisionException,
-            RestConfigIsNotCorrectException, MissingJsonObjectException {
+	public void setDeviceConfig(DeviceConfig deviceConfig, String id) throws JsonSyntaxException, IdCollisionException,
+			RestConfigIsNotCorrectException, MissingJsonObjectException {
 
-        JsonElement jse = jsonObject.get(Const.CONFIGS);
+		JsonElement jse = jsonObject.get(Const.CONFIGS);
 
-        if (!jse.isJsonNull()) {
-            RestDeviceConfigMapper.setDeviceConfig(deviceConfig, gson.fromJson(jse, RestDeviceConfig.class), id);
-        } else {
-            throw new MissingJsonObjectException();
-        }
-    }
+		if (!jse.isJsonNull()) {
+			RestDeviceConfigMapper.setDeviceConfig(deviceConfig, gson.fromJson(jse, RestDeviceConfig.class), id);
+		}
+		else {
+			throw new MissingJsonObjectException();
+		}
+	}
 
-    public void setDriverConfig(DriverConfig driverConfig, String id) throws JsonSyntaxException, IdCollisionException,
-            RestConfigIsNotCorrectException, MissingJsonObjectException {
+	public void setDriverConfig(DriverConfig driverConfig, String id) throws JsonSyntaxException, IdCollisionException,
+			RestConfigIsNotCorrectException, MissingJsonObjectException {
 
-        JsonElement jse = jsonObject.get(Const.CONFIGS);
+		JsonElement jse = jsonObject.get(Const.CONFIGS);
 
-        if (!jse.isJsonNull()) {
-            RestDriverConfigMapper.setDriverConfig(driverConfig, gson.fromJson(jse, RestDriverConfig.class), id);
-        } else {
-            throw new MissingJsonObjectException();
-        }
-    }
+		if (!jse.isJsonNull()) {
+			RestDriverConfigMapper.setDriverConfig(driverConfig, gson.fromJson(jse, RestDriverConfig.class), id);
+		}
+		else {
+			throw new MissingJsonObjectException();
+		}
+	}
 
-    public ArrayList<String> getStringArrayList(String listName) {
+	public ArrayList<String> getStringArrayList(String listName) {
 
-        ArrayList<String> resultList = new ArrayList<String>();
+		ArrayList<String> resultList = new ArrayList<String>();
 
-        JsonElement jse = jsonObject.get(listName);
-        if (jse != null && jse.isJsonArray()) {
-            JsonArray jsa = jse.getAsJsonArray();
+		JsonElement jse = jsonObject.get(listName);
+		if (jse != null && jse.isJsonArray()) {
+			JsonArray jsa = jse.getAsJsonArray();
 
-            Iterator<JsonElement> iteratorJsonArray = jsa.iterator();
-            while (iteratorJsonArray.hasNext()) {
-                resultList.add(iteratorJsonArray.next().toString());
-            }
-        }
-        if (resultList.size() == 0) {
-            resultList = null;
-        }
-        return resultList;
-    }
+			Iterator<JsonElement> iteratorJsonArray = jsa.iterator();
+			while (iteratorJsonArray.hasNext()) {
+				resultList.add(iteratorJsonArray.next().toString());
+			}
+		}
+		if (resultList.size() == 0) {
+			resultList = null;
+		}
+		return resultList;
+	}
 
-    public String[] getStringArray(String listName) {
+	public String[] getStringArray(String listName) {
 
-        String stringArray[] = null;
+		String stringArray[] = null;
 
-        JsonElement jse = jsonObject.get(listName);
-        if (!jse.isJsonNull() && jse.isJsonArray()) {
-            stringArray = gson.fromJson(jse, String[].class);
-        }
-        return stringArray;
-    }
+		JsonElement jse = jsonObject.get(listName);
+		if (!jse.isJsonNull() && jse.isJsonArray()) {
+			stringArray = gson.fromJson(jse, String[].class);
+		}
+		return stringArray;
+	}
 
-    public ArrayList<RestChannel> getRestChannelArrayList() throws ClassCastException {
+	public ArrayList<RestChannel> getRestChannelArrayList() throws ClassCastException {
 
-        ArrayList<RestChannel> recordList = new ArrayList<RestChannel>();
-        JsonElement jse = jsonObject.get("records");
-        JsonArray jsa;
+		ArrayList<RestChannel> recordList = new ArrayList<RestChannel>();
+		JsonElement jse = jsonObject.get("records");
+		JsonArray jsa;
 
-        if (!jse.isJsonNull() && jse.isJsonArray()) {
+		if (!jse.isJsonNull() && jse.isJsonArray()) {
 
-            jsa = jse.getAsJsonArray();
-            Iterator<JsonElement> jseIterator = jsa.iterator();
+			jsa = jse.getAsJsonArray();
+			Iterator<JsonElement> jseIterator = jsa.iterator();
 
-            while (jseIterator.hasNext()) {
-                RestChannel rc = new RestChannel();
-                JsonObject jsoIterated = jseIterator.next().getAsJsonObject();
-                rc.setId(jsoIterated.get(Const.ID).getAsString());
-                rc.setType(gson.fromJson(jsoIterated.get(Const.TYPE), ValueType.class)); // TODO: need valueType in json
-                // or something else
-                // otherwise null pointer
-                // exception
-                rc.setRecord(getRecord(jsoIterated, rc.getType()));
+			while (jseIterator.hasNext()) {
+				RestChannel rc = new RestChannel();
+				JsonObject jsoIterated = jseIterator.next().getAsJsonObject();
+				rc.setId(jsoIterated.get(Const.ID).getAsString());
+				rc.setType(gson.fromJson(jsoIterated.get(Const.TYPE), ValueType.class)); // TODO: need valueType in json
+																							// or something else
+																							// otherwise null pointer
+																							// exception
+				rc.setRecord(getRecord(jsoIterated, rc.getType()));
 
-                recordList.add(rc);
-            }
-        }
-        if (recordList.size() == 0) {
-            return null;
-        }
-        return recordList;
-    }
+				recordList.add(rc);
+			}
+		}
+		if (recordList.size() == 0) {
+			return null;
+		}
+		return recordList;
+	}
 
-    public List<DeviceScanInfo> getDeviceScanInfoList() {
+	public List<DeviceScanInfo> getDeviceScanInfoList() {
 
-        List<DeviceScanInfo> returnValue = new ArrayList<DeviceScanInfo>();
-        JsonElement jse = jsonObject.get(Const.CHANNELS); // TODO: another name?
-        JsonArray jsa;
+		List<DeviceScanInfo> returnValue = new ArrayList<DeviceScanInfo>();
+		JsonElement jse = jsonObject.get(Const.CHANNELS); // TODO: another name?
+		JsonArray jsa;
 
-        if (jse.isJsonArray()) {
-            jsa = jse.getAsJsonArray();
-            Iterator<JsonElement> jseIterator = jsa.iterator();
-            while (jseIterator.hasNext()) {
+		if (jse.isJsonArray()) {
+			jsa = jse.getAsJsonArray();
+			Iterator<JsonElement> jseIterator = jsa.iterator();
+			while (jseIterator.hasNext()) {
 
-                JsonObject jso = jseIterator.next().getAsJsonObject();
-                // String id = jso.get(Const.ID).getAsString();
-                String deviceAddress = jso.get(Const.DEVICEADDRESS).getAsString();
-                String settings = jso.get(Const.SETTINGS).getAsString();
-                String description = jso.get(Const.DESCRIPTION).getAsString();
-                returnValue.add(new DeviceScanInfo(deviceAddress, settings, description));
-            }
-        } else {
-            returnValue = null;
-        }
-        return returnValue;
-    }
+				JsonObject jso = jseIterator.next().getAsJsonObject();
+				// String id = jso.get(Const.ID).getAsString();
+				String deviceAddress = jso.get(Const.DEVICEADDRESS).getAsString();
+				String settings = jso.get(Const.SETTINGS).getAsString();
+				String description = jso.get(Const.DESCRIPTION).getAsString();
+				returnValue.add(new DeviceScanInfo(deviceAddress, settings, description));
+			}
+		}
+		else {
+			returnValue = null;
+		}
+		return returnValue;
+	}
 
-    public List<ChannelScanInfo> getChannelScanInfoList() {
+	public List<ChannelScanInfo> getChannelScanInfoList() {
 
-        List<ChannelScanInfo> returnValue = new ArrayList<ChannelScanInfo>();
-        JsonElement jse = jsonObject.get(Const.CHANNELS); // TODO: another name?
-        JsonArray jsa;
+		List<ChannelScanInfo> returnValue = new ArrayList<ChannelScanInfo>();
+		JsonElement jse = jsonObject.get(Const.CHANNELS); // TODO: another name?
+		JsonArray jsa;
 
-        if (jse.isJsonArray()) {
-            jsa = jse.getAsJsonArray();
-            Iterator<JsonElement> jseIterator = jsa.iterator();
-            while (jseIterator.hasNext()) {
+		if (jse.isJsonArray()) {
+			jsa = jse.getAsJsonArray();
+			Iterator<JsonElement> jseIterator = jsa.iterator();
+			while (jseIterator.hasNext()) {
 
-                JsonObject jso = jseIterator.next().getAsJsonObject();
-                String channelAddress = jso.get(Const.CHANNELADDRESS).getAsString();
-                ValueType valueType = ValueType.valueOf(jso.get(Const.VALUETYPE).getAsString());
-                int valueTypeLength = jso.get(Const.VALUETYPELENGTH).getAsInt();
-                String description = jso.get(Const.DESCRIPTION).getAsString();
-                returnValue.add(new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength));
-            }
-        } else {
-            returnValue = null;
-        }
-        return returnValue;
-    }
+				JsonObject jso = jseIterator.next().getAsJsonObject();
+				String channelAddress = jso.get(Const.CHANNELADDRESS).getAsString();
+				ValueType valueType = ValueType.valueOf(jso.get(Const.VALUETYPE).getAsString());
+				int valueTypeLength = jso.get(Const.VALUETYPELENGTH).getAsInt();
+				String description = jso.get(Const.DESCRIPTION).getAsString();
+				returnValue.add(new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength));
+			}
+		}
+		else {
+			returnValue = null;
+		}
+		return returnValue;
+	}
 
-    private Record getRecord(JsonObject jso, ValueType valueType) throws ClassCastException {
+	private Record getRecord(JsonObject jso, ValueType valueType) throws ClassCastException {
 
-        Record record = null;
-        JsonElement jse = jso.get(Const.RECORD);
+		Record record = null;
+		JsonElement jse = jso.get(Const.RECORD);
 
-        if (jse != null && !jse.isJsonNull()) {
-            record = getRecord(gson.fromJson(jse, RestRecord.class), valueType);
-        }
-        return record;
-    }
+		if (jse != null && !jse.isJsonNull()) {
+			record = getRecord(gson.fromJson(jse, RestRecord.class), valueType);
+		}
+		return record;
+	}
 
-    private Record getRecord(RestRecord rrc, ValueType type) throws ClassCastException {
+	private Record getRecord(RestRecord rrc, ValueType type) throws ClassCastException {
 
-        Object value = rrc.getValue();
-        Value retValue = null;
-        if (value != null) {
-            retValue = getValue(type, value);
-        }
-        return new Record(retValue, rrc.getTimestamp(), rrc.getFlag());
-    }
+		Object value = rrc.getValue();
+		Value retValue = null;
+		if (value != null) {
+			retValue = getValue(type, value);
+		}
+		return new Record(retValue, rrc.getTimestamp(), rrc.getFlag());
+	}
 
-    private Value getValue(ValueType type, Object value) throws ClassCastException {
-        // TODO: check all value types, if it is really a float, double, ...
+	private Value getValue(ValueType type, Object value) throws ClassCastException {
+		// TODO: check all value types, if it is really a float, double, ...
 
-        if (value.getClass().isInstance(new RestValue())) {
-            value = ((RestValue) value).getValue();
-        }
-        Value retValue = null;
-        switch (type) {
-            case FLOAT:
-                FloatValue fvalue = new FloatValue(((Double) value).floatValue());
-                retValue = fvalue;
-                break;
-            case DOUBLE:
-                DoubleValue dValue = new DoubleValue((Double) value);
-                retValue = dValue;
-                break;
-            case SHORT:
-                ShortValue shValue = new ShortValue(((Double) value).shortValue());
-                retValue = shValue;
-                break;
-            case INTEGER:
-                IntValue iValue = new IntValue(((Double) value).intValue());
-                retValue = iValue;
-                break;
-            case LONG:
-                LongValue lValue = new LongValue(((Double) value).longValue());
-                retValue = lValue;
-                break;
-            case BYTE:
-                ByteValue byValue = new ByteValue(((Double) value).byteValue());
-                retValue = byValue;
-                break;
-            case BOOLEAN:
-                BooleanValue boValue = new BooleanValue((Boolean) value);
-                retValue = boValue;
-                break;
-            case BYTE_ARRAY:
-                @SuppressWarnings("unchecked")
-                ArrayList<Double> arrayList = ((ArrayList<Double>) value);
-                byte[] byteArray = new byte[arrayList.size()];
-                for (int i = 0; i < arrayList.size(); ++i) {
-                    byteArray[i] = arrayList.get(i).byteValue();
-                }
-                ByteArrayValue baValue = new ByteArrayValue(byteArray);
-                retValue = baValue;
-                break;
-            case STRING:
-                StringValue stValue = new StringValue((String) value);
-                retValue = stValue;
-                break;
-            default:
-                break;
-        }
-        return retValue;
-    }
+		if (value.getClass().isInstance(new RestValue())) {
+			value = ((RestValue) value).getValue();
+		}
+		Value retValue = null;
+		switch (type) {
+		case FLOAT:
+			FloatValue fvalue = new FloatValue(((Double) value).floatValue());
+			retValue = fvalue;
+			break;
+		case DOUBLE:
+			DoubleValue dValue = new DoubleValue((Double) value);
+			retValue = dValue;
+			break;
+		case SHORT:
+			ShortValue shValue = new ShortValue(((Double) value).shortValue());
+			retValue = shValue;
+			break;
+		case INTEGER:
+			IntValue iValue = new IntValue(((Double) value).intValue());
+			retValue = iValue;
+			break;
+		case LONG:
+			LongValue lValue = new LongValue(((Double) value).longValue());
+			retValue = lValue;
+			break;
+		case BYTE:
+			ByteValue byValue = new ByteValue(((Double) value).byteValue());
+			retValue = byValue;
+			break;
+		case BOOLEAN:
+			BooleanValue boValue = new BooleanValue((Boolean) value);
+			retValue = boValue;
+			break;
+		case BYTE_ARRAY:
+			@SuppressWarnings("unchecked")
+			ArrayList<Double> arrayList = ((ArrayList<Double>) value);
+			byte[] byteArray = new byte[arrayList.size()];
+			for (int i = 0; i < arrayList.size(); ++i) {
+				byteArray[i] = arrayList.get(i).byteValue();
+			}
+			ByteArrayValue baValue = new ByteArrayValue(byteArray);
+			retValue = baValue;
+			break;
+		case STRING:
+			StringValue stValue = new StringValue((String) value);
+			retValue = stValue;
+			break;
+		default:
+			break;
+		}
+		return retValue;
+	}
 
 }

@@ -1,16 +1,16 @@
 .blockview {
-    display: block;
+	display: block;
 }
 
 .floatleft {
-    float: left;
-    margin-right: 1em;
+	float: left;
+	margin-right: 1em;
 }
 
 .floatright {
-    float: right;
+	float: right;
 }
 
 .clear {
-    clear: both;
+	clear: both;
 }

@@ -22,14 +22,14 @@ package org.openmuc.framework.lib.json.restObjects;
 
 public class RestValue {
 
-    private Object value;
+	private Object value;
 
-    public Object getValue() {
-        return value;
-    }
+	public Object getValue() {
+		return value;
+	}
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
+	public void setValue(Object value) {
+		this.value = value;
+	}
 
 }

@@ -22,14 +22,14 @@ package org.openmuc.framework.driver.aggregator.exeptions;
 
 public class RecordsWithNullAsValueException extends Exception {
 
-    private final String message;
+	private final String message;
 
-    public RecordsWithNullAsValueException(String message) {
-        this.message = message;
-    }
+	public RecordsWithNullAsValueException(String message) {
+		this.message = message;
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 }

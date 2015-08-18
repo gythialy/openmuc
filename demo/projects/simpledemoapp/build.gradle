@@ -1,0 +1,54 @@
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'osgi'
+apply plugin: 'maven'
+
+version = '0.15.2'
+group = 'org.openmuc.framework'
+def bundleSymbolicName = 'org.openmuc.framework.app.simpledemo'
+def bundleName = 'OpenMUC App - Simple Demo'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+  mavenCentral()
+  flatDir {
+    dirs '../../../build/libs/'
+  }
+}
+
+dependencies {
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+  compile group: 'org.osgi', name: 'org.osgi.core', version: '4.3.1'
+  compile group: 'org.osgi', name: 'org.osgi.compendium', version: '4.3.1'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+  compile group: 'org.openmuc.framework', name: 'openmuc-core-api', version: '0.15.2'
+}
+
+jar {
+  manifest { 
+    version = project.version.replace('-','.');
+    symbolicName = bundleSymbolicName
+    name = bundleName
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }    
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      repository(url: project.properties.repository) {
+	authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
+      }
+      snapshotRepository(url: project.properties.snapshotRepository) {
+	authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
+      }
+    }
+  }
+}
+
+eclipse.pathVariables([GRADLE_USER_HOME:file(gradle.gradleUserHomeDir)])
+tasks.eclipse.dependsOn(cleanEclipse)

@@ -23,22 +23,22 @@ package org.openmuc.framework.driver.spi;
 
 public class ConnectionException extends Exception {
 
-    private static final long serialVersionUID = 4361169138720682346L;
+	private static final long serialVersionUID = 4361169138720682346L;
 
-    public ConnectionException() {
-        super();
-    }
+	public ConnectionException() {
+		super();
+	}
 
-    public ConnectionException(String s) {
-        super(s);
-    }
+	public ConnectionException(String s) {
+		super(s);
+	}
 
-    public ConnectionException(Throwable cause) {
-        super(cause);
-    }
+	public ConnectionException(Throwable cause) {
+		super(cause);
+	}
 
-    public ConnectionException(String s, Throwable cause) {
-        super(s, cause);
-    }
+	public ConnectionException(String s, Throwable cause) {
+		super(s, cause);
+	}
 
 }

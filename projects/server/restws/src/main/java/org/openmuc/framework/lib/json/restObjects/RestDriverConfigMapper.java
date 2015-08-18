@@ -26,33 +26,35 @@ import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException
 
 public class RestDriverConfigMapper {
 
-    public static RestDriverConfig getRestDriverConfig(DriverConfig dc) {
+	public static RestDriverConfig getRestDriverConfig(DriverConfig dc) {
 
-        RestDriverConfig rdc = new RestDriverConfig();
-        rdc.setId(dc.getId());
-        rdc.setConnectRetryInterval(dc.getConnectRetryInterval());
-        rdc.setDisabled(dc.isDisabled());
-        rdc.setSamplingTimeout(dc.getSamplingTimeout());
-        return rdc;
-    }
+		RestDriverConfig rdc = new RestDriverConfig();
+		rdc.setId(dc.getId());
+		rdc.setConnectRetryInterval(dc.getConnectRetryInterval());
+		rdc.setDisabled(dc.isDisabled());
+		rdc.setSamplingTimeout(dc.getSamplingTimeout());
+		return rdc;
+	}
 
-    public static void setDriverConfig(DriverConfig dc, RestDriverConfig rdc, String idFromUrl) throws IdCollisionException,
-            RestConfigIsNotCorrectException {
+	public static void setDriverConfig(DriverConfig dc, RestDriverConfig rdc, String idFromUrl)
+			throws IdCollisionException, RestConfigIsNotCorrectException {
 
-        if (dc == null) {
-            throw new RestConfigIsNotCorrectException("DriverConfig is null!");
-        } else {
-            if (rdc != null) {
-                if (rdc.getId() != null && !rdc.getId().equals("") && !idFromUrl.equals(rdc.getId())) {
-                    dc.setId(rdc.getId());
-                }
-                dc.setConnectRetryInterval(rdc.getConnectRetryInterval());
-                dc.setDisabled(rdc.isDisabled());
-                dc.setSamplingTimeout(rdc.getSamplingTimeout());
-            } else {
-                throw new RestConfigIsNotCorrectException();
-            }
-        }
+		if (dc == null) {
+			throw new RestConfigIsNotCorrectException("DriverConfig is null!");
+		}
+		else {
+			if (rdc != null) {
+				if (rdc.getId() != null && !rdc.getId().equals("") && !idFromUrl.equals(rdc.getId())) {
+					dc.setId(rdc.getId());
+				}
+				dc.setConnectRetryInterval(rdc.getConnectRetryInterval());
+				dc.setDisabled(rdc.isDisabled());
+				dc.setSamplingTimeout(rdc.getSamplingTimeout());
+			}
+			else {
+				throw new RestConfigIsNotCorrectException();
+			}
+		}
 
-    }
+	}
 }

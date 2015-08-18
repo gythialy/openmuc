@@ -4,10 +4,14 @@ repositories {
 }
 
 configurations.create('osgibundles')
+configurations.create('osgimain')
 configurations.osgibundles.transitive = false;
+configurations.osgimain.transitive = false;
 
 dependencies {
-  def openmucversion = '0.15.1'
+  def openmucversion = '0.15.2'
+
+  osgimain group: 'org.apache.felix', name: 'org.apache.felix.main', version: '5.0.1'
 
   osgibundles files('../../build/libs/openmuc-core-api-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-core-spi-' + openmucversion + '.jar')
@@ -26,14 +30,9 @@ dependencies {
   osgibundles files('../../build/libs/openmuc-webui-mediaviewer-' + openmucversion + '.jar')
   osgibundles files('../../build/libs/openmuc-server-restws-' + openmucversion + '.jar')
 
-  osgibundles files('../projects/simpleappdemo/build/libs/openmuc-demo-simpleapp-' + openmucversion + '.jar')
+  osgibundles files('../projects/simpledemoapp/build/libs/openmuc-app-simpledemo-' + openmucversion + '.jar')
   osgibundles files('../projects/dummydriver/build/libs/openmuc-driver-dummy-' + openmucversion + '.jar')
   
-  //--------------------------------------------------------------------------------------------------
-  // Apache commons codec, is needed by openmuc-driver-rest
-  //--------------------------------------------------------------------------------------------------
-  osgibundles group: 'commons-codec', name: 'commons-codec', version: '1.8'
-
   //--------------------------------------------------------------------------------------------------
   // The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)
   //--------------------------------------------------------------------------------------------------
@@ -62,25 +61,31 @@ dependencies {
   // Apache Felix Service Component Runtime that implements the OSGi Declarative Services Specification
   // the OpenMUC core bundles use declarative services and thus depend on them
   //--------------------------------------------------------------------------------------------------
-  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '1.8.2'
+  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '2.0.0'
 
   //--------------------------------------------------------------------------------------------------
   // An implementation of the OSGi HTTP Service Specification, needed by the WebUI bundles
   //--------------------------------------------------------------------------------------------------
-  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.0'
-  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.api', version: '2.3.2'
+  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
+  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.api', version: '3.0.0'
   osgibundles group: 'org.apache.felix', name: 'org.apache.felix.http.jetty', version: '3.0.2'
 
   //--------------------------------------------------------------------------------------------------
   // Implementations of the OSGi Event Admin, Configuration Admin and MetaType services, needed by jetty
   //--------------------------------------------------------------------------------------------------
-  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.eventadmin', version: '1.4.2'
-  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.configadmin', version: '1.8.6'
-  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.metatype', version: '1.0.12'
+  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.eventadmin', version: '1.4.4'
+  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.configadmin', version: '1.8.8'
+  osgibundles group: 'org.apache.felix', name: 'org.apache.felix.metatype', version: '1.1.0'
 
 }
 
 task syncBundles(type: Sync) {
   into rootDir.getPath() + "/bundle"
   from configurations.osgibundles;
+}
+
+task copyFelixMain(type: Copy) {
+  from configurations.osgimain;
+  into rootDir.getPath() + "/felix"
+  rename (/org.apache.felix.main-.*jar/, 'felix.jar')
 }

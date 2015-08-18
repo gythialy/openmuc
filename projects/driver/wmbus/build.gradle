@@ -1,29 +1,30 @@
+
 configurations.create('embed')
 
 def jmbusversion = "2.1.0"
 
 dependencies {
 
-    compile group: 'org.openmuc', name: 'jmbus', version: jmbusversion
-    embed group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+  compile group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+  embed   group: 'org.openmuc', name: 'jmbus', version: jmbusversion
 //  compile files('dependencies/jmbus-' + jmbusversion + '.jar')
 //  embed   files('dependencies/jmbus-' + jmbusversion + '.jar')
 
-    compile project(':openmuc-core-spi')
+  compile project(':openmuc-core-spi')
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - wM-Bus"
-        instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar'
-        instruction 'Import-Package', '!org.openmuc.jmbus*,gnu.io,javax.crypto,javax.crypto.spec,*'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - wM-Bus"
+    instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar'
+    instruction 'Import-Package', '!org.openmuc.jmbus*,gnu.io,javax.crypto,javax.crypto.spec,*'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }

@@ -1,26 +1,30 @@
 configurations.create('embed')
 
+def commonscodecversion = "1.10"
+def gsonversion = "2.3.1"
+
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.8'
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
-    embed group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+  compile project(':openmuc-core-spi')
+  compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
+  compile group: 'commons-codec', name: 'commons-codec', version: commonscodecversion
+  embed group: 'commons-codec', name: 'commons-codec', version: commonscodecversion
+  compile group: 'com.google.code.gson', name: 'gson', version: gsonversion
+  embed group: 'com.google.code.gson', name: 'gson', version: gsonversion
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - Rest"
-        instruction 'Import-Package', '!com.google.gson.*,*'
-        instruction 'Bundle-Classpath', '.,lib/gson-2.3.1.jar'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - Rest"
+    instruction 'Import-Package', '!org.apache.commons.codec*,!com.google.gson.*,*'
+    instruction 'Bundle-Classpath', '.,lib/gson-' + gsonversion + '.jar,lib/commons-codec-' + commonscodecversion + '.jar'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }
 

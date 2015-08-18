@@ -3,25 +3,25 @@ configurations.create('embed')
 def jsmlversion = "1.0.17"
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile files('../../../dependencies/rxtxcomm_api-2.2pre2.jar')
-
-    compile group: 'org.openmuc', name: 'jsml', version: jsmlversion
-    embed group: 'org.openmuc', name: 'jsml', version: jsmlversion
+  compile project(':openmuc-core-spi')
+  compile files('../../../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar')
+  
+  compile group: 'org.openmuc', name: 'jsml', version: jsmlversion
+  embed group: 'org.openmuc', name: 'jsml', version: jsmlversion
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - eHZ"
-        instruction 'Bundle-ClassPath', '.,lib/jsml-' + jsmlversion + '.jar'
-        instruction 'Import-Package', '!org.openmuc.jsml*,*'
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - eHZ"
+    instruction 'Bundle-ClassPath', '.,lib/jsml-' + jsmlversion + '.jar'
+    instruction 'Import-Package', '!org.openmuc.jsml*,*'
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }
 
 jar {
-    into('lib') {
-        from configurations.embed
-    }
+  into('lib') {
+    from configurations.embed
+  }
 }

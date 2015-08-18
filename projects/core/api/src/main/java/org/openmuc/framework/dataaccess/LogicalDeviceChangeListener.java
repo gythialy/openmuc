@@ -23,10 +23,10 @@ package org.openmuc.framework.dataaccess;
 
 public interface LogicalDeviceChangeListener {
 
-    public void logicalDeviceModified(LogicalDevice logicalDevice);
+	public void logicalDeviceModified(LogicalDevice logicalDevice);
 
-    public void logicalDeviceDeleted(LogicalDevice logicalDevice);
+	public void logicalDeviceDeleted(LogicalDevice logicalDevice);
 
-    public void logicalDeviceAdded(LogicalDevice logicalDevice);
+	public void logicalDeviceAdded(LogicalDevice logicalDevice);
 
 }

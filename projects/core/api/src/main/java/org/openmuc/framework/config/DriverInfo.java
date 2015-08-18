@@ -22,51 +22,51 @@ package org.openmuc.framework.config;
 
 public class DriverInfo {
 
-    private final String id;
-    private final String description;
-    private final String deviceAddressSyntax;
-    private final String parametersSyntax;
-    private final String channelAddressSyntax;
-    private final String deviceScanParametersSyntax;
+	private final String id;
+	private final String description;
+	private final String deviceAddressSyntax;
+	private final String settingsSyntax;
+	private final String channelAddressSyntax;
+	private final String deviceScanSettingsSyntax;
 
-    public DriverInfo(String id, String description, String deviceAddressSyntax, String parametersSyntax, String channelAddressSyntax,
-                      String deviceScanParametersSyntax) {
-        this.id = id;
-        this.description = description;
-        this.deviceAddressSyntax = deviceAddressSyntax;
-        this.parametersSyntax = parametersSyntax;
-        this.channelAddressSyntax = channelAddressSyntax;
-        this.deviceScanParametersSyntax = deviceScanParametersSyntax;
-    }
+	public DriverInfo(String id, String description, String deviceAddressSyntax, String settingsSyntax,
+			String channelAddressSyntax, String deviceScanSettingsSyntax) {
+		this.id = id;
+		this.description = description;
+		this.deviceAddressSyntax = deviceAddressSyntax;
+		this.settingsSyntax = settingsSyntax;
+		this.channelAddressSyntax = channelAddressSyntax;
+		this.deviceScanSettingsSyntax = deviceScanSettingsSyntax;
+	}
 
-    /**
-     * Returns the ID of the driver. The ID may only contain ASCII letters, digits, hyphens and underscores. By
-     * convention the ID should be meaningful and all lower case letters (e.g. "mbus", "modbus").
-     *
-     * @return the unique ID of the driver.
-     */
-    public String getId() {
-        return id;
-    }
+	/**
+	 * Returns the ID of the driver. The ID may only contain ASCII letters, digits, hyphens and underscores. By
+	 * convention the ID should be meaningful and all lower case letters (e.g. "mbus", "modbus").
+	 * 
+	 * @return the unique ID of the driver.
+	 */
+	public String getId() {
+		return id;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public String getDeviceAddressSyntax() {
-        return deviceAddressSyntax;
-    }
+	public String getDeviceAddressSyntax() {
+		return deviceAddressSyntax;
+	}
 
-    public String getParametersSyntax() {
-        return parametersSyntax;
-    }
+	public String getSettingsSyntax() {
+		return settingsSyntax;
+	}
 
-    public String getChannelAddressSyntax() {
-        return channelAddressSyntax;
-    }
+	public String getChannelAddressSyntax() {
+		return channelAddressSyntax;
+	}
 
-    public String getDeviceScanParametersSyntax() {
-        return deviceScanParametersSyntax;
-    }
+	public String getDeviceScanSettingsSyntax() {
+		return deviceScanSettingsSyntax;
+	}
 
 }

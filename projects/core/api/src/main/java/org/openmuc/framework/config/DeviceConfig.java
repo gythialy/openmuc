@@ -25,47 +25,47 @@ import java.util.Collection;
 
 public interface DeviceConfig {
 
-    public static final String DESCRIPTION_DEFAULT = "";
-    public static final String DEVICE_ADDRESS_DEFAULT = "";
-    public static final String SETTINGS_DEFAULT = "";
-    public static final Boolean DISABLED_DEFAULT = false;
+	public static final String DESCRIPTION_DEFAULT = "";
+	public static final String DEVICE_ADDRESS_DEFAULT = "";
+	public static final String SETTINGS_DEFAULT = "";
+	public static final Boolean DISABLED_DEFAULT = false;
 
-    public String getId();
+	public String getId();
 
-    public void setId(String id) throws IdCollisionException;
+	public void setId(String id) throws IdCollisionException;
 
-    public String getDescription();
+	public String getDescription();
 
-    public void setDescription(String description);
+	public void setDescription(String description);
 
-    public String getDeviceAddress();
+	public String getDeviceAddress();
 
-    public void setDeviceAddress(String address);
+	public void setDeviceAddress(String address);
 
-    public String getSettings();
+	public String getSettings();
 
-    public void setSettings(String settings);
+	public void setSettings(String settings);
 
-    public Integer getSamplingTimeout();
+	public Integer getSamplingTimeout();
 
-    public void setSamplingTimeout(Integer timeout);
+	public void setSamplingTimeout(Integer timeout);
 
-    public Integer getConnectRetryInterval();
+	public Integer getConnectRetryInterval();
 
-    public void setConnectRetryInterval(Integer interval);
+	public void setConnectRetryInterval(Integer interval);
 
-    public Boolean isDisabled();
+	public Boolean isDisabled();
 
-    public void setDisabled(Boolean disabled);
+	public void setDisabled(Boolean disabled);
 
-    public ChannelConfig addChannel(String channelId) throws IdCollisionException;
+	public ChannelConfig addChannel(String channelId) throws IdCollisionException;
 
-    public ChannelConfig getChannel(String channelId);
+	public ChannelConfig getChannel(String channelId);
 
-    public Collection<ChannelConfig> getChannels();
+	public Collection<ChannelConfig> getChannels();
 
-    public void delete();
+	public void delete();
 
-    public DriverConfig getDriver();
+	public DriverConfig getDriver();
 
 }

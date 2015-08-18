@@ -23,22 +23,22 @@ package org.openmuc.framework.config;
 
 public class ConfigWriteException extends Exception {
 
-    private static final long serialVersionUID = 3650598545898228870L;
+	private static final long serialVersionUID = 3650598545898228870L;
 
-    public ConfigWriteException() {
-        super();
-    }
+	public ConfigWriteException() {
+		super();
+	}
 
-    public ConfigWriteException(String s) {
-        super(s);
-    }
+	public ConfigWriteException(String s) {
+		super(s);
+	}
 
-    public ConfigWriteException(Throwable cause) {
-        super(cause);
-    }
+	public ConfigWriteException(Throwable cause) {
+		super(cause);
+	}
 
-    public ConfigWriteException(String s, Throwable cause) {
-        super(s, cause);
-    }
+	public ConfigWriteException(String s, Throwable cause) {
+		super(s, cause);
+	}
 
 }

@@ -20,112 +20,119 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 public class ControlsServlet extends GenericServlet {
 
-    private static final long serialVersionUID = -5635380730045771853L;
-    private final static Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
+	private static final long serialVersionUID = -5635380730045771853L;
+	private final static Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
 
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+		response.setContentType("application/json");
+		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
-        if (pathAndQueryString != null) {
+		if (pathAndQueryString != null) {
 
-            String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
-            ToJson json = new ToJson();
+			String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
+			ToJson json = new ToJson();
 
-            if (pathInfo.equals("/")) {
+			if (pathInfo.equals("/")) {
 
-            } else {
-                String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
+			}
+			else {
+				String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
 
-                if (pathInfoArray.length == 1) {
+				if (pathInfoArray.length == 1) {
 
-                } else {
-                    ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                                                        "Requested rest path is not available.", " Path Info = ", request.getPathInfo());
-                }
+				}
+				else {
+					ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+							"Requested rest path is not available.", " Path Info = ", request.getPathInfo());
+				}
 
-            }
-            sendJson(json, response);
-        }
-    }
+			}
+			sendJson(json, response);
+		}
+	}
 
-    @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+		response.setContentType("application/json");
+		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
-        if (pathAndQueryString != null) {
+		if (pathAndQueryString != null) {
 
-            String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
-            new FromJson(ServletLib.getJsonText(request));
+			String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
+			new FromJson(ServletLib.getJsonText(request));
 
-            if (pathInfo.equals("/")) {
+			if (pathInfo.equals("/")) {
 
-            } else {
-                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                                                    "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
-            }
-        }
-    }
+			}
+			else {
+				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+						"Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+			}
+		}
+	}
 
-    @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+		response.setContentType("application/json");
+		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
-        if (pathAndQueryString != null) {
+		if (pathAndQueryString != null) {
 
-            String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
-            new FromJson(ServletLib.getJsonText(request));
+			String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
+			new FromJson(ServletLib.getJsonText(request));
 
-            if (pathInfo.equals("/")) {
+			if (pathInfo.equals("/")) {
 
-            } else {
-                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                                                    "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
-            }
-        }
-    }
+			}
+			else {
+				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+						"Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+			}
+		}
+	}
 
-    @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+		response.setContentType("application/json");
+		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
-        if (pathAndQueryString != null) {
+		if (pathAndQueryString != null) {
 
-            String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
+			String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
 
-            new FromJson(ServletLib.getJsonText(request));
+			new FromJson(ServletLib.getJsonText(request));
 
-            if (pathInfo.equals("/")) {
+			if (pathInfo.equals("/")) {
 
-            } else {
-                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                                                    "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
-            }
+			}
+			else {
+				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+						"Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+			}
 
-        } else {
-            ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger, "Requested rest path is not available.",
-                                                " Rest Path = ", request.getPathInfo());
-        }
-    }
+		}
+		else {
+			ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+					"Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+		}
+	}
 
 }
