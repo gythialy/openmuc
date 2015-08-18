@@ -1,0 +1,148 @@
+The WebUI uses/contains the third-party open source libraries
+listed here.  Their source code is located in
+webui/base/src/main/resources/js/libs/
+and
+webui/dataplotter/src/main/resources/js/libs/
+
+
+
+Name:      Bootstrap
+Version:   v3.3.1
+URL:       http://getbootstrap.com
+Copyright: 2011-2014 Twitter, Inc.
+License:   MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+
+
+Name:      Bootstrap
+Version:   v3.3.2
+URL:       http://getbootstrap.com
+Copyright: Copyright 2011-2015 Twitter, Inc.
+License:   MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+
+
+Name:      bootstrap-additions
+Version:   v0.2.3 - 2014-06-24
+URL:       https://github.com/mgcrea/bootstrap-additions
+Author:    Olivier Louvignes <olivier@mg-crea.com>
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+#####
+
+Name:      Font Awesome
+Version:   4.3.0
+URL:       http://fontawesome.io
+Author:    @davegandy
+License:   http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
+
+######
+
+Name:      AngularJS
+Version:   AngularJS v1.3.0
+Copyright: 2010-2014 Google, Inc. http://angularjs.org
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+Name:      angular-motion
+Version:   v0.3.4 - 2014-10-14
+URL:       https://github.com/mgcrea/angular-motion
+Author:    Olivier Louvignes <olivier@mg-crea.com>
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-animate
+Version    v1.3.0
+URL:       http://angularjs.org
+Copyright: 2010-2014 Google, Inc. http://angularjs.org
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-input-match
+Version:   v1.4.0
+URL:       https://github.com/TheSharpieOne/angular-input-match
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-route
+Version:   v1.2.28
+URL:       http://angularjs.org
+Copyright: 2010-2014 Google, Inc. http://angularjs.org
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-sanitiz
+Version:   v1.2.15
+URL:       http://angularjs.org
+Copyright: 2010-2014 Google, Inc. http://angularjs.org
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-strap
+Version:   v2.1.6 - 2015-01-11
+URL:       http://mgcrea.github.io/angular-strap
+Author:    Olivier Louvignes (olivier@mg-crea.com)
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-strap tpl
+Version:   v2.1.2 - 2014-10-19
+URL:       http://mgcrea.github.io/angular-strap
+Author:    Olivier Louvignes (olivier@mg-crea.com)
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-translate-storage-cookie
+Version:   v2.5.2 - 2014-12-10
+URL:       http://github.com/angular-translate/angular-translate
+Copyright: 2014
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      angular-translate
+Version:   v2.5.2 - 2014-12-10
+URL:       http://github.com/angular-translate/angular-translate
+Copyright: 2014
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+
+Name:      State-based routing for AngularJS
+Version:   v0.2.13
+URL:       http://angular-ui.github.com/
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+#####
+
+Name:      oclazyload - Load modules on demand (lazy load) with angularJS
+Version:   v0.6.3
+URL:       https://github.com/ocombe/ocLazyLoad
+Author:    Olivier Combe <olivier.combe@gmail.com>
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+#####
+
+Name:      jQuery JavaScript Library
+Version:   v1.11.2 - 2014-12-17T15:27Z
+URL:       http://jquery.com/
+Includes:  Sizzle.js (http://sizzlejs.com/)
+Copyright: 2005, 2014 jQuery Foundation, Inc. and other contributors
+License:   MIT License, http://www.opensource.org/licenses/MIT
+
+#####
+
+Name:      d3
+Version:   v3.3.5 - 2015-02-04
+URL:       https://github.com/mbostock/d3
+Copyright: 2010-2015, Michael Bostock
+License:   BSD
+
+
+Name:      angularjs-nvd3-directives
+Version:   v0.0.8 - 2015-02-04
+URL:       http://angularjs-nvd3-directives.github.io/angularjs-nvd3-directives
+Copyright: 2015 Christian Maurer
+License:   Apache License, v2.0, http://www.apache.org/licenses/LICENSE-2.0
+
+
+Name:      nvd3
+version:   1.7.0 - 2014-12-13
+URL:       https://github.com/liquidpele/nvd3
+Copyright: 2012, Michael Bostock 
+License:   Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0

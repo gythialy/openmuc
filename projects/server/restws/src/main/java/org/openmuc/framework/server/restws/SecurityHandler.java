@@ -20,59 +20,60 @@
  */
 package org.openmuc.framework.server.restws;
 
-import org.openmuc.framework.authentication.AuthenticationService;
-import org.osgi.framework.Bundle;
-import org.osgi.service.http.HttpContext;
+import java.io.IOException;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
-import java.net.URL;
+
+import org.openmuc.framework.authentication.AuthenticationService;
+import org.osgi.framework.Bundle;
+import org.osgi.service.http.HttpContext;
 
 public class SecurityHandler implements HttpContext {
 
-    Bundle contextBundle;
-    AuthenticationService authService;
+	Bundle contextBundle;
+	AuthenticationService authService;
 
-    public SecurityHandler(Bundle contextBundle, AuthenticationService authService) {
-        this.contextBundle = contextBundle;
-        this.authService = authService;
-    }
+	public SecurityHandler(Bundle contextBundle, AuthenticationService authService) {
+		this.contextBundle = contextBundle;
+		this.authService = authService;
+	}
 
-    @Override
-    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (request.getScheme().equals("https")) {
-            if (!authenticated(request)) {
-                response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                return false;
-            }
-        }
-        return true;
-    }
+	@Override
+	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (request.getScheme().equals("https")) {
+			if (!authenticated(request)) {
+				response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return false;
+			}
+		}
+		return true;
+	}
 
-    private boolean authenticated(HttpServletRequest request) {
-        String authzHeader = request.getHeader("Authorization");
-        if (authzHeader == null) {
-            return false;
-        }
-        String usernameAndPassword = new String(DatatypeConverter.parseBase64Binary(authzHeader.substring(6)));
+	private boolean authenticated(HttpServletRequest request) {
+		String authzHeader = request.getHeader("Authorization");
+		if (authzHeader == null) {
+			return false;
+		}
+		String usernameAndPassword = new String(DatatypeConverter.parseBase64Binary(authzHeader.substring(6)));
 
-        int userNameIndex = usernameAndPassword.indexOf(":");
-        String username = usernameAndPassword.substring(0, userNameIndex);
-        String password = usernameAndPassword.substring(userNameIndex + 1);
-        return authService.login(username, password);
-    }
+		int userNameIndex = usernameAndPassword.indexOf(":");
+		String username = usernameAndPassword.substring(0, userNameIndex);
+		String password = usernameAndPassword.substring(userNameIndex + 1);
+		return authService.login(username, password);
+	}
 
-    @Override
-    public URL getResource(String name) {
-        return contextBundle.getResource(name);
-    }
+	@Override
+	public URL getResource(String name) {
+		return contextBundle.getResource(name);
+	}
 
-    @Override
-    public String getMimeType(String name) {
-        return null;
-    }
+	@Override
+	public String getMimeType(String name) {
+		return null;
+	}
 
 }

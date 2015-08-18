@@ -21,6 +21,9 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.dataaccess.DeviceState;
 import org.openmuc.framework.driver.spi.ChannelValueContainer;
@@ -28,76 +31,74 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 public final class WriteTask extends DeviceTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(WriteTask.class);
+	private final static Logger logger = LoggerFactory.getLogger(WriteTask.class);
 
-    private final CountDownLatch writeTaskFinishedSignal;
-    List<WriteValueContainerImpl> writeValueContainers;
+	private final CountDownLatch writeTaskFinishedSignal;
+	List<WriteValueContainerImpl> writeValueContainers;
 
-    public WriteTask(DataManager dataManager, Device device, List<WriteValueContainerImpl> writeValueContainers, CountDownLatch
-            writeTaskFinishedSignal) {
-        this.dataManager = dataManager;
-        this.device = device;
-        this.writeTaskFinishedSignal = writeTaskFinishedSignal;
-        this.writeValueContainers = writeValueContainers;
-    }
+	public WriteTask(DataManager dataManager, Device device, List<WriteValueContainerImpl> writeValueContainers,
+			CountDownLatch writeTaskFinishedSignal) {
+		this.dataManager = dataManager;
+		this.device = device;
+		this.writeTaskFinishedSignal = writeTaskFinishedSignal;
+		this.writeValueContainers = writeValueContainers;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void run() {
+	@Override
+	@SuppressWarnings("unchecked")
+	public void run() {
 
-        try {
-            device.connection.write((List<ChannelValueContainer>) ((List<?>) writeValueContainers), null);
-        } catch (UnsupportedOperationException e) {
-            for (WriteValueContainerImpl valueContainer : writeValueContainers) {
-                valueContainer.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
-            }
-        } catch (ConnectionException e) {
-            // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id, e.getMessage());
-            for (WriteValueContainerImpl valueContainer : writeValueContainers) {
-                valueContainer.setFlag(Flag.CONNECTION_EXCEPTION);
-            }
-            writeTaskFinishedSignal.countDown();
-            synchronized (dataManager.disconnected) {
-                dataManager.disconnected.add(device);
-            }
-            dataManager.interrupt();
-            return;
-        } catch (Exception e) {
-            logger.warn("unexpected exception thrown by write funtion of driver ", e);
-            for (WriteValueContainerImpl valueContainer : writeValueContainers) {
-                valueContainer.setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
-            }
-        }
+		try {
+			device.connection.write((List<ChannelValueContainer>) ((List<?>) writeValueContainers), null);
+		} catch (UnsupportedOperationException e) {
+			for (WriteValueContainerImpl valueContainer : writeValueContainers) {
+				valueContainer.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
+			}
+		} catch (ConnectionException e) {
+			// Connection to device lost. Signal to device instance and end task without notifying DataManager
+			logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+					e.getMessage());
+			for (WriteValueContainerImpl valueContainer : writeValueContainers) {
+				valueContainer.setFlag(Flag.CONNECTION_EXCEPTION);
+			}
+			writeTaskFinishedSignal.countDown();
+			synchronized (dataManager.disconnected) {
+				dataManager.disconnected.add(device);
+			}
+			dataManager.interrupt();
+			return;
+		} catch (Exception e) {
+			logger.warn("unexpected exception thrown by write funtion of driver ", e);
+			for (WriteValueContainerImpl valueContainer : writeValueContainers) {
+				valueContainer.setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
+			}
+		}
 
-        writeTaskFinishedSignal.countDown();
-        synchronized (dataManager.tasksFinished) {
-            dataManager.tasksFinished.add(this);
-        }
-        dataManager.interrupt();
+		writeTaskFinishedSignal.countDown();
+		synchronized (dataManager.tasksFinished) {
+			dataManager.tasksFinished.add(this);
+		}
+		dataManager.interrupt();
 
-    }
+	}
 
-    @Override
-    public DeviceTaskType getType() {
-        return DeviceTaskType.WRITE;
-    }
+	@Override
+	public DeviceTaskType getType() {
+		return DeviceTaskType.WRITE;
+	}
 
-    @Override
-    public void setDeviceState() {
-        device.state = DeviceState.WRITING;
-    }
+	@Override
+	public void setDeviceState() {
+		device.state = DeviceState.WRITING;
+	}
 
-    public void deviceNotConnected() {
-        for (WriteValueContainerImpl valueContainer : writeValueContainers) {
-            valueContainer.setFlag(Flag.COMM_DEVICE_NOT_CONNECTED);
-        }
-        writeTaskFinishedSignal.countDown();
-    }
+	public void deviceNotConnected() {
+		for (WriteValueContainerImpl valueContainer : writeValueContainers) {
+			valueContainer.setFlag(Flag.COMM_DEVICE_NOT_CONNECTED);
+		}
+		writeTaskFinishedSignal.countDown();
+	}
 
 }

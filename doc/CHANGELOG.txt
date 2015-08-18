@@ -1,3 +1,10 @@
+v0.15.2 13-Aug-2015
+-------------------
+- added more thorough information on licenses of third-party
+  dependencies
+- minor bug fixes in aggregator and DLMS/COSEM driver
+- updated some felix OSGI framework bundles
+
 v0.15.1 22-Jul-2015
 -------------------
 - fixes bug building and running OpenMUC on Windows

@@ -1,5 +1,5 @@
-(function () {
-
-    angular.module('openmuc.users', []);
+(function(){
+		
+	angular.module('openmuc.users', []);
 
 })();

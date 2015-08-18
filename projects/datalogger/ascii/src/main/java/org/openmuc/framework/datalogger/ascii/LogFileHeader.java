@@ -20,226 +20,245 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
-import java.util.*;
-
 public class LogFileHeader {
 
-    public LogFileHeader() {
+	public LogFileHeader() {
 
-    }
+	}
 
-    /**
-     * Generate the standard IES Data Format Header and write it into the output stream 'out'.
-     *
-     * @param group
-     * @param filename
-     * @param loggingInterval
-     * @param logChannelList
-     * @return
-     */
-    public String getIESDataFormatHeaderString(LogIntervalContainerGroup group, String filename, int loggingInterval, HashMap<String,
-            LogChannel> logChannelList) {
+	/**
+	 * Generate the standard IES Data Format Header and write it into the output stream 'out'.
+	 * 
+	 * @param group
+	 * @param filename
+	 * @param loggingInterval
+	 * @param logChannelList
+	 * @return
+	 */
+	public String getIESDataFormatHeaderString(LogIntervalContainerGroup group, String filename, int loggingInterval,
+			HashMap<String, LogChannel> logChannelList) {
 
-        StringBuilder sb = new StringBuilder();
-        setHeaderTop(sb, loggingInterval, filename);
+		StringBuilder sb = new StringBuilder();
+		setHeaderTop(sb, loggingInterval, filename);
 
-        // write channel specific header informations
-        int colNumber = 4;
-        for (LogRecordContainer container : group.getList()) {
+		// write channel specific header informations
+		int colNumber = 4;
+		for (LogRecordContainer container : group.getList()) {
 
-            LogChannel logChannel = logChannelList.get(container.getChannelId());
-            appendChannelSpecificComment(sb, logChannel, colNumber);
-            ++colNumber;
-        }
-        List<LogRecordContainer> containers = group.getList();
-        appendColumnHeaderTimestamp(sb);
+			LogChannel logChannel = logChannelList.get(container.getChannelId());
+			appendChannelSpecificComment(sb, logChannel, colNumber);
+			++colNumber;
+		}
+		List<LogRecordContainer> containers = group.getList();
+		appendColumnHeaderTimestamp(sb);
 
-        Iterator<LogRecordContainer> iterator = containers.iterator();
+		Iterator<LogRecordContainer> iterator = containers.iterator();
 
-        while (iterator.hasNext()) {
-            sb.append(iterator.next().getChannelId());
-            if (iterator.hasNext()) {
-                sb.append(Const.SEPARATOR);
-            }
-        }
+		while (iterator.hasNext()) {
+			sb.append(iterator.next().getChannelId());
+			if (iterator.hasNext()) {
+				sb.append(Const.SEPARATOR);
+			}
+		}
 
-        sb.append(Const.LINESEPARATOR);
-        return sb.toString();
-    }
+		sb.append(Const.LINESEPARATOR);
+		return sb.toString();
+	}
 
-    /**
-     * Generate the standard IES Data Format Header and write it into the output stream 'out'.
-     *
-     * @param filename
-     * @param logChannelList
-     * @return
-     */
-    public String getIESDataFormatHeaderString(String filename, List<LogChannel> logChannelList) {
+	/**
+	 * Generate the standard IES Data Format Header and write it into the output stream 'out'.
+	 * 
+	 * @param filename
+	 * @param logChannelList
+	 * @return
+	 */
+	public String getIESDataFormatHeaderString(String filename, List<LogChannel> logChannelList) {
 
-        StringBuilder sb0 = new StringBuilder();
-        StringBuilder sb1 = new StringBuilder();
-        setHeaderTop(sb0, logChannelList.get(0).getLoggingInterval(), filename);
+		StringBuilder sb0 = new StringBuilder();
+		StringBuilder sb1 = new StringBuilder();
+		setHeaderTop(sb0, logChannelList.get(0).getLoggingInterval(), filename);
 
-        // write channel specific header informations
-        int colNumber = 4;
-        Iterator<LogChannel> iterator = logChannelList.listIterator();
-        while (iterator.hasNext()) {
+		// write channel specific header informations
+		int colNumber = 4;
+		Iterator<LogChannel> iterator = logChannelList.listIterator();
+		while (iterator.hasNext()) {
 
-            LogChannel logChannel = iterator.next();
-            appendChannelSpecificComment(sb0, logChannel, colNumber);
+			LogChannel logChannel = iterator.next();
+			appendChannelSpecificComment(sb0, logChannel, colNumber);
 
-            sb1.append(logChannel.getId());
-            if (iterator.hasNext()) {
-                sb1.append(Const.SEPARATOR);
-            }
-            ++colNumber;
-        }
-        appendColumnHeaderTimestamp(sb0);
-        sb0.append(sb1);
-        sb0.append(Const.LINESEPARATOR);
-        return sb0.toString();
-    }
+			sb1.append(logChannel.getId());
+			if (iterator.hasNext()) {
+				sb1.append(Const.SEPARATOR);
+			}
+			++colNumber;
+		}
+		appendColumnHeaderTimestamp(sb0);
+		sb0.append(sb1);
+		sb0.append(Const.LINESEPARATOR);
+		return sb0.toString();
+	}
 
-    /**
-     * Appends channel specific comments to a StringBuilder
-     *
-     * @param sb
-     * @param logChannel
-     * @param colNumber
-     */
-    private void appendChannelSpecificComment(StringBuilder sb, LogChannel logChannel, int colNumber) {
+	/**
+	 * Appends channel specific comments to a StringBuilder
+	 * 
+	 * @param sb
+	 * @param logChannel
+	 * @param colNumber
+	 */
+	private void appendChannelSpecificComment(StringBuilder sb, LogChannel logChannel, int colNumber) {
 
-        String unit = logChannel.getUnit();
-        if (unit.equals("")) {
-            unit = "0";
-        }
-        ValueType vType = logChannel.getValueType();
-        String valueType = vType.toString();
-        int valueTypeLength = 0;
-        if (vType.equals(ValueType.BYTE_ARRAY) || vType.equals(ValueType.STRING)) {
-            valueTypeLength = logChannel.getValueTypeLength();
-        }
+		String unit = logChannel.getUnit();
+		if (unit.equals("")) {
+			unit = "0";
+		}
+		ValueType vType = logChannel.getValueType();
+		String valueType = vType.toString();
+		int valueTypeLength = 0;
+		if (vType.equals(ValueType.BYTE_ARRAY) || vType.equals(ValueType.STRING)) {
+			valueTypeLength = logChannel.getValueTypeLength();
+		}
 
-        String description = logChannel.getDescription();
-        if (description.equals("")) {
-            description = "-";
-        }
+		String description = logChannel.getDescription();
+		if (description.equals("")) {
+			description = "-";
+		}
 
-        createRow(sb, String.format("%03d", colNumber), logChannel.getId(), "FALSE", "TRUE", unit, "other", valueType, valueTypeLength,
-                  description);
-    }
+		createRow(sb, String.format("%03d", colNumber), logChannel.getId(), "FALSE", "TRUE", unit, "other", valueType,
+				valueTypeLength, description);
+	}
 
-    /**
-     * Append column headers, the timestamps, in a StringBuilder
-     *
-     * @param sb
-     * @param group
-     */
-    private void appendColumnHeaderTimestamp(StringBuilder sb) {
+	/**
+	 * Append column headers, the timestamps, in a StringBuilder
+	 * 
+	 * @param sb
+	 * @param group
+	 */
+	private void appendColumnHeaderTimestamp(StringBuilder sb) {
 
-        // write column headers
-        sb.append("YYYYMMDD");
-        sb.append(Const.SEPARATOR);
-        sb.append("hhmmss");
-        sb.append(Const.SEPARATOR);
-        sb.append("unixtimestamp");
-        sb.append(Const.SEPARATOR);
-    }
+		// write column headers
+		sb.append("YYYYMMDD");
+		sb.append(Const.SEPARATOR);
+		sb.append("hhmmss");
+		sb.append(Const.SEPARATOR);
+		sb.append("unixtimestamp");
+		sb.append(Const.SEPARATOR);
+	}
 
-    /**
-     * Sets the top of the header.
-     *
-     * @param sb
-     * @param loggingInterval
-     * @param filename
-     */
-    private void setHeaderTop(StringBuilder sb, int loggingInterval, String filename) {
+	/**
+	 * Sets the top of the header.
+	 * 
+	 * @param sb
+	 * @param loggingInterval
+	 * @param filename
+	 */
+	private void setHeaderTop(StringBuilder sb, int loggingInterval, String filename) {
 
-        String timestep_sec = String.valueOf(loggingInterval / (double) 1000);
-        String seperator = Const.SEPARATOR;
+		String timestep_sec = String.valueOf(loggingInterval / (double) 1000);
+		String seperator = Const.SEPARATOR;
 
-        // write general header informations
-        appendStrings(sb, "#ies_format_version: ", String.valueOf(Const.ISEFORMATVERSION), Const.LINESEPARATOR_STRING);
-        appendStrings(sb, "#file: ", filename, Const.LINESEPARATOR_STRING);
-        appendStrings(sb, "#file_info: ", Const.FILEINFO, Const.LINESEPARATOR_STRING);
-        appendStrings(sb, "#timezone: ", getDiffLocalUTC(), Const.LINESEPARATOR_STRING);
-        appendStrings(sb, "#timestep_sec: ", timestep_sec, Const.LINESEPARATOR_STRING);
-        appendStrings(sb, "#", "col_no", seperator, "col_name", seperator, "confidential", seperator, "measured", seperator, "unit",
-                      seperator, "category", seperator, Const.COMMENT_NAME, Const.LINESEPARATOR_STRING);
-        createRow(sb, "001", "YYYYMMDD", "FALSE", "FALSE", "0", "time", "INTEGER", 8, "Date [human readable]");
-        createRow(sb, "002", "hhmmss", "FALSE", "FALSE", "0", "time", "SHORT", 6, "Time [human readable]");
-        createRow(sb, "003", "unixtimestamp", "FALSE", "FALSE", "s", "time", "DOUBLE", 14, "lapsed seconds from 01-01-1970");
-    }
+		// write general header informations
+		appendStrings(sb, "#ies_format_version: ", String.valueOf(Const.ISEFORMATVERSION), Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#file: ", filename, Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#file_info: ", Const.FILEINFO, Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#timezone: ", getDiffLocalUTC(), Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#timestep_sec: ", timestep_sec, Const.LINESEPARATOR_STRING);
+		appendStrings(sb, "#", "col_no", seperator, "col_name", seperator, "confidential", seperator, "measured",
+				seperator, "unit", seperator, "category", seperator, Const.COMMENT_NAME, Const.LINESEPARATOR_STRING);
+		createRow(sb, "001", "YYYYMMDD", "FALSE", "FALSE", "0", "time", "INTEGER", 8, "Date [human readable]");
+		createRow(sb, "002", "hhmmss", "FALSE", "FALSE", "0", "time", "SHORT", 6, "Time [human readable]");
+		createRow(sb, "003", "unixtimestamp", "FALSE", "FALSE", "s", "time", "DOUBLE", 14,
+				"lapsed seconds from 01-01-1970");
+	}
 
-    /**
-     * Construct a header row with predefined separators and comment signs.
-     *
-     * @param col_no          column number example: #001
-     * @param col_name        column name example: YYYYMMDD
-     * @param confidential    false or true
-     * @param measured        false or true
-     * @param unit            example: kWh
-     * @param category        example: time
-     * @param valueType       example: DOUBLE
-     * @param valueTypeLength example: 8
-     * @param comment         a comment
-     */
-    private void createRow(StringBuilder sb, String col_no, String col_name, String confidential, String measured, String unit, String
-            category, String valueType, int valueTypeLength, String comment) {
+	/**
+	 * Construct a header row with predefined separators and comment signs.
+	 * 
+	 * @param col_no
+	 *            column number example: #001
+	 * @param col_name
+	 *            column name example: YYYYMMDD
+	 * @param confidential
+	 *            false or true
+	 * @param measured
+	 *            false or true
+	 * @param unit
+	 *            example: kWh
+	 * @param category
+	 *            example: time
+	 * @param valueType
+	 *            example: DOUBLE
+	 * @param valueTypeLength
+	 *            example: 8
+	 * @param comment
+	 *            a comment
+	 */
+	private void createRow(StringBuilder sb, String col_no, String col_name, String confidential, String measured,
+			String unit, String category, String valueType, int valueTypeLength, String comment) {
 
-        String seperator = Const.SEPARATOR;
-        String com_sign = Const.COMMENT_SIGN;
-        String vtEndSign = Const.VALUETYPE_ENDSIGN;
-        String vtSizeSep = Const.VALUETYPE_SIZE_SEPARATOR;
-        String valueTypeLengthString = "";
-        if (valueTypeLength != 0) {
-            valueTypeLengthString += valueTypeLength;
-        }
-        appendStrings(sb, com_sign, col_no, seperator, col_name, seperator, confidential, seperator, measured, seperator, unit, seperator,
-                      category, seperator, valueType, vtSizeSep, valueTypeLengthString, vtEndSign, comment, Const.LINESEPARATOR_STRING);
-    }
+		String seperator = Const.SEPARATOR;
+		String com_sign = Const.COMMENT_SIGN;
+		String vtEndSign = Const.VALUETYPE_ENDSIGN;
+		String vtSizeSep = Const.VALUETYPE_SIZE_SEPARATOR;
+		String valueTypeLengthString = "";
+		if (valueTypeLength != 0) {
+			valueTypeLengthString += valueTypeLength;
+		}
+		appendStrings(sb, com_sign, col_no, seperator, col_name, seperator, confidential, seperator, measured,
+				seperator, unit, seperator, category, seperator, valueType, vtSizeSep, valueTypeLengthString,
+				vtEndSign, comment, Const.LINESEPARATOR_STRING);
+	}
 
-    /**
-     * appendStrings appends a any String to a StringBuilder
-     *
-     * @param sb StringBuilder to append a String
-     * @param s  the String to append
-     */
-    private void appendStrings(StringBuilder sb, String... s) {
+	/**
+	 * appendStrings appends a any String to a StringBuilder
+	 * 
+	 * @param sb
+	 *            StringBuilder to append a String
+	 * @param s
+	 *            the String to append
+	 */
+	private void appendStrings(StringBuilder sb, String... s) {
 
-        for (String element : s) {
-            sb.append(element);
-        }
-    }
+		for (String element : s) {
+			sb.append(element);
+		}
+	}
 
-    /**
-     * Calculates the difference between the configured local time and the Coordinated Universal Time (UTC) without
-     * daylight saving time and returns it as a string.
-     *
-     * @return the difference between local time and UTC as string.
-     */
-    private String getDiffLocalUTC() {
+	/**
+	 * Calculates the difference between the configured local time and the Coordinated Universal Time (UTC) without
+	 * daylight saving time and returns it as a string.
+	 * 
+	 * @return the difference between local time and UTC as string.
+	 */
+	private String getDiffLocalUTC() {
 
-        String ret;
-        long time = 0;
+		String ret;
+		long time = 0;
 
-        Calendar calendar = new GregorianCalendar(Locale.getDefault());
+		Calendar calendar = new GregorianCalendar(Locale.getDefault());
 
-        time = calendar.getTimeZone().getRawOffset();
-        time /= 1000 * 60 * 60;
+		time = calendar.getTimeZone().getRawOffset();
+		time /= 1000 * 60 * 60;
 
-        if (time >= 0) {
-            ret = ("+ " + time);
-        } else {
-            ret = ("- " + time);
-        }
+		if (time >= 0) {
+			ret = ("+ " + time);
+		}
+		else {
+			ret = ("- " + time);
+		}
 
-        return ret;
-    }
+		return ret;
+	}
 
 }

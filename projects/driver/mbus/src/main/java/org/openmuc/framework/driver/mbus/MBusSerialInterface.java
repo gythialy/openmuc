@@ -20,62 +20,63 @@
  */
 package org.openmuc.framework.driver.mbus;
 
-import org.openmuc.jmbus.MBusSap;
-
 import java.util.Map;
+
+import org.openmuc.jmbus.MBusSap;
 
 /**
  * Class representing an MBus Connection.<br>
  * This class will bind to the local com-interface.<br>
+ * 
  */
 public class MBusSerialInterface {
 
-    private int connectionCounter = 0;
-    private final MBusSap mBusSap;
-    private boolean open = true;
-    private final String serialPortName;
-    private final Map<String, MBusSerialInterface> interfaces;
+	private int connectionCounter = 0;
+	private final MBusSap mBusSap;
+	private boolean open = true;
+	private final String serialPortName;
+	private final Map<String, MBusSerialInterface> interfaces;
 
-    public MBusSerialInterface(MBusSap mBusSap, String serialPortName, Map<String, MBusSerialInterface> interfaces) {
-        this.mBusSap = mBusSap;
-        this.serialPortName = serialPortName;
-        this.interfaces = interfaces;
-        interfaces.put(serialPortName, this);
-    }
+	public MBusSerialInterface(MBusSap mBusSap, String serialPortName, Map<String, MBusSerialInterface> interfaces) {
+		this.mBusSap = mBusSap;
+		this.serialPortName = serialPortName;
+		this.interfaces = interfaces;
+		interfaces.put(serialPortName, this);
+	}
 
-    public MBusSap getMBusSap() {
-        return mBusSap;
-    }
+	public MBusSap getMBusSap() {
+		return mBusSap;
+	}
 
-    public void increaseConnectionCounter() {
-        connectionCounter++;
-    }
+	public void increaseConnectionCounter() {
+		connectionCounter++;
+	}
 
-    public void decreaseConnectionCounter() {
-        connectionCounter--;
-        if (connectionCounter == 0) {
-            close();
-        }
-    }
+	public void decreaseConnectionCounter() {
+		connectionCounter--;
+		if (connectionCounter == 0) {
+			close();
+		}
+	}
 
-    public int getDeviceCounter() {
-        return connectionCounter;
-    }
+	public int getDeviceCounter() {
+		return connectionCounter;
+	}
 
-    public boolean isOpen() {
-        return open;
-    }
+	public boolean isOpen() {
+		return open;
+	}
 
-    public void close() {
-        synchronized (interfaces) {
-            mBusSap.close();
-            open = false;
-            interfaces.remove(serialPortName);
-        }
-    }
+	public void close() {
+		synchronized (interfaces) {
+			mBusSap.close();
+			open = false;
+			interfaces.remove(serialPortName);
+		}
+	}
 
-    public String getInterfaceAddress() {
-        return serialPortName;
-    }
+	public String getInterfaceAddress() {
+		return serialPortName;
+	}
 
 }

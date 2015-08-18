@@ -23,85 +23,90 @@ package org.openmuc.framework.data;
 
 /**
  * ByteArrayValue is not immutable.
+ * 
  */
 public class ByteArrayValue implements Value {
 
-    private final byte[] value;
+	private final byte[] value;
 
-    /**
-     * Create a new ByteArrayValue whose internal byte array will be a reference to the <code>value</code> passed to
-     * this constructor. That means the passed byte array is not copied. Therefore you should not change the contents of
-     * value after calling this constructor. If you want ByteArrayValue to internally store a copy of the passed value
-     * then you should use the other constructor of this class instead.
-     *
-     * @param value the byte array value.
-     */
-    public ByteArrayValue(byte[] value) {
-        this.value = value;
-    }
+	/**
+	 * Create a new ByteArrayValue whose internal byte array will be a reference to the <code>value</code> passed to
+	 * this constructor. That means the passed byte array is not copied. Therefore you should not change the contents of
+	 * value after calling this constructor. If you want ByteArrayValue to internally store a copy of the passed value
+	 * then you should use the other constructor of this class instead.
+	 * 
+	 * @param value
+	 *            the byte array value.
+	 */
+	public ByteArrayValue(byte[] value) {
+		this.value = value;
+	}
 
-    /**
-     * Creates a new ByteArrayValue copying the byte array passed if <code>copy</code> is true.
-     *
-     * @param value the byte array value.
-     * @param copy  if true it will internally store a copy of value, else it will store a reference to value.
-     */
-    public ByteArrayValue(byte[] value, boolean copy) {
-        if (copy) {
-            this.value = new byte[value.length];
-            System.arraycopy(value, 0, this.value, 0, value.length);
-        } else {
-            this.value = value;
-        }
-    }
+	/**
+	 * Creates a new ByteArrayValue copying the byte array passed if <code>copy</code> is true.
+	 * 
+	 * @param value
+	 *            the byte array value.
+	 * @param copy
+	 *            if true it will internally store a copy of value, else it will store a reference to value.
+	 */
+	public ByteArrayValue(byte[] value, boolean copy) {
+		if (copy) {
+			this.value = new byte[value.length];
+			System.arraycopy(value, 0, this.value, 0, value.length);
+		}
+		else {
+			this.value = value;
+		}
+	}
 
-    @Override
-    public double asDouble() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public double asDouble() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public float asFloat() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public float asFloat() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public long asLong() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public long asLong() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public int asInt() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public int asInt() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public short asShort() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public short asShort() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public byte asByte() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public byte asByte() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public boolean asBoolean() {
-        throw new TypeConversionException();
-    }
+	@Override
+	public boolean asBoolean() {
+		throw new TypeConversionException();
+	}
 
-    @Override
-    public byte[] asByteArray() {
-        return value;
-    }
+	@Override
+	public byte[] asByteArray() {
+		return value;
+	}
 
-    @Override
-    public String toString() {
-        return new String(value);
-    }
+	@Override
+	public String toString() {
+		return new String(value);
+	}
 
-    @Override
-    public String asString() {
-        return toString();
-    }
+	@Override
+	public String asString() {
+		return toString();
+	}
 }

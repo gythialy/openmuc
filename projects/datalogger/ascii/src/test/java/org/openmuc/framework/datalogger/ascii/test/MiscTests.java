@@ -20,100 +20,100 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
+import java.util.Iterator;
+import java.util.TreeMap;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
 
-import java.util.Iterator;
-import java.util.TreeMap;
-
 public class MiscTests {
 
-    @Test
-    public void testDoubleFormattingOk() {
+	@Test
+	public void testDoubleFormattingOk() {
 
-        TreeMap<Double, String> testData = new TreeMap<Double, String>();
+		TreeMap<Double, String> testData = new TreeMap<Double, String>();
 
-        testData.put(-0.0, "+0.000"); // should be +
-        testData.put(0.0, "+0.000");
+		testData.put(-0.0, "+0.000"); // should be +
+		testData.put(0.0, "+0.000");
 
-        testData.put(1.0, "+1.000");
-        testData.put(-1.0, "-1.000");
+		testData.put(1.0, "+1.000");
+		testData.put(-1.0, "-1.000");
 
-        testData.put(10.0, "+10.000");
-        testData.put(-10.0, "-10.000");
+		testData.put(10.0, "+10.000");
+		testData.put(-10.0, "-10.000");
 
-        testData.put(10.123, "+10.123");
-        testData.put(-10.123, "-10.123");
+		testData.put(10.123, "+10.123");
+		testData.put(-10.123, "-10.123");
 
-        testData.put(9999.999, "+9999.999");
-        testData.put(-9999.999, "-9999.999");
+		testData.put(9999.999, "+9999.999");
+		testData.put(-9999.999, "-9999.999");
 
-        // decimal digits = 3
-        testData.put(1000.123, "+1000.123");
-        testData.put(-1000.123, "-1000.123");
+		// decimal digits = 3
+		testData.put(1000.123, "+1000.123");
+		testData.put(-1000.123, "-1000.123");
 
-        // decimal digits = 2
-        testData.put(10000.123, "+10000.12");
-        testData.put(-10000.123, "-10000.12");
+		// decimal digits = 2
+		testData.put(10000.123, "+10000.12");
+		testData.put(-10000.123, "-10000.12");
 
-        // decimal digits = 1
-        testData.put(100000.123, "+100000.1");
-        testData.put(-100000.123, "-100000.1");
+		// decimal digits = 1
+		testData.put(100000.123, "+100000.1");
+		testData.put(-100000.123, "-100000.1");
 
-        // decimal digits = 0
-        testData.put(1000000.123, "+1000000");
-        testData.put(-1000000.123, "-1000000");
+		// decimal digits = 0
+		testData.put(1000000.123, "+1000000");
+		testData.put(-1000000.123, "-1000000");
 
-        // max number 8 digits
-        testData.put(99999999.0, "+99999999");
-        testData.put(-99999999.0, "-99999999");
+		// max number 8 digits
+		testData.put(99999999.0, "+99999999");
+		testData.put(-99999999.0, "-99999999");
 
-        String expectedResult;
-        double input;
+		String expectedResult;
+		double input;
 
-        Iterator<Double> i = testData.keySet().iterator();
+		Iterator<Double> i = testData.keySet().iterator();
 
-        while (i.hasNext()) {
+		while (i.hasNext()) {
 
-            input = i.next();
-            expectedResult = testData.get(input);
+			input = i.next();
+			expectedResult = testData.get(input);
 
-            try {
-                String result = IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
+			try {
+				String result = IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
 
-                System.out.println(input + " --> " + result + " " + expectedResult);
+				System.out.println(input + " --> " + result + " " + expectedResult);
 
-                Assert.assertEquals(expectedResult, result);
+				Assert.assertEquals(expectedResult, result);
 
-            } catch (WrongScalingException e) {
-                e.printStackTrace();
-            }
-        }
+			} catch (WrongScalingException e) {
+				e.printStackTrace();
+			}
+		}
 
-    }
+	}
 
-    @Test
-    public void testWrongScalingException() {
+	@Test
+	public void testWrongScalingException() {
 
-        double input = 100000000.0;
+		double input = 100000000.0;
 
-        try {
-            IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
-            Assert.assertTrue("Expected WrongScalingException", false);
-        } catch (WrongScalingException e) {
-            Assert.assertTrue(true);
-        }
+		try {
+			IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
+			Assert.assertTrue("Expected WrongScalingException", false);
+		} catch (WrongScalingException e) {
+			Assert.assertTrue(true);
+		}
 
-        input = -100000000.0;
+		input = -100000000.0;
 
-        try {
-            IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
-            Assert.assertTrue("Expected WrongScalingException", false);
-        } catch (WrongScalingException e) {
-            Assert.assertTrue(true);
-        }
-    }
+		try {
+			IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
+			Assert.assertTrue("Expected WrongScalingException", false);
+		} catch (WrongScalingException e) {
+			Assert.assertTrue(true);
+		}
+	}
 }

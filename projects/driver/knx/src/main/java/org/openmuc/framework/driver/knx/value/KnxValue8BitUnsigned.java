@@ -22,35 +22,37 @@ package org.openmuc.framework.driver.knx.value;
 
 import org.openmuc.framework.data.ShortValue;
 import org.openmuc.framework.data.Value;
+
 import tuwien.auto.calimero.dptxlator.DPTXlator8BitUnsigned;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
 /**
  * @author frobra
+ * 
  */
 public class KnxValue8BitUnsigned extends KnxValue {
 
-    public KnxValue8BitUnsigned(String dptID) throws KNXFormatException {
-        dptXlator = new DPTXlator8BitUnsigned(dptID);
-    }
+	public KnxValue8BitUnsigned(String dptID) throws KNXFormatException {
+		dptXlator = new DPTXlator8BitUnsigned(dptID);
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-     */
-    @Override
-    public void setOpenMucValue(Value value) {
-        ((DPTXlator8BitUnsigned) dptXlator).setValueUnscaled(value.asShort());
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+	 */
+	@Override
+	public void setOpenMucValue(Value value) {
+		((DPTXlator8BitUnsigned) dptXlator).setValueUnscaled(value.asShort());
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
-     */
-    @Override
-    public Value getOpenMucValue() {
-        return new ShortValue(((DPTXlator8BitUnsigned) dptXlator).getValueUnsigned());
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
+	 */
+	@Override
+	public Value getOpenMucValue() {
+		return new ShortValue(((DPTXlator8BitUnsigned) dptXlator).getValueUnsigned());
+	}
 }

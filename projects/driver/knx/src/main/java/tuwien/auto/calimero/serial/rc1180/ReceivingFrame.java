@@ -30,110 +30,115 @@ import tuwien.auto.calimero.exception.KNXFormatException;
 
 /**
  * Container for a frame coming from a RC1180 chip
- *
+ * 
  * @author Frederic Robra
+ * 
  */
 class ReceivingFrame {
 
-    private final byte KNXCtrl;
-    private final IndividualAddress srcAddress;
-    private KNXAddress dstAddress;
-    private final byte[] tpdu;
-    private final int hopCount;
-    private final int linkLayerFrameNumber;
-    private final boolean addressExtensionType;
-    private final byte[] address;
+	private final byte KNXCtrl;
+	private final IndividualAddress srcAddress;
+	private KNXAddress dstAddress;
+	private final byte[] tpdu;
+	private final int hopCount;
+	private final int linkLayerFrameNumber;
+	private final boolean addressExtensionType;
+	private final byte[] address;
 
-    /**
-     * Container for a frame coming from a RC1180 chip
-     *
-     * @param message byte array containing the raw message
-     * @throws KNXFormatException
-     */
-    public ReceivingFrame(byte[] message) throws KNXFormatException {
-        byte length = message[0];
-        if (length != message.length - 1) {
-            throw new KNXFormatException("wrong length of message");
-        }
-        byte C = message[1];
-        if (C != (byte) 0x44) {
-            throw new KNXFormatException("wrong C field");
-        }
-        byte Esc = message[2];
-        if (Esc != (byte) 0xFF) {
-            throw new KNXFormatException("wrong Esc field");
-        }
+	/**
+	 * Container for a frame coming from a RC1180 chip
+	 * 
+	 * @param message
+	 *            byte array containing the raw message
+	 * @throws KNXFormatException
+	 */
+	public ReceivingFrame(byte[] message) throws KNXFormatException {
+		byte length = message[0];
+		if (length != message.length - 1) {
+			throw new KNXFormatException("wrong length of message");
+		}
+		byte C = message[1];
+		if (C != (byte) 0x44) {
+			throw new KNXFormatException("wrong C field");
+		}
+		byte Esc = message[2];
+		if (Esc != (byte) 0xFF) {
+			throw new KNXFormatException("wrong Esc field");
+		}
 
-        address = new byte[6];
-        System.arraycopy(message, 4, address, 0, 6);
-        addressExtensionType = (message[15] & 0x01) == 0 ? false : true;
+		address = new byte[6];
+		System.arraycopy(message, 4, address, 0, 6);
+		addressExtensionType = (message[15] & 0x01) == 0 ? false : true;
 
-        KNXCtrl = message[10];
-        byte[] srcAddress = new byte[2];
-        System.arraycopy(message, 11, srcAddress, 0, 2);
-        this.srcAddress = new IndividualAddress(srcAddress);
+		KNXCtrl = message[10];
+		byte[] srcAddress = new byte[2];
+		System.arraycopy(message, 11, srcAddress, 0, 2);
+		this.srcAddress = new IndividualAddress(srcAddress);
 
-        byte[] dstAddress = new byte[2];
-        System.arraycopy(message, 13, dstAddress, 0, 2);
-        if (((message[15] >> 7) & 1) > 0) {
-            this.dstAddress = new GroupAddress(dstAddress);
-        } else {
-            this.dstAddress = new IndividualAddress(dstAddress);
-        }
+		byte[] dstAddress = new byte[2];
+		System.arraycopy(message, 13, dstAddress, 0, 2);
+		if (((message[15] >> 7) & 1) > 0) {
+			this.dstAddress = new GroupAddress(dstAddress);
+		}
+		else {
+			this.dstAddress = new IndividualAddress(dstAddress);
+		}
 
-        hopCount = (message[15] >> 4) & 0x07;
-        linkLayerFrameNumber = (message[15] >> 1) & 0x07;
+		hopCount = (message[15] >> 4) & 0x07;
+		linkLayerFrameNumber = (message[15] >> 1) & 0x07;
 
-        tpdu = new byte[message.length - 16];
-        System.arraycopy(message, 16, tpdu, 0, tpdu.length);
-    }
+		tpdu = new byte[message.length - 16];
+		System.arraycopy(message, 16, tpdu, 0, tpdu.length);
+	}
 
-    /**
-     * @return Linklayer Frame Number
-     */
-    public int getLinkLayerFrameNumber() {
-        return linkLayerFrameNumber;
-    }
+	/**
+	 * @return Linklayer Frame Number
+	 */
+	public int getLinkLayerFrameNumber() {
+		return linkLayerFrameNumber;
+	}
 
-    /**
-     * @return destination address
-     */
-    public KNXAddress getDstAddress() {
-        return dstAddress;
-    }
+	/**
+	 * @return destination address
+	 */
+	public KNXAddress getDstAddress() {
+		return dstAddress;
+	}
 
-    /**
-     * @return calimero cemil data
-     */
-    public CEMILData getCemilData() {
-        if (KNXCtrl == 0x00) {
-            return new CEMILData(CEMILData.MC_LDATA_IND, srcAddress, dstAddress, tpdu, Priority.NORMAL, true, hopCount);
-        } else { // Extended frame format
-            return new CEMILDataEx(CEMILData.MC_LDATA_IND, srcAddress, dstAddress, tpdu, Priority.NORMAL, true, hopCount);
-        }
-    }
+	/**
+	 * @return calimero cemil data
+	 */
+	public CEMILData getCemilData() {
+		if (KNXCtrl == 0x00) {
+			return new CEMILData(CEMILData.MC_LDATA_IND, srcAddress, dstAddress, tpdu, Priority.NORMAL, true, hopCount);
+		}
+		else { // Extended frame format
+			return new CEMILDataEx(CEMILData.MC_LDATA_IND, srcAddress, dstAddress, tpdu, Priority.NORMAL, true,
+					hopCount);
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return getCemilData().toString();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getCemilData().toString();
+	}
 
-    /**
-     * @return
-     */
-    public Boolean getAET() {
-        return addressExtensionType;
-    }
+	/**
+	 * @return
+	 */
+	public Boolean getAET() {
+		return addressExtensionType;
+	}
 
-    /**
-     * @return
-     */
-    public byte[] getSNorDoA() {
-        return address;
-    }
+	/**
+	 * @return
+	 */
+	public byte[] getSNorDoA() {
+		return address;
+	}
 }

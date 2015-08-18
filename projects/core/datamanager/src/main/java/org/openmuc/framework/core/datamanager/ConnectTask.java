@@ -30,68 +30,73 @@ import org.slf4j.LoggerFactory;
 
 public final class ConnectTask extends DeviceTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(ConnectTask.class);
+	private final static Logger logger = LoggerFactory.getLogger(ConnectTask.class);
 
-    public ConnectTask(DriverService driver, Device device, DataManager dataManager) {
-        this.driver = driver;
-        this.device = device;
-        this.dataManager = dataManager;
-    }
+	public ConnectTask(DriverService driver, Device device, DataManager dataManager) {
+		this.driver = driver;
+		this.device = device;
+		this.dataManager = dataManager;
+	}
 
-    @Override
-    public void run() {
+	@Override
+	public void run() {
 
-        try {
-            device.connection = driver.connect(device.deviceConfig.deviceAddress, device.deviceConfig.settings);
-        } catch (ConnectionException e) {
-            logger.warn("Unable to connect to device {} because {}. Will try again in {}ms.", device.deviceConfig.id, e.getMessage(),
-                        device.deviceConfig.connectRetryInterval);
-            synchronized (dataManager.connectionFailures) {
-                dataManager.connectionFailures.add(device);
-            }
-            dataManager.interrupt();
-            return;
-        } catch (ArgumentSyntaxException e) {
-            logger.warn("Unable to connect to device {} because the address or settings syntax is incorrect: {}. Will try again in {}ms.",
-                        device.deviceConfig.id, e.getMessage(), device.deviceConfig.connectRetryInterval);
-            synchronized (dataManager.connectionFailures) {
-                dataManager.connectionFailures.add(device);
-            }
-            dataManager.interrupt();
-            return;
-        } catch (Exception e) {
-            logger.warn("unexpected exception thrown by connect funtion of driver", e);
-            synchronized (dataManager.connectionFailures) {
-                dataManager.connectionFailures.add(device);
-            }
-            dataManager.interrupt();
-            return;
-        }
+		try {
+			device.connection = driver.connect(device.deviceConfig.deviceAddress, device.deviceConfig.settings);
 
-        if (device.connection == null) {
-            logger.error("Drivers connect() function returned null");
-            synchronized (dataManager.connectionFailures) {
-                dataManager.connectionFailures.add(device);
-            }
-            dataManager.interrupt();
-            return;
-        }
+			if (logger.isDebugEnabled()) {
+				logger.debug("Driver " + driver.getInfo().getId() + " connected.");
+			}
+		} catch (ConnectionException e) {
+			logger.warn("Unable to connect to device {} because {}. Will try again in {}ms.", device.deviceConfig.id,
+					e.getMessage(), device.deviceConfig.connectRetryInterval);
+			synchronized (dataManager.connectionFailures) {
+				dataManager.connectionFailures.add(device);
+			}
+			dataManager.interrupt();
+			return;
+		} catch (ArgumentSyntaxException e) {
+			logger.warn(
+					"Unable to connect to device {} because the address or settings syntax is incorrect: {}. Will try again in {}ms.",
+					device.deviceConfig.id, e.getMessage(), device.deviceConfig.connectRetryInterval);
+			synchronized (dataManager.connectionFailures) {
+				dataManager.connectionFailures.add(device);
+			}
+			dataManager.interrupt();
+			return;
+		} catch (Exception e) {
+			logger.warn("unexpected exception thrown by connect funtion of driver", e);
+			synchronized (dataManager.connectionFailures) {
+				dataManager.connectionFailures.add(device);
+			}
+			dataManager.interrupt();
+			return;
+		}
 
-        synchronized (dataManager.connected) {
-            dataManager.connected.add(device);
-        }
-        dataManager.interrupt();
+		if (device.connection == null) {
+			logger.error("Drivers connect() function returned null");
+			synchronized (dataManager.connectionFailures) {
+				dataManager.connectionFailures.add(device);
+			}
+			dataManager.interrupt();
+			return;
+		}
 
-    }
+		synchronized (dataManager.connected) {
+			dataManager.connected.add(device);
+		}
+		dataManager.interrupt();
 
-    @Override
-    public DeviceTaskType getType() {
-        return DeviceTaskType.CONNECT;
-    }
+	}
 
-    @Override
-    public void setDeviceState() {
-        device.state = DeviceState.CONNECTING;
-    }
+	@Override
+	public DeviceTaskType getType() {
+		return DeviceTaskType.CONNECT;
+	}
+
+	@Override
+	public void setDeviceState() {
+		device.state = DeviceState.CONNECTING;
+	}
 
 }

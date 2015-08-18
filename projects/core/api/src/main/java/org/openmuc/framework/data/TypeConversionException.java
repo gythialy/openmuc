@@ -23,14 +23,14 @@ package org.openmuc.framework.data;
 
 public final class TypeConversionException extends RuntimeException {
 
-    private static final long serialVersionUID = 968407618209609707L;
+	private static final long serialVersionUID = 968407618209609707L;
 
-    public TypeConversionException() {
-        super();
-    }
+	public TypeConversionException() {
+		super();
+	}
 
-    public TypeConversionException(String s) {
-        super(s);
-    }
+	public TypeConversionException(String s) {
+		super(s);
+	}
 
 }

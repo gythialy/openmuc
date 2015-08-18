@@ -20,77 +20,80 @@
  */
 package org.openmuc.framework.driver.knx;
 
+import java.io.IOException;
+import java.net.InetAddress;
+
 import org.openmuc.framework.config.DeviceScanInfo;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import tuwien.auto.calimero.knxnetip.Discoverer;
 import tuwien.auto.calimero.knxnetip.servicetype.SearchResponse;
 
-import java.io.IOException;
-import java.net.InetAddress;
-
 /**
  * @author frobra
+ * 
  */
 public class KnxIpDiscover {
 
-    private static Logger logger = LoggerFactory.getLogger(KnxIpDiscover.class);
-    private static int DEFALUT_TIMEOUT = 5;
+	private static Logger logger = LoggerFactory.getLogger(KnxIpDiscover.class);
+	private static int DEFALUT_TIMEOUT = 5;
 
-    private Discoverer discoverer;
-    private SearchResponse[] searchResponses;
+	private Discoverer discoverer;
+	private SearchResponse[] searchResponses;
 
-    public KnxIpDiscover(String interfaceAddress, boolean natAware, boolean mcastResponse) throws IOException {
-        try {
-            // System.setProperty("java.net.preferIPv4Stack", "true");
-            InetAddress localHost = InetAddress.getByName(interfaceAddress);
-            discoverer = new Discoverer(localHost, 0, natAware, mcastResponse);
-        } catch (Exception e) {
-            logger.warn("can not create discoverer: " + e.getMessage());
-            throw new IOException(e);
-        }
-    }
+	public KnxIpDiscover(String interfaceAddress, boolean natAware, boolean mcastResponse) throws IOException {
+		try {
+			// System.setProperty("java.net.preferIPv4Stack", "true");
+			InetAddress localHost = InetAddress.getByName(interfaceAddress);
+			discoverer = new Discoverer(localHost, 0, natAware, mcastResponse);
+		} catch (Exception e) {
+			logger.warn("can not create discoverer: " + e.getMessage());
+			throw new IOException(e);
+		}
+	}
 
-    public void startSearch(int timeout, DriverDeviceScanListener listener) throws IOException {
-        timeout = timeout / 1000;
-        if (timeout < 1) {
-            timeout = DEFALUT_TIMEOUT;
-        }
-        try {
-            logger.debug("Starting search (timeout: " + timeout + "s)");
-            discoverer.startSearch(timeout, true);
-            searchResponses = discoverer.getSearchResponses();
-        } catch (Exception e) {
-            logger.warn("A network I/O error occurred");
-            e.printStackTrace();
-            throw new IOException(e);
-        }
-        if (searchResponses != null) {
-            notifyListener(listener);
-        }
-    }
+	public void startSearch(int timeout, DriverDeviceScanListener listener) throws IOException {
+		timeout = timeout / 1000;
+		if (timeout < 1) {
+			timeout = DEFALUT_TIMEOUT;
+		}
+		try {
+			logger.debug("Starting search (timeout: " + timeout + "s)");
+			discoverer.startSearch(timeout, true);
+			searchResponses = discoverer.getSearchResponses();
+		} catch (Exception e) {
+			logger.warn("A network I/O error occurred");
+			e.printStackTrace();
+			throw new IOException(e);
+		}
+		if (searchResponses != null) {
+			notifyListener(listener);
+		}
+	}
 
-    private void notifyListener(DriverDeviceScanListener listener) {
+	private void notifyListener(DriverDeviceScanListener listener) {
 
-        for (SearchResponse response : searchResponses) {
-            StringBuilder deviceAddress = new StringBuilder();
-            deviceAddress.append(KnxDriver.ADDRESS_SCHEME_KNXIP).append("://");
-            String ipAddress = response.getControlEndpoint().getAddress().getHostAddress();
-            if (ipAddress.contains(":")) { // if it is an ipv6 address
-                deviceAddress.append("[").append(ipAddress).append("]");
-            } else {
-                deviceAddress.append(ipAddress);
-            }
-            deviceAddress.append(":").append(response.getControlEndpoint().getPort());
+		for (SearchResponse response : searchResponses) {
+			StringBuilder deviceAddress = new StringBuilder();
+			deviceAddress.append(KnxDriver.ADDRESS_SCHEME_KNXIP).append("://");
+			String ipAddress = response.getControlEndpoint().getAddress().getHostAddress();
+			if (ipAddress.contains(":")) { // if it is an ipv6 address
+				deviceAddress.append("[").append(ipAddress).append("]");
+			}
+			else {
+				deviceAddress.append(ipAddress);
+			}
+			deviceAddress.append(":").append(response.getControlEndpoint().getPort());
 
-            String name = response.getDevice().getSerialNumberString();
-            String description = response.getDevice().toString();
+			String name = response.getDevice().getSerialNumberString();
+			String description = response.getDevice().toString();
 
-            logger.debug("Found " + deviceAddress + " - " + name + " - " + description);
+			logger.debug("Found " + deviceAddress + " - " + name + " - " + description);
 
-            listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", description));
-        }
+			listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", description));
+		}
 
-    }
+	}
 }

@@ -22,5 +22,5 @@
 package org.openmuc.framework.core.datamanager;
 
 public enum DeviceEvent {
-    DELETED, DISABLED, DRIVER_REGISTERED, DRIVER_DEREGISTERED;
+	DELETED, DISABLED, DRIVER_REGISTERED, DRIVER_DEREGISTERED;
 }

@@ -25,15 +25,15 @@ import java.util.List;
 
 public final class Action {
 
-    long startTime;
+	long startTime;
 
-    List<ChannelCollection> samplingCollections = null;
-    List<SamplingTask> timeouts = null;
-    List<ChannelCollection> loggingCollections = null;
-    List<Device> connectionRetryDevices = null;
+	List<ChannelCollection> samplingCollections = null;
+	List<SamplingTask> timeouts = null;
+	List<ChannelCollection> loggingCollections = null;
+	List<Device> connectionRetryDevices = null;
 
-    public Action(long startTime) {
-        this.startTime = startTime;
-    }
+	public Action(long startTime) {
+		this.startTime = startTime;
+	}
 
 }

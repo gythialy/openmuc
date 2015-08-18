@@ -23,38 +23,42 @@ package org.openmuc.framework.config;
 /**
  * Interface to implement when you want to be informed about a device scan progress and results. Register your listener
  * with configService.scanForDevices(..., listener).
+ * 
  */
 public interface DeviceScanListener {
 
-    /**
-     * Called immediately when a new device has been found.
-     *
-     * @param scanInfo the information of the device found
-     */
-    public void deviceFound(DeviceScanInfo scanInfo);
+	/**
+	 * Called immediately when a new device has been found.
+	 * 
+	 * @param scanInfo
+	 *            the information of the device found
+	 */
+	public void deviceFound(DeviceScanInfo scanInfo);
 
-    /**
-     * Called when scan is progressing.
-     *
-     * @param progress the scan progress in percentage
-     */
-    public void scanProgress(int progress);
+	/**
+	 * Called when scan is progressing.
+	 * 
+	 * @param progress
+	 *            the scan progress in percentage
+	 */
+	public void scanProgress(int progress);
 
-    /**
-     * Called when scan is finished.
-     */
-    public void scanFinished();
+	/**
+	 * Called when scan is finished.
+	 */
+	public void scanFinished();
 
-    /**
-     * Called when scan was interrupted through <code>interruptScanDevice()</code>
-     */
-    public void scanInterrupted();
+	/**
+	 * Called when scan was interrupted through <code>interruptScanDevice()</code>
+	 */
+	public void scanInterrupted();
 
-    /**
-     * Called when there has been a scan error reported by the driver.
-     *
-     * @param message the error message
-     */
-    public void scanError(String message);
+	/**
+	 * Called when there has been a scan error reported by the driver.
+	 * 
+	 * @param message
+	 *            the error message
+	 */
+	public void scanError(String message);
 
 }

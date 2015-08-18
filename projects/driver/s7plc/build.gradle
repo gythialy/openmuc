@@ -1,12 +1,13 @@
+
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile files('dependencies/libnodave-java-1.0.0.jar')
+  compile project(':openmuc-core-spi')
+  compile files('dependencies/libnodave/libnodave-java-1.0.0.jar') 
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - S7PLC"
-        instruction 'Export-Package', ''
-        instruction 'Service-Component', 'OSGI-INF/components.xml'
-    }
+  manifest {
+    name = "OpenMUC Driver - S7PLC"
+    instruction 'Export-Package', ''
+    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
 }

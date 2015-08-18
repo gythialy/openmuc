@@ -35,97 +35,98 @@ import org.slf4j.LoggerFactory;
 
 public final class RestServer {
 
-    private final static Logger logger = LoggerFactory.getLogger(RestServer.class);
+	private final static Logger logger = LoggerFactory.getLogger(RestServer.class);
 
-    private static DataAccessService dataAccessService;
-    private static AuthenticationService authenticationService;
-    private static ConfigService configService;
-    private static HttpService httpService;
+	private static DataAccessService dataAccessService;
+	private static AuthenticationService authenticationService;
+	private static ConfigService configService;
+	private static HttpService httpService;
 
-    private final ChannelResourceServlet chRServlet = new ChannelResourceServlet();
-    private final DeviceResourceServlet devRServlet = new DeviceResourceServlet();
-    private final DriverResourceServlet drvRServlet = new DriverResourceServlet();
-    private final UserServlet userServlet = new UserServlet();
+	private final ChannelResourceServlet chRServlet = new ChannelResourceServlet();
+	private final DeviceResourceServlet devRServlet = new DeviceResourceServlet();
+	private final DriverResourceServlet drvRServlet = new DriverResourceServlet();
+	private final UserServlet userServlet = new UserServlet();
 
-    // private final ControlsServlet controlsServlet = new ControlsServlet();
+	// private final ControlsServlet controlsServlet = new ControlsServlet();
 
-    protected void activate(ComponentContext context) throws Exception {
+	protected void activate(ComponentContext context) throws Exception {
 
-        logger.info("Activating REST Server");
+		logger.info("Activating REST Server");
 
-        SecurityHandler securityHandler = new SecurityHandler(context.getBundleContext().getBundle(), authenticationService);
+		SecurityHandler securityHandler = new SecurityHandler(context.getBundleContext().getBundle(),
+				authenticationService);
 
-        httpService.registerServlet(Const.ALIAS_CHANNELS, chRServlet, null, securityHandler);
-        httpService.registerServlet(Const.ALIAS_DEVICES, devRServlet, null, securityHandler);
-        httpService.registerServlet(Const.ALIAS_DRIVERS, drvRServlet, null, securityHandler);
-        httpService.registerServlet(Const.ALIAS_USERS, userServlet, null, securityHandler);
-        // httpService.registerServlet(Const.ALIAS_CONTROLS, controlsServlet, null, securityHandler);
-    }
+		httpService.registerServlet(Const.ALIAS_CHANNELS, chRServlet, null, securityHandler);
+		httpService.registerServlet(Const.ALIAS_DEVICES, devRServlet, null, securityHandler);
+		httpService.registerServlet(Const.ALIAS_DRIVERS, drvRServlet, null, securityHandler);
+		httpService.registerServlet(Const.ALIAS_USERS, userServlet, null, securityHandler);
+		// httpService.registerServlet(Const.ALIAS_CONTROLS, controlsServlet, null, securityHandler);
+	}
 
-    protected void deactivate(ComponentContext context) {
+	protected void deactivate(ComponentContext context) {
 
-        logger.info("Deactivating REST Server");
+		logger.info("Deactivating REST Server");
 
-        httpService.unregister(Const.ALIAS_CHANNELS);
-        httpService.unregister(Const.ALIAS_DEVICES);
-        httpService.unregister(Const.ALIAS_DRIVERS);
-        httpService.unregister(Const.ALIAS_USERS);
-        // httpService.unregister(Const.ALIAS_CONTROLS);
-    }
+		httpService.unregister(Const.ALIAS_CHANNELS);
+		httpService.unregister(Const.ALIAS_DEVICES);
+		httpService.unregister(Const.ALIAS_DRIVERS);
+		httpService.unregister(Const.ALIAS_USERS);
+		// httpService.unregister(Const.ALIAS_CONTROLS);
+	}
 
-    protected void setConfigService(ConfigService configService) {
+	protected void setConfigService(ConfigService configService) {
 
-        RestServer.configService = configService;
-    }
+		RestServer.configService = configService;
+	}
 
-    protected void unsetConfigService(ConfigService configService) {
+	protected void unsetConfigService(ConfigService configService) {
 
-        RestServer.configService = null;
-    }
+		RestServer.configService = null;
+	}
 
-    protected void setAuthenticationService(AuthenticationService authenticationService) {
+	protected void setAuthenticationService(AuthenticationService authenticationService) {
 
-        RestServer.authenticationService = authenticationService;
-    }
+		RestServer.authenticationService = authenticationService;
+	}
 
-    protected void unsetAuthenticationService(AuthenticationService authenticationService) {
+	protected void unsetAuthenticationService(AuthenticationService authenticationService) {
 
-        RestServer.authenticationService = null;
-    }
+		RestServer.authenticationService = null;
+	}
 
-    protected void setHttpService(HttpService httpService) {
+	protected void setHttpService(HttpService httpService) {
 
-        RestServer.httpService = httpService;
-    }
+		RestServer.httpService = httpService;
+	}
 
-    protected void unsetHttpService(HttpService httpService) {
+	protected void unsetHttpService(HttpService httpService) {
 
-        RestServer.httpService = null;
-    }
+		RestServer.httpService = null;
+	}
 
-    protected void setDataAccessService(DataAccessService dataAccessService) {
+	protected void setDataAccessService(DataAccessService dataAccessService) {
 
-        RestServer.dataAccessService = dataAccessService;
-    }
+		RestServer.dataAccessService = dataAccessService;
+	}
 
-    protected void unsetDataAccessService(DataAccessService dataAccessService) {
+	protected void unsetDataAccessService(DataAccessService dataAccessService) {
 
-        RestServer.dataAccessService = null;
-    }
+		RestServer.dataAccessService = null;
+	}
 
-    public static DataAccessService getDataAccessService() {
+	public static DataAccessService getDataAccessService() {
 
-        return RestServer.dataAccessService;
-    }
+		return RestServer.dataAccessService;
+	}
 
-    public static ConfigService getConfigService() {
+	public static ConfigService getConfigService() {
 
-        return RestServer.configService;
-    }
+		return RestServer.configService;
+	}
 
-    public static AuthenticationService getAuthenticationService() {
+	public static AuthenticationService getAuthenticationService() {
 
-        return RestServer.authenticationService;
-    }
+		return RestServer.authenticationService;
+	}
 
 }

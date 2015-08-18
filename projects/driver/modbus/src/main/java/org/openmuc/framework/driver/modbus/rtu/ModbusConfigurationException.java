@@ -22,15 +22,15 @@ package org.openmuc.framework.driver.modbus.rtu;
 
 public class ModbusConfigurationException extends Exception {
 
-    private final String message;
+	private final String message;
 
-    public ModbusConfigurationException(String message) {
-        this.message = message;
-    }
+	public ModbusConfigurationException(String message) {
+		this.message = message;
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 
 }

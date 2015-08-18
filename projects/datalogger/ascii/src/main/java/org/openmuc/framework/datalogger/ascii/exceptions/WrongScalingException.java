@@ -22,19 +22,19 @@ package org.openmuc.framework.datalogger.ascii.exceptions;
 
 public class WrongScalingException extends Exception {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -3182849323748644497L;
-    private final String message;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3182849323748644497L;
+	private final String message;
 
-    public WrongScalingException(String message) {
-        this.message = message;
-    }
+	public WrongScalingException(String message) {
+		this.message = message;
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 
 }

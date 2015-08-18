@@ -31,53 +31,56 @@ import org.openmuc.framework.driver.aggregator.exeptions.SomethingWrongWithRecor
  */
 public class AggregatorUtil {
 
-    /**
-     * Performs some tests on the record and returns its value as double on success <br>
-     * - tests if record != null <br>
-     * - tests if flag is valid <br>
-     * - tests if value != null <br>
-     *
-     * @param record
-     * @return the value as double
-     * @throws SomethingWrongWithRecordException
-     */
-    public static double getDoubleRecordValue(Record record) throws SomethingWrongWithRecordException {
+	/**
+	 * Performs some tests on the record and returns its value as double on success <br>
+	 * - tests if record != null <br>
+	 * - tests if flag is valid <br>
+	 * - tests if value != null <br>
+	 * 
+	 * @param record
+	 * @return the value as double
+	 * @throws SomethingWrongWithRecordException
+	 */
+	public static double getDoubleRecordValue(Record record) throws SomethingWrongWithRecordException {
 
-        double result;
+		double result;
 
-        if (record != null) {
-            Flag flag = record.getFlag();
-            if (flag == Flag.VALID) {
-                Value value = record.getValue();
-                if (value != null) {
-                    result = value.asDouble();
-                } else {
-                    throw new SomethingWrongWithRecordException("Value is null");
-                }
-            } else {
-                throw new SomethingWrongWithRecordException("Flag != Valid - " + flag.toString());
-            }
-        } else {
-            throw new SomethingWrongWithRecordException("Record is null");
-        }
+		if (record != null) {
+			Flag flag = record.getFlag();
+			if (flag == Flag.VALID) {
+				Value value = record.getValue();
+				if (value != null) {
+					result = value.asDouble();
+				}
+				else {
+					throw new SomethingWrongWithRecordException("Value is null");
+				}
+			}
+			else {
+				throw new SomethingWrongWithRecordException("Flag != Valid - " + flag.toString());
+			}
+		}
+		else {
+			throw new SomethingWrongWithRecordException("Record is null");
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public static double getWaitForLatestRecordValue(Channel sourceChannel, Record lastRecord) {
+	public static double getWaitForLatestRecordValue(Channel sourceChannel, Record lastRecord) {
 
-        double returnValue;
+		double returnValue;
 
-        do {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } while (sourceChannel.getLatestRecord().getTimestamp().equals(lastRecord.getTimestamp()));
+		do {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} while (sourceChannel.getLatestRecord().getTimestamp().equals(lastRecord.getTimestamp()));
 
-        returnValue = sourceChannel.getLatestRecord().getValue().asDouble();
-        return returnValue;
-    }
+		returnValue = sourceChannel.getLatestRecord().getValue().asDouble();
+		return returnValue;
+	}
 }

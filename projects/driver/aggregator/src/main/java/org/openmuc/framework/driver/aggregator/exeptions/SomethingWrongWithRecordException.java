@@ -22,14 +22,14 @@ package org.openmuc.framework.driver.aggregator.exeptions;
 
 public class SomethingWrongWithRecordException extends Exception {
 
-    private final String message;
+	private final String message;
 
-    public SomethingWrongWithRecordException(String message) {
-        this.message = message;
-    }
+	public SomethingWrongWithRecordException(String message) {
+		this.message = message;
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 }

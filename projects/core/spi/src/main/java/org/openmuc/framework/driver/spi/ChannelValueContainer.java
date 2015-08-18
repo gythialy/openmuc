@@ -26,15 +26,15 @@ import org.openmuc.framework.data.Value;
 
 public interface ChannelValueContainer {
 
-    String getChannelAddress();
+	String getChannelAddress();
 
-    Object getChannelHandle();
+	Object getChannelHandle();
 
-    void setChannelHandle(Object handle);
+	void setChannelHandle(Object handle);
 
-    Value getValue();
+	Value getValue();
 
-    void setFlag(Flag flag);
+	void setFlag(Flag flag);
 
-    Flag getFlag();
+	Flag getFlag();
 }

@@ -24,8 +24,8 @@ import org.junit.Test;
 
 public class TestJsonHelper_toJson {
 
-    @Test
-    public void test_RecordToJson() {
+	@Test
+	public void test_RecordToJson() {
 
-    }
+	}
 }

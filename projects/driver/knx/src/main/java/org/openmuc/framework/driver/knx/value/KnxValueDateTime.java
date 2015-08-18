@@ -22,45 +22,47 @@ package org.openmuc.framework.driver.knx.value;
 
 import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.Value;
+
 import tuwien.auto.calimero.dptxlator.DPTXlatorDateTime;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
 /**
  * @author frobra
+ * 
  */
 public class KnxValueDateTime extends KnxValue {
 
-    /**
-     * @param dptID
-     * @throws KNXFormatException
-     */
-    public KnxValueDateTime(String dptID) throws KNXFormatException {
-        dptXlator = new DPTXlatorDateTime(dptID);
-    }
+	/**
+	 * @param dptID
+	 * @throws KNXFormatException
+	 */
+	public KnxValueDateTime(String dptID) throws KNXFormatException {
+		dptXlator = new DPTXlatorDateTime(dptID);
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-     */
-    @Override
-    public void setOpenMucValue(Value value) throws KNXFormatException {
-        ((DPTXlatorDateTime) dptXlator).setValue(value.asLong());
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+	 */
+	@Override
+	public void setOpenMucValue(Value value) throws KNXFormatException {
+		((DPTXlatorDateTime) dptXlator).setValue(value.asLong());
 
-    }
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
-     */
-    @Override
-    public Value getOpenMucValue() {
-        try {
-            return new LongValue(((DPTXlatorDateTime) dptXlator).getValueMilliseconds());
-        } catch (Exception e) {
-            return new LongValue(0);
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
+	 */
+	@Override
+	public Value getOpenMucValue() {
+		try {
+			return new LongValue(((DPTXlatorDateTime) dptXlator).getValueMilliseconds());
+		} catch (Exception e) {
+			return new LongValue(0);
+		}
+	}
 
 }

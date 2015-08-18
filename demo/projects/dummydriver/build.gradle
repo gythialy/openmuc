@@ -4,7 +4,7 @@ apply plugin: 'eclipse'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 
-version = '0.15.1'
+version = '0.15.2'
 group = 'org.openmuc.framework'
 def bundleSymbolicName = 'org.openmuc.framework.driver.dummy'
 def bundleName = 'OpenMUC Driver - Dummy'
@@ -20,12 +20,12 @@ repositories {
 }
 
 dependencies {
-  testCompile group: 'junit', name: 'junit', version: '4.10'
+  testCompile group: 'junit', name: 'junit', version: '4.12'
   compile group: 'org.osgi', name: 'org.osgi.core', version: '4.3.1'
   compile group: 'org.osgi', name: 'org.osgi.compendium', version: '4.3.1'
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
-  compile group: 'org.openmuc.framework', name: 'openmuc-core-api', version: '0.15.1'
-  compile group: 'org.openmuc.framework', name: 'openmuc-core-spi', version: '0.15.1'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+  compile group: 'org.openmuc.framework', name: 'openmuc-core-api', version: '0.15.2'
+  compile group: 'org.openmuc.framework', name: 'openmuc-core-spi', version: '0.15.2'
 }
 
 jar {

@@ -1,103 +1,103 @@
 <!doctype html>
 <html lang="en" ng-app="openmuc">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+          
+     <!--  JQuery -->
+     <script src="openmuc/js/libs/jquery/jquery.js"></script>
+     
+     <!-- Bootstrap -->
+     <link rel="stylesheet" href="openmuc/css/libs/bootstrap/bootstrap.css">
+     <script src="openmuc/js/libs/bootstrap/bootstrap.js"></script>
+     <link rel="stylesheet" href="openmuc/css/libs/bootstrap/bootstrap-additions.css">
+     
+     <!-- Stylesheets -->
+     <link href="openmuc/css/main.css" rel="stylesheet" type="text/css" />
+     <link href="openmuc/css/helpers/helper.css" rel="stylesheet" type="text/css" />
+     <link href="openmuc/css/dashboard/dashboard.css" rel="stylesheet" type="text/css" />
+     <link rel="stylesheet" href="openmuc/css/libs/fontawesome/font-awesome.css" />
+          
+     <!--  Angular -->
+     <script type='text/javascript' src='openmuc/js/libs/angularjs/angular.js'></script>
+     <script type='text/javascript' src='openmuc/js/libs/angularjs/angular-cookies.js'></script>
+     <script type='text/javascript' src='openmuc/js/libs/angularjs/angular-ui-router.js'></script>
+     <script type='text/javascript' src='openmuc/js/libs/angularjs/angular-route.js'></script>
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-strap.js"></script>
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-strap.tpl.js"></script>
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-translate.js"></script>
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-translate-storage-cookie.min.js"></script>
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-input-match.js"></script>
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/oc-lazy-load.js"></script>
+     
+     <!-- 
+     Used for date picker locale
+     <script type='text/javascript' src="https://code.angularjs.org/1.2.5/i18n/angular-locale_de-de.js"></script>
+     -->
+     
+     <!--  AngularMotion -->
+     <link rel="stylesheet" href="openmuc/css/libs/angularjs/angular-motion.css">
+     <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-animate.js"></script>
+     
+     <!-- app -->
+     <script type='text/javascript' src='openmuc/js/app.js'></script>
+     <script type='text/javascript' src='openmuc/js/app.routes.js'></script>
+     <script type='text/javascript' src='openmuc/js/app.i18n.js'></script>
+     <script type='text/javascript' src='openmuc/js/commons/constants.js'></script>
+     <script type='text/javascript' src='openmuc/js/commons/filters.js'></script>
+     <script type='text/javascript' src='openmuc/js/commons/tabsController.js'></script>
+     <script type='text/javascript' src='openmuc/js/application/applicationController.js'></script>
+     <script type='text/javascript' src='openmuc/js/apps/availableAppsService.js'></script>
+     <script type='text/javascript' src='openmuc/js/apps/appsDependenciesService.js'></script>
+     <script type='text/javascript' src='openmuc/js/sessions/loginController.js'></script>
+     <script type='text/javascript' src='openmuc/js/dashboard/dashboardController.js'></script>
+     <script type='text/javascript' src='openmuc/js/authentication/authService.js'></script>
+     <script type='text/javascript' src='openmuc/js/authentication/restServerAuthService.js'></script>
+     
+    <title>Open MUC Web UI</title>    
+  </head>
 
-    <!--  JQuery -->
-    <script src="openmuc/js/libs/jquery/jquery.js"></script>
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="openmuc/css/libs/bootstrap/bootstrap.css">
-    <script src="openmuc/js/libs/bootstrap/bootstrap.js"></script>
-    <link rel="stylesheet" href="openmuc/css/libs/bootstrap/bootstrap-additions.css">
-
-    <!-- Stylesheets -->
-    <link href="openmuc/css/main.css" rel="stylesheet" type="text/css"/>
-    <link href="openmuc/css/helpers/helper.css" rel="stylesheet" type="text/css"/>
-    <link href="openmuc/css/dashboard/dashboard.css" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="openmuc/css/libs/fontawesome/font-awesome.css"/>
-
-    <!--  Angular -->
-    <script type='text/javascript' src='openmuc/js/libs/angularjs/angular.js'></script>
-    <script type='text/javascript' src='openmuc/js/libs/angularjs/angular-cookies.js'></script>
-    <script type='text/javascript' src='openmuc/js/libs/angularjs/angular-ui-router.js'></script>
-    <script type='text/javascript' src='openmuc/js/libs/angularjs/angular-route.js'></script>
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-strap.js"></script>
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-strap.tpl.js"></script>
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-translate.js"></script>
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-translate-storage-cookie.min.js"></script>
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-input-match.js"></script>
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/oc-lazy-load.js"></script>
-
-    <!--
-    Used for date picker locale
-    <script type='text/javascript' src="https://code.angularjs.org/1.2.5/i18n/angular-locale_de-de.js"></script>
-    -->
-
-    <!--  AngularMotion -->
-    <link rel="stylesheet" href="openmuc/css/libs/angularjs/angular-motion.css">
-    <script type='text/javascript' src="openmuc/js/libs/angularjs/angular-animate.js"></script>
-
-    <!-- app -->
-    <script type='text/javascript' src='openmuc/js/app.js'></script>
-    <script type='text/javascript' src='openmuc/js/app.routes.js'></script>
-    <script type='text/javascript' src='openmuc/js/app.i18n.js'></script>
-    <script type='text/javascript' src='openmuc/js/commons/constants.js'></script>
-    <script type='text/javascript' src='openmuc/js/commons/filters.js'></script>
-    <script type='text/javascript' src='openmuc/js/commons/tabsController.js'></script>
-    <script type='text/javascript' src='openmuc/js/application/applicationController.js'></script>
-    <script type='text/javascript' src='openmuc/js/apps/availableAppsService.js'></script>
-    <script type='text/javascript' src='openmuc/js/apps/appsDependenciesService.js'></script>
-    <script type='text/javascript' src='openmuc/js/sessions/loginController.js'></script>
-    <script type='text/javascript' src='openmuc/js/dashboard/dashboardController.js'></script>
-    <script type='text/javascript' src='openmuc/js/authentication/authService.js'></script>
-    <script type='text/javascript' src='openmuc/js/authentication/restServerAuthService.js'></script>
-
-    <title>Open MUC Web UI</title>
-</head>
-
-<body ng-controller="ApplicationController">
-<div id="wrap">
-
-    <nav class="navbar navbar-default" role="navigation" id="header">
+  <body ng-controller="ApplicationController">
+    <div id="wrap">
+    
+      <nav class="navbar navbar-default" role="navigation" id="header">
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#openmuc-navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" ui-sref="home">
-                    <img alt="Openmuc" src="/openmuc/images/openmuc-logo.png">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#openmuc-navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" ui-sref="home" >
+              <img alt="Openmuc" src="/openmuc/images/openmuc-logo.png">
+            </a>
+          </div>
+      
+          <div class="collapse navbar-collapse" id="openmuc-navbar">
+            <ul class="nav navbar-nav" ng-if="isLoggedIn()" role="menu">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                  <i class="fa fa-th-large fa-lg"></i> 
+                  <span class="dropdown-label">{{ 'APPLICATIONS' | translate }}</span>
+                  <span class="caret"></span>
                 </a>
-            </div>
 
-            <div class="collapse navbar-collapse" id="openmuc-navbar">
-                <ul class="nav navbar-nav" ng-if="isLoggedIn()" role="menu">
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                            <i class="fa fa-th-large fa-lg"></i>
-                            <span class="dropdown-label">{{ 'APPLICATIONS' | translate }}</span>
-                            <span class="caret"></span>
-                        </a>
-
-                        <ul class="dropdown-menu" role="menu" ng-controller="DashboardController">
-                            <li ng-repeat="app in availableApps">
-                                <a ui-sref="{{app.alias}}.index">
+	              <ul class="dropdown-menu" role="menu" ng-controller="DashboardController">
+	                <li ng-repeat="app in availableApps">
+	                  <a ui-sref="{{app.alias}}.index">
 	                    <span class="icon">
-	                      <img src="{{app.alias}}/images/icon.png"/>
+	                      <img src="{{app.alias}}/images/icon.png" />
 	                    </span>{{app.name}}
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-
-                <ul class="nav navbar-nav navbar-right" role="tablist">
-                    <li role="presentation" class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+	                  </a>
+	                </li>
+	              </ul>                
+              </li>
+            </ul>
+            
+            <ul class="nav navbar-nav navbar-right" role="tablist">
+				      <li role="presentation" class="dropdown">
+				        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                    <span ng-if="currentLanguageIsEnglish()">
                      <span class="flag flag-en"></span>
                      <span class="dropdown-label">{{ 'BUTTON_LANG_EN' | translate }}</span>
@@ -106,63 +106,63 @@
                      <span class="flag flag-de"></span>
                      <span class="dropdown-label">{{ 'BUTTON_LANG_DE' | translate }}</span>
                    </span>
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li ng-if="currentLanguageIsGerman()">
-                                <a ng-click="changeLanguage('en')">
-                                    <span class="flag flag-en"></span>
-                                    <span class="dropdown-label">{{ 'BUTTON_LANG_EN' | translate }}</span>
-                                </a>
-                            </li>
-                            <li ng-if="currentLanguageIsEnglish()">
-                                <a ng-click="changeLanguage('de')">
-                                    <span class="flag flag-de"></span>
-                                    <span class="dropdown-label">{{ 'BUTTON_LANG_DE' | translate }}</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li ng-if="isLoggedIn()" role="presentation" class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                            <i class="fa fa-user fa-lg"></i>
-                            <span class="dropdown-label">{{ currentUsername() }}</span>
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li>
-                                <a class="clearfix" ui-sref="userconfigurator.edit({id: currentUser.user})">
-                                    <span class="icon fa fa-pencil"></span> {{ 'EDIT_PROFILE' | translate }}
-                                </a>
-                            </li>
-                            <li>
-                                <a class="clearfix" ng-click="logout()">
-                                    <span class="icon fa fa-power-off"></span> {{ 'LOGOUT' | translate }}
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                   <span class="caret"></span>
+                 </a>
+                 <ul class="dropdown-menu" role="menu">
+                   <li ng-if="currentLanguageIsGerman()">
+                     <a ng-click="changeLanguage('en')">
+                       <span class="flag flag-en"></span>
+                       <span class="dropdown-label">{{ 'BUTTON_LANG_EN' | translate }}</span>
+                     </a>
+                   </li>
+                   <li ng-if="currentLanguageIsEnglish()">
+                     <a ng-click="changeLanguage('de')">
+                       <span class="flag flag-de"></span>
+                       <span class="dropdown-label">{{ 'BUTTON_LANG_DE' | translate }}</span>
+                     </a>
+                   </li>
+                 </ul>
+				      </li>
+				      <li ng-if="isLoggedIn()" role="presentation" class="dropdown">
+				        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+				          <i class="fa fa-user fa-lg"></i> 
+				          <span class="dropdown-label">{{ currentUsername() }}</span>
+				          <span class="caret"></span>
+				        </a>
+				        <ul class="dropdown-menu" role="menu">
+				          <li>
+				            <a class="clearfix" ui-sref="userconfigurator.edit({id: currentUser.user})">
+				              <span class="icon fa fa-pencil"></span> {{ 'EDIT_PROFILE' | translate }}
+				            </a>
+				          </li>
+				          <li>
+				            <a class="clearfix" ng-click="logout()">
+				              <span class="icon fa fa-power-off"></span> {{ 'LOGOUT' | translate }}
+				            </a>
+				          </li>
+				        </ul>
+				      </li>
+				    </ul>
 
-            </div>
+          </div>
         </div>
-    </nav>
+      </nav>
 
-    <div class="container">
+      <div class="container">
         <div ui-view></div>
+      </div>
+    
     </div>
-
-</div>
-<footer class="footer clearfix" id="footer">
-    <div class="container">
+    <footer class="footer clearfix" id="footer">
+      <div class="container"> 
         <div class="pull-left">
-            openmuc.org &copy; 2015
+          openmuc.org &copy; 2015
         </div>
         <div class="pull-right">
-            <img alt="Openmuc" src="/openmuc/images/footer.png" height="40">
+          <img alt="Openmuc" src="/openmuc/images/footer.png" height="40">
         </div>
-    </div>
-</footer>
-
-</body>
+      </div>          
+    </footer>
+    
+  </body>
 </html>

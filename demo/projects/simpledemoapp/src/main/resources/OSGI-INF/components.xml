@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="org.openmuc.framework.app.simpledemo">
+  <implementation class="org.openmuc.framework.app.simpledemo.SimpleDemoApp" /> 
+  <reference name="dataAccessService"
+	     interface="org.openmuc.framework.dataaccess.DataAccessService"
+	     bind="setDataAccessService"
+	     unbind="unsetDataAccessService" />
+</component>

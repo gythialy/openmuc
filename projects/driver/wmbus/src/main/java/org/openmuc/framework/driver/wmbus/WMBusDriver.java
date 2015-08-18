@@ -34,77 +34,77 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WMBusDriver implements DriverService {
-    private final static Logger logger = LoggerFactory.getLogger(WMBusDriver.class);
+	private final static Logger logger = LoggerFactory.getLogger(WMBusDriver.class);
 
-    private final static DriverInfo info = new DriverInfo("wmbus", // id
-                                                          // description
-                                                          "Wireless M-Bus is a protocol to read out meters and sensors.",
-                                                          // device address
-                                                          "Synopsis: <serial_port>:<secondary_address>\nExample for <serial_port>: " +
-                                                                  "/dev/ttyS0 (Unix), COM1 (Windows)\n<mbus_id> as a hex string",
-                                                          // settings
-                                                          "Synopsis: <transceiver> <mode> [<key>]\n",
-                                                          // channel address
-                                                          "Synopsis: <dib>:<vib>",
-                                                          // device scan parameters
-                                                          "N.A.");
+	private final static DriverInfo info = new DriverInfo("wmbus", // id
+			// description
+			"Wireless M-Bus is a protocol to read out meters and sensors.",
+			// device address
+			"Synopsis: <serial_port>:<secondary_address>\nExample for <serial_port>: /dev/ttyS0 (Unix), COM1 (Windows)\n<mbus_id> as a hex string",
+			// settings
+			"Synopsis: <transceiver> <mode> [<key>]\n",
+			// channel address
+			"Synopsis: <dib>:<vib>",
+			// device scan settings
+			"N.A.");
 
-    @Override
-    public DriverInfo getInfo() {
-        return info;
-    }
+	@Override
+	public DriverInfo getInfo() {
+		return info;
+	}
 
-    @Override
-    public void scanForDevices(String settings, DriverDeviceScanListener listener) throws UnsupportedOperationException,
-            ArgumentSyntaxException, ScanException, ScanInterruptedException {
-        throw new UnsupportedOperationException();
-    }
+	@Override
+	public void scanForDevices(String settings, DriverDeviceScanListener listener)
+			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+		throw new UnsupportedOperationException();
+	}
 
-    @Override
-    public void interruptDeviceScan() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
+	@Override
+	public void interruptDeviceScan() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
 
-    @Override
-    public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException, ConnectionException {
+	@Override
+	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
+			ConnectionException {
 
-        String[] deviceAddressTokens = deviceAddress.trim().split(":");
+		String[] deviceAddressTokens = deviceAddress.trim().split(":");
 
-        if (deviceAddressTokens.length != 2) {
-            throw new ArgumentSyntaxException("The device address does not consist of two parameters.");
-        }
+		if (deviceAddressTokens.length != 2) {
+			throw new ArgumentSyntaxException("The device address does not consist of two parameters.");
+		}
 
-        String serialPortName = deviceAddressTokens[0];
-        String secondaryAddressAsString = deviceAddressTokens[1].toLowerCase();
-        SecondaryAddress secondaryAddress;
-        try {
-            secondaryAddress = SecondaryAddress
-                    .getFromWMBusLinkLayerHeader(HexConverter.getByteArrayFromShortHexString(secondaryAddressAsString), 0);
-        } catch (NumberFormatException e) {
-            throw new ArgumentSyntaxException(
-                    "The SecondaryAddress: " + secondaryAddressAsString + " could not be converted to a byte array.");
-        }
+		String serialPortName = deviceAddressTokens[0];
+		String secondaryAddressAsString = deviceAddressTokens[1].toLowerCase();
+		SecondaryAddress secondaryAddress;
+		try {
+			secondaryAddress = SecondaryAddress.getFromWMBusLinkLayerHeader(
+					HexConverter.getByteArrayFromShortHexString(secondaryAddressAsString), 0);
+		} catch (NumberFormatException e) {
+			throw new ArgumentSyntaxException("The SecondaryAddress: " + secondaryAddressAsString
+					+ " could not be converted to a byte array.");
+		}
 
-        String[] settingsTokens = settings.trim().toLowerCase().split(" ");
+		String[] settingsTokens = settings.trim().toLowerCase().split(" ");
 
-        if (settingsTokens.length < 2 || settingsTokens.length > 3) {
-            throw new ArgumentSyntaxException("The device's settings parameters does not contain 2 or 3 parameters.");
-        }
+		if (settingsTokens.length < 2 || settingsTokens.length > 3) {
+			throw new ArgumentSyntaxException("The device's settings parameters does not contain 2 or 3 parameters.");
+		}
 
-        String transceiverString = settingsTokens[0];
-        String modeString = settingsTokens[1];
-        String keyString = null;
-        if (settingsTokens.length == 3) {
-            keyString = settingsTokens[2];
-        }
+		String transceiverString = settingsTokens[0];
+		String modeString = settingsTokens[1];
+		String keyString = null;
+		if (settingsTokens.length == 3) {
+			keyString = settingsTokens[2];
+		}
 
-        WMBusSerialInterface serialInterface;
+		WMBusSerialInterface serialInterface;
 
-        synchronized (this) {
-            serialInterface = WMBusSerialInterface.getInstance(serialPortName, transceiverString, modeString);
-            return serialInterface.connect(secondaryAddress, keyString);
-        }
+		synchronized (this) {
+			serialInterface = WMBusSerialInterface.getInstance(serialPortName, transceiverString, modeString);
+			return serialInterface.connect(secondaryAddress, keyString);
+		}
 
-    }
+	}
 
 }

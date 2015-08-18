@@ -26,51 +26,51 @@ import java.util.List;
 
 public final class AjaxView implements View {
 
-    private final String content;
+	private final String content;
 
-    private final HashMap<String, Object> context = new HashMap<String, Object>();
+	private final HashMap<String, Object> context = new HashMap<String, Object>();
 
-    public void addToContext(String key, Object object) {
-        context.put(key, object);
-    }
+	public void addToContext(String key, Object object) {
+		context.put(key, object);
+	}
 
-    public AjaxView(String content) {
-        this.content = content;
-    }
+	public AjaxView(String content) {
+		this.content = content;
+	}
 
-    @Override
-    public HashMap<String, Object> getContext() {
-        return context;
-    }
+	@Override
+	public HashMap<String, Object> getContext() {
+		return context;
+	}
 
-    @Override
-    public List<String> getJavaScripts() {
-        return null;
-    }
+	@Override
+	public List<String> getJavaScripts() {
+		return null;
+	}
 
-    @Override
-    public String getPage() {
-        return null;
-    }
+	@Override
+	public String getPage() {
+		return null;
+	}
 
-    @Override
-    public String getRedirectLocation() {
-        return null;
-    }
+	@Override
+	public String getRedirectLocation() {
+		return null;
+	}
 
-    @Override
-    public List<String> getStyleSheets() {
-        return null;
-    }
+	@Override
+	public List<String> getStyleSheets() {
+		return null;
+	}
 
-    @Override
-    public String getTemplate() {
-        return content;
-    }
+	@Override
+	public String getTemplate() {
+		return content;
+	}
 
-    @Override
-    public viewtype getViewType() {
-        return View.viewtype.AJAX;
-    }
+	@Override
+	public viewtype getViewType() {
+		return View.viewtype.AJAX;
+	}
 
 }

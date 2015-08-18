@@ -25,18 +25,18 @@ import org.openmuc.framework.data.ValueType;
 
 public interface LogChannel {
 
-    public String getId();
+	public String getId();
 
-    public String getDescription();
+	public String getDescription();
 
-    public String getUnit();
+	public String getUnit();
 
-    public ValueType getValueType();
+	public ValueType getValueType();
 
-    public Integer getValueTypeLength();
+	public Integer getValueTypeLength();
 
-    public Integer getLoggingInterval();
+	public Integer getLoggingInterval();
 
-    public Integer getLoggingTimeOffset();
+	public Integer getLoggingTimeOffset();
 
 }
