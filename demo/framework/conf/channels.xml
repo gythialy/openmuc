@@ -8,7 +8,7 @@
         <channelAddress>dummy/channel/address/voltage</channelAddress>
         <unit>V</unit>
         <samplingInterval>100ms</samplingInterval>
-        <loggingInterval>5s</loggingInterval>
+        <loggingInterval>1s</loggingInterval>
       </channel>
       <channel id="CurrentChannel">
         <channelAddress>dummy/channel/address/current</channelAddress>
@@ -51,7 +51,7 @@
   <driver id="aggregator">
     <device id="aggregatordevice">
       <channel id="VoltageChannelAVG">
-        <channelAddress>VoltageChannel:AVG</channelAddress>
+        <channelAddress>VoltageChannel:AVG:0.9</channelAddress>
         <valueType>DOUBLE</valueType>
         <samplingInterval>15s</samplingInterval>
         <samplingTimeOffset>13s</samplingTimeOffset>

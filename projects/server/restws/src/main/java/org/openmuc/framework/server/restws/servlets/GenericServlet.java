@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -75,7 +75,8 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
 	}
 
 	@Override
-	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doDelete(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
 	}
 
@@ -113,9 +114,9 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
 		}
 
 		/* Accept only "application/json" and null. Null is a browser request. */
-		if (request.getContentType() != null && !request.getContentType().equals("application/json")) {
+		if (request.getContentType() != null && !request.getContentType().startsWith("application/json")) {
 			ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, logger,
-					"Requested rest was not a json media type. Requsted media type is: " + request.getContentType());
+					"Requested rest was not a json media type. Requested media type is: " + request.getContentType());
 			pathAndQueryString = null;
 		}
 		else {

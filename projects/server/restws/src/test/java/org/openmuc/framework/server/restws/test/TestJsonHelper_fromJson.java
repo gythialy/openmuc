@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -95,9 +95,9 @@ public class TestJsonHelper_fromJson {
 			}
 			if (record.getFlag().compareTo(Constants.TEST_FLAG) != 0) {
 				result = false;
-				System.out.println(testMethodName + ": result is \"" + result
-						+ "\"; error: Record flag is wrong. Should be " + Constants.TEST_FLAG + " but is "
-						+ record.getFlag());
+				System.out.println(
+						testMethodName + ": result is \"" + result + "\"; error: Record flag is wrong. Should be "
+								+ Constants.TEST_FLAG + " but is " + record.getFlag());
 				break;
 			}
 			result = TestTools.testValue(testMethodName, valueType, record.getValue());

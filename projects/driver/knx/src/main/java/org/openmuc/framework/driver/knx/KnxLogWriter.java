@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,10 +26,6 @@ import org.slf4j.LoggerFactory;
 import tuwien.auto.calimero.log.LogLevel;
 import tuwien.auto.calimero.log.LogWriter;
 
-/**
- * @author frobra
- * 
- */
 public class KnxLogWriter extends LogWriter {
 
 	private static Logger logger = LoggerFactory.getLogger(KnxLogWriter.class);

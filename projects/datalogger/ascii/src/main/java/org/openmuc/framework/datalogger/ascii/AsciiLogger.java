@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,10 +22,8 @@ package org.openmuc.framework.datalogger.ascii;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
@@ -51,6 +48,7 @@ public class AsciiLogger implements DataLoggerService {
 
 	private final String loggerDirectory;
 	private final HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
+	private static HashMap<String, Long> lastLoggedLineList = new HashMap<String, Long>();
 	private boolean isFillUpFiles = false;
 
 	protected void activate(ComponentContext context) {
@@ -120,18 +118,28 @@ public class AsciiLogger implements DataLoggerService {
 		}
 
 		if (isFillUpFiles) {
-			Map<String, Boolean> areHeaderIdentical = isHeaderIdentical(channels, calendar);
+			Map<String, Boolean> areHeaderIdentical = LoggerUtils.areHeadersIdentical(loggerDirectory, channels,
+					calendar);
 
 			for (Entry<String, Boolean> entry : areHeaderIdentical.entrySet()) {
 				String key = entry.getKey();
+				boolean isHeaderIdentical = entry.getValue();
 
-				if (!entry.getValue()) {
-					// rename file in old file, because of configuration has changed
-					LoggerUtils.renameFileToOld(loggerDirectory, key, calendar);
+				if (isHeaderIdentical) {
+					// Fill file up with error flag 32 (DATA_LOGGING_NOT_ACTIVE)
+					if (logger.isTraceEnabled()) {
+						logger.trace(
+								"Fill file " + LoggerUtils.buildFilename(key, calendar) + " up with error flag 32.");
+					}
+					LoggerUtils.fillUpFileWithErrorCode(loggerDirectory, key, calendar);
 				}
 				else {
-					// Fill file up with error flag 32 (DATA_LOGGING_NOT_ACTIVE)
-					LoggerUtils.fillUpFileWithErrorCode(loggerDirectory, key, calendar);
+					// rename file in old file, because of configuration has changed
+					if (logger.isTraceEnabled()) {
+						logger.trace("Header not identical. Rename file " + LoggerUtils.buildFilename(key, calendar)
+								+ " to old.");
+					}
+					LoggerUtils.renameFileToOld(loggerDirectory, key, calendar);
 				}
 			}
 		}
@@ -180,12 +188,17 @@ public class AsciiLogger implements DataLoggerService {
 		Iterator<Entry<List<Integer>, LogIntervalContainerGroup>> it = logIntervalGroups.entrySet().iterator();
 		List<Integer> logTimeArray;
 
+		Calendar calendar = new GregorianCalendar(Locale.getDefault());
+
 		while (it.hasNext()) {
 
 			logTimeArray = it.next().getKey();
 			LogIntervalContainerGroup group = logIntervalGroups.get(logTimeArray);
-			LogFileWriter fileOutHandler = new LogFileWriter();
-			fileOutHandler.log(group, logTimeArray.get(0), logTimeArray.get(1), new Date(timestamp), logChannelList);
+			LogFileWriter fileOutHandler = new LogFileWriter(isFillUpFiles);
+
+			calendar.setTimeInMillis(timestamp);
+
+			fileOutHandler.log(group, logTimeArray.get(0), logTimeArray.get(1), calendar, logChannelList);
 		}
 	}
 
@@ -198,7 +211,8 @@ public class AsciiLogger implements DataLoggerService {
 		if (logChannel != null) {
 			reader = new LogFileReader(loggerDirectory, logChannel);
 			return reader.getValues(startTime, endTime);
-		}// TODO: hier einfügen das nach Loggdateien gesucht werden sollen die vorhanden sind aber nicht geloggt werden,
+		} // TODO: hier einfügen das nach Loggdateien gesucht werden sollen die vorhanden sind aber nicht geloggt
+			// werden,
 			// z.B für server only ohne Logging. Das suchen sollte nur beim ersten mal passieren (start).
 		else {
 			throw new IOException("ChannelID (" + channelId + ") not available. It's not a logging Channel.");
@@ -214,46 +228,18 @@ public class AsciiLogger implements DataLoggerService {
 		}
 	}
 
-	private Map<String, Boolean> isHeaderIdentical(List<LogChannel> channels, Calendar calendar) {
+	public static Long getLastLoggedLineTimeStamp(int loggingInterval, int loggingOffset) {
 
-		Map<String, Boolean> areHeaderIdentical = new TreeMap<String, Boolean>();
-		Map<String, List<LogChannel>> logChannelMap = new TreeMap<String, List<LogChannel>>();
-		LogFileHeader logFileHeader = new LogFileHeader();
-		String key = "";
-
-		for (LogChannel logChannel : channels) {
-
-			if (logChannel.getLoggingTimeOffset() != 0) {
-				key = logChannel.getLoggingInterval() + "_" + logChannel.getLoggingTimeOffset();
-			}
-			else {
-				key = logChannel.getLoggingInterval().toString();
-			}
-
-			if (!logChannelMap.containsKey(key)) {
-				List<LogChannel> logChannelList = new ArrayList<LogChannel>();
-				logChannelList.add(logChannel);
-				logChannelMap.put(key, logChannelList);
-			}
-			else {
-				logChannelMap.get(key).add(logChannel);
-			}
-		}
-
-		List<LogChannel> logChannels;
-
-		for (Entry<String, List<LogChannel>> entry : logChannelMap.entrySet()) {
-
-			key = entry.getKey();
-			logChannels = entry.getValue();
-			String fileName = LoggerUtils.buildFilename(key, calendar);
-
-			String headerGenerated = logFileHeader.getIESDataFormatHeaderString(fileName, logChannels);
-			String oldHeader = LoggerUtils.getHeaderFromFile(loggerDirectory + fileName, key);
-			boolean isToFillUp = headerGenerated.equals(oldHeader);
-			areHeaderIdentical.put(key, isToFillUp);
-		}
-		return areHeaderIdentical;
+		return lastLoggedLineList.get(loggingInterval + Const.TIME_SEPERATOR_STRING + loggingOffset);
 	}
 
+	public static void setLastLoggedLineTimeStamp(String loggerInterval_loggerTimeOffset, long lastTimestamp) {
+
+		lastLoggedLineList.put(loggerInterval_loggerTimeOffset, lastTimestamp);
+	}
+
+	public static void setLastLoggedLineTimeStamp(int loggingInterval, int loggingOffset, long lastTimestamp) {
+
+		lastLoggedLineList.put(loggingInterval + Const.TIME_SEPERATOR_STRING + loggingOffset, lastTimestamp);
+	}
 }

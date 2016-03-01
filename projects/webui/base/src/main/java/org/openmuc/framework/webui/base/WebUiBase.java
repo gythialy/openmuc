@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -47,7 +47,8 @@ public final class WebUiBase {
 
 		servlet = new WebUiBaseServlet(this);
 
-		BundleHttpContext bundleHttpContext = new BundleHttpContext(context.getBundleContext().getBundle(), authService);
+		BundleHttpContext bundleHttpContext = new BundleHttpContext(context.getBundleContext().getBundle(),
+				authService);
 
 		try {
 			httpService.registerResources("/app", "/app", bundleHttpContext);
@@ -72,11 +73,16 @@ public final class WebUiBase {
 
 	protected void deactivate(ComponentContext context) {
 		logger.info("Deactivating WebUI Base");
-		httpService.unregister("/openmuc");
+
+		httpService.unregister("/app");
+		httpService.unregister("/assets");
 		httpService.unregister("/openmuc/css");
 		httpService.unregister("/openmuc/images");
+		httpService.unregister("/openmuc/html");
 		httpService.unregister("/openmuc/js");
-		httpService.unregister("/js");
+		httpService.unregister("/media");
+		httpService.unregister("/conf/webui");
+		httpService.unregister("/");
 	}
 
 	protected void setHttpService(HttpService httpService) {

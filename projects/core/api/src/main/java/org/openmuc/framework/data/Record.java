@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -34,6 +34,9 @@ public class Record {
 	public Record(Value value, Long timestamp, Flag flag) {
 		this.value = value;
 		this.timestamp = timestamp;
+		if (value == null && flag.equals(Flag.VALID)) {
+			throw new IllegalStateException("If a record's flag is set valid the value may not be NULL.");
+		}
 		this.flag = flag;
 	}
 

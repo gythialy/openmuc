@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,8 +20,6 @@
  */
 package org.openmuc.framework.driver.knx;
 
-import gnu.io.CommPortIdentifier;
-
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -38,6 +36,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gnu.io.CommPortIdentifier;
 import tuwien.auto.calimero.log.LogManager;
 
 public class KnxDriver implements DriverService {
@@ -48,8 +47,21 @@ public class KnxDriver implements DriverService {
 
 	final static int timeout = 10000;
 
-	private final static DriverInfo info = new DriverInfo("knx", "Driver to read and write KNX groupaddresses", "?",
-			"?", "?", "?");
+	private final static DriverInfo info = new DriverInfo(
+			// id*/
+			"knx",
+			// description
+			"Driver to read and write KNX groupaddresses.",
+			// device address
+			"Synopsis for KNXnet/IP: " + ADDRESS_SCHEME_KNXIP + "://<host_ip>[:<port>];" + ADDRESS_SCHEME_KNXIP
+					+ "://<device_ip>[:<port>] for Serial: " + ADDRESS_SCHEME_RC1180 + "://<serialPort>",
+			// settings
+			"Synopsis for KNXnet/IP: [Address=<Individual KNX address (e. g. 2.6.52)>];[SerialNumber=<Serial number>] for Serial [Address=<Individual KNX address (e. g. 2.6.52)>];[SerialNumber=<Serial number>]",
+			// channel address
+			"Synopsis for KNXnet/IP: <Group_Adress>:<DPT_ID> for Serial: <Group Adress>:<DPT_ID>[:<AET>:<SNorDoA>] ",
+			// device scan settings
+			"Synopsis for KNXnet/IP: <host_ip>;<mcast> for multicast scan or <host_ip>;<nat> for NAT scan for Serial: "
+					+ ADDRESS_SCHEME_RC1180 + "://<device>");
 
 	protected void activate(ComponentContext context) {
 		if (logger.isDebugEnabled()) {
@@ -70,9 +82,16 @@ public class KnxDriver implements DriverService {
 	public void scanForDevices(String settings, DriverDeviceScanListener listener)
 			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
-		String[] args = settings.split("\\s+");
+		String[] args = null;
+		logger.debug("settings = " + settings);
+		if (settings != null && !settings.isEmpty() && settings.length() == 2) {
+			args = settings.split(";");
+			logger.debug("args[0] = " + args[0]);
+			logger.debug("args[1] = " + args[1]);
+		}
 
-		if (args.length > 0) {
+		if (args != null && args.length > 0) {
+			logger.debug("if");
 			boolean natAware = false;
 			boolean mcastResponse = false;
 			if (args.length > 1) {
@@ -89,6 +108,7 @@ public class KnxDriver implements DriverService {
 			}
 		}
 		else {
+			logger.debug("else");
 			try {
 				Enumeration<?> ports = CommPortIdentifier.getPortIdentifiers();
 				while (ports.hasMoreElements()) {
@@ -110,8 +130,8 @@ public class KnxDriver implements DriverService {
 	}
 
 	@Override
-	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
-			ConnectionException {
+	public Connection connect(String deviceAddress, String settings)
+			throws ArgumentSyntaxException, ConnectionException {
 		return new KnxConnection(deviceAddress, settings, timeout);
 	}
 

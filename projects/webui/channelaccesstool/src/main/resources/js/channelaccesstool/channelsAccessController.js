@@ -25,6 +25,7 @@
 			});
 
 			$.each($scope.checkedDevices, function(index, device) {
+
 				ChannelsService.getChannels(device).then(function(channels){
 					device['channels'] = channels;
 					
@@ -37,21 +38,21 @@
 									
 			$scope.interval = $interval(function(){
 				$.each($scope.checkedDevices, function(i, device) {
-					$.each(device['channels'], function(j, channel) {
-						ChannelDataService.getChannelDataValues(channel).then(function(response){
-							channel['records'] = response;
+					DevicesService.getDeviceRecords(device).then(function(response){
+						var records = response.data.records;
+						$.each(device['channels'], function(j, channel) {
+							channel['records'] = records[j].record; // TODO: check IDs to see if is it the right channel
 						});
 					});
 				});
-			}, 1000);
-			
+			}, 1000);	
 		});
 
 		$scope.writeValue = function() {
 			$.each($scope.checkedDevices, function(i, device) {
 				$.each(device['channels'], function(j, channel) {
 					if (channel.newValue) {
-						ChannelsService.writeValue(channel.id, channel.newValue).then(function(resp) {
+						ChannelsService.writeValue(channel.id, channel.data.valueType, channel.newValue).then(function(resp) {
 							$alert({content: $scope.channelWriteValueOKText, type: 'success'});
 						}, function(error) {
 							$alert({content: $scope.channelWriteValueErrorText, type: 'warning'});

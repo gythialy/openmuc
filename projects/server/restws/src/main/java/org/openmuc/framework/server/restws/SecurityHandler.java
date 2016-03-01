@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -60,7 +60,7 @@ public class SecurityHandler implements HttpContext {
 		}
 		String usernameAndPassword = new String(DatatypeConverter.parseBase64Binary(authzHeader.substring(6)));
 
-		int userNameIndex = usernameAndPassword.indexOf(":");
+		int userNameIndex = usernameAndPassword.indexOf(':');
 		String username = usernameAndPassword.substring(0, userNameIndex);
 		String password = usernameAndPassword.substring(userNameIndex + 1);
 		return authService.login(username, password);

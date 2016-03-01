@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,8 +27,6 @@ import tuwien.auto.calimero.KNXAddress;
 
 /**
  * Container for a frame going to a RC1180 chip
- * 
- * @author Frederic Robra
  * 
  */
 class TransmittingFrame {
@@ -64,7 +62,8 @@ class TransmittingFrame {
 	 *            repetition counter
 	 * @param addressExtentionType
 	 *            For the Standard Frame, the AET shall be used as follows:<br>
-	 *            0: The field SN/DoA in the first block shall be interpreted as the KNX Serial Number of the sender.<br>
+	 *            0: The field SN/DoA in the first block shall be interpreted as the KNX Serial Number of the sender.
+	 *            <br>
 	 *            1: The field SN/DoA in the first block shall be interpreted as the RF Domain Address.
 	 * @param linkLayerFrameNumber
 	 *            Linklayer Frame Number

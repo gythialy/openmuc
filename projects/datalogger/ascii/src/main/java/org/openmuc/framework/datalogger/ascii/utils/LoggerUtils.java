@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,10 +35,16 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.datalogger.ascii.AsciiLogger;
+import org.openmuc.framework.datalogger.ascii.LogFileHeader;
+import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +70,7 @@ public class LoggerUtils {
 		calendarEnd.setTimeInMillis(endTimestamp);
 
 		// Rename timespanToFilenames....
-		// Filename YYYYMMDD_<LoggingIntervall>.dat
+		// Filename YYYYMMDD_<LoggingInterval>.dat
 		List<String> filenames = new ArrayList<String>();
 		while (calendarStart.before(calendarEnd) || calendarStart.equals(calendarEnd)) {
 			String filename = buildFilename(loggingInterval, logTimeOffset, calendarStart);
@@ -105,11 +111,11 @@ public class LoggerUtils {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format(Const.DATE_FORMAT, calendar));
-		sb.append('_');
+		sb.append(Const.TIME_SEPERATOR);
 		sb.append(String.valueOf(loggingInterval));
 
 		if (logTimeOffset != 0) {
-			sb.append('_');
+			sb.append(Const.TIME_SEPERATOR);
 			sb.append(logTimeOffset);
 		}
 		sb.append(Const.EXTENSION);
@@ -119,15 +125,17 @@ public class LoggerUtils {
 	/**
 	 * Builds the Logfile name from string interval_timeOffset and the date of the calendar
 	 * 
-	 * @param loggingInterval
+	 * @param interval_timeOffset
+	 *            the IntervallTimeOffset
 	 * @param calendar
+	 *            Calendar for the time of the file name
 	 * @return logfile name
 	 */
 	public static String buildFilename(String interval_timeOffset, Calendar calendar) {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format(Const.DATE_FORMAT, calendar));
-		sb.append('_');
+		sb.append(Const.TIME_SEPERATOR);
 		sb.append(interval_timeOffset);
 
 		sb.append(Const.EXTENSION);
@@ -163,37 +171,45 @@ public class LoggerUtils {
 		File dir = new File(directoryPath);
 		File[] files = dir.listFiles();
 
-		for (File file : files) {
-			String currentName = file.getName();
-			if (currentName.startsWith(date) && currentName.endsWith(Const.EXTENSION)) {
+		if (files != null && files.length > 0) {
 
-				String newName = currentName.substring(0, currentName.length() - Const.EXTENSION.length());
-				newName += Const.EXTENSION_OLD;
-				int j = 0;
+			for (File file : files) {
+				String currentName = file.getName();
+				if (currentName.startsWith(date) && currentName.endsWith(Const.EXTENSION)) {
 
-				File fileWithNewName = new File(directoryPath + newName + j);
+					String newName = currentName.substring(0, currentName.length() - Const.EXTENSION.length());
+					newName += Const.EXTENSION_OLD;
+					int j = 0;
 
-				while (fileWithNewName.exists()) {
-					++j;
-					fileWithNewName = new File(directoryPath + newName + j);
-				}
-				if (!file.renameTo(fileWithNewName)) {
-					logger.error("Could not rename file to " + newName);
+					File fileWithNewName = new File(directoryPath + newName + j);
+
+					while (fileWithNewName.exists()) {
+						++j;
+						fileWithNewName = new File(directoryPath + newName + j);
+					}
+					if (!file.renameTo(fileWithNewName)) {
+						logger.error("Could not rename file to " + newName);
+					}
 				}
 			}
 		}
+		else {
+			logger.error("No file found in " + directoryPath);
+		}
+
 	}
 
 	/**
-	 * This method renames a singel &lt;date&gt;_&lt;loggerIntervall&gt;_&lt;loggerTimeOffset&gt;.dat file into a
-	 * *.old0, *.old1, ...
+	 * This method renames a singel &lt;date&gt;_&lt;loggerInterval&gt;_&lt;loggerTimeOffset&gt;.dat file into a *.old0,
+	 * *.old1, ...
 	 * 
 	 * @param directoryPath
 	 * @param calendar
 	 */
-	public static void renameFileToOld(String directoryPath, String loggerIntervall_loggerTimeOffset, Calendar calendar) {
+	public static void renameFileToOld(String directoryPath, String loggerInterval_loggerTimeOffset,
+			Calendar calendar) {
 
-		File file = new File(directoryPath + buildFilename(loggerIntervall_loggerTimeOffset, calendar));
+		File file = new File(directoryPath + buildFilename(loggerInterval_loggerTimeOffset, calendar));
 
 		if (file.exists()) {
 			String currentName = file.getName();
@@ -274,10 +290,10 @@ public class LoggerUtils {
 	/**
 	 * This method adds a string value up with blank spaces from left to right.
 	 * 
-	 * @param value
-	 *            String value to fill up
-	 * @param size
-	 *            maximal allowed size
+	 * @param sb
+	 *            StringBuilder in wich the spaces will appended
+	 * @param number
+	 *            the number of spaces
 	 */
 	public static void appendSpaces(StringBuilder sb, int number) {
 
@@ -333,8 +349,8 @@ public class LoggerUtils {
 	 * @return column number as int, -1 if name not found
 	 * @throws IOException
 	 */
-	public static int getCommentColumnNumberByName(String name, BufferedReader br) throws IOException,
-			NullPointerException {
+	public static int getCommentColumnNumberByName(String name, BufferedReader br)
+			throws IOException, NullPointerException {
 
 		String line = br.readLine();
 
@@ -393,10 +409,10 @@ public class LoggerUtils {
 	 */
 	public static ValueType identifyValueType(int columnNumber, File dataFile) {
 
-		String valueType = getValueTypeAsString(columnNumber, dataFile);
-		String valueTypeArray[] = valueType.split(Const.VALUETYPE_ENDSIGN);
-
-		return ValueType.valueOf(valueTypeArray[0]);
+		String valueTypeWithSize = getValueTypeAsString(columnNumber, dataFile);
+		String valueTypeWithSizeArray[] = valueTypeWithSize.split(Const.VALUETYPE_ENDSIGN);
+		String valueType = valueTypeWithSizeArray[0].split(Const.VALUETYPE_SIZE_SEPARATOR)[0];
+		return ValueType.valueOf(valueType);
 	}
 
 	public static int getValueTypeLengthFromFile(int columnNumber, File dataFile) {
@@ -411,7 +427,7 @@ public class LoggerUtils {
 		String value = "";
 
 		try {
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(dataFile), "US-ASCII"));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(dataFile), Const.CHAR_SET));
 			int column = LoggerUtils.getCommentColumnNumberByName(Const.COMMENT_NAME, br);
 
 			if (column != -1) {
@@ -531,7 +547,7 @@ public class LoggerUtils {
 		sb.append(Const.SEPARATOR);
 	}
 
-	public static String getHeaderFromFile(String filePath, String logIntervall_logTimeOffset) {
+	public static String getHeaderFromFile(String filePath, String logInterval_logTimeOffset) {
 
 		BufferedReader br = LoggerUtils.getBufferedReader(new File(filePath));
 
@@ -569,7 +585,7 @@ public class LoggerUtils {
 	/**
 	 * Returns a RandomAccessFile of the specified file.
 	 * 
-	 * @param filePath
+	 * @param file
 	 * @param accsesMode
 	 * @return the RandomAccessFile of the specified file
 	 */
@@ -608,27 +624,26 @@ public class LoggerUtils {
 		return writer;
 	}
 
-	public static void fillUpFileWithErrorCode(String directoryPath, String loggerIntervall_loggerTimeOffset,
+	public static long fillUpFileWithErrorCode(String directoryPath, String loggerInterval_loggerTimeOffset,
 			Calendar calendar) {
 
-		String filename = buildFilename(loggerIntervall_loggerTimeOffset, calendar);
+		String filename = buildFilename(loggerInterval_loggerTimeOffset, calendar);
 		File file = new File(directoryPath + filename);
 		RandomAccessFile raf = LoggerUtils.getRandomAccessFile(file, "r");
 		PrintWriter out = null;
 
 		String firstLogLine = "";
 		String lastLogLine = "";
-		long loggingIntervall = 0;
+		long loggingInterval = 0;
 
-		if (loggerIntervall_loggerTimeOffset.contains("_")) {
-			loggingIntervall = Long.parseLong(loggerIntervall_loggerTimeOffset.split("_")[0]);
+		if (loggerInterval_loggerTimeOffset.contains(Const.TIME_SEPERATOR_STRING)) {
+			loggingInterval = Long.parseLong(loggerInterval_loggerTimeOffset.split(Const.TIME_SEPERATOR_STRING)[0]);
 		}
 		else {
-			loggingIntervall = Long.parseLong(loggerIntervall_loggerTimeOffset);
+			loggingInterval = Long.parseLong(loggerInterval_loggerTimeOffset);
 		}
 
-		// String restOfLastLine = "";
-		long unixTimeStamp = 0;
+		long lastLogLineTimeStamp = 0;
 
 		if (raf != null) {
 			try {
@@ -643,15 +658,15 @@ public class LoggerUtils {
 				}
 
 				// read last line backwards and read last line
-				byte[] byti = new byte[1];
+				byte[] readedByte = new byte[1];
 				long filePosition = file.length() - 2;
 				String charString;
 				while (lastLogLine.isEmpty() && filePosition > 0) {
 
 					raf.seek(filePosition);
-					int readedBytes = raf.read(byti);
+					int readedBytes = raf.read(readedByte);
 					if (readedBytes == 1) {
-						charString = new String(byti, Const.CHAR_SET);
+						charString = new String(readedByte, Const.CHAR_SET);
 
 						if (charString.equals(Const.LINESEPARATOR_STRING)) {
 							lastLogLine = raf.readLine();
@@ -676,31 +691,33 @@ public class LoggerUtils {
 					 * restOfLastLine = completeLastLine(firstLogLine, lastLogLine); raf.writeChars(restOfLastLine);
 					 */
 					// File is corrupted rename to old
-					renameFileToOld(directoryPath, loggerIntervall_loggerTimeOffset, calendar);
+					renameFileToOld(directoryPath, loggerInterval_loggerTimeOffset, calendar);
+					logger.error("File is coruppted, could not fill up, renamed it. " + file.getAbsolutePath());
+					return 0l;
 				}
 				else {
 
-					String lineArray[] = lastLogLine.split(Const.SEPARATOR);
+					String lastLogLineArray[] = lastLogLine.split(Const.SEPARATOR);
 
-					StringBuilder errorValues = getErrorValues(lineArray);
-					unixTimeStamp = ((long) Double.parseDouble(lineArray[2])) * 1000;
+					StringBuilder errorValues = getErrorValues(lastLogLineArray);
+					lastLogLineTimeStamp = (long) (Double.parseDouble(lastLogLineArray[2]) * 1000.);
 
-					// FileChannel fileChannel = raf.getChannel();
 					out = getPrintWriter(file, true);
 
-					long numberOfFillUpLines = getNumberOfFillUpLines(unixTimeStamp, loggingIntervall);
+					long numberOfFillUpLines = getNumberOfFillUpLines(lastLogLineTimeStamp, loggingInterval);
 
 					while (numberOfFillUpLines > 0) {
 
-						unixTimeStamp = fillUp(out, unixTimeStamp, loggingIntervall, lastLogLineLength,
+						lastLogLineTimeStamp = fillUp(out, lastLogLineTimeStamp, loggingInterval, lastLogLineLength,
 								numberOfFillUpLines, errorValues);
-						numberOfFillUpLines = getNumberOfFillUpLines(unixTimeStamp, loggingIntervall);
+						numberOfFillUpLines = getNumberOfFillUpLines(lastLogLineTimeStamp, loggingInterval);
 					}
 					out.close();
+					AsciiLogger.setLastLoggedLineTimeStamp(loggerInterval_loggerTimeOffset, lastLogLineTimeStamp);
 				}
 			} catch (IOException e) {
 				logger.error("Could not read file " + file.getAbsolutePath(), e);
-				renameFileToOld(directoryPath, loggerIntervall_loggerTimeOffset, calendar);
+				renameFileToOld(directoryPath, loggerInterval_loggerTimeOffset, calendar);
 			} finally {
 				try {
 
@@ -715,16 +732,74 @@ public class LoggerUtils {
 				}
 			}
 		}
+		return lastLogLineTimeStamp;
 	}
 
-	private static long fillUp(PrintWriter out, long unixTimeStamp, long loggingIntervall, int lastLogLineLength,
+	public static Map<String, Boolean> areHeadersIdentical(String loggerDirectory, List<LogChannel> channels,
+			Calendar calendar) {
+
+		Map<String, Boolean> areHeadersIdentical = new TreeMap<String, Boolean>();
+		Map<String, List<LogChannel>> logChannelMap = new TreeMap<String, List<LogChannel>>();
+		LogFileHeader logFileHeader = new LogFileHeader();
+		String key = "";
+
+		for (LogChannel logChannel : channels) {
+
+			if (logChannel.getLoggingTimeOffset() != 0) {
+				key = logChannel.getLoggingInterval() + Const.TIME_SEPERATOR_STRING + logChannel.getLoggingTimeOffset();
+			}
+			else {
+				key = logChannel.getLoggingInterval().toString();
+			}
+
+			if (!logChannelMap.containsKey(key)) {
+				List<LogChannel> logChannelList = new ArrayList<LogChannel>();
+				logChannelList.add(logChannel);
+				logChannelMap.put(key, logChannelList);
+			}
+			else {
+				logChannelMap.get(key).add(logChannel);
+			}
+		}
+
+		List<LogChannel> logChannels;
+
+		for (Entry<String, List<LogChannel>> entry : logChannelMap.entrySet()) {
+
+			key = entry.getKey();
+			logChannels = entry.getValue();
+			String fileName = LoggerUtils.buildFilename(key, calendar);
+
+			String headerGenerated = logFileHeader.getIESDataFormatHeaderString(fileName, logChannels);
+			String oldHeader = LoggerUtils.getHeaderFromFile(loggerDirectory + fileName, key) + Const.LINESEPARATOR;
+			boolean isHeaderIdentical = headerGenerated.equals(oldHeader);
+			areHeadersIdentical.put(key, isHeaderIdentical);
+		}
+
+		return areHeadersIdentical;
+	}
+
+	/**
+	 * fills a AsciiLogg file up.
+	 * 
+	 * 
+	 * @param out
+	 * @param unixTimeStamp
+	 * @param loggingInterval
+	 * @param lastLogLineLength
+	 * @param numberOfFillUpLines
+	 * @param errorValues
+	 * @return Return the last timestamp of the last filled line
+	 * @throws IOException
+	 */
+	private static long fillUp(PrintWriter out, long unixTimeStamp, long loggingInterval, int lastLogLineLength,
 			long numberOfFillUpLines, StringBuilder errorValues) throws IOException {
 
 		StringBuilder line = new StringBuilder();
-		for (int i = 0; i < numberOfFillUpLines; i++) {
+		for (int i = 0; i < numberOfFillUpLines; ++i) {
 
 			line.setLength(0);
-			unixTimeStamp += loggingIntervall;
+			unixTimeStamp += loggingInterval;
 			setLoggerTimestamps(line, unixTimeStamp);
 			line.append(errorValues);
 			line.append(Const.LINESEPARATOR);
@@ -735,22 +810,22 @@ public class LoggerUtils {
 		return unixTimeStamp;
 	}
 
-	private static long getNumberOfFillUpLines(long lastUnixTimeStamp, long loggingIntervall) {
+	private static long getNumberOfFillUpLines(long lastUnixTimeStamp, long loggingInterval) {
 
 		long numberOfFillUpLines = 0;
 		long currentUnixTimeStamp = System.currentTimeMillis();
 
-		numberOfFillUpLines = (currentUnixTimeStamp - lastUnixTimeStamp) / loggingIntervall;
+		numberOfFillUpLines = (currentUnixTimeStamp - lastUnixTimeStamp) / loggingInterval;
 
 		return numberOfFillUpLines;
 	}
 
 	/**
+	 * Returns the error value as a StringBuilder.
 	 * 
-	 * @param errorValues
-	 *            has to be empty at begin
-	 * @param logLine
-	 * @return
+	 * @param lineArray
+	 *            a ascii line as a array with error code
+	 * @return StringBuilder with appended error
 	 */
 	private static StringBuilder getErrorValues(String lineArray[]) {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,9 +20,6 @@
  */
 package tuwien.auto.calimero.serial.rc1180;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,6 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
 import tuwien.auto.calimero.DataUnitBuilder;
 import tuwien.auto.calimero.FrameEvent;
 import tuwien.auto.calimero.IndividualAddress;
@@ -45,9 +44,7 @@ import tuwien.auto.calimero.log.LogService;
 
 /**
  * RF connection based on the RC1180 chip
- * 
- * @author Frederic Robra
- * 
+ *
  */
 public class RC1180Connection {
 	private static final boolean DEFAULT_AET = false;

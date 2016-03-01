@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,15 +24,15 @@ package org.openmuc.framework.driver.modbus;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.wimpi.modbus.procimg.InputRegister;
-import net.wimpi.modbus.util.BitVector;
-
 import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.wimpi.modbus.procimg.InputRegister;
+import net.wimpi.modbus.util.BitVector;
 
 /**
  * Represents a group of channels which is used for a multiple read request

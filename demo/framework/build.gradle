@@ -9,26 +9,26 @@ configurations.osgibundles.transitive = false;
 configurations.osgimain.transitive = false;
 
 dependencies {
-  def openmucversion = '0.15.2'
+  def openmucversion = '0.15.3'
 
   osgimain group: 'org.apache.felix', name: 'org.apache.felix.main', version: '5.0.1'
 
-  osgibundles files('../../build/libs/openmuc-core-api-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-core-spi-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-core-datamanager-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-datalogger-ascii-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-datalogger-slotsdb-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-driver-aggregator-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-driver-rest-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-spi-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-base-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-channelconfigurator-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-channelaccesstool-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-userconfigurator-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-dataexporter-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-dataplotter-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-webui-mediaviewer-' + openmucversion + '.jar')
-  osgibundles files('../../build/libs/openmuc-server-restws-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-core-api-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-core-spi-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-core-datamanager-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-datalogger-ascii-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-datalogger-slotsdb-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-driver-aggregator-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-driver-rest-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-spi-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-base-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-channelconfigurator-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-channelaccesstool-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-userconfigurator-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-dataexporter-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-dataplotter-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-webui-mediaviewer-' + openmucversion + '.jar')
+  osgibundles files('../../build/libs-all/openmuc-server-restws-' + openmucversion + '.jar')
 
   osgibundles files('../projects/simpledemoapp/build/libs/openmuc-app-simpledemo-' + openmucversion + '.jar')
   osgibundles files('../projects/dummydriver/build/libs/openmuc-driver-dummy-' + openmucversion + '.jar')

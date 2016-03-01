@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,5 +22,15 @@
 package org.openmuc.framework.dataaccess;
 
 public enum DeviceState {
-	READING, WRITING, STARTING_TO_LISTEN, SCANNING_FOR_CHANNELS, CONNECTED, CONNECTING, WAITING_FOR_CONNECTION_RETRY, DISCONNECTING, DRIVER_UNAVAILABLE, DISABLED, DELETED;
+	READING,
+	WRITING,
+	STARTING_TO_LISTEN,
+	SCANNING_FOR_CHANNELS,
+	CONNECTED,
+	CONNECTING,
+	WAITING_FOR_CONNECTION_RETRY,
+	DISCONNECTING,
+	DRIVER_UNAVAILABLE,
+	DISABLED,
+	DELETED;
 }

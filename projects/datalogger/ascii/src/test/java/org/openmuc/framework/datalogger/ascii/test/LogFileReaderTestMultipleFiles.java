@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,8 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -64,8 +62,9 @@ public class LogFileReaderTestMultipleFiles {
 	@BeforeClass
 	public static void setup() {
 
-		TestSuite.createTestFolder();
+		System.out.println("### Setup() LogFileReaderTestMultipleFiles");
 
+		TestSuite.createTestFolder();
 		// drei Dateien
 
 		// 1 Kanal im Sekunden-Takt loggen über von 23 Uhr bis 1 Uhr des übernächsten Tages
@@ -100,32 +99,29 @@ public class LogFileReaderTestMultipleFiles {
 
 		logChannelList.put(Channel0Name, ch0);
 
-		Date date = TestUtils.stringToDate(dateFormat, fileDate0 + " 23:00:00");
-		Calendar calendar = new GregorianCalendar();
-		calendar.setTime(date);
+		Calendar calendar = TestUtils.stringToDate(dateFormat, fileDate0 + " 23:00:00");
 
 		int hour = 3600;
 
 		for (int i = 0; i < ((hour * 24 + hour * 2) * (1000d / loggingInterval)); i++) {
 
-			LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name, new Record(new DoubleValue(1),
-					date.getTime()));
+			LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name,
+					new Record(new DoubleValue(1), calendar.getTimeInMillis()));
 
 			LogIntervalContainerGroup group = new LogIntervalContainerGroup();
 			group.add(container1);
 
-			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH);
-			lfw.log(group, loggingInterval, 0, date, logChannelList);
+			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
+			lfw.log(group, loggingInterval, 0, calendar, logChannelList);
 
 			calendar.add(Calendar.MILLISECOND, loggingInterval);
-			date = calendar.getTime();
-
 		}
 		// }
 	}
 
 	@AfterClass
 	public static void tearDown() {
+
 		System.out.println("tearing down");
 		TestSuite.deleteTestFolder();
 	}
@@ -133,8 +129,11 @@ public class LogFileReaderTestMultipleFiles {
 	@Test
 	public void tc009_t1_t2_within_available_data_with_three_files() {
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 23:00:00").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate2 + " 00:59:" + (60 - loggingInterval / 1000)).getTime();
+		System.out.println("### Begin test tc009_t1_t2_within_available_data_with_three_files");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 23:00:00").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate2 + " 00:59:" + (60 - loggingInterval / 1000))
+				.getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -154,5 +153,4 @@ public class LogFileReaderTestMultipleFiles {
 		System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected); ");
 		assertTrue(result);
 	}
-
 }

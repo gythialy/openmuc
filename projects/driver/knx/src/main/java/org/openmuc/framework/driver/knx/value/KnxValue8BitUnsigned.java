@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,10 +26,6 @@ import org.openmuc.framework.data.Value;
 import tuwien.auto.calimero.dptxlator.DPTXlator8BitUnsigned;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
-/**
- * @author frobra
- * 
- */
 public class KnxValue8BitUnsigned extends KnxValue {
 
 	public KnxValue8BitUnsigned(String dptID) throws KNXFormatException {

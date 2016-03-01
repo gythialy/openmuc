@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -39,13 +39,17 @@ public class LogFileHeader {
 	}
 
 	/**
-	 * Generate the standard IES Data Format Header and write it into the output stream 'out'.
+	 * Generate the standard IES Data Format Header.
 	 * 
 	 * @param group
+	 *            a group of the LogIntervallContainer
 	 * @param filename
+	 *            the name of the file to add the header
 	 * @param loggingInterval
+	 *            logging interval in ms
 	 * @param logChannelList
-	 * @return
+	 *            a list of all channels for this file
+	 * @return the header as a string
 	 */
 	public String getIESDataFormatHeaderString(LogIntervalContainerGroup group, String filename, int loggingInterval,
 			HashMap<String, LogChannel> logChannelList) {
@@ -78,11 +82,13 @@ public class LogFileHeader {
 	}
 
 	/**
-	 * Generate the standard IES Data Format Header and write it into the output stream 'out'.
+	 * Generate the standard IES Data Format Header
 	 * 
 	 * @param filename
+	 *            the name of the file to add the header
 	 * @param logChannelList
-	 * @return
+	 *            a list of all channels for this file
+	 * @return the header as a string
 	 */
 	public String getIESDataFormatHeaderString(String filename, List<LogChannel> logChannelList) {
 
@@ -216,8 +222,8 @@ public class LogFileHeader {
 			valueTypeLengthString += valueTypeLength;
 		}
 		appendStrings(sb, com_sign, col_no, seperator, col_name, seperator, confidential, seperator, measured,
-				seperator, unit, seperator, category, seperator, valueType, vtSizeSep, valueTypeLengthString,
-				vtEndSign, comment, Const.LINESEPARATOR_STRING);
+				seperator, unit, seperator, category, seperator, valueType, vtSizeSep, valueTypeLengthString, vtEndSign,
+				comment, Const.LINESEPARATOR_STRING);
 	}
 
 	/**

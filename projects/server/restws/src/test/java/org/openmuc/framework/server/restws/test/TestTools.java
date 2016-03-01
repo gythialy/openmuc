@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -42,8 +42,8 @@ public class TestTools {
 			checkValueConversion(valueType, value);
 		} catch (TypeConversionException e) {
 			result = false;
-			System.out.println(Test_method + " result is \"" + result + "\"; error: ValueType is wrong;\n errormsg: "
-					+ e);
+			System.out.println(
+					Test_method + " result is \"" + result + "\"; error: ValueType is wrong;\n errormsg: " + e);
 		}
 		checkValueValue(Test_method, valueType, value);
 

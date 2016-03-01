@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -71,22 +71,26 @@ public class KnxConnection implements Connection {
 	private int responseTimeout;
 	private String name;
 
-	public KnxConnection(String deviceAddress, String settings, int timeout) throws ArgumentSyntaxException,
-			ConnectionException {
+	public KnxConnection(String deviceAddress, String settings, int timeout)
+			throws ArgumentSyntaxException, ConnectionException {
 
-		URI deviceURI = null;
 		URI interfaceURI = null;
+		URI deviceURI = null;
+		boolean isKNXIP;
+
 		try {
-			String[] deviceAddressSubStrings = deviceAddress.split("\\s+");
+			String[] deviceAddressSubStrings = deviceAddress.split(";");
 			if (deviceAddressSubStrings.length == 2) {
 				interfaceURI = new URI(deviceAddressSubStrings[0]);
 				deviceURI = new URI(deviceAddressSubStrings[1]);
+				isKNXIP = true;
 			}
 			else {
 				deviceURI = new URI(deviceAddress);
+				isKNXIP = false;
 			}
 		} catch (URISyntaxException e) {
-			logger.error("wrong format of interface address");
+			logger.error("wrong format of interface address in deviceAddress");
 			throw new ArgumentSyntaxException();
 		}
 
@@ -99,7 +103,7 @@ public class KnxConnection implements Connection {
 				if (p != -1) {
 					String key = arg.substring(0, p).toLowerCase().trim();
 					String value = arg.substring(p + 1).trim();
-					if (key.equals("address")) {
+					if (key.equalsIgnoreCase("address")) {
 						try {
 							address = new IndividualAddress(value);
 							logger.debug("setting individual address to " + address);
@@ -107,7 +111,7 @@ public class KnxConnection implements Connection {
 							logger.warn("wrong format of individual address in settings");
 						}
 					}
-					else if (key.equals("serialnumber")) {
+					else if (key.equalsIgnoreCase("serialnumber")) {
 						if (value.length() == 12) {
 							value = value.toLowerCase();
 							for (int i = 0; i < 6; i++) {
@@ -121,18 +125,19 @@ public class KnxConnection implements Connection {
 			}
 		}
 
-		if (deviceURI.getScheme().toLowerCase().equals(KnxDriver.ADDRESS_SCHEME_KNXIP) && interfaceURI != null) {
+		if (isKNXIP && isSchemeOk(deviceURI, KnxDriver.ADDRESS_SCHEME_KNXIP)
+				&& isSchemeOk(interfaceURI, KnxDriver.ADDRESS_SCHEME_KNXIP)) {
 			name = interfaceURI.getHost() + " - " + deviceURI.getHost();
 			logger.debug("connecting over KNX/IP from " + name.replace("-", "to"));
 			connectNetIP(interfaceURI, deviceURI, address);
 		}
-		else if (deviceURI.getScheme().toLowerCase().equals(KnxDriver.ADDRESS_SCHEME_RC1180)) {
+		else if (!isKNXIP && isSchemeOk(deviceURI, KnxDriver.ADDRESS_SCHEME_RC1180)) {
 			name = deviceURI.getPath();
 			logger.debug("connecting over KNX RF (RC1180) to " + name);
 			connectRC1180(deviceURI, address, serialNumber);
 		}
 		else {
-			logger.error("wrong format of address");
+			logger.error("wrong format of device URI in deviceAddress");
 			throw new ArgumentSyntaxException();
 		}
 
@@ -147,6 +152,16 @@ public class KnxConnection implements Connection {
 		}
 	}
 
+	private boolean isSchemeOk(URI uri, String scheme) {
+
+		boolean isSchemeOK = uri.getScheme().toLowerCase().equals(scheme);
+		if (!isSchemeOK) {
+			logger.error("Scheme is not OK. Is " + uri.getScheme() + " should be " + scheme);
+		}
+
+		return isSchemeOK;
+	}
+
 	private void connectNetIP(URI localUri, URI remoteUri, IndividualAddress address) throws ConnectionException {
 
 		try {
@@ -157,6 +172,7 @@ public class KnxConnection implements Connection {
 			int remotePort = remoteUri.getPort() < 0 ? DEFAULT_PORT : remoteUri.getPort();
 
 			int serviceMode = KNXNetworkLinkIP.TUNNELING;
+			// int serviceMode = KNXNetworkLinkIP.ROUTING;
 			InetSocketAddress localSocket = new InetSocketAddress(localIP, localPort);
 			InetSocketAddress remoteSocket = new InetSocketAddress(remoteIP, remotePort);
 			boolean useNAT = true;
@@ -260,8 +276,8 @@ public class KnxConnection implements Connection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 		return listKnownChannels();
 	}
 

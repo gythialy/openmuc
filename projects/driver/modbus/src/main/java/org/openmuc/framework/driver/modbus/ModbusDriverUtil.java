@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,12 +20,6 @@
  */
 package org.openmuc.framework.driver.modbus;
 
-import net.wimpi.modbus.procimg.InputRegister;
-import net.wimpi.modbus.procimg.Register;
-import net.wimpi.modbus.procimg.SimpleRegister;
-import net.wimpi.modbus.util.BitVector;
-import net.wimpi.modbus.util.ModbusUtil;
-
 import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.DoubleValue;
@@ -34,6 +28,12 @@ import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.ShortValue;
 import org.openmuc.framework.data.Value;
+
+import net.wimpi.modbus.procimg.InputRegister;
+import net.wimpi.modbus.procimg.Register;
+import net.wimpi.modbus.procimg.SimpleRegister;
+import net.wimpi.modbus.util.BitVector;
+import net.wimpi.modbus.util.ModbusUtil;
 
 public class ModbusDriverUtil {
 

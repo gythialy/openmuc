@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,7 +40,6 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.openmuc.jmbus.Bcd;
 import org.openmuc.jmbus.DataRecord;
-import org.openmuc.jmbus.DecodingException;
 import org.openmuc.jmbus.HexConverter;
 import org.openmuc.jmbus.VariableDataStructure;
 import org.slf4j.Logger;
@@ -51,37 +50,37 @@ public class MBusConnection implements Connection {
 
 	private final MBusSerialInterface serialInterface;
 	private final int mBusAddress;
+	private final boolean normalize;
 
-	public MBusConnection(MBusSerialInterface serialInterface, int mBusAddress) {
+	public MBusConnection(MBusSerialInterface serialInterface, int mBusAddress, boolean normalize) {
 		this.serialInterface = serialInterface;
 		this.mBusAddress = mBusAddress;
+		this.normalize = normalize;
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 
 		synchronized (serialInterface) {
 
 			List<ChannelScanInfo> chanScanInf = new ArrayList<ChannelScanInfo>();
 
 			try {
-				VariableDataStructure msg = serialInterface.getMBusSap().read(mBusAddress);
-				msg.decodeDeep();
+				serialInterface.getMBusSap().linkReset(mBusAddress);
+				VariableDataStructure variableDataStructure = serialInterface.getMBusSap().read(mBusAddress);
 
-				List<DataRecord> vdb = msg.getDataRecords();
+				List<DataRecord> dataRecords = variableDataStructure.getDataRecords();
 
-				for (DataRecord block : vdb) {
+				for (DataRecord dataRecord : dataRecords) {
 
-					block.decode();
-
-					String vib = HexConverter.getShortHexStringFromByteArray(block.getVIB());
-					String dib = HexConverter.getShortHexStringFromByteArray(block.getDIB());
+					String vib = HexConverter.toShortHexString(dataRecord.getVib());
+					String dib = HexConverter.toShortHexString(dataRecord.getDib());
 
 					ValueType valueType;
 					Integer valueLength;
 
-					switch (block.getDataValueType()) {
+					switch (dataRecord.getDataValueType()) {
 					case DATE:
 						valueType = ValueType.BYTE_ARRAY;
 						valueLength = 250;
@@ -104,16 +103,13 @@ public class MBusConnection implements Connection {
 						break;
 					}
 
-					chanScanInf.add(new ChannelScanInfo(dib + ":" + vib, block.getDescription().toString(), valueType,
-							valueLength));
+					chanScanInf.add(new ChannelScanInfo(dib + ":" + vib, dataRecord.getDescription().toString(),
+							valueType, valueLength));
 				}
 			} catch (IOException e) {
 				throw new ConnectionException(e);
 			} catch (TimeoutException e) {
 				return null;
-			} catch (DecodingException e) {
-				e.printStackTrace();
-				logger.debug("Skipped invalid or unsupported M-Bus VariableDataBlock:" + e.getMessage());
 			}
 
 			return chanScanInf;
@@ -146,6 +142,9 @@ public class MBusConnection implements Connection {
 
 			VariableDataStructure variableDataStructure = null;
 			try {
+				if (normalize) {
+					serialInterface.getMBusSap().linkReset(mBusAddress);
+				}
 				variableDataStructure = serialInterface.getMBusSap().read(mBusAddress);
 			} catch (IOException e1) {
 				serialInterface.close();
@@ -157,12 +156,6 @@ public class MBusConnection implements Connection {
 				return null;
 			}
 
-			try {
-				variableDataStructure.decodeDeep();
-			} catch (DecodingException e1) {
-				e1.printStackTrace();
-			}
-
 			long timestamp = System.currentTimeMillis();
 
 			List<DataRecord> dataRecords = variableDataStructure.getDataRecords();
@@ -170,8 +163,8 @@ public class MBusConnection implements Connection {
 
 			int i = 0;
 			for (DataRecord dataRecord : dataRecords) {
-				dibvibs[i++] = HexConverter.getShortHexStringFromByteArray(dataRecord.getDIB()) + ':'
-						+ HexConverter.getShortHexStringFromByteArray(dataRecord.getVIB());
+				dibvibs[i++] = HexConverter.toShortHexString(dataRecord.getDib()) + ':'
+						+ HexConverter.toShortHexString(dataRecord.getVib());
 			}
 
 			boolean selectForReadoutSet = false;
@@ -184,9 +177,10 @@ public class MBusConnection implements Connection {
 						container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_ADDRESS_SYNTAX_INVALID));
 					}
 					List<DataRecord> dataRecordsToSelectForReadout = new ArrayList<DataRecord>(1);
-					dataRecordsToSelectForReadout.add(new DataRecord(HexConverter
-							.getByteArrayFromShortHexString(dibAndVib[0].substring(1)), HexConverter
-							.getByteArrayFromShortHexString(dibAndVib[1]), new byte[] {}, 0));
+					// TODO
+					// dataRecordsToSelectForReadout
+					// .add(new DataRecord(HexConverter.fromShortHexString(dibAndVib[0].substring(1)),
+					// HexConverter.fromShortHexString(dibAndVib[1]), new byte[] {}, 0));
 
 					selectForReadoutSet = true;
 
@@ -202,20 +196,15 @@ public class MBusConnection implements Connection {
 
 					VariableDataStructure variableDataStructure2 = null;
 					try {
+						if (normalize) {
+							serialInterface.getMBusSap().linkReset(mBusAddress);
+						}
 						variableDataStructure2 = serialInterface.getMBusSap().read(mBusAddress);
 					} catch (IOException e1) {
 						serialInterface.close();
 						throw new ConnectionException(e1);
 					} catch (TimeoutException e1) {
 						container.setRecord(new Record(Flag.DRIVER_ERROR_TIMEOUT));
-						continue;
-					}
-
-					try {
-						variableDataStructure2.decodeDeep();
-					} catch (DecodingException e1) {
-						container.setRecord(new Record(Flag.DRIVER_ERROR_DECODING_RESPONSE_FAILED));
-						logger.debug("Unable to parse VariableDataBlock received via M-Bus", e1);
 						continue;
 					}
 
@@ -230,15 +219,8 @@ public class MBusConnection implements Connection {
 				i = 0;
 				for (DataRecord dataRecord : dataRecords) {
 
+					System.out.println(dibvibs[i] + "\t" + container.getChannelAddress());
 					if (dibvibs[i++].equalsIgnoreCase(container.getChannelAddress())) {
-
-						try {
-							dataRecord.decode();
-						} catch (DecodingException e) {
-							container.setRecord(new Record(Flag.DRIVER_ERROR_DECODING_RESPONSE_FAILED));
-							logger.debug("Unable to parse VariableDataBlock received via M-Bus", e);
-							break;
-						}
 
 						setContainersRecord(timestamp, container, dataRecord);
 
@@ -262,7 +244,7 @@ public class MBusConnection implements Connection {
 					throw new ConnectionException(e);
 				} catch (TimeoutException e) {
 					try {
-						serialInterface.getMBusSap().normalize(mBusAddress);
+						serialInterface.getMBusSap().linkReset(mBusAddress);
 					} catch (IOException e1) {
 						serialInterface.close();
 						throw new ConnectionException(e1);
@@ -279,41 +261,48 @@ public class MBusConnection implements Connection {
 	}
 
 	private void setContainersRecord(long timestamp, ChannelRecordContainer container, DataRecord dataRecord) {
-		switch (dataRecord.getDataValueType()) {
-		case DATE:
-			container.setRecord(new Record(new StringValue(((Date) dataRecord.getDataValue()).toString()), timestamp));
-			break;
-		case STRING:
-			container.setRecord(new Record(new StringValue((String) dataRecord.getDataValue()), timestamp));
-			break;
-		case DOUBLE:
-			container.setRecord(new Record(new DoubleValue(dataRecord.getScaledDataValue()), timestamp));
-			break;
-		case LONG:
-			if (dataRecord.getMultiplierExponent() == 0) {
-				container.setRecord(new Record(new LongValue((Long) dataRecord.getDataValue()), timestamp));
-			}
-			else {
+		try {
+			switch (dataRecord.getDataValueType()) {
+			case DATE:
+				container.setRecord(
+						new Record(new StringValue(((Date) dataRecord.getDataValue()).toString()), timestamp));
+				break;
+			case STRING:
+				container.setRecord(new Record(new StringValue((String) dataRecord.getDataValue()), timestamp));
+				break;
+			case DOUBLE:
 				container.setRecord(new Record(new DoubleValue(dataRecord.getScaledDataValue()), timestamp));
+				break;
+			case LONG:
+				if (dataRecord.getMultiplierExponent() == 0) {
+					container.setRecord(new Record(new LongValue((Long) dataRecord.getDataValue()), timestamp));
+				}
+				else {
+					container.setRecord(new Record(new DoubleValue(dataRecord.getScaledDataValue()), timestamp));
+				}
+				break;
+			case BCD:
+				if (dataRecord.getMultiplierExponent() == 0) {
+					container.setRecord(
+							new Record(new LongValue(((Bcd) dataRecord.getDataValue()).longValue()), timestamp));
+				}
+				else {
+					container.setRecord(new Record(new DoubleValue(((Bcd) dataRecord.getDataValue()).longValue()
+							* Math.pow(10, dataRecord.getMultiplierExponent())), timestamp));
+				}
+				break;
+			case NONE:
+				container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION));
+				if (logger.isWarnEnabled()) {
+					logger.warn("Received data record with <dib>:<vib> = " + container.getChannelAddress()
+							+ " has value type NONE.");
+				}
+				break;
 			}
-			break;
-		case BCD:
-			if (dataRecord.getMultiplierExponent() == 0) {
-				container
-						.setRecord(new Record(new LongValue(((Bcd) dataRecord.getDataValue()).longValue()), timestamp));
-			}
-			else {
-				container.setRecord(new Record(new DoubleValue(((Bcd) dataRecord.getDataValue()).longValue()
-						* Math.pow(10, dataRecord.getMultiplierExponent())), timestamp));
-			}
-			break;
-		case NONE:
+		} catch (IllegalStateException e) {
 			container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION));
-			if (logger.isWarnEnabled()) {
-				logger.warn("Received data record with <dib>:<vib> = " + container.getChannelAddress()
-						+ " has value type NONE.");
-			}
-			break;
+			logger.error("Received data record with <dib>:<vib> = " + container.getChannelAddress()
+					+ " has wrong value type. ", e);
 		}
 	}
 

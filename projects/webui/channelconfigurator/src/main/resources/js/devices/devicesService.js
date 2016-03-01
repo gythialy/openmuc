@@ -71,6 +71,20 @@
     			return devices;
 			});
     	};
+    	
+    	
+    	this.getDeviceRecords = function(device) {
+    		var req = {
+    			method: 'GET',
+    			url: SETTINGS.API_URL + SETTINGS.DEVICES_URL + device.id,
+    			headers: {
+    				'Authorization': RestServerAuthService.getAuthHash(),
+    			},
+    		};
+    		return $http(req).then(function(response){
+    			return response;
+			});
+    	};
 		
     	this.getDevice = function(id) {
     		var device = [];

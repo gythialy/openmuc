@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -119,8 +119,8 @@ public final class Iec62056Driver implements DriverService {
 				}
 			}
 
-			listener.deviceFound(new DeviceScanInfo(serialPortName, deviceSettings, dataSets.get(0).getId()
-					.replaceAll("\\p{Cntrl}", "")));
+			listener.deviceFound(new DeviceScanInfo(serialPortName, deviceSettings,
+					dataSets.get(0).getId().replaceAll("\\p{Cntrl}", "")));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -160,7 +160,8 @@ public final class Iec62056Driver implements DriverService {
 				else if (args[i].equals("-d")) {
 					i++;
 					if (i == args.length) {
-						throw new ArgumentSyntaxException("No baudRateChangeDelay was specified after the -d parameter");
+						throw new ArgumentSyntaxException(
+								"No baudRateChangeDelay was specified after the -d parameter");
 					}
 					try {
 						baudRateChangeDelay = Integer.parseInt(args[i]);

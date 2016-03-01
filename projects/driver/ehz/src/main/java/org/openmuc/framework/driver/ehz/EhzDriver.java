@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,8 +21,6 @@
 
 package org.openmuc.framework.driver.ehz;
 
-import gnu.io.CommPortIdentifier;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -38,6 +36,8 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.io.CommPortIdentifier;
 
 public class EhzDriver implements DriverService {
 
@@ -114,8 +114,8 @@ public class EhzDriver implements DriverService {
 	}
 
 	@Override
-	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
-			ConnectionException {
+	public Connection connect(String deviceAddress, String settings)
+			throws ArgumentSyntaxException, ConnectionException {
 		logger.trace("trying to connect to " + deviceAddress);
 		try {
 			URI device = new URI(deviceAddress);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -91,14 +91,14 @@ public class WMBusSerialInterface {
 			}
 
 			synchronized (this) {
-				WMBusConnection connection = connectionsBySecondaryAddress.get(message.getSecondaryAddress()
-						.getHashCode());
+				WMBusConnection connection = connectionsBySecondaryAddress
+						.get(message.getSecondaryAddress().getHashCode());
 
 				if (connection == null) {
 					if (logger.isTraceEnabled()) {
-						logger.trace("WMBus: connection is null, from device: {} with HashCode: {}", message
-								.getSecondaryAddress().getDeviceId().toString(), message.getSecondaryAddress()
-								.getHashCode());
+						logger.trace("WMBus: connection is null, from device: {} with HashCode: {}",
+								message.getSecondaryAddress().getDeviceId().toString(),
+								message.getSecondaryAddress().getHashCode());
 					}
 					return;
 				}
@@ -148,8 +148,8 @@ public class WMBusSerialInterface {
 								dataRecord.decode();
 							} catch (DecodingException e) {
 								if (logger.isWarnEnabled()) {
-									logger.warn(
-											"Unable to parse received data record with <dib>:<vib> = " + dibvibs[i], e);
+									logger.warn("Unable to parse received data record with <dib>:<vib> = " + dibvibs[i],
+											e);
 								}
 								continue;
 							}
@@ -196,8 +196,8 @@ public class WMBusSerialInterface {
 								continue;
 							}
 							if (logger.isTraceEnabled()) {
-								logger.trace("WMBus: Value from channel {}", container.getChannel().getId() + " is:"
-										+ value.toString());
+								logger.trace("WMBus: Value from channel {}",
+										container.getChannel().getId() + " is:" + value.toString());
 							}
 							containersReceived.add(container);
 
@@ -303,8 +303,8 @@ public class WMBusSerialInterface {
 	public Connection connect(SecondaryAddress secondaryAddress, String keyString) throws ArgumentSyntaxException {
 		WMBusConnection connection = new WMBusConnection(wMBusSap, secondaryAddress, keyString, this);
 		if (logger.isTraceEnabled()) {
-			logger.trace("WMBus: connect device with ID " + secondaryAddress.getDeviceId().toString()
-					+ " and HashCode " + secondaryAddress.getHashCode());
+			logger.trace("WMBus: connect device with ID " + secondaryAddress.getDeviceId().toString() + " and HashCode "
+					+ secondaryAddress.getHashCode());
 		}
 		connectionsBySecondaryAddress.put(secondaryAddress.getHashCode(), connection);
 		return connection;

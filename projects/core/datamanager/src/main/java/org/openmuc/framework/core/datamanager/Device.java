@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -48,7 +48,8 @@ public final class Device {
 	private final List<DeviceEvent> eventList = new ArrayList<DeviceEvent>();
 	private final List<DeviceTask> taskList = new ArrayList<DeviceTask>();
 
-	public Device(DataManager dataManager, DeviceConfigImpl deviceConfig, long currentTime, List<LogChannel> logChannels) {
+	public Device(DataManager dataManager, DeviceConfigImpl deviceConfig, long currentTime,
+			List<LogChannel> logChannels) {
 		this.dataManager = dataManager;
 		this.deviceConfig = deviceConfig;
 
@@ -63,8 +64,8 @@ public final class Device {
 			if (deviceConfig.driverParent.activeDriver == null) {
 				state = DeviceState.DRIVER_UNAVAILABLE;
 				for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
-					channelConfig.channel = new ChannelImpl(dataManager, channelConfig,
-							ChannelState.DRIVER_UNAVAILABLE, Flag.DRIVER_UNAVAILABLE, currentTime, logChannels);
+					channelConfig.channel = new ChannelImpl(dataManager, channelConfig, ChannelState.DRIVER_UNAVAILABLE,
+							Flag.DRIVER_UNAVAILABLE, currentTime, logChannels);
 				}
 			}
 			else {
@@ -183,8 +184,8 @@ public final class Device {
 						listeningChannels.add(newChannelConfig.channel.createChannelRecordContainer());
 					}
 					else if (newChannelConfig.samplingInterval != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
-						newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig,
-								ChannelState.SAMPLING, Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
+						newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.SAMPLING,
+								Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
 						dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
 					}
 					else {
@@ -276,8 +277,8 @@ public final class Device {
 								ChannelState.LISTENING, Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
 					}
 					else if (newChannelConfig.samplingInterval != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
-						newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig,
-								ChannelState.SAMPLING, Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
+						newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.SAMPLING,
+								Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
 						dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
 					}
 					else {

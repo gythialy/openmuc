@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,11 +25,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.wimpi.modbus.ModbusException;
-import net.wimpi.modbus.ModbusIOException;
-import net.wimpi.modbus.io.ModbusTCPTransaction;
-import net.wimpi.modbus.net.TCPMasterConnection;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -46,6 +41,11 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.wimpi.modbus.ModbusException;
+import net.wimpi.modbus.ModbusIOException;
+import net.wimpi.modbus.io.ModbusTCPTransaction;
+import net.wimpi.modbus.net.TCPMasterConnection;
 
 /**
  * TODO
@@ -108,7 +108,6 @@ public class ModbusTCPConnection extends ModbusConnection {
 				Value value;
 				try {
 					value = readChannel(channel);
-					// logger.debug("{}: value = '{}'", channel.getChannelAddress(), value.toString());
 					container.setRecord(new Record(value, receiveTime));
 				} catch (ModbusIOException e) {
 					logger.error("Unable to read channel: " + container.getChannelAddress(), e);
@@ -117,6 +116,10 @@ public class ModbusTCPConnection extends ModbusConnection {
 				} catch (ModbusException e) {
 					logger.error("Unable to read channel: " + container.getChannelAddress(), e);
 					container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
+				} catch (Exception e) {
+					// catch all possible exceptions and provide info about the channel
+					logger.error("Unable to read channel: " + container.getChannelAddress(), e);
+					container.setRecord(new Record(Flag.UNKNOWN_ERROR));
 				}
 			}
 		}
@@ -208,8 +211,8 @@ public class ModbusTCPConnection extends ModbusConnection {
 				} catch (ModbusException modbusException) {
 					container.setFlag(Flag.UNKNOWN_ERROR);
 					modbusException.printStackTrace();
-					throw new ConnectionException("Unable to write data on channel address: "
-							+ container.getChannelAddress());
+					throw new ConnectionException(
+							"Unable to write data on channel address: " + container.getChannelAddress());
 				} catch (Exception e) {
 					container.setFlag(Flag.UNKNOWN_ERROR);
 					e.printStackTrace();
@@ -228,8 +231,8 @@ public class ModbusTCPConnection extends ModbusConnection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ArgumentSyntaxException, ScanException, ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
 		throw new UnsupportedOperationException();
 	}
 

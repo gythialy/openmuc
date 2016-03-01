@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
@@ -44,10 +45,12 @@ public class LogFileReaderTestBrokenFile {
 	@Test
 	public void tc200_logfile_does_not_exist() {
 
+		System.out.println("### Begin test tc200_logfile_does_not_exist");
+
 		fileDate = "20131201";
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate + " 12:00:00").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate + " 12:00:10").getTime();
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate + " 12:00:00").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate + " 12:00:10").getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -65,9 +68,18 @@ public class LogFileReaderTestBrokenFile {
 
 	}
 
+	@AfterClass
+	public static void tearDown() {
+
+		System.out.println("tearing down");
+		TestSuite.deleteTestFolder();
+	}
+
 	// @Ignore
 	// @Test
 	// public void tc201_no_header_in_logfile() {
+	//
+	// System.out.println("### Begin test tc201_no_header_in_logfile");
 	//
 	// fileDate = "20131202";
 	//
@@ -101,6 +113,8 @@ public class LogFileReaderTestBrokenFile {
 	// @Ignore
 	// @Test
 	// public void tc202_channelId_not_in_header() {
+	//
+	// System.out.println("### Begin test tc201_no_header_in_logfile");
 	//
 	// fileDate = "20131202";
 	//

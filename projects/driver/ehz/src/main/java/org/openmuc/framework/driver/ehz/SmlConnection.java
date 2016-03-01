@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,9 +20,6 @@
  */
 
 package org.openmuc.framework.driver.ehz;
-
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -49,6 +46,9 @@ import org.openmuc.jsml.structures.Unsigned32;
 import org.openmuc.jsml.structures.Unsigned64;
 import org.openmuc.jsml.structures.Unsigned8;
 import org.openmuc.jsml.tl.SML_SerialReceiver;
+
+import gnu.io.PortInUseException;
+import gnu.io.UnsupportedCommOperationException;
 
 /**
  * @author Frederic Robra

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -199,7 +199,8 @@ public class DeviceResourceServlet extends GenericServlet {
 	}
 
 	@Override
-	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doDelete(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
 		response.setContentType("application/json");
 		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
@@ -222,8 +223,8 @@ public class DeviceResourceServlet extends GenericServlet {
 						"Requested rest path is not available", " Path Info = ", request.getPathInfo());
 			}
 			else if (deviceConfig == null) {
-				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger, "Device \""
-						+ deviceID + "\" does not exist.");
+				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+						"Device \"" + deviceID + "\" does not exist.");
 			}
 			else {
 				try {
@@ -374,8 +375,8 @@ public class DeviceResourceServlet extends GenericServlet {
 			ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger,
 					"Not correct formed device config json.", " JSON = ", json.getJsonObject().toString());
 		} catch (Error e) {
-			ServletLib
-					.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger, e.getMessage());
+			ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger,
+					e.getMessage());
 		} catch (MissingJsonObjectException e) {
 			ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger, e.getMessage());
 			e.printStackTrace();

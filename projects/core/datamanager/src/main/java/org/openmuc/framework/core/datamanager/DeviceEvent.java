@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,5 +22,8 @@
 package org.openmuc.framework.core.datamanager;
 
 public enum DeviceEvent {
-	DELETED, DISABLED, DRIVER_REGISTERED, DRIVER_DEREGISTERED;
+	DELETED,
+	DISABLED,
+	DRIVER_REGISTERED,
+	DRIVER_DEREGISTERED;
 }

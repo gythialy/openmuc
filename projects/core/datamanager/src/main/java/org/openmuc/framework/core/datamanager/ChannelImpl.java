@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -223,8 +223,8 @@ public final class ChannelImpl implements Channel {
 	}
 
 	@Override
-	public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException,
-			IOException {
+	public List<Record> getLoggedRecords(long startTime, long endTime)
+			throws DataLoggerNotAvailableException, IOException {
 		Long currentTime = System.currentTimeMillis();
 		List<Record> toReturn = dataManager.getDataLogger().getRecords(config.id, startTime, endTime);
 		for (Record record : futureValues) {
@@ -253,7 +253,8 @@ public final class ChannelImpl implements Channel {
 					record = new Record(new DoubleValue(record.getValue().asDouble() * scalingFactor),
 							record.getTimestamp(), record.getFlag());
 				} catch (TypeConversionException e) {
-					logger.error("Unable to apply scaling factor because a TypeConversionError occured.", e);
+					logger.error("Unable to apply scaling factor to channel " + config.id
+							+ " because a TypeConversionError occured.", e);
 				}
 			}
 			if (scalingOffset != null) {
@@ -261,15 +262,16 @@ public final class ChannelImpl implements Channel {
 					record = new Record(new DoubleValue(record.getValue().asDouble() + scalingOffset),
 							record.getTimestamp(), record.getFlag());
 				} catch (TypeConversionException e) {
-					logger.error("Unable to apply scaling offset because a TypeConversionError occured.", e);
+					logger.error("Unable to apply scaling offset to channel " + config.id
+							+ " because a TypeConversionError occured.", e);
 				}
 			}
 
 			try {
 				switch (config.valueType) {
 				case BOOLEAN:
-					convertedRecord = new Record(new BooleanValue(record.getValue().asBoolean()),
-							record.getTimestamp(), record.getFlag());
+					convertedRecord = new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(),
+							record.getFlag());
 					break;
 				case BYTE:
 					convertedRecord = new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(),

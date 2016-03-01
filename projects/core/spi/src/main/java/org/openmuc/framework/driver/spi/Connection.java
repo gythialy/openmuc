@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,7 +33,8 @@ import org.openmuc.framework.config.ScanException;
  * 
  * The OpenMUC framework can give certain guarantees about the order of the functions it calls:
  * <ul>
- * <li>Communication related functions (e.g. connect,read,write..) are never called concurrently for the same device.</li>
+ * <li>Communication related functions (e.g. connect,read,write..) are never called concurrently for the same device.
+ * </li>
  * <li>The framework calls read,listen,write or channelScan only if a the device is considered connected. The device is
  * only considered connected if the connect function has been called successfully.</li>
  * <li>Before a driver service is unregistered or the data manager is stopped the framework calls disconnect for all
@@ -60,8 +61,8 @@ public interface Connection {
 	 * @throws ConnectionException
 	 *             if an error occurs while scanning and the connection was closed
 	 */
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ArgumentSyntaxException, ScanException, ConnectionException;
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException;
 
 	/**
 	 * Reads the data channels that correspond to the given record containers. The read result is returned by setting

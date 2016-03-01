@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -51,12 +51,22 @@ public final class SnmpDriver implements DriverService {
 
 	// AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
 	public enum SnmpDriverSettingVariableNames {
-		SNMPVersion, USERNAME, SECURITYNAME, AUTHENTICATIONPASSPHRASE, PRIVACYPASSPHRASE
+		SNMPVersion,
+		USERNAME,
+		SECURITYNAME,
+		AUTHENTICATIONPASSPHRASE,
+		PRIVACYPASSPHRASE
 	};
 
 	// AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
 	public enum SnmpDriverScanSettingVariableNames {
-		SNMPVersion, USERNAME, SECURITYNAME, AUTHENTICATIONPASSPHRASE, PRIVACYPASSPHRASE, STARTIP, ENDIP
+		SNMPVersion,
+		USERNAME,
+		SECURITYNAME,
+		AUTHENTICATIONPASSPHRASE,
+		PRIVACYPASSPHRASE,
+		STARTIP,
+		ENDIP
 	};
 
 	// exception messages
@@ -82,7 +92,7 @@ public final class SnmpDriver implements DriverService {
 	 * @param settings
 	 *            at least must contain<br>
 	 * 
-	 * <br>
+	 *            <br>
 	 *            SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE: (community word) in case of more than on
 	 *            value, they should be separated by ",". No community word is allowed to contain "," <br>
 	 *            SnmpDriverScanSettingVariableNames.STARTIP: Start of IP range <br>
@@ -91,8 +101,8 @@ public final class SnmpDriver implements DriverService {
 	 * 
 	 */
 	@Override
-	public void scanForDevices(String settings, DriverDeviceScanListener listener) throws ArgumentSyntaxException,
-			ScanException, ScanInterruptedException {
+	public void scanForDevices(String settings, DriverDeviceScanListener listener)
+			throws ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
 		Map<String, String> settingMapper = settingParser(settings);
 
@@ -106,8 +116,8 @@ public final class SnmpDriver implements DriverService {
 
 		SnmpDriverDiscoveryListener discoveryListener = new SnmpDriverDiscoveryListener(listener);
 		snmpScanner.addEventListener(discoveryListener);
-		String[] communityWords = settingMapper.get(
-				SnmpDriverScanSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()).split(",");
+		String[] communityWords = settingMapper
+				.get(SnmpDriverScanSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()).split(",");
 		snmpScanner.scanSnmpV2cEnabledDevices(settingMapper.get(SnmpDriverScanSettingVariableNames.STARTIP.toString()),
 				settingMapper.get(SnmpDriverScanSettingVariableNames.ENDIP.toString()), communityWords);
 
@@ -128,8 +138,8 @@ public final class SnmpDriver implements DriverService {
 	 * @throws ArgumentSyntaxException
 	 */
 	@Override
-	public Connection connect(String deviceAddress, String settings) throws ConnectionException,
-			ArgumentSyntaxException {
+	public Connection connect(String deviceAddress, String settings)
+			throws ConnectionException, ArgumentSyntaxException {
 
 		SnmpDevice device = null;
 		SNMPVersion snmpVersion = null;
@@ -146,8 +156,8 @@ public final class SnmpDriver implements DriverService {
 			Map<String, String> mappedSettings = settingParser(settings);
 
 			try {
-				snmpVersion = SNMPVersion.valueOf(mappedSettings.get(SnmpDriverSettingVariableNames.SNMPVersion
-						.toString()));
+				snmpVersion = SNMPVersion
+						.valueOf(mappedSettings.get(SnmpDriverSettingVariableNames.SNMPVersion.toString()));
 			} catch (IllegalArgumentException e) {
 				throw new ArgumentSyntaxException(incorrectSNMPVersionException);
 			} catch (NullPointerException e) {
@@ -162,8 +172,9 @@ public final class SnmpDriver implements DriverService {
 						mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()));
 				break;
 			case V3:
-				device = new SnmpDeviceV3(deviceAddress, mappedSettings.get(SnmpDriverSettingVariableNames.USERNAME
-						.toString()), mappedSettings.get(SnmpDriverSettingVariableNames.SECURITYNAME.toString()),
+				device = new SnmpDeviceV3(deviceAddress,
+						mappedSettings.get(SnmpDriverSettingVariableNames.USERNAME.toString()),
+						mappedSettings.get(SnmpDriverSettingVariableNames.SECURITYNAME.toString()),
 						mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()),
 						mappedSettings.get(SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE.toString()));
 				break;

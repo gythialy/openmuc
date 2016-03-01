@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -68,7 +68,9 @@ public abstract class SnmpDevice implements Connection {
 	private final static Logger logger = LoggerFactory.getLogger(SnmpDevice.class);
 
 	public enum SNMPVersion {
-		V1, V2c, V3
+		V1,
+		V2c,
+		V3
 	};
 
 	protected Address targetAddress;
@@ -82,6 +84,7 @@ public abstract class SnmpDevice implements Connection {
 	protected List<SnmpDiscoveryListener> listeners = new ArrayList<SnmpDiscoveryListener>();
 
 	public static final Map<String, String> ScanOIDs = new HashMap<String, String>();
+
 	static {
 		// some general OIDs that are valid in almost every MIB
 		ScanOIDs.put("Device name: ", "1.3.6.1.2.1.1.5.0");
@@ -103,8 +106,8 @@ public abstract class SnmpDevice implements Connection {
 	 * @throws ConnectionException
 	 * @throws ArgumentSyntaxException
 	 */
-	public SnmpDevice(String address, String authenticationPassphrase) throws ConnectionException,
-			ArgumentSyntaxException {
+	public SnmpDevice(String address, String authenticationPassphrase)
+			throws ConnectionException, ArgumentSyntaxException {
 
 		// start snmp compatible with all versions
 		try {
@@ -264,8 +267,8 @@ public abstract class SnmpDevice implements Connection {
 	 */
 	public static String getNextBroadcastIPV4Address(String ip) {
 		String[] nums = ip.split("\\.");
-		int i = (Integer.parseInt(nums[0]) << 24 | Integer.parseInt(nums[2]) << 8 | Integer.parseInt(nums[1]) << 16 | Integer
-				.parseInt(nums[3])) + 256;
+		int i = (Integer.parseInt(nums[0]) << 24 | Integer.parseInt(nums[2]) << 8 | Integer.parseInt(nums[1]) << 16
+				| Integer.parseInt(nums[3])) + 256;
 
 		return String.format("%d.%d.%d.%d", i >>> 24 & 0xFF, i >> 16 & 0xFF, i >> 8 & 0xFF, 255);
 	}
@@ -289,8 +292,13 @@ public abstract class SnmpDevice implements Connection {
 
 		StringBuilder desc = new StringBuilder();
 		for (String key : ScanOIDs.keySet()) {
-			desc.append('[').append(key).append('(').append(ScanOIDs.get(key)).append(")=")
-					.append(scannerResult.get(ScanOIDs.get(key))).append("] ");
+			desc.append('[')
+					.append(key)
+					.append('(')
+					.append(ScanOIDs.get(key))
+					.append(")=")
+					.append(scannerResult.get(ScanOIDs.get(key)))
+					.append("] ");
 		}
 		return desc.toString();
 	}
@@ -370,8 +378,8 @@ public abstract class SnmpDevice implements Connection {
 				if (values.get(container.getChannelAddress()) != null) {
 					logger.debug("{}: value = '{}'", container.getChannelAddress(),
 							values.get(container.getChannelAddress()));
-					container.setRecord(new Record(new ByteArrayValue(values.get(container.getChannelAddress())
-							.getBytes()), receiveTime));
+					container.setRecord(new Record(
+							new ByteArrayValue(values.get(container.getChannelAddress()).getBytes()), receiveTime));
 				}
 			}
 		} catch (SnmpTimeoutException e) {
@@ -390,8 +398,8 @@ public abstract class SnmpDevice implements Connection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 		throw new UnsupportedOperationException();
 	}
 

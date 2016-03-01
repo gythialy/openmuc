@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -36,7 +36,8 @@ public final class StartListeningTask extends DeviceTask {
 
 	List<ChannelRecordContainerImpl> selectedChannels;
 
-	public StartListeningTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels) {
+	public StartListeningTask(DataManager dataManager, Device device,
+			List<ChannelRecordContainerImpl> selectedChannels) {
 		this.dataManager = dataManager;
 		this.device = device;
 		this.selectedChannels = selectedChannels;

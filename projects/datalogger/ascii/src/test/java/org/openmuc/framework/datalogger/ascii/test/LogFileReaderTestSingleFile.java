@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,8 +23,6 @@ package org.openmuc.framework.datalogger.ascii.test;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -63,6 +61,8 @@ public class LogFileReaderTestSingleFile {
 	@BeforeClass
 	public static void setup() {
 
+		System.out.println("### Setup() LogFileReaderTestSingleFile");
+
 		TestSuite.createTestFolder();
 
 		// File file = new File(TestUtils.TESTFOLDERPATH + fileDate0 + "_" + loggingInterval + ext);
@@ -83,29 +83,27 @@ public class LogFileReaderTestSingleFile {
 
 		logChannelList.put(Channel0Name, ch1);
 
-		Date date = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00");
-		Calendar calendar = new GregorianCalendar();
-		calendar.setTime(date);
+		Calendar calendar = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00");
 
 		for (int i = 0; i < ((60 * 60 * 2) * (1000d / loggingInterval)); i++) {
 
-			LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name, new Record(new DoubleValue(i),
-					date.getTime()));
+			LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name,
+					new Record(new DoubleValue(i), calendar.getTimeInMillis()));
 
 			LogIntervalContainerGroup group = new LogIntervalContainerGroup();
 			group.add(container1);
 
-			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH);
-			lfw.log(group, loggingInterval, 0, date, logChannelList);
+			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
+			lfw.log(group, loggingInterval, 0, calendar, logChannelList);
 
 			calendar.add(Calendar.MILLISECOND, loggingInterval);
-			date = calendar.getTime();
 		}
 		// }
 	}
 
 	@AfterClass
 	public static void tearDown() {
+
 		System.out.println("tearing down");
 		TestSuite.deleteTestFolder();
 	}
@@ -113,8 +111,10 @@ public class LogFileReaderTestSingleFile {
 	@Test
 	public void tc000_t1_t2_within_available_data() {
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:50:00").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:51:00").getTime();
+		System.out.println("### Begin test tc000_t1_t2_within_available_data");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:50:00").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:51:00").getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -135,8 +135,10 @@ public class LogFileReaderTestSingleFile {
 	@Test
 	public void tc001_t1_before_available_data_t2_within() {
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:10").getTime();
+		System.out.println("### Begin test tc001_t1_before_available_data_t2_within");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:10").getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -157,8 +159,11 @@ public class LogFileReaderTestSingleFile {
 
 	@Test
 	public void tc002_t2_after_available_data() {
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:00:00").getTime();
+
+		System.out.println("### Begin test tc002_t2_after_available_data");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:00:00").getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -179,8 +184,11 @@ public class LogFileReaderTestSingleFile {
 
 	@Test
 	public void tc003_t1_t2_before_available_data() {
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:59").getTime();
+
+		System.out.println("### Begin test tc003_t1_t2_before_available_data");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:59").getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -208,9 +216,12 @@ public class LogFileReaderTestSingleFile {
 
 	@Test
 	public void tc004_t1_t2_after_available_data() {
+
+		System.out.println("### Begin test tc004_t1_t2_after_available_data");
+
 		// test 5 - startTimestampRequest & endTimestampRequest after available logged data
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:00:01").getTime();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:59:59").getTime();
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:00:01").getTimeInMillis();
+		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:59:59").getTimeInMillis();
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 		List<Record> records = fr.getValues(t1, t2);
@@ -232,7 +243,9 @@ public class LogFileReaderTestSingleFile {
 	@Test
 	public void tc005_t1_within_available_data() {
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:11:10").getTime();
+		System.out.println("### Begin test tc005_t1_within_available_data");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:11:10").getTimeInMillis();
 		boolean result;
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
@@ -253,7 +266,9 @@ public class LogFileReaderTestSingleFile {
 	@Test
 	public void tc006_t1_before_available_data() {
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:00").getTime();
+		System.out.println("### Begin test tc006_t1_before_available_data");
+
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:00").getTimeInMillis();
 		boolean result;
 
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
@@ -273,8 +288,10 @@ public class LogFileReaderTestSingleFile {
 	// @Test
 	public void tc007_t1_within_available_data_with_loggingInterval() {
 
+		System.out.println("### Begin test tc007_t1_within_available_data_with_loggingInterval");
+
 		boolean result;
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:59:59").getTime();
+		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:59:59").getTimeInMillis();
 		// get value looks from 02:59:59 to 3:00:00. before 3:00:00 a value exists
 		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 

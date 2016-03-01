@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,16 +20,21 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 
 public class TestUtils {
 	public static final String TESTFOLDER = "test";
 	public static final String TESTFOLDERPATH = System.getProperty("user.dir") + "/" + TESTFOLDER + "/";
 
-	static Date stringToDate(String format, String strDate) {
+	public static Calendar stringToDate(String format, String strDate) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.GERMAN);
 		Date date = null;
@@ -39,6 +44,21 @@ public class TestUtils {
 			e.printStackTrace();
 		}
 
-		return date;
+		Calendar calendar = new GregorianCalendar(Locale.getDefault());
+		calendar.setTime(date);
+
+		return calendar;
+	}
+
+	public static void deleteExistingFile(int loggingInterval, int loggingTimeOffset, Calendar calendar) {
+
+		String filename = LoggerUtils.getFilename(loggingInterval, loggingTimeOffset, calendar.getTimeInMillis());
+		File file = new File(TestUtils.TESTFOLDERPATH + filename);
+
+		if (file.exists()) {
+			System.out.println("Delete File " + filename);
+			file.delete();
+		}
+
 	}
 }

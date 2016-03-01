@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -109,7 +109,8 @@ public class ControlsServlet extends GenericServlet {
 	}
 
 	@Override
-	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doDelete(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
 		response.setContentType("application/json");
 		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);

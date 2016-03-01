@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -201,12 +201,10 @@ public final class FileObjectProxy {
 			try {
 				while (iterator.hasNext()) {
 					File curElement = iterator.next();
-					if (sdf.parse(curElement.getName()).getTime() + 86400000 < limit.getTimeInMillis()) { /*
-																										 * compare
-																										 * folder 's
-																										 * oldest value
-																										 * to limit
-																										 */
+					if (sdf.parse(curElement.getName()).getTime() + 86400000 < limit
+							.getTimeInMillis()) { /*
+													 * compare folder 's oldest value to limit
+													 */
 						logger.info("Folder: " + curElement.getName() + " is older then " + limit_days
 								+ " Days. Will be deleted.");
 						deleteRecursiveFolder(curElement);
@@ -232,10 +230,10 @@ public final class FileObjectProxy {
 		@Override
 		public void run() {
 			try {
-				while ((getDiskUsage(rootNode) / 1000000 > limit_size) && (days.size() >= 2)) { /*
-																								 * avoid deleting
-																								 * current folder
-																								 */
+				while ((getDiskUsage(rootNode) / 1000000 > limit_size)
+						&& (days.size() >= 2)) { /*
+													 * avoid deleting current folder
+													 */
 					deleteOldestFolder();
 				}
 			} catch (IOException e) {
@@ -323,8 +321,8 @@ public final class FileObjectProxy {
 			 * will be stored and List reloaded for next Value to store.
 			 */
 			if (first.size() == 0) {
-				toStoreIn = new FileObject(rootNode.getPath() + "/" + strDate + "/" + id + "/" + timestamp
-						+ SlotsDb.FILE_EXTENSION);
+				toStoreIn = new FileObject(
+						rootNode.getPath() + "/" + strDate + "/" + id + "/" + timestamp + SlotsDb.FILE_EXTENSION);
 				toStoreIn.createFileAndHeader(timestamp, storingPeriod);
 				toStoreIn.append(value, timestamp, state);
 				toStoreIn.close(); /* close() also calls flush(). */
@@ -366,8 +364,8 @@ public final class FileObjectProxy {
 			 * Intervall changed -> create new File (if there are no newer values for this day, or file)
 			 */
 			if (toStoreIn.getTimestampForLatestValue() < timestamp) {
-				toStoreIn = new FileObject(rootNode.getPath() + "/" + strDate + "/" + id + "/" + timestamp
-						+ SlotsDb.FILE_EXTENSION);
+				toStoreIn = new FileObject(
+						rootNode.getPath() + "/" + strDate + "/" + id + "/" + timestamp + SlotsDb.FILE_EXTENSION);
 				toStoreIn.createFileAndHeader(timestamp, storingPeriod);
 				toStoreIn.append(value, timestamp, state);
 				if (flush_period == 0) {
@@ -426,8 +424,8 @@ public final class FileObjectProxy {
 			return toReturn;
 		}
 		if (end > 50000000000000L) { /*
-									 * to prevent buffer overflows. in cases of multiplication
-									 */
+										 * to prevent buffer overflows. in cases of multiplication
+										 */
 			end = 50000000000000L;
 		}
 
@@ -515,8 +513,8 @@ public final class FileObjectProxy {
 					toReturn.addAll(toRead.get(i).readFully());
 					toRead.get(i).close();
 				}
-				toReturn.addAll(toRead.get(toRead.size() - 1).read(toRead.get(toRead.size() - 1).getStartTimeStamp(),
-						end));
+				toReturn.addAll(
+						toRead.get(toRead.size() - 1).read(toRead.get(toRead.size() - 1).getStartTimeStamp(), end));
 				toRead.get(toRead.size() - 1).close();
 
 				/*
@@ -597,8 +595,8 @@ public final class FileObjectProxy {
 			 * Value for new day has been registered! Close and flush all connections! Empty Hashtable!
 			 */
 			clearOpenFilesHashMap();
-			logger.info("Started logging to a new Day. <" + strDate
-					+ "> Folder has been closed and flushed completely.");
+			logger.info(
+					"Started logging to a new Day. <" + strDate + "> Folder has been closed and flushed completely.");
 			/* reload days */
 			loadDays();
 		}

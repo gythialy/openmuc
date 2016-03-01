@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,5 +22,13 @@
 package org.openmuc.framework.data;
 
 public enum ValueType {
-	DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING;
+	DOUBLE,
+	FLOAT,
+	LONG,
+	INTEGER,
+	SHORT,
+	BYTE,
+	BOOLEAN,
+	BYTE_ARRAY,
+	STRING;
 }

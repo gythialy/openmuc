@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -304,8 +304,8 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 					Node nameAttribute = attributes.getNamedItem("id");
 
 					if (nameAttribute != null) {
-						config.addServerMapping(new ServerMapping(nameAttribute.getTextContent(), childNode
-								.getTextContent()));
+						config.addServerMapping(
+								new ServerMapping(nameAttribute.getTextContent(), childNode.getTextContent()));
 					}
 					else {
 						throw new ParseException("No id attribute specified for serverMapping.");
@@ -326,8 +326,8 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 					if (config.valueType == ValueType.BYTE_ARRAY || config.valueType == ValueType.STRING) {
 						String valueTypeLengthString = getAttributeValue(childNode, "length");
 						if (valueTypeLengthString == null) {
-							throw new ParseException("length of " + config.valueType.toString()
-									+ " value type was not specified");
+							throw new ParseException(
+									"length of " + config.valueType.toString() + " value type was not specified");
 						}
 						config.valueTypeLength = timeStringToMillis(valueTypeLengthString);
 					}
@@ -572,9 +572,6 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 			else if (valueType == ValueType.BYTE) {
 				configClone.valueTypeLength = 1;
 			}
-			else if (valueType == ValueType.BYTE) {
-				configClone.valueTypeLength = 1;
-			}
 			else if (valueType == ValueType.FLOAT) {
 				configClone.valueTypeLength = 4;
 			}
@@ -715,10 +712,8 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
 	static void checkIdSyntax(String id) {
 		if (!id.matches("[a-zA-Z0-9_-]+")) {
-			throw new IllegalArgumentException(
-					"Invalid ID: \""
-							+ id
-							+ "\". An ID may not be the empty string and must contain only ASCII letters, digits, hyphens and underscores.");
+			throw new IllegalArgumentException("Invalid ID: \"" + id
+					+ "\". An ID may not be the empty string and must contain only ASCII letters, digits, hyphens and underscores.");
 		}
 	}
 

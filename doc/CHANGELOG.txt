@@ -1,3 +1,9 @@
+v0.15.3 11-Jan-2016
+-------------------
+- fixed various issues in web UI
+- updated M-Bus driver
+- fixed issues in ASCII Logger
+
 v0.15.2 13-Aug-2015
 -------------------
 - added more thorough information on licenses of third-party

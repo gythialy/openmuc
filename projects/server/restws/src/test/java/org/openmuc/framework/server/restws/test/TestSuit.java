@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,7 +27,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ TestJsonHelper_fromJson.class /* , TestJsonHelper_toJson.class, /*<weitereKlassen.class> */})
+@SuiteClasses({ TestJsonHelper_fromJson.class /* , TestJsonHelper_toJson.class, /*<weitereKlassen.class> */ })
 public class TestSuit {
 
 	@BeforeClass

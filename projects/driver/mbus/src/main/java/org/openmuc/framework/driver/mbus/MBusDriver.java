@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -47,7 +47,7 @@ public class MBusDriver implements DriverService {
 			// description
 			"M-Bus (wired) is a protocol to read out meters.",
 			// device address
-			"Synopsis: <serial_port>:<mbus_address>\nExample for <serial_port>: /dev/ttyS0 (Unix), COM1 (Windows)\nExample for <mbus_address>: 5 for primary address 5",
+			"Synopsis: <serial_port>:<mbus_address>[:<normalize(true/false)>]\nExample for <serial_port>: /dev/ttyS0 (Unix), COM1 (Windows)\nExample for <mbus_address>: 5 for primary address 5",
 			// settings
 			"Synopsis: [<baud_rate>]\nThe default baud rate is 2400",
 			// channel address
@@ -69,7 +69,7 @@ public class MBusDriver implements DriverService {
 		interruptScan = false;
 
 		String[] args = settings.split("\\s+");
-		if (args.length < 1 || args.length > 2) {
+		if (settings.isEmpty() || args.length > 2) {
 			throw new ArgumentSyntaxException(
 					"Less than one or more than two arguments in the settings are not allowed.");
 		}
@@ -134,19 +134,25 @@ public class MBusDriver implements DriverService {
 	}
 
 	@Override
-	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
-			ConnectionException {
+	public Connection connect(String deviceAddress, String settings)
+			throws ArgumentSyntaxException, ConnectionException {
 
 		String[] deviceAddressTokens = deviceAddress.trim().split(":");
 
-		if (deviceAddressTokens.length != 2) {
+		if (deviceAddressTokens.length < 2 || deviceAddressTokens.length > 3) {
 			throw new ArgumentSyntaxException("The device address does not consist of two parameters.");
 		}
-
 		String serialPortName = deviceAddressTokens[0];
-		Integer mBusAddress = Integer.decode(deviceAddressTokens[1]);
-		if (mBusAddress == null) {
+		Integer mBusAddress;
+		try {
+			mBusAddress = Integer.decode(deviceAddressTokens[1]);
+		} catch (Exception e) {
 			throw new ArgumentSyntaxException("Settings: mBusAddress (" + deviceAddressTokens[1] + ") is not a int");
+		}
+
+		boolean normalize = false;
+		if (deviceAddressTokens.length == 3) {
+			normalize = Boolean.parseBoolean(deviceAddressTokens[2]);
 		}
 
 		MBusSerialInterface serialInterface;
@@ -184,6 +190,7 @@ public class MBusDriver implements DriverService {
 
 			synchronized (serialInterface) {
 				try {
+					serialInterface.getMBusSap().linkReset(mBusAddress);
 					serialInterface.getMBusSap().read(mBusAddress);
 				} catch (IOException e) {
 					serialInterface.close();
@@ -201,7 +208,7 @@ public class MBusDriver implements DriverService {
 
 		}
 
-		return new MBusConnection(serialInterface, mBusAddress);
+		return new MBusConnection(serialInterface, mBusAddress, normalize);
 
 	}
 

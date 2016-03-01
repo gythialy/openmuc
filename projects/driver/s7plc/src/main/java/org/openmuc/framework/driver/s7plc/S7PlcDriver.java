@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -83,8 +83,8 @@ public final class S7PlcDriver implements DriverService {
 
 		Interface ifc;
 		try {
-			ifc = new Interface("IF" + c, deviceAddress.substring(0, index), Integer.parseInt(deviceAddress
-					.substring(index + 1)));
+			ifc = new Interface("IF" + c, deviceAddress.substring(0, index),
+					Integer.parseInt(deviceAddress.substring(index + 1)));
 		} catch (NumberFormatException e) {
 			throw new ArgumentSyntaxException();
 		} catch (IOException e) {

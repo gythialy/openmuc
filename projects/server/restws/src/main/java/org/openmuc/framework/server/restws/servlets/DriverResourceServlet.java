@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -227,8 +227,8 @@ public class DriverResourceServlet extends GenericServlet {
 					setAndWriteDriverConfig(driverID, response, json, false);
 
 				} catch (IdCollisionException e) {
-					ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_CONFLICT, logger, "Driver \""
-							+ driverID + "\" already exist");
+					ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_CONFLICT, logger,
+							"Driver \"" + driverID + "\" already exist");
 				} catch (ConfigWriteException e) {
 					ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_CONFLICT, logger,
 							"Could not write driver \"", driverID, "\".");
@@ -239,7 +239,8 @@ public class DriverResourceServlet extends GenericServlet {
 	}
 
 	@Override
-	public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doDelete(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
 		response.setContentType("application/json");
 		String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
@@ -263,8 +264,8 @@ public class DriverResourceServlet extends GenericServlet {
 						"Requested rest path is not available", " Path Info = ", request.getPathInfo());
 			}
 			else if (driverConfig == null) {
-				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger, "Driver \""
-						+ driverID + "\" does not exist.");
+				ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+						"Driver \"" + driverID + "\" does not exist.");
 			}
 			else {
 				try {

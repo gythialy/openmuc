@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -65,8 +65,8 @@ public class WMBusDriver implements DriverService {
 	}
 
 	@Override
-	public Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException,
-			ConnectionException {
+	public Connection connect(String deviceAddress, String settings)
+			throws ArgumentSyntaxException, ConnectionException {
 
 		String[] deviceAddressTokens = deviceAddress.trim().split(":");
 
@@ -81,8 +81,8 @@ public class WMBusDriver implements DriverService {
 			secondaryAddress = SecondaryAddress.getFromWMBusLinkLayerHeader(
 					HexConverter.getByteArrayFromShortHexString(secondaryAddressAsString), 0);
 		} catch (NumberFormatException e) {
-			throw new ArgumentSyntaxException("The SecondaryAddress: " + secondaryAddressAsString
-					+ " could not be converted to a byte array.");
+			throw new ArgumentSyntaxException(
+					"The SecondaryAddress: " + secondaryAddressAsString + " could not be converted to a byte array.");
 		}
 
 		String[] settingsTokens = settings.trim().toLowerCase().split(" ");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -19,8 +19,9 @@
  *
  */
 
-Third-party open-source software
---------------------------------
+
+Dependencies
+------------
 
 Various bundles/modules that make up the OpenMUC framework depend on
 different third party open source software libraries. Some of these

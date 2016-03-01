@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,6 +29,22 @@ public class DriverInfo {
 	private final String channelAddressSyntax;
 	private final String deviceScanSettingsSyntax;
 
+	/**
+	 * Constructor to set driver info
+	 * 
+	 * @param id
+	 *            driver ID
+	 * @param description
+	 *            driver description
+	 * @param deviceAddressSyntax
+	 *            device address syntax
+	 * @param settingsSyntax
+	 *            device settings syntax
+	 * @param channelAddressSyntax
+	 *            channel address syntax
+	 * @param deviceScanSettingsSyntax
+	 *            device scan settings syntax
+	 */
 	public DriverInfo(String id, String description, String deviceAddressSyntax, String settingsSyntax,
 			String channelAddressSyntax, String deviceScanSettingsSyntax) {
 		this.id = id;

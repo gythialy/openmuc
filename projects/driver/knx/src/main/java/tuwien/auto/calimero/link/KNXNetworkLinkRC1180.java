@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,8 +41,6 @@ import tuwien.auto.calimero.serial.rc1180.SNorDoA;
 
 /**
  * Implementation of the KNX network link, for KNX RF, based on the RC1180 chip, using a {@link RC1180Connection}.
- * 
- * @author Frederic Robra
  * 
  */
 public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
@@ -237,7 +235,8 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
 	 * tuwien.auto.calimero.Priority, byte[])
 	 */
 	@Override
-	public void sendRequest(KNXAddress dst, Priority p, byte[] nsdu) throws KNXTimeoutException, KNXLinkClosedException {
+	public void sendRequest(KNXAddress dst, Priority p, byte[] nsdu)
+			throws KNXTimeoutException, KNXLinkClosedException {
 		sendRequest(dst, hopCount, nsdu, false);
 	}
 
@@ -248,8 +247,8 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
 	 * tuwien.auto.calimero.Priority, byte[])
 	 */
 	@Override
-	public void sendRequestWait(KNXAddress dst, Priority p, byte[] nsdu) throws KNXTimeoutException,
-			KNXLinkClosedException {
+	public void sendRequestWait(KNXAddress dst, Priority p, byte[] nsdu)
+			throws KNXTimeoutException, KNXLinkClosedException {
 		sendRequest(dst, hopCount, nsdu, true);
 	}
 
@@ -263,8 +262,8 @@ public class KNXNetworkLinkRC1180 implements KNXNetworkLink {
 		sendRequest(msg.getDestination(), msg.getHopCount(), msg.getPayload(), waitForCon);
 	}
 
-	private void sendRequest(KNXAddress dst, int hopCount, byte[] nsdu, boolean waitForCon) throws KNXTimeoutException,
-			KNXLinkClosedException {
+	private void sendRequest(KNXAddress dst, int hopCount, byte[] nsdu, boolean waitForCon)
+			throws KNXTimeoutException, KNXLinkClosedException {
 		if (spoofing) {
 			connection.sendSpoofingRequest(settings.getDeviceAddress(), dst, hopCount, nsdu, waitForCon);
 		}

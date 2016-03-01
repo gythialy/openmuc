@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -228,7 +228,8 @@ public interface Channel {
 	 * <li>If data logging is enabled for this channel the latest record is being logged by the registered loggers.</li>
 	 * <li>Other applications can access the value set by this function using <code>getLatestRecord</code>.</li>
 	 * <li>Applications are notified of the new record if they registered as listeners using <code>addListener</code>.
-	 * <li>If a scaling factor has been configured for this channel then the value passed to this function is scaled.</li>
+	 * <li>If a scaling factor has been configured for this channel then the value passed to this function is scaled.
+	 * </li>
 	 * </ul>
 	 * 
 	 * @param record
@@ -329,7 +330,7 @@ public interface Channel {
 	 * @throws IOException
 	 *             if any kind of error occurs accessing the logged data.
 	 */
-	public List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException,
-			IOException;
+	public List<Record> getLoggedRecords(long startTime, long endTime)
+			throws DataLoggerNotAvailableException, IOException;
 
 }

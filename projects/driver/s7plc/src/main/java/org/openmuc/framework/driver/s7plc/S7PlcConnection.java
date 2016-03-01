@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -55,8 +55,8 @@ public class S7PlcConnection implements org.openmuc.framework.driver.spi.Connect
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -244,8 +244,8 @@ public class S7PlcConnection implements org.openmuc.framework.driver.spi.Connect
 					val = new ShortValue((short) (0xff & bbuf.get(obj.channelAddress.getOffset())));
 					break;
 				case S7ChannelAddress.TYPE_BIT:
-					val = new ByteValue((byte) getBit(bbuf.get(obj.channelAddress.getOffset()),
-							obj.channelAddress.getBitPos()));
+					val = new ByteValue(
+							(byte) getBit(bbuf.get(obj.channelAddress.getOffset()), obj.channelAddress.getBitPos()));
 					break;
 				}
 

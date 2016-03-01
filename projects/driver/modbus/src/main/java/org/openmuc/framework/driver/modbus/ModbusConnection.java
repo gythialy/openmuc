@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,6 +23,13 @@ package org.openmuc.framework.driver.modbus;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.Connection;
+
 import net.wimpi.modbus.ModbusException;
 import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.ModbusSlaveException;
@@ -43,13 +50,6 @@ import net.wimpi.modbus.procimg.InputRegister;
 import net.wimpi.modbus.procimg.Register;
 import net.wimpi.modbus.procimg.SimpleRegister;
 import net.wimpi.modbus.util.BitVector;
-
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Record;
-import org.openmuc.framework.data.Value;
-import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.Connection;
 
 public abstract class ModbusConnection implements Connection {
 
@@ -316,7 +316,8 @@ public abstract class ModbusConnection implements Connection {
 		transaction.execute();
 	}
 
-	public synchronized void writeMultipleRegisters(ModbusChannel channel, Register[] registers) throws ModbusException {
+	public synchronized void writeMultipleRegisters(ModbusChannel channel, Register[] registers)
+			throws ModbusException {
 		writeMultipleRegistersRequest.setReference(channel.getStartAddress());
 		writeMultipleRegistersRequest.setRegisters(registers);
 		writeMultipleRegistersRequest.setUnitID(channel.getUnitId());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,6 +41,9 @@ public interface View {
 	viewtype getViewType();
 
 	public enum viewtype {
-		PLUGIN, AJAX, REDIRECT, OTHERS;
+		PLUGIN,
+		AJAX,
+		REDIRECT,
+		OTHERS;
 	}
 }

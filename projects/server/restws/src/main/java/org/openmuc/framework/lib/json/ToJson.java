@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -82,8 +82,10 @@ public class ToJson {
 
 		JsonArray jsa = new JsonArray();
 
-		for (Record record : recordList) {
-			jsa.add(getRecordAsJsonElement(record, valueType));
+		if (recordList != null) {
+			for (Record record : recordList) {
+				jsa.add(getRecordAsJsonElement(record, valueType));
+			}
 		}
 		jsonObject.add(Const.RECORDS, jsa);
 	}

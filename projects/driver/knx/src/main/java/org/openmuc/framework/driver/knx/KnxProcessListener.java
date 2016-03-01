@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,10 +38,6 @@ import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.process.ProcessEvent;
 import tuwien.auto.calimero.process.ProcessListener;
 
-/**
- * @author frobra
- * 
- */
 public class KnxProcessListener implements ProcessListener {
 
 	private static Logger logger = LoggerFactory.getLogger(KnxProcessListener.class);

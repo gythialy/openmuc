@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,11 +28,11 @@ import org.openmuc.framework.data.Record;
 
 public interface DataLoggerService {
 
-	public String getId();
+	String getId();
 
-	public void setChannelsToLog(List<LogChannel> channels);
+	void setChannelsToLog(List<LogChannel> channels);
 
-	public void log(List<LogRecordContainer> containers, long timestamp);
+	void log(List<LogRecordContainer> containers, long timestamp);
 
 	/**
 	 * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
@@ -49,6 +49,6 @@ public interface DataLoggerService {
 	 * @throws IOException
 	 *             if any kind of error occurs accessing the logged data.
 	 */
-	public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
+	List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
 
 }

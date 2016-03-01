@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,6 +23,7 @@ package org.openmuc.framework.datalogger.ascii.test;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
@@ -31,8 +32,17 @@ import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
 
 public class MiscTests {
 
+	@AfterClass
+	public static void tearDown() {
+
+		System.out.println("tearing down");
+		TestSuite.deleteTestFolder();
+	}
+
 	@Test
 	public void testDoubleFormattingOk() {
+
+		System.out.println("### Begin test testDoubleFormattingOk");
 
 		TreeMap<Double, String> testData = new TreeMap<Double, String>();
 
@@ -97,6 +107,8 @@ public class MiscTests {
 
 	@Test
 	public void testWrongScalingException() {
+
+		System.out.println("### Begin test testWrongScalingException");
 
 		double input = 100000000.0;
 

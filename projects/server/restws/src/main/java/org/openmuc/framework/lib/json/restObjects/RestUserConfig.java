@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -53,11 +53,21 @@ public class RestUserConfig {
 	}
 
 	public String[] getGroups() {
-		return groups;
+		if (groups != null) {
+			return groups.clone();
+		}
+		else {
+			return new String[] {};
+		}
 	}
 
 	public void setGroups(String[] groups) {
-		this.groups = groups;
+		if (groups != null) {
+			this.groups = groups.clone();
+		}
+		else {
+			this.groups = new String[] {};
+		}
 	}
 
 	public String getDescription() {

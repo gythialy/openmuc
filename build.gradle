@@ -1,138 +1,132 @@
-def projectName = 'OpenMUC'
-def projectNameLowerCase = 'openmuc'
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "net.saliman:gradle-cobertura-plugin:2.2.8"
+  }
+}
+
+plugins {
+  id "org.sonarqube" version "1.0"
+}
+
+apply from: "configuration.gradle"
 
 configure(allprojects) {
+  version = cfgVersion
+}
+
+configure(javaProjects) {
+
   apply plugin: 'java'
-  version = '0.15.2'
-  group = 'org.openmuc.framework'
-}
-
-allprojects {
-    
-    gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.encoding = "UTF-8"
-            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-        }
-    }
-
-    javadoc {
-        options.encoding = "UTF-8"
-    }
-}
-
-project.ext {
-  distributionProjects = subprojects.findAll {
-    it.getPath() == ':openmuc-core-api' ||
-    it.getPath() == ':openmuc-core-spi' ||
-    it.getPath() == ':openmuc-core-datamanager' ||
-    it.getPath() == ':openmuc-datalogger-ascii' ||
-    it.getPath() == ':openmuc-datalogger-slotsdb' ||
-    it.getPath() == ':openmuc-driver-aggregator' ||
-    it.getPath() == ':openmuc-driver-dlms' ||
-    it.getPath() == ':openmuc-driver-ehz' ||
-    it.getPath() == ':openmuc-driver-iec61850' ||
-    it.getPath() == ':openmuc-driver-iec62056p21' ||
-    it.getPath() == ':openmuc-driver-knx' ||
-    it.getPath() == ':openmuc-driver-mbus' ||
-    it.getPath() == ':openmuc-driver-modbus' ||
-    it.getPath() == ':openmuc-driver-rest' ||
-    it.getPath() == ':openmuc-driver-s7plc' ||
-    it.getPath() == ':openmuc-driver-snmp' ||
-    it.getPath() == ':openmuc-driver-wmbus' ||
-    it.getPath() == ':openmuc-webui-spi' ||
-    it.getPath() == ':openmuc-webui-base' ||
-    it.getPath() == ':openmuc-webui-channelconfigurator' ||
-    it.getPath() == ':openmuc-webui-dataplotter' ||
-    it.getPath() == ':openmuc-webui-dataexporter' ||
-    it.getPath() == ':openmuc-webui-channelaccesstool' ||
-    it.getPath() == ':openmuc-webui-userconfigurator' ||
-    it.getPath() == ':openmuc-webui-mediaviewer' ||
-    it.getPath() == ':openmuc-server-restws'
-  }
-
-  docProjects = distributionProjects.findAll {
-    it.getPath() == ':openmuc-core-api' ||
-    it.getPath() == ':openmuc-core-spi' ||
-    it.getPath() == ':openmuc-webui-spi'
-  }
-}
-
-configure(subprojects) {
-
   apply plugin: 'eclipse'
   apply plugin: 'osgi'
   apply plugin: 'maven'
   apply plugin: 'signing'
+  apply plugin: 'net.saliman.cobertura'
+
+  group = cfgGroup
 
   sourceCompatibility = 1.7
   targetCompatibility = 1.7
 
-  repositories {
-    mavenCentral()
-    flatDir {
-      dirs 'dependencies', rootDir.getPath() + "/dependencies"
-    }
-  }
+  repositories { mavenCentral() }
 
-  jar {
-    manifest {
-      version = project.version.replace('-','.');
-      symbolicName = project.name.replace("openmuc","org.openmuc.framework").replace('-','.');
+  sourceSets {
+    sample
+    itest {
+      compileClasspath += sourceSets.main.runtimeClasspath
     }
   }
 
   dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    itestCompile group: 'junit', name: 'junit', version: '4.12'
   }
 
-  task copyLibs(type: Copy) {
+  jar {
+    manifest {
+      version = project.version.replace('-','.');
+    }
+  }
+
+  cobertura {
+  
+    dependencies {
+      testCompile 'org.slf4j:slf4j-simple:1.6.1'
+    }
+    coverageFormats = ['html', 'xml']				
+    coverageIgnoreTrivial = true					
+    coverageIgnores = ['org.slf4j.Logger.*']			
+    coverageReportDir = new File("$buildDir/reports/cobertura")
+    coverageTestTasks {
+      project.tasks.withType(Test).matching {it.name == 'test'}
+    }
+ 	  
+  }
+
+  sonarqube {
+    properties {
+      property "sonar.java.coveragePlugin", "cobertura"
+      property "sonar.cobertura.reportPath", "build/reports/cobertura/coverage.xml"
+    }
+  }
+  
+  task jarAll(type: Copy) {
     dependsOn(configurations.default.getAllArtifacts().getBuildDependencies())
 
-    into rootDir.getPath() + "/build/libs"
+    //only the jar file created:
     from configurations.default.getAllArtifacts().getFiles()
+
+    ext.isDocProject = false;
+    docProjects.findAll {
+      if (it.getPath() == project.path) {
+        isDocProject = true;
+      }
+    }
+    
+    if (isDocProject) {
+      //configurations.archives also contains source and javadoc files
+      configurations.archives.getArtifacts().all {
+        if (it.file.name.endsWith("sources.jar") || it.file.name.endsWith("javadoc.jar")) {
+          from project.files(it.file)
+        }
+      }
+    }
+
+    if (cfgCopyDependencies) {
+      if (cfgCopyToRoot) {
+        into rootDir.getPath() + "/build/libs-all"
+      }
+      else {
+        into "build/libs-all"
+      }
+      //includes all the dependencies:
+      from configurations.default
+    }
+    else {
+      if (cfgCopyToRoot) {
+        into rootDir.getPath() + "/build/libs-all"
+      }
+      else {
+        into "build/libs-all"
+      }
+    }
   }
 
-  build.dependsOn(copyLibs)
+  build.dependsOn(jarAll)
 
   eclipse.pathVariables([GRADLE_USER_HOME:file(gradle.gradleUserHomeDir)])
   tasks.eclipse.dependsOn(cleanEclipse)
 
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-
-	repository(url: project.properties.repository) {
-          authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
-        }
-        snapshotRepository(url: project.properties.snapshotRepository) {
-          authentication(userName: project.properties.artifactoryUser, password: project.properties.artifactoryPass)
-        }
-      
-	pom.project {
-	  packaging 'jar'
-	  url 'http://www.openmuc.org/'
-	}
-      }
-    }
-
-  } 
 
   task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
   }
-  
-  artifacts {
-    archives sourcesJar
-  }
-
-}
-
-jar.enabled = false
-uploadArchives.enabled = false
-
-configure(docProjects) {
 
   task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
@@ -140,19 +134,79 @@ configure(docProjects) {
   }
 
   artifacts {
+    archives sourcesJar
     archives javadocJar
   }
 
-  task copySrc(type: Copy) {
-    dependsOn(sourcesJar)
-    into rootDir.getPath() + "/build/libs"
-    from configurations.archives.getAllArtifacts().getFiles()
+  javadoc {
+    exclude '**/internal/**'
+    exclude '**/java-gen/**'
   }
-  copyLibs.dependsOn copySrc
+
 }
 
 
-task javadocs(type: Javadoc) {
+configure(repositoryProjects) {
+
+  if (cfgSignPom) {
+    signing {
+      if ( project.hasProperty('signing.keyId') ) {
+	sign configurations.archives
+      }
+    }
+  }
+  
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+
+        if (cfgSignPom) {
+          beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+        }
+
+        repository(url: cfgRepository) {
+          authentication(userName: cfgRepositoryUser, password: cfgRepositoryPass)
+          if (cfgRepository != null && System.getProperty('https.proxyHost') != null && ((System.getProperty('https.nonProxyHosts') == null) || !cfgRepository.contains(System.getProperty('https.nonProxyHosts')))) {
+            proxy(host: System.getProperty('https.proxyHost'), port:  Integer.parseInt(System.getProperty('https.proxyPort')), type: 'https')
+          }
+        }
+        snapshotRepository(url: cfgSnapshotRepository) {
+          authentication(userName: cfgRepositoryUser, password: cfgRepositoryPass)
+          if (cfgSnapshotRepository != null && System.getProperty('https.proxyHost') != null && ((System.getProperty('https.nonProxyHosts') == null) || !cfgSnapshotRepository.contains(System.getProperty('https.nonProxyHosts')))) {
+            proxy(host: System.getProperty('https.proxyHost'), port:  Integer.parseInt(System.getProperty('https.proxyPort')), type: 'https')
+          }
+        }
+
+        pom.project {
+          
+          //additional pom information can be found in subproject build.gradle files
+
+          packaging 'jar'
+          url 'http://www.openmuc.org/'
+
+          scm {
+            url 'none'
+            connection 'none'
+          }
+
+          developers {
+            developer {
+              id 'sfeuerhahn'
+              name 'Stefan Feuerhahn'
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+configure(docProjects) {
+  jarAll.dependsOn sourcesJar
+  jarAll.dependsOn javadocJar
+}
+
+task javadocAll(type: Javadoc) {
 
   source docProjects.collect {
     project -> project.sourceSets.main.allJava
@@ -160,8 +214,8 @@ task javadocs(type: Javadoc) {
 
   exclude '**/internal/**'
 
-  destinationDir = new File(buildDir, 'javadoc')
-  
+  destinationDir = new File(buildDir, 'docs/javadoc-all')
+
   classpath = files(distributionProjects.collect { project ->
     project.sourceSets.main.compileClasspath })
 
@@ -169,23 +223,29 @@ task javadocs(type: Javadoc) {
     project.sourceSets.main.output })
 }
 
+
 task writeSettings << {
   Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
   out.write("include ");
   boolean first = true;
   for (Project myproject: distributionProjects) {
-    if (first == true) {
-      first = false;
+    if (!myproject.getProjectDir().equals(getProjectDir())) {
+      if (first == true) {
+        first = false;
+      }
+      else {
+        out.write ", ";
+      }
+      out.write "'" + myproject.name + "'"
     }
-    else {
-      out.write ", ";
-    }
-    out.write "'" + myproject.name + "'"
   }
   out .write "\n\n";
 
   for (Project myproject: distributionProjects) {
-    out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
+    if (!myproject.getProjectDir().equals(getProjectDir())) {
+      println myproject.name
+      out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
+    }
   }
 
   out.close();
@@ -199,61 +259,24 @@ tasks.withType(Tar) {
 
   dependsOn(writeSettings)
   dependsOn(distributionProjects.build)
-  dependsOn(javadocs)
+  dependsOn(javadocAll)
 
   compression = Compression.GZIP
-
-  into(project.archivesBaseName) {
-    from('./') {
-      include 'build.gradle'
-      include 'license/**'
-      include 'doc/*.txt'
-      include 'doc/userguide/' + projectNameLowerCase + '-doc*.html'
-      include 'doc/userguide/' + projectNameLowerCase + '-doc_img/**'
-      include 'build/libs/**'
-      include 'build/javadoc/**'
-
-      include 'dependencies/**'
-
-      include 'demo/framework/felix/**'
-      include 'demo/framework/bundle/**'
-      include 'demo/framework/conf/**'
-      include 'demo/framework/dependencies/**'
-      include 'demo/framework/README.txt'
-      include 'demo/framework/run-openmuc.bat.winfile'
-      include 'demo/framework/build.gradle'
-      include 'demo/framework/update-bundles.sh'
-      include 'demo/framework/run-openmuc.sh'
-      include 'demo/projects/**'
-
-      exclude '**/projects/**/bin'
-      exclude '**/projects/**/build'
-      exclude '**/projects/**/.settings'
-      exclude '**/projects/**/.project'
-      exclude '**/projects/**/.classpath'
-      exclude '**/projects/**/.gradle'
-
-      if (name.equals("tar") ){
-	exclude '**/dependencies/**/src'
-      }
-
-      for (Project myproject: distributionProjects) {
-	include myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '/**';
-      }
-    }
-    
-    from('./build/') {
-      include 'settings.gradle'
-    }
-  }
-
-
+  
+  destinationDir = file('build/distributions/')
 }
 
 task (tarFull, type: Tar) {
-  archiveName = project.archivesBaseName + "-" + version + "_full.tgz"
+  archiveName = project.name + "-" + project.version + "_full.tgz"
 }
 
 
 task (tar, type: Tar) {
+  archiveName = project.name + "-" + project.version + ".tgz"
+}
+
+if (!javaProjects.contains(project)) {
+  task clean (type: Delete) {
+    delete "build"
+  }
 }

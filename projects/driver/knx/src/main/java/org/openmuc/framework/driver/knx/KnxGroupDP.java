@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,10 +27,6 @@ import tuwien.auto.calimero.datapoint.CommandDP;
 import tuwien.auto.calimero.exception.KNXException;
 import tuwien.auto.calimero.serial.rc1180.SNorDoA;
 
-/**
- * @author frobra
- * 
- */
 public class KnxGroupDP extends CommandDP {
 
 	private final KnxValue value;

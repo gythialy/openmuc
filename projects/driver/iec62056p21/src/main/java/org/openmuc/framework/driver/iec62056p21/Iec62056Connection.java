@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -48,8 +48,8 @@ public class Iec62056Connection implements Connection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException, ScanException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ScanException, ConnectionException {
 
 		List<DataSet> dataSets;
 		try {
@@ -112,8 +112,8 @@ public class Iec62056Connection implements Connection {
 					String value = dataSet.getValue();
 					if (value != null) {
 						try {
-							container.setRecord(new Record(new DoubleValue(Double.parseDouble(dataSet.getValue())),
-									time));
+							container.setRecord(
+									new Record(new DoubleValue(Double.parseDouble(dataSet.getValue())), time));
 						} catch (NumberFormatException e) {
 							container.setRecord(new Record(new StringValue(dataSet.getValue()), time));
 						}

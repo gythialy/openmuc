@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -245,15 +245,15 @@ public class RestConnection implements Connection {
 			if (isHTTPS) {
 				respCode = ((HttpsURLConnection) con).getResponseCode();
 				if (!(respCode >= 200 && respCode < 300)) {
-					throw new ConnectionException("HTTPS " + respCode + ":"
-							+ ((HttpsURLConnection) con).getResponseMessage());
+					throw new ConnectionException(
+							"HTTPS " + respCode + ":" + ((HttpsURLConnection) con).getResponseMessage());
 				}
 			}
 			else {
 				respCode = ((HttpURLConnection) con).getResponseCode();
 				if (!(respCode >= 200 && respCode < 300)) {
-					throw new ConnectionException("HTTP " + respCode + ":"
-							+ ((HttpURLConnection) con).getResponseMessage());
+					throw new ConnectionException(
+							"HTTP " + respCode + ":" + ((HttpURLConnection) con).getResponseMessage());
 				}
 			}
 		} catch (IOException e) {
@@ -289,8 +289,8 @@ public class RestConnection implements Connection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 
 		return readChannels();
 	}

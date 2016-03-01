@@ -197,12 +197,29 @@
 			});
     	};
     	
-    	this.writeValue = function(id, newValue) {
+    	this.writeValue = function(id, type, newValue) {
+    		
+    		if (type=="STRING") {
+    				var dataType = {record: {value: newValue}};
+    		}
+    		else if (type=="INTEGER" || type=="LONG" || type=="SHORT" || type=="BYTE") {
+    				var dataType = {record: {value: parseInt(newValue)}};
+    		}
+    		else if (type=="BOOLEAN") {
+    				var dataType = {record: {value: parseBoolean(newValue)}};
+    		}
+    		else if (type=="BYTE_ARRAY") {
+    				var dataType = {record: {value: newValue}};
+    		}
+    		else {
+    				var dataType = {record: {value: parseFloat(newValue)}};
+    		}
+
     		var req = {
         			method: 'PUT',
         			url: SETTINGS.API_URL + SETTINGS.CHANNELS_URL + id,
         			dataType: 'json',
-        			data: {record: {value: parseInt(newValue)}},
+        			data: dataType,
         			headers: {
         				'Content-Type': 'application/json', 
         				'Authorization': RestServerAuthService.getAuthHash(),

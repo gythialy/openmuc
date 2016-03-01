@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -153,7 +153,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 			// create an empty configuration and store it in a file
 			rootConfigWithoutDefaults = new RootConfigImpl();
 			rootConfigWithoutDefaults.writeToFile(configFile);
-			logger.info("No configuration file found. Created an empty config file at: " + configFile.getAbsolutePath());
+			logger.info(
+					"No configuration file found. Created an empty config file at: " + configFile.getAbsolutePath());
 		} catch (ParseException e) {
 			throw new ParseException("Error parsing openmuc config file: " + e.getMessage());
 		}
@@ -211,10 +212,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
 			if ((currentTime - currentAction.startTime) > 1000l) {
 				actions.remove(0);
-				logger.error("Action was scheduled for unix time "
-						+ currentAction.startTime
-						+ ". But current time is already "
-						+ currentTime
+				logger.error("Action was scheduled for unix time " + currentAction.startTime
+						+ ". But current time is already " + currentTime
 						+ ". Will calculate new action time because the action has timed out. Has the system clock jumped?");
 				if (currentAction.timeouts != null && currentAction.timeouts.size() > 0) {
 					for (SamplingTask samplingTask : currentAction.timeouts) {
@@ -235,7 +234,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 				}
 				if (currentAction.connectionRetryDevices != null) {
 					for (Device device : currentAction.connectionRetryDevices) {
-						addReconnectDeviceToActions(device, currentTime + device.deviceConfig.getConnectRetryInterval());
+						addReconnectDeviceToActions(device,
+								currentTime + device.deviceConfig.getConnectRetryInterval());
 					}
 				}
 				continue;
@@ -279,8 +279,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 					}
 
 					if (loggingCollection.channels.size() > 0) {
-						addLoggingCollectionToActions(loggingCollection, currentAction.startTime
-								+ loggingCollection.interval);
+						addLoggingCollectionToActions(loggingCollection,
+								currentAction.startTime + loggingCollection.interval);
 					}
 				}
 				for (DataLoggerService dataLogger : activeDataLoggers) {
@@ -309,12 +309,12 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
 					if (samplingCollection.device.addSamplingTask(samplingTask, samplingCollection.interval)
 							&& timeout > 0) {
-						addSamplingWorkerTimeoutToActions(samplingTask, currentAction.startTime
-								+ samplingCollection.device.deviceConfig.samplingTimeout);
+						addSamplingWorkerTimeoutToActions(samplingTask,
+								currentAction.startTime + samplingCollection.device.deviceConfig.samplingTimeout);
 					}
 
-					addSamplingCollectionToActions(samplingCollection, currentAction.startTime
-							+ samplingCollection.interval);
+					addSamplingCollectionToActions(samplingCollection,
+							currentAction.startTime + samplingCollection.interval);
 				}
 
 			}
@@ -737,7 +737,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
 		if (fittingSamplingCollection == null) {
 			fittingSamplingCollection = new ChannelCollection(channel.config.samplingInterval,
-					channel.config.samplingTimeOffset, channel.config.samplingGroup, channel.config.deviceParent.device);
+					channel.config.samplingTimeOffset, channel.config.samplingGroup,
+					channel.config.deviceParent.device);
 			addSamplingCollectionToActions(fittingSamplingCollection,
 					fittingSamplingCollection.calculateNextActionTime(time));
 		}
@@ -1147,8 +1148,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String deviceId, String settings) throws DriverNotAvailableException,
-			UnsupportedOperationException, ArgumentSyntaxException, ScanException {
+	public List<ChannelScanInfo> scanForChannels(String deviceId, String settings)
+			throws DriverNotAvailableException, UnsupportedOperationException, ArgumentSyntaxException, ScanException {
 		// TODO this function is probably not thread safe
 
 		DeviceConfigImpl config = (DeviceConfigImpl) rootConfig.getDevice(deviceId);
@@ -1221,7 +1222,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
 		for (ReadRecordContainer container : readContainers) {
 			if (container instanceof ChannelRecordContainerImpl == false) {
-				throw new IllegalArgumentException("Only use ReadRecordContainer created by Channel.getReadContainer()");
+				throw new IllegalArgumentException(
+						"Only use ReadRecordContainer created by Channel.getReadContainer()");
 			}
 
 			ChannelImpl channel = (ChannelImpl) container.getChannel();

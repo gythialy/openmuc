@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -81,8 +81,8 @@ public final class Iec61850Connection implements Connection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 		List<BasicDataAttribute> bdas = serverModel.getBasicDataAttributes();
 
 		List<ChannelScanInfo> scanInfos = new ArrayList<ChannelScanInfo>(bdas.size());
@@ -105,8 +105,8 @@ public final class Iec61850Connection implements Connection {
 			case VISIBLE_STRING:
 			case UNICODE_STRING:
 				bda.setDefault();
-				scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY, ((BdaBitString) bda)
-						.getValue().length));
+				scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+						((BdaBitString) bda).getValue().length));
 				break;
 			case TIMESTAMP:
 				scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.LONG, null));

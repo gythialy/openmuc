@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,7 +30,8 @@ public enum EDatatype {
 	DOUBLE("double", 4), // 4 Registers
 	LONG("long", 4), // 4 Registers
 	BYTEARRAY("bytearray", 0), // registerCount is calculated dynamically, the 0 will be overwritten
-	BYTE_HIGH("byte_high", 1), BYTE_LOW("byte_low", 1);
+	BYTE_HIGH("byte_high", 1),
+	BYTE_LOW("byte_low", 1);
 
 	private final String datatype;
 	private final int registerCount;

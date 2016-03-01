@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,10 +24,6 @@ import java.util.Arrays;
 
 import tuwien.auto.calimero.exception.KNXIllegalArgumentException;
 
-/**
- * @author Frederic Robra
- * 
- */
 public class SNorDoA {
 
 	private final boolean AET;

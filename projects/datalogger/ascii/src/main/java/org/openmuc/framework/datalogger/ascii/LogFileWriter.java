@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,18 +26,19 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongCharacterException;
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
+import org.openmuc.framework.datalogger.ascii.utils.LogRecordContainerAscii;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
@@ -50,13 +51,17 @@ public class LogFileWriter {
 	private static final Logger logger = LoggerFactory.getLogger(LogFileWriter.class);
 	private final LogFileHeader header = new LogFileHeader();
 	private File actualFile;
+	private final boolean isFillUpFiles;
 
-	public LogFileWriter() {
+	public LogFileWriter(boolean isFillUpFiles) {
+
+		this.isFillUpFiles = isFillUpFiles;
 		directoryPath = Const.DEFAULT_DIR;
 	}
 
-	public LogFileWriter(String directoryPath) {
+	public LogFileWriter(String directoryPath, boolean isFillUpFiles) {
 
+		this.isFillUpFiles = isFillUpFiles;
 		this.directoryPath = directoryPath;
 	}
 
@@ -65,13 +70,13 @@ public class LogFileWriter {
 	 * 
 	 * @param group
 	 * @param loggingInterval
-	 * @param date
+	 * @param calendar
 	 * @param logChannelList
 	 */
-	public void log(LogIntervalContainerGroup group, int loggingInterval, int logTimeOffset, Date date,
+	public void log(LogIntervalContainerGroup group, int loggingInterval, int logTimeOffset, Calendar calendar,
 			HashMap<String, LogChannel> logChannelList) {
 
-		PrintStream out = getStream(group, loggingInterval, logTimeOffset, date, logChannelList);
+		PrintStream out = getStream(group, loggingInterval, logTimeOffset, calendar, logChannelList);
 
 		if (out == null) {
 			return;
@@ -80,28 +85,70 @@ public class LogFileWriter {
 		List<LogRecordContainer> logRecordContainer = group.getList();
 
 		// TODO match column with container id, so that they don't get mixed up
-		String logLine = setLoggingStringBuilder(logRecordContainer, logChannelList, date);
+
+		if (isFillUpFiles) {
+			fillUpFile(loggingInterval, logTimeOffset, calendar, logChannelList, logRecordContainer, out);
+		}
+
+		String logLine = getLoggingLine(logRecordContainer, logChannelList, calendar, false);
 
 		out.print(logLine); // print because of println makes different newline char on different systems
 		out.flush();
 		out.close();
+		AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, logTimeOffset, calendar.getTimeInMillis());
 	}
 
-	private String setLoggingStringBuilder(List<LogRecordContainer> logRecordContainer,
-			HashMap<String, LogChannel> logChannelList, Date date) {
+	private void fillUpFile(int loggingInterval, int logTimeOffset, Calendar calendar,
+			HashMap<String, LogChannel> logChannelList, List<LogRecordContainer> logRecordContainer, PrintStream out) {
+
+		Long lastLoglineTimestamp = AsciiLogger.getLastLoggedLineTimeStamp(loggingInterval, logTimeOffset);
+
+		if (lastLoglineTimestamp != null && lastLoglineTimestamp > 0) {
+
+			long diff = calendar.getTimeInMillis() - lastLoglineTimestamp;
+			if (diff >= loggingInterval) {
+
+				Calendar errCalendar = new GregorianCalendar(Locale.getDefault());
+				errCalendar.setTimeInMillis(lastLoglineTimestamp);
+
+				if (errCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)
+						&& errCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+
+					long numOfErrorLines = diff / loggingInterval;
+
+					for (int i = 1; i < numOfErrorLines; ++i) {
+						errCalendar.setTimeInMillis(lastLoglineTimestamp + ((long) loggingInterval * i));
+						out.print(getLoggingLine(logRecordContainer, logChannelList, errCalendar, true));
+					}
+				}
+			}
+		}
+	}
+
+	private String getLoggingLine(List<LogRecordContainer> logRecordContainer,
+			HashMap<String, LogChannel> logChannelList, Calendar calendar, boolean isError32) {
 
 		StringBuilder sb = new StringBuilder();
 
-		Calendar calendar = new GregorianCalendar(Locale.getDefault());
-		calendar.setTime(date);
 		LoggerUtils.setLoggerTimestamps(sb, calendar);
 
 		for (int i = 0; i < logRecordContainer.size(); i++) {
+
 			String value = "";
 			int size = Const.VALUE_SIZE_MINIMAL;
 			boolean left = true;
 
 			if (logRecordContainer.get(i).getRecord() != null) {
+
+				Record recordBackup = null;
+				String channelID = null;
+				if (isError32) {
+					recordBackup = logRecordContainer.get(i).getRecord();
+					channelID = logRecordContainer.get(i).getChannelId();
+					logRecordContainer.set(i,
+							new LogRecordContainerAscii(channelID, new Record(Flag.DATA_LOGGING_NOT_ACTIVE)));
+				}
+
 				if (logRecordContainer.get(i).getRecord().getFlag() == Flag.VALID) {
 					if (logRecordContainer.get(i).getRecord().getValue() == null) {
 						// write error flag
@@ -111,7 +158,7 @@ public class LogFileWriter {
 					else {
 						ValueType valueType = logChannelList.get(logRecordContainer.get(i).getChannelId())
 								.getValueType();
-						// logger.debug("channel: " + containers.get(i).getChannelId());
+
 						switch (valueType) {
 						case BOOLEAN:
 							value = String.valueOf(logRecordContainer.get(i).getRecord().getValue().asShort());
@@ -132,17 +179,18 @@ public class LogFileWriter {
 						case FLOAT:
 							size = Const.VALUE_SIZE_DOUBLE;
 							try {
-								value = IESDataFormatUtils.convertDoubleToStringWithMaxLength(logRecordContainer.get(i)
-										.getRecord().getValue().asDouble(), size);
+								value = IESDataFormatUtils.convertDoubleToStringWithMaxLength(
+										logRecordContainer.get(i).getRecord().getValue().asDouble(), size);
 							} catch (WrongScalingException e) {
 								value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-								logger.error(e.getMessage() + " ChannelId: " + logRecordContainer.get(i).getChannelId());
+								logger.error(
+										e.getMessage() + " ChannelId: " + logRecordContainer.get(i).getChannelId());
 							}
 							break;
 						case BYTE_ARRAY:
 							left = false;
-							size = checkMinimalValueSize(logChannelList.get(logRecordContainer.get(i).getChannelId())
-									.getValueTypeLength());
+							size = checkMinimalValueSize(
+									logChannelList.get(logRecordContainer.get(i).getChannelId()).getValueTypeLength());
 							byte[] byteArray = logRecordContainer.get(i).getRecord().getValue().asByteArray();
 							if (byteArray.length > size) {
 								value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
@@ -156,18 +204,19 @@ public class LogFileWriter {
 							break;
 						case STRING:
 							left = false;
-							size = checkMinimalValueSize(logChannelList.get(logRecordContainer.get(i).getChannelId())
-									.getValueTypeLength());
+							size = checkMinimalValueSize(
+									logChannelList.get(logRecordContainer.get(i).getChannelId()).getValueTypeLength());
 							value = logRecordContainer.get(i).getRecord().getValue().toString();
+							int valueLength = value.length();
 							try {
 								checkStringValue(value);
 							} catch (WrongCharacterException e) {
 								value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
 								logger.error(e.getMessage());
 							}
-							if (value.length() > size) {
+							if (valueLength > size) {
 								value = LoggerUtils.buildError(Flag.UNKNOWN_ERROR);
-								logger.error("The string is too big, length is " + value.length()
+								logger.error("The string is too big, length is " + valueLength
 										+ " but max. length allowed is " + size + ", ChannelId: "
 										+ logRecordContainer.get(i).getChannelId());
 							}
@@ -184,6 +233,10 @@ public class LogFileWriter {
 					// write errorflag
 					value = LoggerUtils.buildError(logRecordContainer.get(i).getRecord().getFlag());
 					size = getDataTypeSize(logChannelList.get(logRecordContainer.get(i).getChannelId()), i);
+				}
+
+				if (isError32) {
+					logRecordContainer.set(i, new LogRecordContainerAscii(channelID, recordBackup));
 				}
 			}
 			else {
@@ -217,8 +270,8 @@ public class LogFileWriter {
 	private void checkStringValue(String value) throws WrongCharacterException {
 
 		if (value.contains(Const.SEPARATOR)) {
-			throw new WrongCharacterException("Wrong character: String contains Seperator character: "
-					+ Const.SEPARATOR);
+			throw new WrongCharacterException(
+					"Wrong character: String contains Seperator character: " + Const.SEPARATOR);
 		}
 		else if (value.startsWith(Const.ERROR)) {
 			throw new WrongCharacterException("Wrong character: String begins with: " + Const.ERROR);
@@ -248,11 +301,9 @@ public class LogFileWriter {
 	 * @param logChannelList
 	 * @return the PrintStream for logging.
 	 */
-	private PrintStream getStream(LogIntervalContainerGroup group, int loggingInterval, int logTimeOffset, Date date,
-			HashMap<String, LogChannel> logChannelList) {
+	private PrintStream getStream(LogIntervalContainerGroup group, int loggingInterval, int logTimeOffset,
+			Calendar calendar, HashMap<String, LogChannel> logChannelList) {
 
-		Calendar calendar = new GregorianCalendar(Locale.getDefault());
-		calendar.setTime(date);
 		String filename = LoggerUtils.buildFilename(loggingInterval, logTimeOffset, calendar);
 
 		File file = new File(directoryPath + filename);
@@ -298,7 +349,7 @@ public class LogFileWriter {
 				// get length from channel for ByteString
 				size = logChannel.getValueTypeLength();
 			}
-			else if (!(isByteArray || isString)) {
+			else {
 				// get length from channel for simple value types
 				size = LoggerUtils.getLengthOfValueType(logChannel.getValueType());
 			}
@@ -307,7 +358,8 @@ public class LogFileWriter {
 			// get length from file
 			ValueType vt = LoggerUtils.identifyValueType(iterator + Const.NUM_OF_TIME_TYPES_IN_HEADER + 1, actualFile);
 			size = LoggerUtils.getLengthOfValueType(vt);
-			if ((vt.equals(ValueType.BYTE_ARRAY) || (vt.equals(ValueType.STRING))) && size <= Const.VALUE_SIZE_MINIMAL) {
+			if ((vt.equals(ValueType.BYTE_ARRAY) || (vt.equals(ValueType.STRING)))
+					&& size <= Const.VALUE_SIZE_MINIMAL) {
 				size = LoggerUtils.getValueTypeLengthFromFile(iterator + Const.NUM_OF_TIME_TYPES_IN_HEADER + 1,
 						actualFile);
 			}

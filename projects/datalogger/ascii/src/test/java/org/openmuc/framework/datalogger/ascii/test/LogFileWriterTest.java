@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,9 +24,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -36,6 +35,7 @@ import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.ByteValue;
 import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.FloatValue;
 import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
@@ -43,6 +43,8 @@ import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ShortValue;
 import org.openmuc.framework.data.StringValue;
 import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.datalogger.ascii.AsciiLogger;
+import org.openmuc.framework.datalogger.ascii.LogFileReader;
 import org.openmuc.framework.datalogger.ascii.LogFileWriter;
 import org.openmuc.framework.datalogger.ascii.LogIntervalContainerGroup;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
@@ -54,42 +56,50 @@ public class LogFileWriterTest {
 	// t1 = start timestamp of requestet interval
 	// t2 = end timestamp of requestet interval
 
-	static int loggingInterval = 10000; // ms;
-	static int loggingTimeOffset = 0; // ms;
-	static String ext = ".dat";
+	LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, true);
 
-	static String dateFormat = "yyyyMMdd HH:mm:s";
-	static String fileDate1 = "20880808";
-	static String fileDate2 = "20880809";
+	private static int loggingInterval = 10000; // ms;
+	private static int loggingTimeOffset = 0; // ms;
+	private static String ext = ".dat";
 
-	static String ch01 = "FLOAT";
-	static String ch02 = "DOUBLE";
-	static String ch03 = "BOOLEAN";
-	static String ch04 = "SHORT";
-	static String ch05 = "INTEGER";
-	static String ch06 = "LONG";
-	static String ch07 = "BYTE";
-	static String ch08 = "STRING";
-	static String ch09 = "BYTE_ARRAY";
-	static String dummy = "dummy";
-	static String[] channelIds = new String[] { ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09 };
-	static String time = " 23:55:00";
-	static String testStringValueIncorrectASCII = "qwertzuiopü+asdfghjklöä#<yxcvbnm,.-^1234567890ß °!§$%&/()=?QWERTZUIOPÜ*ASDFGHJKLÖÄ'>YXCVBNM;:_"; // 94
-																																					// Zeichen
-	static String testStringValueCorrect = "qwertzuiop+asdfghjkl#<yxcvbnm,.-^1234567890 !$%&/()=?QWERTZUIOP*ASDFGHJKL'>YXCVBNM;:_";
-	static String testStringValueIncorrect = "qwertzuiop+asdfghjkl#<yxcvbnm,.-^1234567890 " + Const.SEPARATOR
+	private static String dateFormat = "yyyyMMdd HH:mm:s";
+	private static String fileDate1 = "20880808";
+	private static String fileDate2 = "20880809";
+
+	private static String ch01 = "FLOAT";
+	private static String ch02 = "DOUBLE";
+	private static String ch03 = "BOOLEAN";
+	private static String ch04 = "SHORT";
+	private static String ch05 = "INTEGER";
+	private static String ch06 = "LONG";
+	private static String ch07 = "BYTE";
+	private static String ch08 = "STRING";
+	private static String ch09 = "BYTE_ARRAY";
+	private static String dummy = "dummy";
+	// private static String[] channelIds = new String[] { ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09 };
+	private static String time = " 23:55:00";
+	// private static String testStringValueIncorrectASCII =
+	// "qwertzuiopü+asdfghjklöä#<yxcvbnm,.-^1234567890ß °!§$%&/()=?QWERTZUIOPÜ*ASDFGHJKLÖÄ'>YXCVBNM;:_"; // 94
+	// Zeichen
+	private static String testStringValueCorrect = "qwertzuiop+asdfghjkl#<yxcvbnm,.-^1234567890 !$%&/()=?QWERTZUIOP*ASDFGHJKL'>YXCVBNM;:_";
+	private static String testStringValueIncorrect = "qwertzuiop+asdfghjkl#<yxcvbnm,.-^1234567890 " + Const.SEPARATOR
 			+ "!$%&/()=?QWERTZUIOP*SDFGHJKL'>YXCVBNM;:_";
-	static byte[] testByteArray = { 1, 2, 3, 4, -5, -9, 0 };
+	private static byte[] testByteArray = { 1, 2, 3, 4, -5, -9, 0 };
 
-	static int valueLength = 100;
-	static int valueLengthByteArray = testByteArray.length;
+	private static int valueLength = 100;
+	private static int valueLengthByteArray = testByteArray.length;
+
+	private static HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
+	private static Calendar calendar = TestUtils.stringToDate(dateFormat, fileDate1 + time);
 
 	@BeforeClass
 	public static void setup() {
 
+		System.out.println("### Setup() LogFileWriterTest");
+
 		TestSuite.createTestFolder();
 
-		// 2 Kanäle im Stunden-Takt loggen über von 12 Uhr bis 12 Uhr des nächsten Tages
+		// 2 Kanäle im Stunden-Takt loggen von 12 Uhr bis 12 Uhr in den nächsten Tage hinein
 		// --> Ergebnis müssten zwei Dateien sein die vom LogFileWriter erstellt wurden
 
 		String filename1 = TestUtils.TESTFOLDERPATH + fileDate1 + "_" + loggingInterval + ext;
@@ -106,8 +116,6 @@ public class LogFileWriterTest {
 			System.out.println("Delete File " + filename2);
 			file2.delete();
 		}
-
-		HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
 
 		LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.FLOAT,
 				loggingInterval, loggingTimeOffset);
@@ -138,17 +146,17 @@ public class LogFileWriterTest {
 		logChannelList.put(ch08, ch8);
 		logChannelList.put(ch09, ch9);
 
-		Date date = TestUtils.stringToDate(dateFormat, fileDate1 + time);
-		Calendar calendar = new GregorianCalendar();
-		calendar.setTime(date);
-		long time = date.getTime();
+		long timeStamp = calendar.getTimeInMillis();
 		boolean boolValue;
 		byte byteValue = 0;
 
 		String testString;
 
 		// writes 24 records for 2 channels from 12 o'clock till 12 o'clock of the other day
-		for (long i = 0; i < ((60 * 10) * (1000d / loggingInterval)); i++) {
+		AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, 0); // Set to 0, for deleting
+																						// timestamp of previous test
+
+		for (int i = 0; i < ((60 * 10) * (1000d / loggingInterval)); ++i) {
 
 			if ((i % 2) > 0) {
 				boolValue = true;
@@ -158,40 +166,12 @@ public class LogFileWriterTest {
 				boolValue = false;
 				testString = testStringValueIncorrect;
 			}
-			// System.out.println("TEST = " + (i+0.555F));
-			LogRecordContainer container1 = new LogRecordContainerImpl(ch01, new Record(
-					new FloatValue(i * -7 - 0.555F), time));
-			LogRecordContainer container2 = new LogRecordContainerImpl(ch02, new Record(
-					new DoubleValue(i * +7 - 0.555), time));
-			LogRecordContainer container3 = new LogRecordContainerImpl(ch03, new Record(new BooleanValue(boolValue),
-					time));
-			LogRecordContainer container4 = new LogRecordContainerImpl(ch04,
-					new Record(new ShortValue((short) i), time));
-			LogRecordContainer container5 = new LogRecordContainerImpl(ch05, new Record(new IntValue((int) i), time));
-			LogRecordContainer container6 = new LogRecordContainerImpl(ch06, new Record(new LongValue(i * 1000000),
-					time));
-			LogRecordContainer container7 = new LogRecordContainerImpl(ch07, new Record(new ByteValue(byteValue), time));
-			LogRecordContainer container8 = new LogRecordContainerImpl(ch08, new Record(new StringValue(testString),
-					time));
-			LogRecordContainer container9 = new LogRecordContainerImpl(ch09, new Record(new ByteArrayValue(
-					testByteArray), time));
 
-			LogIntervalContainerGroup group = new LogIntervalContainerGroup();
-			group.add(container1);
-			group.add(container2);
-			group.add(container3);
-			group.add(container4);
-			group.add(container5);
-			group.add(container6);
-			group.add(container7);
-			group.add(container8);
-			group.add(container9);
+			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
 
-			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH);
-			lfw.log(group, loggingInterval, loggingTimeOffset, date, logChannelList);
-
+			LogIntervalContainerGroup group = getGroup(timeStamp, i, boolValue, byteValue, testString);
+			lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
 			calendar.add(Calendar.MILLISECOND, loggingInterval);
-			date = calendar.getTime();
 
 			++byteValue;
 		}
@@ -199,12 +179,15 @@ public class LogFileWriterTest {
 
 	@AfterClass
 	public static void tearDown() {
+
 		System.out.println("tearing down");
 		TestSuite.deleteTestFolder();
 	}
 
-	@Test
+	// @Test
 	public void tc300_check_if_new_file_is_created_on_day_change() {
+
+		System.out.println("### Begin test tc300_check_if_new_file_is_created_on_day_change");
 
 		String filename1 = TestUtils.TESTFOLDERPATH + fileDate1 + "_" + loggingInterval + ext;
 		String filename2 = TestUtils.TESTFOLDERPATH + fileDate2 + "_" + loggingInterval + ext;
@@ -220,9 +203,184 @@ public class LogFileWriterTest {
 			assertT = false;
 		}
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(file1.getAbsolutePath());
-		System.out.println(file2.getAbsolutePath() + "\nTwo files created = " + assertT);
+		System.out.println(" " + file1.getAbsolutePath());
+		System.out.println(" " + file2.getAbsolutePath());
+		System.out.println(" Two files created = " + assertT);
 
 		assertTrue(assertT);
 	}
+
+	@Test
+	public void tc301_check_file_fill_up_at_logging() {
+
+		System.out.println("### Begin test tc301_check_file_fill_up_at_logging");
+
+		int valuesToWrite = 5;
+
+		calendar.add(Calendar.MILLISECOND, loggingInterval * valuesToWrite - 10);
+
+		LogIntervalContainerGroup group = getGroup(calendar.getTimeInMillis(), 3, true, (byte) 0x11, "nope");
+		lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
+
+		LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.FLOAT,
+				loggingInterval, loggingTimeOffset);
+		LogFileReader lfr = new LogFileReader(TestUtils.TESTFOLDERPATH, ch1);
+
+		List<Record> recordList = lfr.getValues(calendar.getTimeInMillis() - loggingInterval * 5,
+				calendar.getTimeInMillis());
+		int receivedRecords = recordList.size();
+
+		int numErrorFlags = 0;
+		for (Record record : recordList) {
+			if (record.getFlag().equals(Flag.DATA_LOGGING_NOT_ACTIVE)) {
+				++numErrorFlags;
+			}
+		}
+
+		Boolean assertT;
+		if (receivedRecords == valuesToWrite && numErrorFlags == valuesToWrite - 1) {
+			assertT = true;
+		}
+		else {
+			assertT = false;
+		}
+		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName());
+		System.out.println(" records = " + receivedRecords + " (" + valuesToWrite + " expected)");
+		System.out
+				.println(" records with error flag 32 = " + numErrorFlags + " (" + (valuesToWrite - 1) + " expected)");
+
+		assertTrue(assertT);
+	}
+
+	// @Test
+	// public void tc302_check_file_fill_up_at_logging_at_day_change() {
+	// // TODO:
+	// second_setup();
+	// System.out.println("### Begin test tc301_check_file_fill_up_at_logging_at_day_change");
+	//
+	// int valuesToWrite = 5;
+	//
+	// calendar.add(Calendar.MILLISECOND, loggingInterval * valuesToWrite);
+	//
+	// LogIntervalContainerGroup group = getSecondGroup(calendar.getTimeInMillis(), 4);
+	// lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
+	//
+	// LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.FLOAT,
+	// loggingInterval, loggingTimeOffset);
+	// LogFileReader lfr = new LogFileReader(TestUtils.TESTFOLDERPATH, ch1);
+	//
+	// List<Record> recordList = lfr.getValues(calendar.getTimeInMillis() - loggingInterval * 5,
+	// calendar.getTimeInMillis());
+	// int receivedRecords = recordList.size();
+	//
+	// int numErrorFlags = 0;
+	// for (Record record : recordList) {
+	// if (record.getFlag().equals(Flag.DATA_LOGGING_NOT_ACTIVE)) {
+	// ++numErrorFlags;
+	// }
+	// }
+	//
+	// Boolean assertT;
+	// if (receivedRecords == valuesToWrite && numErrorFlags == valuesToWrite - 1) {
+	// assertT = true;
+	// }
+	// else {
+	// assertT = false;
+	// }
+	// System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName());
+	// System.out.println(" records = " + receivedRecords + " (" + valuesToWrite + " expected)");
+	// System.out
+	// .println(" records with error flag 32 = " + numErrorFlags + " (" + (valuesToWrite - 1) + " expected)");
+	//
+	// assertTrue(assertT);
+	// }
+
+	// private void second_setup() {
+	//
+	// System.out.println("### second_setup() LogFileWriterTest");
+	//
+	// TestSuite.createTestFolder();
+	//
+	// // 2 Kanäle im Stunden-Takt loggen von 12 Uhr bis 12 Uhr in den nächsten Tage hinein
+	// // --> Ergebnis müssten zwei Dateien sein die vom LogFileWriter erstellt wurden
+	//
+	// String filename1 = TestUtils.TESTFOLDERPATH + fileDate1 + "_" + loggingInterval + ext;
+	// String filename2 = TestUtils.TESTFOLDERPATH + fileDate2 + "_" + loggingInterval + ext;
+	//
+	// File file1 = new File(filename1);
+	// File file2 = new File(filename2);
+	//
+	// if (file1.exists()) {
+	// System.out.println("Delete File " + filename1);
+	// file1.delete();
+	// }
+	// if (file2.exists()) {
+	// System.out.println("Delete File " + filename2);
+	// file2.delete();
+	// }
+	//
+	// LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.FLOAT,
+	// loggingInterval, loggingTimeOffset);
+	//
+	// logChannelList.put(ch01, ch1);
+	//
+	// long timeStamp = calendar.getTimeInMillis();
+	//
+	// // writes 24 records for 2 channels from 12 o'clock till 12 o'clock of the other day
+	// AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, 0); // Set to 0, for deleting
+	// // timestamp of previous test
+	// for (int i = 0; i < ((60 * 10) * (1000d / loggingInterval)); ++i) {
+	//
+	// LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, true);
+	//
+	// LogIntervalContainerGroup group = getSecondGroup(timeStamp, i);
+	// lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
+	// calendar.add(Calendar.MILLISECOND, loggingInterval);
+	// }
+	// }
+
+	private static LogIntervalContainerGroup getGroup(long timeStamp, int i, boolean boolValue, byte byteValue,
+			String testString) {
+
+		LogIntervalContainerGroup group = new LogIntervalContainerGroup();
+
+		LogRecordContainer container1 = new LogRecordContainerImpl(ch01,
+				new Record(new FloatValue(i * -7 - 0.555F), timeStamp));
+		LogRecordContainer container2 = new LogRecordContainerImpl(ch02,
+				new Record(new DoubleValue(i * +7 - 0.555), timeStamp));
+		LogRecordContainer container3 = new LogRecordContainerImpl(ch03,
+				new Record(new BooleanValue(boolValue), timeStamp));
+		LogRecordContainer container4 = new LogRecordContainerImpl(ch04,
+				new Record(new ShortValue((short) i), timeStamp));
+		LogRecordContainer container5 = new LogRecordContainerImpl(ch05, new Record(new IntValue(i), timeStamp));
+		LogRecordContainer container6 = new LogRecordContainerImpl(ch06,
+				new Record(new LongValue(i * 1000000), timeStamp));
+		LogRecordContainer container7 = new LogRecordContainerImpl(ch07,
+				new Record(new ByteValue(byteValue), timeStamp));
+		LogRecordContainer container8 = new LogRecordContainerImpl(ch08,
+				new Record(new StringValue(testString), timeStamp));
+		LogRecordContainer container9 = new LogRecordContainerImpl(ch09,
+				new Record(new ByteArrayValue(testByteArray), timeStamp));
+
+		group.add(container1);
+		group.add(container2);
+		group.add(container3);
+		group.add(container4);
+		group.add(container5);
+		group.add(container6);
+		group.add(container7);
+		group.add(container8);
+		group.add(container9);
+
+		return group;
+	}
+
+	private static LogIntervalContainerGroup getSecondGroup(long timeStamp, int i) {
+
+		LogIntervalContainerGroup group = new LogIntervalContainerGroup();
+		group.add(new LogRecordContainerImpl(ch01, new Record(new FloatValue(i * -7 - 0.555F), timeStamp)));
+
+		return group;
+	}
+
 }

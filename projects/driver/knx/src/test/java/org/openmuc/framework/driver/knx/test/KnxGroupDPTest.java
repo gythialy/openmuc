@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,11 +35,11 @@ public class KnxGroupDPTest {
 	 * 
 	 * @SuppressWarnings("unchecked") Map<String, DPT> subTypes = mainType.getValue().getSubTypes();
 	 * 
-	 * for (Map.Entry<String, DPT> subType : subTypes.entrySet()) { DPT dpt = subType.getValue();
-	 * System.out.println("testing: " + dpt.toString()); // try { dp = new KnxGroupDP(main, dpt.getDescription(),
-	 * dpt.getID()); // } catch (KNXException e) { // // fail("could not create KnxGroupDP with: " + dpt.toString()); //
-	 * } try { dp.getKnxValue().setDPTValue(dpt.getLowerValue()); dp.getKnxValue().setDPTValue(dpt.getUpperValue()); }
-	 * catch (KNXFormatException e) { fail("could not set upper and lower value to KnxGroupDP: " + dpt.toString()); }
+	 * for (Map.Entry<String, DPT> subType : subTypes.entrySet()) { DPT dpt = subType.getValue(); System.out.println(
+	 * "testing: " + dpt.toString()); // try { dp = new KnxGroupDP(main, dpt.getDescription(), dpt.getID()); // } catch
+	 * (KNXException e) { // // fail("could not create KnxGroupDP with: " + dpt.toString()); // } try {
+	 * dp.getKnxValue().setDPTValue(dpt.getLowerValue()); dp.getKnxValue().setDPTValue(dpt.getUpperValue()); } catch
+	 * (KNXFormatException e) { fail("could not set upper and lower value to KnxGroupDP: " + dpt.toString()); }
 	 * assertTrue(dp.getKnxValue().getOpenMucValue() instanceof Value); } } }
 	 */
 

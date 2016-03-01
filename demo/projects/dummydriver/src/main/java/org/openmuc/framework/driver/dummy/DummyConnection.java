@@ -46,8 +46,8 @@ public class DummyConnection implements Connection {
 	}
 
 	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings) throws UnsupportedOperationException,
-			ConnectionException {
+	public List<ChannelScanInfo> scanForChannels(String settings)
+			throws UnsupportedOperationException, ConnectionException {
 		List<ChannelScanInfo> informationList = new ArrayList<ChannelScanInfo>(2);
 		informationList.add(new ChannelScanInfo("dummy/channel/address/voltage", "", ValueType.DOUBLE, null));
 		informationList.add(new ChannelScanInfo("dummy/channel/address/current", "", ValueType.BYTE_ARRAY, 5));

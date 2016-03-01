@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,12 +38,14 @@ public class TestSuite {
 
 	@BeforeClass
 	public static void setUp() {
+
 		System.out.println("setting up");
 		createTestFolder();
 	}
 
 	@AfterClass
 	public static void tearDown() {
+
 		System.out.println("tearing down");
 		deleteTestFolder();
 	}
@@ -57,6 +59,7 @@ public class TestSuite {
 	}
 
 	public static void deleteTestFolder() {
+
 		File testFolder = new File(TESTFOLDER);
 		try {
 			deleteRecursive(testFolder);
@@ -67,8 +70,9 @@ public class TestSuite {
 	}
 
 	private static boolean deleteRecursive(File path) throws FileNotFoundException {
+
 		if (!path.exists()) {
-			throw new FileNotFoundException(path.getAbsolutePath());
+			System.out.println("Method deleteRecursive(): Path does not exists. " + path.getAbsolutePath());
 		}
 		boolean ret = true;
 		if (path.isDirectory()) {

@@ -57,8 +57,8 @@ public final class DummyDriver implements DriverService {
 				Thread.sleep(500);
 				listener.scanProgressUpdate(i * 10);
 				if (i == 5) {
-					listener.deviceFound(new DeviceScanInfo("dummy/device/address/2", "meaning=101010b",
-							"Dummy device 2."));
+					listener.deviceFound(
+							new DeviceScanInfo("dummy/device/address/2", "meaning=101010b", "Dummy device 2."));
 				}
 			}
 		} catch (InterruptedException e) {

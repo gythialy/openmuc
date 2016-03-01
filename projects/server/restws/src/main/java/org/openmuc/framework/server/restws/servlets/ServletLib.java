@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -132,13 +132,8 @@ public class ServletLib {
 		String returnValue[];
 
 		if (pathInfo.length() > 1) {
-			int length;
 
 			pathInfo = pathInfo.replaceFirst("/", "");
-			length = pathInfo.length();
-			if (pathInfo.charAt(length - 1) == '/') {
-				new StringBuilder(pathInfo).replace(length - 2, length - 1, "");
-			}
 			returnValue = pathInfo.split("/");
 		}
 		else {

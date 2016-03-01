@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -78,8 +78,8 @@ public class SnmpDeviceV3 extends SnmpDevice {
 	 */
 
 	public SnmpDeviceV3(String address, String username, String securityName, OID authenticationProtocol,
-			String authenticationPassphrase, OID privacyProtocol, String privacyPassphrase) throws ConnectionException,
-			ArgumentSyntaxException {
+			String authenticationPassphrase, OID privacyProtocol, String privacyPassphrase)
+					throws ConnectionException, ArgumentSyntaxException {
 		super(address, authenticationPassphrase);
 
 		this.username = username;
@@ -146,10 +146,10 @@ public class SnmpDeviceV3 extends SnmpDevice {
 			}
 
 		}
-		snmp.getUSM().addUser(
-				new OctetString(username),
-				new UsmUser(new OctetString(securityName), authenticationProtocol, new OctetString(
-						authenticationPassphrase), privacyProtocol, new OctetString(privacyPassphrase)));
+		snmp.getUSM().addUser(new OctetString(username),
+				new UsmUser(new OctetString(securityName), authenticationProtocol,
+						new OctetString(authenticationPassphrase), privacyProtocol,
+						new OctetString(privacyPassphrase)));
 		// create the target
 		target = new UserTarget();
 		target.setAddress(targetAddress);

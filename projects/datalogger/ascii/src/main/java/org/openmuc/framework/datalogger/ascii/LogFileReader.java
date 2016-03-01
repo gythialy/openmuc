@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -52,11 +52,12 @@ public class LogFileReader {
 	private long firstTimestampFromFile;
 
 	/**
-	 * Constructor
+	 * LogFileReader Constructor
 	 * 
 	 * @param path
-	 * @param id
-	 * @param loggingInterval
+	 *            the path to the files to read from
+	 * @param logChannel
+	 *            the channel to read from
 	 */
 	public LogFileReader(String path, LogChannel logChannel) {
 
@@ -183,7 +184,8 @@ public class LogFileReader {
 			// rewind the position to the start of the firstValue line
 			currentPosition = raf.getFilePointer() - rowSize;
 
-			firstTimestamp = (long) (Double.valueOf((firstValueLine.split(Const.SEPARATOR))[unixTimestampColumn]) * 1000);
+			firstTimestamp = (long) (Double.valueOf((firstValueLine.split(Const.SEPARATOR))[unixTimestampColumn])
+					* 1000);
 
 			if (nextFile || startTimestamp < firstTimestamp) {
 				startTimestamp = firstTimestamp;
@@ -243,13 +245,13 @@ public class LogFileReader {
 			long timestampMS = ((Double) (timestampS * (1000))).longValue();
 
 			if (isTimestampPartOfRequestedInterval(timestampMS)) {
-				Record record = convertLogfileEntryToRecord(columnValue[channelColumn], timestampMS);
+				Record record = convertLogfileEntryToRecord(columnValue[channelColumn].trim(), timestampMS);
 				records.add(record);
 			}
 			else {
 				// for debugging
 				// SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
-				// logger.trace("timestampMS: " + sdf.format(timestampMS) + "  " + timestampMS);
+				// logger.trace("timestampMS: " + sdf.format(timestampMS) + " " + timestampMS);
 			}
 		} catch (NumberFormatException e) {
 			logger.debug("It's not a timestamp.");
@@ -300,12 +302,12 @@ public class LogFileReader {
 		long pos = numberOfLinesToSkip * rowSize + firstValuePos;
 
 		// for debugging
-		// logger.trace("pos             " + pos);
-		// logger.trace("startTimestamp  " + startTimestamp);
-		// logger.trace("firstTimestamp  " + firstTimestampOfFile);
+		// logger.trace("pos " + pos);
+		// logger.trace("startTimestamp " + startTimestamp);
+		// logger.trace("firstTimestamp " + firstTimestampOfFile);
 		// logger.trace("loggingInterval " + loggingInterval);
-		// logger.trace("rowSize         " + rowSize);
-		// logger.trace("firstValuePos   " + firstValuePos);
+		// logger.trace("rowSize " + rowSize);
+		// logger.trace("firstValuePos " + firstValuePos);
 
 		return pos;
 	}
@@ -346,10 +348,14 @@ public class LogFileReader {
 		Record record = null;
 
 		if (strValue.trim().startsWith(Const.ERROR)) {
+
 			int errorSize = Const.ERROR.length();
-			String errorFlag = strValue.substring(errorSize, errorSize + 2);
+			int stringLength = strValue.length();
+			String errorFlag = strValue.substring(errorSize, errorSize + stringLength - errorSize);
+			errorFlag = errorFlag.trim();
+
 			if (isNumber(errorFlag)) {
-				record = new Record(null, timestamp, Flag.newFlag(Integer.parseInt(errorFlag.trim())));
+				record = new Record(null, timestamp, Flag.newFlag(Integer.parseInt(errorFlag)));
 			}
 			else {
 				record = new Record(null, timestamp, Flag.NO_VALUE_RECEIVED_YET);
@@ -357,7 +363,8 @@ public class LogFileReader {
 		}
 		else if (strValue.trim().startsWith(Const.HEXADECIMAL)) {
 			try {
-				record = new Record(new ByteArrayValue(strValue.trim().getBytes("US-ASCII")), timestamp, Flag.VALID);
+				record = new Record(new ByteArrayValue(strValue.trim().getBytes(Const.CHAR_SET)), timestamp,
+						Flag.VALID);
 			} catch (UnsupportedEncodingException e) {
 				record = new Record(Flag.UNKNOWN_ERROR);
 				logger.error("Hexadecimal value is non US-ASCII decoded, value is: " + strValue.trim());

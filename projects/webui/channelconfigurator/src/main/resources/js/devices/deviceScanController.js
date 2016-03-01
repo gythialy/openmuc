@@ -1,23 +1,53 @@
 (function(){
 
-	var injectParams = ['$scope', '$state', '$alert', '$stateParams', 'DevicesService', 'ChannelsService'];
+	var injectParams = ['$scope', '$state', '$alert', '$stateParams', '$translate', 'DevicesService', 'ChannelsService'];
 	
-	var DeviceScanController = function($scope, $state, $alert, $stateParams, DevicesService, ChannelsService) {
+	var DeviceScanController = function($scope, $state, $alert, $stateParams, $translate, DevicesService, ChannelsService) {
+		
+		$translate('DEVICE_SCAN_CHANNEL_CREATED_SUCCESSFULLY').then(function(text) {
+			$scope.deviceOKText = text;
+		});
+		
+		$translate('DEVICE_SCAN_CHANNEL_CREATED_ERROR').then(function(text) {
+			$scope.deviceErrorText = text;
+		});
+		
+		$translate('DEVICE_SCAN_NOT_SUPPORTED').then(function(text) {
+			$scope.deviceWarningrText = text;
+		});
+		
+		
+		
 		$scope.device = DevicesService.getDevice($stateParams.id);
 		$scope.channels = [];
 		$scope.selectedChannels = [];
 		
-		DevicesService.scan($scope.device, $scope.settings).then(function(response) {
-			$.each(response.channels, function(index, channel) {
-				$scope.channels.push({configs: channel});
+//		$scope.scanDevice = function() {
+//			$scope.scanDeviceForm.submitted = true;
+			DevicesService.scan($scope.device, $scope.settings).then(function(response) {
+				$scope.channels = [];
+				$.each(response.channels, function(index, channel) {
+					$scope.channels.push({configs: channel});
+				});
+				
+//				$scope.scanDeviceForm.submitted = false;
+			}, function(error) {
+				$alert({content: $scope.deviceWarningrText, type: 'warning'});
+				return $state.go('channelconfigurator.devices.index');
 			});
-			
-			//$scope.scanDriverForm.submitted = false;
-		}, function(error) {
-		});
+//		};
 		
 		$scope.addChannels = function() {
-			
+			$.each($scope.selectedChannels, function(i, d) {
+				var channel = {device: $scope.device.id, configs: d.configs};
+				ChannelsService.create(channel).then(function(response){
+					$alert({content: $scope.deviceOKText, type: 'success'});
+				}, function(error) {
+					$alert({content: $scope.deviceErrorText, type: 'warning'});
+				});
+			});
+
+			return $state.go('channelconfigurator.channels.index');
 		};
 		
 	};

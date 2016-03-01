@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -56,8 +56,8 @@ public interface ConfigService {
 
 	public void interruptDeviceScan(String driverId) throws DriverNotAvailableException, UnsupportedOperationException;
 
-	public List<ChannelScanInfo> scanForChannels(String deviceId, String settings) throws DriverNotAvailableException,
-			UnsupportedOperationException, ArgumentSyntaxException, ScanException;
+	public List<ChannelScanInfo> scanForChannels(String deviceId, String settings)
+			throws DriverNotAvailableException, UnsupportedOperationException, ArgumentSyntaxException, ScanException;
 
 	public DriverInfo getDriverInfo(String driverId) throws DriverNotAvailableException;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-15 Fraunhofer ISE
+ * Copyright 2011-16 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -195,7 +195,8 @@ public final class FileObjectList {
 			}
 		}
 		else if (files.size() == 1) {
-			if (files.get(0).getStartTimeStamp() <= timestamp && files.get(0).getTimestampForLatestValue() >= timestamp) {
+			if (files.get(0).getStartTimeStamp() <= timestamp
+					&& files.get(0).getTimestampForLatestValue() >= timestamp) {
 				// contains
 				// this
 				// TS
@@ -254,7 +255,8 @@ public final class FileObjectList {
 			for (int i = 0; i < files.size(); i++) {
 				if ((files.get(i).getStartTimeStamp() <= start && files.get(i).getTimestampForLatestValue() >= start)
 						|| (files.get(i).getStartTimeStamp() <= end && files.get(i).getTimestampForLatestValue() >= end)
-						|| (files.get(i).getStartTimeStamp() >= start && files.get(i).getTimestampForLatestValue() <= end)) {
+						|| (files.get(i).getStartTimeStamp() >= start
+								&& files.get(i).getTimestampForLatestValue() <= end)) {
 					// needed files.
 					toReturn.add(files.get(i));
 				}

@@ -12,6 +12,10 @@
 			$scope.deviceErrorText = text;
 		});
 		
+		$translate('DRIVER_SCAN_NOT_SUPPORTED').then(function(text) {
+			$scope.deviceWarningrText = text;
+		});
+		
 		$scope.driver = DriversService.getDriver($stateParams.id);
 		$scope.devices = [];
 		$scope.selectedDevices = [];
@@ -27,6 +31,8 @@
 				
 				$scope.scanDriverForm.submitted = false;
 			}, function(error) {
+				$alert({content: $scope.deviceWarningrText, type: 'warning'});
+				return $state.go('channelconfigurator.drivers.index');
 			});
 		};
 		
