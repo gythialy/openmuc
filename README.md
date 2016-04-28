@@ -1,6 +1,6 @@
 # OpenMUC Framework - Overview [![Build Status](https://travis-ci.org/gythialy/openmuc.svg?branch=master)](https://travis-ci.org/gythialy/openmuc)
 
-This is UNOFFICIAL, fork from [openmuc](http://www.openmuc.org/index.php?id=11).
+This is UNOFFICIAL, fork from [openmuc](www.openmuc.org/openmuc/).
 
 ## OpenMUC
 OpenMUC is a software framework based on Java and OSGi that simplifies the development of customized **monitoring, logging and controlling** systems. It can be used as a basis to flexibly implement anything from simple data loggers to complex SCADA systems. The main goal of OpenMUC is to shield the application developer of monitoring and controlling applications from the details of the communication protocol and data logging technologies. Third parties are encouraged to create their own customized systems based on OpenMUC. OpenMUC is licensed under the GPL. We sell individual licenses on request.
@@ -24,13 +24,13 @@ In summary OpenMUC features the following highlights:
 	- IEC 62056-21
 	- S7 PLC protocol
 	- SNMP
-	
+
 - Data logging: Data can be logged in two formats (ASCII & binary). New data loggers can easily be added through a plug-in interface.
 - Web interface: Convenient user interface for configuration and visualization.
 - Data servers: Remote applications (e.g. smart phone apps, cloud applications) or local non-Java applications can access OpenMUC through one of the available data servers (e.g. a RESTful Web Service).
 - Modularity: Drivers, data loggers etc. are all individual components. By selecting only the components you need you can create a very light weight system.
 - Embedded systems: The framework is designed to run on low-power embedded devices. It is currently being used on embedded x86 and ARM systems. Because OpenMUC is based on Java and OSGi it is platform independent.
-- Open-source: The software is being developed at the Fraunhofer Institute for Solar Energy Systems in Freiburg, Germany and is licensed under the GPLv3. We sell individually nagotiated licenses upon request. 
+- Open-source: The software is being developed at the Fraunhofer Institute for Solar Energy Systems in Freiburg, Germany and is licensed under the GPLv3. We sell individually nagotiated licenses upon request.
 
 ## Development & Support
 We can support your development. We offer:
@@ -53,10 +53,13 @@ All boxes seen in the picture are implemented as software modules called OSGi bu
 - Stefan Feuerhahn
 - Marco Mittelsdorf
 - Dirk Zimmermann
-- Simon Fey
+- Albrecht Schall
+- Philipp Fels
 
 ### Former developers:
 
 - Michael Zillgith
 - Frederic Robra
 - Karsten Müller-Bier
+
+Read the [user guide](https://rawgit.com/gythialy/openmuc/master/doc/userguide/openmuc-doc.html) on how to get started with the library.
