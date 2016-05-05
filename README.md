@@ -1,6 +1,6 @@
 # OpenMUC Framework - Overview [![Build Status](https://travis-ci.org/gythialy/openmuc.svg?branch=master)](https://travis-ci.org/gythialy/openmuc)
 
-This is UNOFFICIAL, fork from [openmuc](www.openmuc.org/openmuc/).
+This is UNOFFICIAL, fork from [openmuc](http://www.openmuc.org/openmuc/).
 
 ## OpenMUC
 OpenMUC is a software framework based on Java and OSGi that simplifies the development of customized **monitoring, logging and controlling** systems. It can be used as a basis to flexibly implement anything from simple data loggers to complex SCADA systems. The main goal of OpenMUC is to shield the application developer of monitoring and controlling applications from the details of the communication protocol and data logging technologies. Third parties are encouraged to create their own customized systems based on OpenMUC. OpenMUC is licensed under the GPL. We sell individual licenses on request.
