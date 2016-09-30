@@ -41,7 +41,7 @@ We can support your development. We offer:
 ## Architecture
 The following picture illustrates how OpenMUC works.
 
-![OpenMUC framework overview](http://i.imgur.com/JrMoCv0.png)
+![OpenMUC framework overview](http://imgur.com/a/gc6x1)
 
 OpenMUC framework overview
 
