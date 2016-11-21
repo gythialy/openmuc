@@ -25,107 +25,100 @@ import java.util.concurrent.CountDownLatch;
 
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
-import org.openmuc.framework.dataaccess.DeviceState;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReadTask extends DeviceTask {
+public class ReadTask extends DeviceTask implements ConnectedTask {
 
-	private final static Logger logger = LoggerFactory.getLogger(ReadTask.class);
+    private final static Logger logger = LoggerFactory.getLogger(ReadTask.class);
 
-	private final CountDownLatch readTaskFinishedSignal;
-	List<ChannelRecordContainerImpl> channelRecordContainers;
-	protected boolean methodNotExceptedExceptionThrown = false;
-	protected boolean unknownDriverExceptionThrown = false;
-	protected volatile boolean disabled = false;
+    private final CountDownLatch readTaskFinishedSignal;
+    List<ChannelRecordContainerImpl> channelRecordContainers;
+    protected boolean methodNotExceptedExceptionThrown = false;
+    protected boolean unknownDriverExceptionThrown = false;
+    protected volatile boolean disabled = false;
 
-	boolean running = false;
-	boolean startedLate = false;
+    boolean startedLate = false;
 
-	public ReadTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels,
-			CountDownLatch readTaskFinishedSignal) {
-		this.dataManager = dataManager;
-		this.device = device;
-		channelRecordContainers = selectedChannels;
-		this.readTaskFinishedSignal = readTaskFinishedSignal;
-	}
+    public ReadTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels,
+            CountDownLatch readTaskFinishedSignal) {
+        this.dataManager = dataManager;
+        this.device = device;
+        channelRecordContainers = selectedChannels;
+        this.readTaskFinishedSignal = readTaskFinishedSignal;
+    }
 
-	@Override
-	public final void run() {
+    @Override
+    public final void run() {
 
-		try {
-			executeRead();
-		} catch (UnsupportedOperationException e) {
-			methodNotExceptedExceptionThrown = true;
-		} catch (ConnectionException e) {
-			// Connection to device lost. Signal to device instance and end task without notifying DataManager
-			logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
-					e.getMessage());
+        try {
+            executeRead();
+        } catch (UnsupportedOperationException e) {
+            methodNotExceptedExceptionThrown = true;
+        } catch (ConnectionException e) {
+            // Connection to device lost. Signal to device instance and end task without notifying DataManager
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+                    e.getMessage());
 
-			for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-				driverChannel.setRecord(new Record(Flag.ACCESS_METHOD_NOT_SUPPORTED));
-			}
-			readTaskFinishedSignal.countDown();
-			synchronized (dataManager.disconnected) {
-				dataManager.disconnected.add(device);
-			}
-			dataManager.interrupt();
-			return;
-		} catch (Exception e) {
-			logger.warn("unexpected exception thrown by read funtion of driver ", e);
-			unknownDriverExceptionThrown = true;
-		}
+            for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
+                driverChannel.setRecord(new Record(Flag.ACCESS_METHOD_NOT_SUPPORTED));
+            }
+            readTaskFinishedSignal.countDown();
+            synchronized (dataManager.disconnectedDevices) {
+                dataManager.disconnectedDevices.add(device);
+            }
+            dataManager.interrupt();
+            return;
+        } catch (Exception e) {
+            logger.warn("unexpected exception thrown by read funtion of driver ", e);
+            unknownDriverExceptionThrown = true;
+        }
 
-		taskFinished();
-	}
+        taskFinished();
+    }
 
-	@Override
-	public final DeviceTaskType getType() {
-		return DeviceTaskType.READ;
-	}
+    @Override
+    public final DeviceTaskType getType() {
+        return DeviceTaskType.READ;
+    }
 
-	@Override
-	public final void setDeviceState() {
-		device.state = DeviceState.READING;
-	}
+    public final void deviceNotConnected() {
+        for (ChannelRecordContainer recordContainer : channelRecordContainers) {
+            recordContainer.setRecord(new Record(Flag.COMM_DEVICE_NOT_CONNECTED));
+        }
+        taskAborted();
+    }
 
-	public final void deviceNotConnected() {
-		for (ChannelRecordContainer recordContainer : channelRecordContainers) {
-			recordContainer.setRecord(new Record(Flag.COMM_DEVICE_NOT_CONNECTED));
-		}
-		taskAborted();
-	}
+    @SuppressWarnings("unchecked")
+    protected void executeRead() throws UnsupportedOperationException, ConnectionException {
+        device.connection.read((List<ChannelRecordContainer>) ((List<?>) channelRecordContainers), true, "");
+    }
 
-	@SuppressWarnings("unchecked")
-	protected void executeRead() throws UnsupportedOperationException, ConnectionException {
-		device.connection.read((List<ChannelRecordContainer>) ((List<?>) channelRecordContainers), true, "");
-	}
+    protected void taskFinished() {
+        disabled = true;
+        long now = System.currentTimeMillis();
+        if (methodNotExceptedExceptionThrown) {
+            for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
+                driverChannel.setRecord(new Record(null, now, Flag.ACCESS_METHOD_NOT_SUPPORTED));
+            }
+        }
+        else if (unknownDriverExceptionThrown) {
+            for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
+                driverChannel.setRecord(new Record(null, now, Flag.DRIVER_THREW_UNKNOWN_EXCEPTION));
+            }
+        }
 
-	protected void taskFinished() {
-		disabled = true;
-		long now = System.currentTimeMillis();
-		if (methodNotExceptedExceptionThrown) {
-			for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-				driverChannel.setRecord(new Record(null, now, Flag.ACCESS_METHOD_NOT_SUPPORTED));
-			}
-		}
-		else if (unknownDriverExceptionThrown) {
-			for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-				driverChannel.setRecord(new Record(null, now, Flag.DRIVER_THREW_UNKNOWN_EXCEPTION));
-			}
-		}
+        readTaskFinishedSignal.countDown();
 
-		readTaskFinishedSignal.countDown();
+        synchronized (dataManager.tasksFinished) {
+            dataManager.tasksFinished.add(this);
+        }
+        dataManager.interrupt();
+    }
 
-		synchronized (dataManager.tasksFinished) {
-			dataManager.tasksFinished.add(this);
-		}
-		dataManager.interrupt();
-	}
-
-	protected void taskAborted() {
-		readTaskFinishedSignal.countDown();
-	}
+    protected void taskAborted() {
+        readTaskFinishedSignal.countDown();
+    }
 }

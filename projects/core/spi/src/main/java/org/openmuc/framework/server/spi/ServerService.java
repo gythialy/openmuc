@@ -30,27 +30,27 @@ import java.util.List;
  */
 public interface ServerService {
 
-	/**
-	 * returns the unique Identifier of a server
-	 * 
-	 * @return the unique Identifier
-	 */
-	public String getId();
+    /**
+     * returns the unique Identifier of a server
+     * 
+     * @return the unique Identifier
+     */
+    public String getId();
 
-	/**
-	 * This method is called when configuration is updated.
-	 * 
-	 * @param mappings
-	 *            the channels configured be mapped to the server
-	 */
-	public void updatedConfiguration(List<ServerMappingContainer> mappings);
+    /**
+     * This method is called when configuration is updated.
+     * 
+     * @param mappings
+     *            the channels configured be mapped to the server
+     */
+    public void updatedConfiguration(List<ServerMappingContainer> mappings);
 
-	/**
-	 * This method is called after registering as a server. It provides access to the channels that are configured to be
-	 * mapped to a server
-	 * 
-	 * @param mappings
-	 *            the channels configured be mapped to the server
-	 */
-	public void serverMappings(List<ServerMappingContainer> mappings);
+    /**
+     * This method is called after registering as a server. It provides access to the channels that are configured to be
+     * mapped to a server
+     * 
+     * @param mappings
+     *            the channels configured be mapped to the server
+     */
+    public void serverMappings(List<ServerMappingContainer> mappings);
 }

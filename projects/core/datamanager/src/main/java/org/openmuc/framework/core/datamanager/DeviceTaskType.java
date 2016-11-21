@@ -21,11 +21,23 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import org.openmuc.framework.dataaccess.DeviceState;
+
 public enum DeviceTaskType {
-	CONNECT,
-	DISCONNECT,
-	SAMPLE,
-	READ,
-	WRITE,
-	START_LISTENING_FOR;
+    CONNECT(DeviceState.CONNECTING),
+    DISCONNECT(DeviceState.DISCONNECTING),
+    SAMPLE(DeviceState.READING),
+    READ(DeviceState.READING),
+    WRITE(DeviceState.WRITING),
+    START_LISTENING_FOR(DeviceState.STARTING_TO_LISTEN);
+
+    private DeviceState resultingState;
+
+    private DeviceTaskType(DeviceState resultingState) {
+        this.resultingState = resultingState;
+    }
+
+    public DeviceState getResultingState() {
+        return resultingState;
+    }
 }

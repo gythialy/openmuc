@@ -10,41 +10,41 @@ import org.openmuc.framework.driver.aggregator.ChannelAddress;
 
 public class AverageAggregation extends AggregatorChannel {
 
-	public AverageAggregation(ChannelAddress simpleAddress, DataAccessService dataAccessService)
-			throws AggregationException {
-		super(simpleAddress, dataAccessService);
-	}
+    public AverageAggregation(ChannelAddress simpleAddress, DataAccessService dataAccessService)
+            throws AggregationException {
+        super(simpleAddress, dataAccessService);
+    }
 
-	@Override
-	public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
+    @Override
+    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
 
-		double value = 0;
+        double value = 0;
 
-		List<Record> recordList;
-		try {
-			recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-			value = getAverage(recordList);
-		} catch (Exception e) {
-			throw new AggregationException(e.getMessage());
-		}
+        List<Record> recordList;
+        try {
+            recordList = getLoggedRecords(currentTimestamp, endTimestamp);
+            value = getAverage(recordList);
+        } catch (Exception e) {
+            throw new AggregationException(e.getMessage());
+        }
 
-		return value;
-	}
+        return value;
+    }
 
-	/**
-	 * Calculates the average of the all records
-	 */
-	private double getAverage(List<Record> recordList) throws AggregationException {
+    /**
+     * Calculates the average of the all records
+     */
+    private double getAverage(List<Record> recordList) throws AggregationException {
 
-		double sum = 0;
+        double sum = 0;
 
-		for (Record record : recordList) {
-			sum = sum + record.getValue().asDouble();
-		}
+        for (Record record : recordList) {
+            sum = sum + record.getValue().asDouble();
+        }
 
-		double average = sum / recordList.size();
+        double average = sum / recordList.size();
 
-		return average;
-	}
+        return average;
+    }
 
 }

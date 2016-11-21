@@ -23,22 +23,22 @@ package org.openmuc.framework.config;
 
 public class ScanInterruptedException extends Exception {
 
-	private static final long serialVersionUID = -3907598956057578830L;
+    private static final long serialVersionUID = -3907598956057578830L;
 
-	public ScanInterruptedException() {
-		super();
-	}
+    public ScanInterruptedException() {
+        super();
+    }
 
-	public ScanInterruptedException(String s) {
-		super(s);
-	}
+    public ScanInterruptedException(String s) {
+        super(s);
+    }
 
-	public ScanInterruptedException(Throwable cause) {
-		super(cause);
-	}
+    public ScanInterruptedException(Throwable cause) {
+        super(cause);
+    }
 
-	public ScanInterruptedException(String s, Throwable cause) {
-		super(s, cause);
-	}
+    public ScanInterruptedException(String s, Throwable cause) {
+        super(s, cause);
+    }
 
 }

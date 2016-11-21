@@ -11,7 +11,7 @@ jar {
   manifest {
     name = "OpenMUC WebUI - Base"
     instruction 'Bundle-ClassPath', '.,lib/gson-2.3.1.jar'
-    instruction 'Import-Package', '!com.google.gson.*,*'
+    instruction 'Import-Package', '!com.google.gson.*,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
     instruction 'Service-Component', 'OSGI-INF/components.xml'
   }

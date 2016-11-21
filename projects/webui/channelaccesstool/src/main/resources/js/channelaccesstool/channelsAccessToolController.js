@@ -15,8 +15,7 @@
 		});
 
 		$scope.checkedDevices = {};
-		
-		
+
 		$scope.accessChannels = function() {
 			if (jQuery.isEmptyObject($scope.checkedDevices)) {
 				$alert({content: $scope.selectOneDevice, type: 'warning'});
@@ -24,6 +23,22 @@
 				$location.path('/channelaccesstool/access').search($scope.checkedDevices);
 			}
 		};
+
+        $scope.checkAll = function () {
+            var elements = document.getElementsByName('checkedDevices');
+            if ($scope.checkAllDevices) {
+                 angular.forEach(elements, function(value, key) {
+                     value.checked = true;
+                     $scope.checkedDevices[$scope.devices[key].id] = 'on';
+                 });
+            }
+            else {
+                angular.forEach(elements, function(value, key) {
+                    value.checked = false;
+                    $scope.checkedDevices[$scope.devices[key].id] = 'off';
+                });
+            }
+        }
 
 	};
 

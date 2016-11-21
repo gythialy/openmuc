@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+  <driver id="csv">
+    <samplingTimeout>10s</samplingTimeout>
+    <connectRetryInterval>1m</connectRetryInterval>
+    <device id="home1">
+      <deviceAddress>./csv-driver/home1.csv</deviceAddress>
+      <settings>samplingmode=hhmmss;rewind=true</settings>
+      <channel id="hhmmss">
+        <description>hhmmss</description>
+        <channelAddress>hhmmss</channelAddress>
+        <samplingInterval>5s</samplingInterval>
+      </channel>
+      <channel id="power_photovoltaics">
+        <description>pv_power_production</description>
+        <channelAddress>pv_power_production</channelAddress>
+        <samplingInterval>5s</samplingInterval>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+      <channel id="power_grid">
+        <description>grid_power</description>
+        <channelAddress>grid_power</channelAddress>
+        <unit>W</unit>
+        <samplingInterval>5s</samplingInterval>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+      <channel id="power_heatpump">
+        <description>hp_power_consumption</description>
+        <channelAddress>hp_power_consumption</channelAddress>
+        <unit>W</unit>
+        <samplingInterval>5s</samplingInterval>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+      <channel id="power_electic_vehicle">
+        <description>ev_power_consumption</description>
+        <channelAddress>ev_power_consumption</channelAddress>
+        <unit>W</unit>
+        <samplingInterval>5s</samplingInterval>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+    </device>
+  </driver>
+  <driver id="virtual">
+    <device id="virtual">
+      <channel id="status_electric_vehicle">
+        <description>(calculated by demo app)</description>
+        <valueType length="20">STRING</valueType>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+      <channel id="enery_exported">
+        <description>(calculated by demo app)</description>
+        <unit>kWh</unit>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+      <channel id="enery_imported">
+        <description>(calculated by demo app)</description>
+        <unit>kWh</unit>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+    </device>
+  </driver>
+</configuration>

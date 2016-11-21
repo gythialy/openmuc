@@ -24,8 +24,7 @@ jar {
     name = "OpenMUC Driver - DLMS/COSEM"
     instruction 'Bundle-ClassPath', '.,lib/jdlms-' + jdlmsversion + '.jar, lib/jasn1-' + jasn1version + '.jar' 
     instruction 'Export-Package', ''
-    instruction 'Import-Package', '!org.openmuc.jdlms*,!org.openmuc.jasn1*,gnu.io;resolution:=optional,*'
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
+    instruction 'Import-Package', '!org.openmuc.jdlms*,!org.openmuc.jasn1*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
   }
 }
 

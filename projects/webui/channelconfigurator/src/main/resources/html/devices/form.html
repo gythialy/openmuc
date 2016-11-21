@@ -1,4 +1,4 @@
-<form name="deviceForm" class="form-horizontal" ng-submit="saveDevice()" novalidate>
+<form name="deviceForm" class="form-horizontal" ng-init="getDriverInfo()" ng-submit="saveDevice()" novalidate>
   <fieldset>
     <legend>{{'DEVICE_CONFIGURATION' | translate}}:</legend>
     
@@ -37,7 +37,7 @@
       </label>
       <div class="col-sm-6">
         <input type="text" class="form-control" id="address" ng-model="device.configs.deviceAddress">
-        <p class="help-block">N.A. **</p>
+        <p class="help-block">{{driverInfo.deviceAddressSyntax}} **</p>
       </div>
     </div>
 
@@ -48,7 +48,7 @@
       </label>
       <div class="col-sm-6">
         <input type="text" class="form-control" id="settings" ng-model="device.configs.settings">
-        <p class="help-block">N.A. **</p>
+        <p class="help-block">{{driverInfo.settingsSyntax}} **</p>
       </div>
     </div>
 

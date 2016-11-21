@@ -23,94 +23,94 @@ package org.openmuc.framework.data;
 
 public class BooleanValue implements Value {
 
-	private final boolean value;
+    private final boolean value;
 
-	public BooleanValue(boolean value) {
-		this.value = value;
-	}
+    public BooleanValue(boolean value) {
+        this.value = value;
+    }
 
-	@Override
-	public double asDouble() {
-		if (value) {
-			return 1.0;
-		}
-		else {
-			return 0.0;
-		}
-	}
+    @Override
+    public double asDouble() {
+        if (value) {
+            return 1.0;
+        }
+        else {
+            return 0.0;
+        }
+    }
 
-	@Override
-	public float asFloat() {
-		if (value) {
-			return 1.0f;
-		}
-		else {
-			return 0.0f;
-		}
-	}
+    @Override
+    public float asFloat() {
+        if (value) {
+            return 1.0f;
+        }
+        else {
+            return 0.0f;
+        }
+    }
 
-	@Override
-	public long asLong() {
-		if (value) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-	}
+    @Override
+    public long asLong() {
+        if (value) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
 
-	@Override
-	public int asInt() {
-		if (value) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-	}
+    @Override
+    public int asInt() {
+        if (value) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
 
-	@Override
-	public short asShort() {
-		if (value) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-	}
+    @Override
+    public short asShort() {
+        if (value) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
 
-	@Override
-	public byte asByte() {
-		if (value) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-	}
+    @Override
+    public byte asByte() {
+        if (value) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
 
-	@Override
-	public boolean asBoolean() {
-		return value;
-	}
+    @Override
+    public boolean asBoolean() {
+        return value;
+    }
 
-	@Override
-	public byte[] asByteArray() {
-		if (value) {
-			return new byte[] { 1 };
-		}
-		else {
-			return new byte[] { 0 };
-		}
-	}
+    @Override
+    public byte[] asByteArray() {
+        if (value) {
+            return new byte[] { 1 };
+        }
+        else {
+            return new byte[] { 0 };
+        }
+    }
 
-	@Override
-	public String toString() {
-		return Boolean.toString(value);
-	}
+    @Override
+    public String toString() {
+        return Boolean.toString(value);
+    }
 
-	@Override
-	public String asString() {
-		return toString();
-	}
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

@@ -7,7 +7,11 @@
 		$translate('DRIVER_DELETED_SUCCESSFULLY').then(function(text) {
 			$scope.driverOKText = text;
 		});
-				
+
+        $translate('DELETE_CONFIRM_MESSAGE').then(function(confirmMessage) {
+            $scope.confirmMessage = confirmMessage;
+        });
+
 		$scope.drivers = [];
 		
 		DriversService.getDrivers().then(function(drivers){
@@ -15,13 +19,15 @@
 		});
 		
 		$scope.deleteDriver = function(id) {
-			DriversService.destroy(id).then(function(data) {
-				$alert({content: $scope.driverOKText, type: 'success'});
-			});
+            if (confirm($scope.confirmMessage + " " + id + "?") == true) {
+				DriversService.destroy(id).then(function(data) {
+					$alert({content: $scope.driverOKText, type: 'success'});
+				});
 
-			DriversService.getDrivers().then(function(drivers){
-				$scope.drivers = drivers;
-			});
+				DriversService.getDrivers().then(function(drivers){
+					$scope.drivers = drivers;
+				});
+			}
 		};
 		
 	};

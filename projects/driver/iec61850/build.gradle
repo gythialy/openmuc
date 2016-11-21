@@ -18,9 +18,8 @@ jar {
   manifest {
     name = "OpenMUC Driver - IEC 61850"
     instruction 'Bundle-ClassPath', '.,lib/openiec61850-' + openiec61850version + '.jar,lib/josistack-' + openiec61850version + '.jar,lib/jositransport-' + openiec61850version + '.jar,lib/jasn1-' + jasn1version +  '.jar'
-    instruction 'Import-Package', '!org.openmuc.openiec61850.*,javax.net,*'
+    instruction 'Import-Package', '!org.openmuc.openiec61850.*,javax.net,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
   }
 }
 

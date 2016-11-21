@@ -31,144 +31,144 @@ import org.openmuc.framework.datalogger.spi.DataLoggerService;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Component
 public final class SlotsDb implements DataLoggerService {
 
-	private final static Logger logger = LoggerFactory.getLogger(SlotsDb.class);
+    private final static Logger logger = LoggerFactory.getLogger(SlotsDb.class);
 
-	/*
-	 * File extension for SlotsDB files. Only these Files will be loaded.
-	 */
-	public static String FILE_EXTENSION = ".slots";
+    /*
+     * File extension for SlotsDB files. Only these Files will be loaded.
+     */
+    public static String FILE_EXTENSION = ".slots";
 
-	/*
-	 * Root folder for SlotsDB files
-	 */
-	public static String DB_ROOT_FOLDER = System
-			.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".dbfolder");
+    /*
+     * Root folder for SlotsDB files
+     */
+    public static String DB_ROOT_FOLDER = System
+            .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".dbfolder");
 
-	/*
-	 * If no other root folder is defined, data will be stored to this folder
-	 */
-	public static String DEFAULT_DB_ROOT_FOLDER = "slotsdbdata/";
+    /*
+     * If no other root folder is defined, data will be stored to this folder
+     */
+    public static String DEFAULT_DB_ROOT_FOLDER = "data/slotsdb/";
 
-	/*
-	 * Root Folder for JUnit Testcases
-	 */
-	public static String DB_TEST_ROOT_FOLDER = "testdata/";
+    /*
+     * Root Folder for JUnit Testcases
+     */
+    public static String DB_TEST_ROOT_FOLDER = "testdata/";
 
-	/*
-	 * limit open files in Hashmap
-	 * 
-	 * Default Linux Configuration: (should be below)
-	 * 
-	 * host:/#> ulimit -aH [...] open files (-n) 1024 [...]
-	 */
-	public static String MAX_OPEN_FOLDERS = System
-			.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".max_open_folders");
-	public static int MAX_OPEN_FOLDERS_DEFAULT = 512;
+    /*
+     * limit open files in Hashmap
+     * 
+     * Default Linux Configuration: (should be below)
+     * 
+     * host:/#> ulimit -aH [...] open files (-n) 1024 [...]
+     */
+    public static String MAX_OPEN_FOLDERS = System
+            .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".max_open_folders");
+    public static int MAX_OPEN_FOLDERS_DEFAULT = 512;
 
-	/*
-	 * configures the data flush period. The less you flush, the faster SLOTSDB will be. unset this System Property (or
-	 * set to 0) to flush data directly to disk.
-	 */
-	public static String FLUSH_PERIOD = System
-			.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".flushperiod");
+    /*
+     * configures the data flush period. The less you flush, the faster SLOTSDB will be. unset this System Property (or
+     * set to 0) to flush data directly to disk.
+     */
+    public static String FLUSH_PERIOD = System
+            .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".flushperiod");
 
-	/*
-	 * configures how long data will at least be stored in the SLOTSDB.
-	 */
-	public static String DATA_LIFETIME_IN_DAYS = System
-			.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_days");
+    /*
+     * configures how long data will at least be stored in the SLOTSDB.
+     */
+    public static String DATA_LIFETIME_IN_DAYS = System
+            .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_days");
 
-	/*
-	 * configures the maximum Database Size (in MB).
-	 */
-	public static String MAX_DATABASE_SIZE = System
-			.getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_size");
+    /*
+     * configures the maximum Database Size (in MB).
+     */
+    public static String MAX_DATABASE_SIZE = System
+            .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_size");
 
-	/*
-	 * Minimum Size for SLOTSDB (in MB).
-	 */
-	public static int MINIMUM_DATABASE_SIZE = 2;
+    /*
+     * Minimum Size for SLOTSDB (in MB).
+     */
+    public static int MINIMUM_DATABASE_SIZE = 2;
 
-	/*
-	 * Initial delay for scheduled tasks (size watcher, data expiration, etc.)
-	 */
-	public static int INITIAL_DELAY = 10000;
+    /*
+     * Initial delay for scheduled tasks (size watcher, data expiration, etc.)
+     */
+    public static int INITIAL_DELAY = 10000;
 
-	/*
-	 * Interval for scanning expired, old data. Set this to 86400000 to scan every 24 hours.
-	 */
-	public static int DATA_EXPIRATION_CHECK_INTERVAL = 5000;
+    /*
+     * Interval for scanning expired, old data. Set this to 86400000 to scan every 24 hours.
+     */
+    public static int DATA_EXPIRATION_CHECK_INTERVAL = 5000;
 
-	private FileObjectProxy fileObjectProxy;
-	private final HashMap<String, Integer> loggingIntervalsById = new HashMap<String, Integer>();;
+    private FileObjectProxy fileObjectProxy;
+    private final HashMap<String, Integer> loggingIntervalsById = new HashMap<>();;
 
-	protected void activate(ComponentContext context) {
-		String rootFolder = SlotsDb.DB_ROOT_FOLDER;
-		if (rootFolder == null) {
-			rootFolder = SlotsDb.DEFAULT_DB_ROOT_FOLDER;
-			logger.info("System property " + SlotsDb.class.getPackage().getName().toLowerCase()
-					+ ".dbfolder not set. Storing to " + SlotsDb.DEFAULT_DB_ROOT_FOLDER);
-		}
+    protected void activate(ComponentContext context) {
+        String rootFolder = SlotsDb.DB_ROOT_FOLDER;
+        if (rootFolder == null) {
+            rootFolder = SlotsDb.DEFAULT_DB_ROOT_FOLDER;
+        }
 
-		fileObjectProxy = new FileObjectProxy(rootFolder);
-	}
+        fileObjectProxy = new FileObjectProxy(rootFolder);
+    }
 
-	protected void deactivate(ComponentContext context) {
-		// TODO
-	}
+    protected void deactivate(ComponentContext context) {
+        // TODO
+    }
 
-	@Override
-	public String getId() {
-		return "slotsdb";
-	}
+    @Override
+    public String getId() {
+        return "slotsdb";
+    }
 
-	@Override
-	public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
-		return fileObjectProxy.read(channelId, startTime, endTime);
-	}
+    @Override
+    public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
+        return fileObjectProxy.read(channelId, startTime, endTime);
+    }
 
-	@Override
-	public void setChannelsToLog(List<LogChannel> channels) {
-		loggingIntervalsById.clear();
-		for (LogChannel channel : channels) {
-			loggingIntervalsById.put(channel.getId(), channel.getLoggingInterval());
-		}
-	}
+    @Override
+    public void setChannelsToLog(List<LogChannel> channels) {
+        loggingIntervalsById.clear();
+        for (LogChannel channel : channels) {
+            loggingIntervalsById.put(channel.getId(), channel.getLoggingInterval());
+        }
+    }
 
-	@Override
-	public void log(List<LogRecordContainer> containers, long timestamp) {
+    @Override
+    public void log(List<LogRecordContainer> containers, long timestamp) {
 
-		for (LogRecordContainer container : containers) {
-			Double value;
-			if (container.getRecord().getValue() == null) {
-				value = Double.NaN;
-			}
-			else {
-				try {
-					value = container.getRecord().getValue().asDouble();
-				} catch (TypeConversionException e) {
-					value = Double.NaN;
-				}
-			}
+        for (LogRecordContainer container : containers) {
+            Double value;
+            if (container.getRecord().getValue() == null) {
+                value = Double.NaN;
+            }
+            else {
+                try {
+                    value = container.getRecord().getValue().asDouble();
+                } catch (TypeConversionException e) {
+                    value = Double.NaN;
+                }
+            }
 
-			// Long timestamp = container.getRecord().getTimestamp();
-			// if (timestamp == null) {
-			// timestamp = 0L;
-			// }
+            // Long timestamp = container.getRecord().getTimestamp();
+            // if (timestamp == null) {
+            // timestamp = 0L;
+            // }
 
-			try {
-				fileObjectProxy.appendValue(container.getChannelId(), value, timestamp,
-						container.getRecord().getFlag().getCode(), loggingIntervalsById.get(container.getChannelId()));
-			} catch (IOException e) {
-				logger.error("error logging records");
-				e.printStackTrace();
-			}
-		}
-	}
+            try {
+                fileObjectProxy.appendValue(container.getChannelId(), value, timestamp,
+                        container.getRecord().getFlag().getCode(), loggingIntervalsById.get(container.getChannelId()));
+            } catch (IOException e) {
+                logger.error("error logging records");
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

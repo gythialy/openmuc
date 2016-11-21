@@ -6,14 +6,34 @@ buildscript {
   }
   dependencies {
     classpath "net.saliman:gradle-cobertura-plugin:2.2.8"
+    classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.11"
+    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.0.0"
   }
 }
 
 plugins {
   id "org.sonarqube" version "1.0"
+  id "org.asciidoctor.convert" version "1.5.3"
 }
 
+apply plugin: "org.asciidoctor.convert"
 apply from: "configuration.gradle"
+
+asciidoctor {
+  backends = ["pdf", "html5"]
+  attributes	"stylesheet": "openmuc-asciidoc.css",
+  "toc2": "left",
+  "sampleSrc": file("src/sample/java"),
+  "source-highlighter" : "coderay",
+  "pdf-stylesdir": "./",
+  "pdf-style": "pdf"
+
+  resources {
+    from("$sourceDir") {
+      include "images/**"
+    }	
+  }
+}
 
 configure(allprojects) {
   version = cfgVersion
@@ -21,17 +41,26 @@ configure(allprojects) {
 
 configure(javaProjects) {
 
-  apply plugin: 'java'
-  apply plugin: 'eclipse'
-  apply plugin: 'osgi'
-  apply plugin: 'maven'
-  apply plugin: 'signing'
-  apply plugin: 'net.saliman.cobertura'
+  apply plugin: "java"
+  apply plugin: "eclipse"
+  apply plugin: "osgi"
+  apply plugin: "maven"
+  apply plugin: "signing"
+  apply plugin: "net.saliman.cobertura"
+  apply plugin: "biz.aQute.bnd.builder"
 
+  uploadArchives.enabled = false
+  
   group = cfgGroup
 
-  sourceCompatibility = 1.7
-  targetCompatibility = 1.7
+  if (!project.properties.containsKey("cfgJavaVersion")) {
+    project.ext {
+      cfgJavaVersion = "1.7"
+    }
+  }
+
+  sourceCompatibility = cfgJavaVersion
+  targetCompatibility = cfgJavaVersion
 
   repositories { mavenCentral() }
 
@@ -43,33 +72,34 @@ configure(javaProjects) {
   }
 
   dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    itestCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: "junit", name: "junit", version: "4.12"
+    itestCompile group: "junit", name: "junit", version: "4.12"
   }
 
   jar {
     manifest {
-      version = project.version.replace('-','.');
+      version = project.version.replace("-",".");
     }
   }
 
   cobertura {
   
     dependencies {
-      testCompile 'org.slf4j:slf4j-simple:1.6.1'
+      testCompile "org.slf4j:slf4j-simple:1.6.1"
     }
-    coverageFormats = ['html', 'xml']				
+    coverageFormats = ["html", "xml"]				
     coverageIgnoreTrivial = true					
-    coverageIgnores = ['org.slf4j.Logger.*']			
+    coverageIgnores = ["org.slf4j.Logger.*"]			
     coverageReportDir = new File("$buildDir/reports/cobertura")
     coverageTestTasks {
-      project.tasks.withType(Test).matching {it.name == 'test'}
+      project.tasks.withType(Test).matching {it.name == "test"}
     }
  	  
   }
 
   sonarqube {
     properties {
+      property "sonar.exclusions", "src/main/java-gen/**/*,**/app/**/*"
       property "sonar.java.coveragePlugin", "cobertura"
       property "sonar.cobertura.reportPath", "build/reports/cobertura/coverage.xml"
     }
@@ -80,22 +110,6 @@ configure(javaProjects) {
 
     //only the jar file created:
     from configurations.default.getAllArtifacts().getFiles()
-
-    ext.isDocProject = false;
-    docProjects.findAll {
-      if (it.getPath() == project.path) {
-        isDocProject = true;
-      }
-    }
-    
-    if (isDocProject) {
-      //configurations.archives also contains source and javadoc files
-      configurations.archives.getArtifacts().all {
-        if (it.file.name.endsWith("sources.jar") || it.file.name.endsWith("javadoc.jar")) {
-          from project.files(it.file)
-        }
-      }
-    }
 
     if (cfgCopyDependencies) {
       if (cfgCopyToRoot) {
@@ -116,20 +130,21 @@ configure(javaProjects) {
       }
     }
   }
-
-  build.dependsOn(jarAll)
+  
+  build.dependsOn {asciidoctor}
+  build.dependsOn {jarAll}
 
   eclipse.pathVariables([GRADLE_USER_HOME:file(gradle.gradleUserHomeDir)])
   tasks.eclipse.dependsOn(cleanEclipse)
 
 
   task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    classifier = "sources"
     from sourceSets.main.allSource
   }
 
   task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    classifier = "javadoc"
     from javadoc.destinationDir
   }
 
@@ -139,8 +154,9 @@ configure(javaProjects) {
   }
 
   javadoc {
-    exclude '**/internal/**'
-    exclude '**/java-gen/**'
+    exclude "**/internal/**"
+    exclude "**/java-gen/**"
+    exclude "**/app/**"
   }
 
 }
@@ -148,10 +164,12 @@ configure(javaProjects) {
 
 configure(repositoryProjects) {
 
+  uploadArchives.enabled = true
+
   if (cfgSignPom) {
     signing {
-      if ( project.hasProperty('signing.keyId') ) {
-	sign configurations.archives
+      if ( project.hasProperty("signing.keyId") ) {
+        sign configurations.archives
       }
     }
   }
@@ -166,14 +184,14 @@ configure(repositoryProjects) {
 
         repository(url: cfgRepository) {
           authentication(userName: cfgRepositoryUser, password: cfgRepositoryPass)
-          if (cfgRepository != null && System.getProperty('https.proxyHost') != null && ((System.getProperty('https.nonProxyHosts') == null) || !cfgRepository.contains(System.getProperty('https.nonProxyHosts')))) {
-            proxy(host: System.getProperty('https.proxyHost'), port:  Integer.parseInt(System.getProperty('https.proxyPort')), type: 'https')
+          if (cfgRepository != null && System.getProperty("https.proxyHost") != null && ((System.getProperty("https.nonProxyHosts") == null) || !cfgRepository.contains(System.getProperty("https.nonProxyHosts")))) {
+            proxy(host: System.getProperty("https.proxyHost"), port:  Integer.parseInt(System.getProperty("https.proxyPort")), type: "https")
           }
         }
         snapshotRepository(url: cfgSnapshotRepository) {
           authentication(userName: cfgRepositoryUser, password: cfgRepositoryPass)
-          if (cfgSnapshotRepository != null && System.getProperty('https.proxyHost') != null && ((System.getProperty('https.nonProxyHosts') == null) || !cfgSnapshotRepository.contains(System.getProperty('https.nonProxyHosts')))) {
-            proxy(host: System.getProperty('https.proxyHost'), port:  Integer.parseInt(System.getProperty('https.proxyPort')), type: 'https')
+          if (cfgSnapshotRepository != null && System.getProperty("https.proxyHost") != null && ((System.getProperty("https.nonProxyHosts") == null) || !cfgSnapshotRepository.contains(System.getProperty("https.nonProxyHosts")))) {
+            proxy(host: System.getProperty("https.proxyHost"), port:  Integer.parseInt(System.getProperty("https.proxyPort")), type: "https")
           }
         }
 
@@ -181,18 +199,18 @@ configure(repositoryProjects) {
           
           //additional pom information can be found in subproject build.gradle files
 
-          packaging 'jar'
-          url 'http://www.openmuc.org/'
+          packaging "jar"
+          url "http://www.openmuc.org/"
 
           scm {
-            url 'none'
-            connection 'none'
+            url "none"
+            connection "none"
           }
 
           developers {
             developer {
-              id 'sfeuerhahn'
-              name 'Stefan Feuerhahn'
+              id "openmuc"
+              name "OpenMUC Team"
             }
           }
         }
@@ -201,20 +219,17 @@ configure(repositoryProjects) {
   }
 }
 
-configure(docProjects) {
-  jarAll.dependsOn sourcesJar
-  jarAll.dependsOn javadocJar
-}
-
 task javadocAll(type: Javadoc) {
 
   source docProjects.collect {
     project -> project.sourceSets.main.allJava
   }
 
-  exclude '**/internal/**'
+  exclude "**/internal/**"
+  exclude "**/java-gen/**"
+  exclude "**/app/**"
 
-  destinationDir = new File(buildDir, 'docs/javadoc-all')
+  destinationDir = new File(buildDir, "docs/javadoc-all")
 
   classpath = files(distributionProjects.collect { project ->
     project.sourceSets.main.compileClasspath })
@@ -236,7 +251,7 @@ task writeSettings << {
       else {
         out.write ", ";
       }
-      out.write "'" + myproject.name + "'"
+      out.write '"' + myproject.name + '"'
     }
   }
   out .write "\n\n";
@@ -260,23 +275,18 @@ tasks.withType(Tar) {
   dependsOn(writeSettings)
   dependsOn(distributionProjects.build)
   dependsOn(javadocAll)
+  dependsOn(asciidoctor)
 
   compression = Compression.GZIP
   
-  destinationDir = file('build/distributions/')
+  destinationDir = file("build/distributions/")
 }
-
-task (tarFull, type: Tar) {
-  archiveName = project.name + "-" + project.version + "_full.tgz"
-}
-
 
 task (tar, type: Tar) {
   archiveName = project.name + "-" + project.version + ".tgz"
 }
 
-if (!javaProjects.contains(project)) {
-  task clean (type: Delete) {
-    delete "build"
-  }
+task (tarFull, type: Tar) {
+  dependsOn(tar)
+  archiveName = project.name + "-" + project.version + "_full.tgz"
 }

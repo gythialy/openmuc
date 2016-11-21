@@ -35,55 +35,55 @@ import org.osgi.framework.BundleContext;
  */
 public final class ResourceLoader {
 
-	private final BundleContext context;
+    private final BundleContext context;
 
-	public ResourceLoader(BundleContext context) {
-		this.context = context;
-	}
+    public ResourceLoader(BundleContext context) {
+        this.context = context;
+    }
 
-	/**
-	 * 
-	 * Get resource as URL
-	 * 
-	 * @param name
-	 *            Resource name relative to bundles classpath
-	 * @return URL object of the requested resource.
-	 */
-	public URL getResource(String name) {
-		return context.getBundle().getResource(name);
-	}
+    /**
+     * 
+     * Get resource as URL
+     * 
+     * @param name
+     *            Resource name relative to bundles classpath
+     * @return URL object of the requested resource.
+     */
+    public URL getResource(String name) {
+        return context.getBundle().getResource(name);
+    }
 
-	/**
-	 * 
-	 * Get a text file resource as String
-	 * 
-	 * @param name
-	 *            Resource name relative to bundles classpath
-	 * @return String representation of the requested resource. null if resource is not available.
-	 */
-	public String getResourceAsString(String name) {
-		URL url = getResource(name);
+    /**
+     * 
+     * Get a text file resource as String
+     * 
+     * @param name
+     *            Resource name relative to bundles classpath
+     * @return String representation of the requested resource. null if resource is not available.
+     */
+    public String getResourceAsString(String name) {
+        URL url = getResource(name);
 
-		try {
-			InputStream stream = (InputStream) url.getContent();
+        try {
+            InputStream stream = (InputStream) url.getContent();
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
-			String line = null;
-			StringBuilder builder = new StringBuilder();
+            String line = null;
+            StringBuilder builder = new StringBuilder();
 
-			while ((line = reader.readLine()) != null) {
-				builder.append(line);
-				builder.append('\n');
-			}
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+                builder.append('\n');
+            }
 
-			reader.close();
+            reader.close();
 
-			return builder.toString();
-		} catch (IOException e) {
-			return null;
-		}
+            return builder.toString();
+        } catch (IOException e) {
+            return null;
+        }
 
-	}
+    }
 
 }

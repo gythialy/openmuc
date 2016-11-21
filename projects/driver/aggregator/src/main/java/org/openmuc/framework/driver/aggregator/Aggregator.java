@@ -38,6 +38,8 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,138 +134,140 @@ import org.slf4j.LoggerFactory;
 // TODO: Performance: Some checks of aggregatorUtil.getDoubleRecordValue() could be removed since
 // AggregatorChannel.removeErrorRecords() removes all invalid records.
 
+@Component(service = DriverService.class)
 public class Aggregator implements DriverService, Connection {
 
-	private final static Logger logger = LoggerFactory.getLogger(Aggregator.class);
+    private final static Logger logger = LoggerFactory.getLogger(Aggregator.class);
 
-	private DataAccessService dataAccessService;
+    private DataAccessService dataAccessService;
 
-	// <id><type,param1,param2><quality>
-	//
-	// PULSES_ENERGY
-	// - register size // needed vor overflow
-	// - impulse pro wh
-	//
-	// [:<optionalLongSetting1>][:<optionalLongSetting2>]
+    // <id><type,param1,param2><quality>
+    //
+    // PULSES_ENERGY
+    // - register size // needed vor overflow
+    // - impulse pro wh
+    //
+    // [:<optionalLongSetting1>][:<optionalLongSetting2>]
 
-	@Override
-	public DriverInfo getInfo() {
+    @Override
+    public DriverInfo getInfo() {
 
-		String driverId = "aggregator";
-		String description = "Is able to aggregate logged values of a channel and writes the aggregated value into a new channel. Different aggregation types supported.";
-		String deviceAddressSyntax = "not needed";
-		String parametersSyntax = "not needed";
-		String channelAddressSyntax = "<id of channel which should be aggregated>:<type>[:<quality>]";
-		String deviceScanParametersSyntax = "not supported";
+        String driverId = "aggregator";
+        String description = "Is able to aggregate logged values of a channel and writes the aggregated value into a new channel. Different aggregation types supported.";
+        String deviceAddressSyntax = "not needed";
+        String parametersSyntax = "not needed";
+        String channelAddressSyntax = "<id of channel which should be aggregated>:<type>[:<quality>]";
+        String deviceScanParametersSyntax = "not supported";
 
-		return new DriverInfo(driverId, description, deviceAddressSyntax, parametersSyntax, channelAddressSyntax,
-				deviceScanParametersSyntax);
-	}
+        return new DriverInfo(driverId, description, deviceAddressSyntax, parametersSyntax, channelAddressSyntax,
+                deviceScanParametersSyntax);
+    }
 
-	@Override
-	public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
-			throws UnsupportedOperationException, ConnectionException {
+    @Override
+    public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
+            throws UnsupportedOperationException, ConnectionException {
 
-		long currentTimestamp = getCurrentTimestamp();
-		long endTimestamp = getEndTimestamp(currentTimestamp);
+        long currentTimestamp = getCurrentTimestamp();
+        long endTimestamp = getEndTimestamp(currentTimestamp);
 
-		for (ChannelRecordContainer container : containers) {
+        for (ChannelRecordContainer container : containers) {
 
-			AggregatorChannel aggregatorChannel;
-			try {
-				aggregatorChannel = AggregatorChannelFactory.createAggregatorChannel(container, dataAccessService);
-				double aggregatedValue = aggregatorChannel.aggregate(currentTimestamp, endTimestamp);
-				container.setRecord(new Record(new DoubleValue(aggregatedValue), currentTimestamp, Flag.VALID));
-			} catch (AggregationException e) {
-				logger.warn("Unable to perform aggregation for channel " + container.getChannel().getId() + ". "
-						+ e.getMessage());
-				setRecordWithErrorFlag(container, currentTimestamp);
-			} catch (Exception e) {
-				setRecordWithErrorFlag(container, currentTimestamp);
-				logger.error("Unexpected Exception: Unable to perform aggregation for channel "
-						+ container.getChannel().getId(), e);
-			}
+            AggregatorChannel aggregatorChannel;
+            try {
+                aggregatorChannel = AggregatorChannelFactory.createAggregatorChannel(container, dataAccessService);
+                double aggregatedValue = aggregatorChannel.aggregate(currentTimestamp, endTimestamp);
+                container.setRecord(new Record(new DoubleValue(aggregatedValue), currentTimestamp, Flag.VALID));
+            } catch (AggregationException e) {
+                logger.debug("Unable to perform aggregation for channel " + container.getChannel().getId() + ". "
+                        + e.getMessage());
+                setRecordWithErrorFlag(container, currentTimestamp);
+            } catch (Exception e) {
+                setRecordWithErrorFlag(container, currentTimestamp);
+                logger.error("Unexpected Exception: Unable to perform aggregation for channel "
+                        + container.getChannel().getId(), e);
+            }
 
-		}
-		return null;
-	}
+        }
+        return null;
+    }
 
-	/**
-	 * @return the current timestamp where milliseconds are set to 000: e.g. 10:45:00.015 --> 10:45:00.000
-	 */
-	private long getCurrentTimestamp() {
-		return (System.currentTimeMillis() / 1000) * 1000;
-	}
+    /**
+     * @return the current timestamp where milliseconds are set to 000: e.g. 10:45:00.015 --> 10:45:00.000
+     */
+    private long getCurrentTimestamp() {
+        return (System.currentTimeMillis() / 1000) * 1000;
+    }
 
-	/**
-	 * endTimestamp must be slightly before the currentTimestamp Example: Aggregate a channel from 10:30:00 to 10:45:00
-	 * to 15 min values. 10:45:00 should be the timestamp of the aggregated value therefore the aggregator has to get
-	 * logged values from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
-	 * 
-	 * @param currentTimestamp
-	 * @return current timestamp
-	 */
-	private long getEndTimestamp(long currentTimestamp) {
-		return currentTimestamp - 1;
-	}
+    /**
+     * endTimestamp must be slightly before the currentTimestamp Example: Aggregate a channel from 10:30:00 to 10:45:00
+     * to 15 min values. 10:45:00 should be the timestamp of the aggregated value therefore the aggregator has to get
+     * logged values from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
+     * 
+     * @param currentTimestamp
+     * @return current timestamp
+     */
+    private long getEndTimestamp(long currentTimestamp) {
+        return currentTimestamp - 1;
+    }
 
-	private void setRecordWithErrorFlag(ChannelRecordContainer container, long endTimestamp) {
-		container.setRecord(new Record(null, endTimestamp, Flag.DRIVER_ERROR_READ_FAILURE));
-	}
+    private void setRecordWithErrorFlag(ChannelRecordContainer container, long endTimestamp) {
+        container.setRecord(new Record(null, endTimestamp, Flag.DRIVER_ERROR_READ_FAILURE));
+    }
 
-	@Override
-	public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
-			throws UnsupportedOperationException, ConnectionException {
+    @Override
+    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
+            throws UnsupportedOperationException, ConnectionException {
 
-		throw new UnsupportedOperationException();
-	}
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
-			throws UnsupportedOperationException, ConnectionException {
+    @Override
+    public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
+            throws UnsupportedOperationException, ConnectionException {
 
-		throw new UnsupportedOperationException();
-	}
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void scanForDevices(String settings, DriverDeviceScanListener listener)
-			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+    @Override
+    public void scanForDevices(String settings, DriverDeviceScanListener listener)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
-		throw new UnsupportedOperationException();
-	}
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void interruptDeviceScan() throws UnsupportedOperationException {
+    @Override
+    public void interruptDeviceScan() throws UnsupportedOperationException {
 
-		throw new UnsupportedOperationException();
-	}
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public List<ChannelScanInfo> scanForChannels(String settings)
-			throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
+    @Override
+    public List<ChannelScanInfo> scanForChannels(String settings)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
 
-		throw new UnsupportedOperationException();
-	}
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Connection connect(String deviceAddress, String settings)
-			throws ArgumentSyntaxException, ConnectionException {
+    @Override
+    public Connection connect(String deviceAddress, String settings)
+            throws ArgumentSyntaxException, ConnectionException {
 
-		// no connection needed so far
-		return this;
-	}
+        // no connection needed so far
+        return this;
+    }
 
-	@Override
-	public void disconnect() {
+    @Override
+    public void disconnect() {
 
-		// no disconnect needed so far
-	}
+        // no disconnect needed so far
+    }
 
-	protected void setDataAccessService(DataAccessService dataAccessService) {
-		this.dataAccessService = dataAccessService;
-	}
+    @Reference
+    protected void setDataAccessService(DataAccessService dataAccessService) {
+        this.dataAccessService = dataAccessService;
+    }
 
-	protected void unsetDataAccessService(DataAccessService dataAccessService) {
-		this.dataAccessService = null;
-	}
+    protected void unsetDataAccessService(DataAccessService dataAccessService) {
+        this.dataAccessService = null;
+    }
 }

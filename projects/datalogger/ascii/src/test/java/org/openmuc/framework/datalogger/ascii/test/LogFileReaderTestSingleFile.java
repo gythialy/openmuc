@@ -34,6 +34,7 @@ import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.datalogger.ascii.AsciiLogger;
 import org.openmuc.framework.datalogger.ascii.LogFileReader;
 import org.openmuc.framework.datalogger.ascii.LogFileWriter;
 import org.openmuc.framework.datalogger.ascii.LogIntervalContainerGroup;
@@ -42,269 +43,270 @@ import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
 public class LogFileReaderTestSingleFile {
 
-	// t1 = start timestamp of requested interval
-	// t2 = end timestamp of requested interval
+    // t1 = start timestamp of requested interval
+    // t2 = end timestamp of requested interval
 
-	static String fileDate0 = "20660606";
-	static int loggingInterval = 10000; // ms
-	static int loggingTimeOffset = 0; // ms
-	static String ext = ".dat";
-	static long startTimestampFile;
-	static long endTimestampFile;
-	static String Channel0Name = "power";
-	static String[] channelIds = { Channel0Name };
-	static String dateFormat = "yyyyMMdd HH:mm:ss";
+    static String fileDate0 = "20660606";
+    static int loggingInterval = 10000; // ms
+    static int loggingTimeOffset = 0; // ms
+    static String ext = ".dat";
+    static long startTimestampFile;
+    static long endTimestampFile;
+    static String Channel0Name = "power";
+    static String[] channelIds = { Channel0Name };
+    static String dateFormat = "yyyyMMdd HH:mm:ss";
 
-	LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "Comment", "W", ValueType.DOUBLE,
-			loggingInterval, loggingTimeOffset);
+    LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "Comment", "W", ValueType.DOUBLE,
+            loggingInterval, loggingTimeOffset);
 
-	@BeforeClass
-	public static void setup() {
+    @BeforeClass
+    public static void setup() {
 
-		System.out.println("### Setup() LogFileReaderTestSingleFile");
+        System.out.println("### Setup() LogFileReaderTestSingleFile");
 
-		TestSuite.createTestFolder();
+        TestSuite.createTestFolder();
 
-		// File file = new File(TestUtils.TESTFOLDERPATH + fileDate0 + "_" + loggingInterval + ext);
+        // File file = new File(TestUtils.TESTFOLDERPATH + fileDate0 + "_" + loggingInterval + ext);
 
-		// if (file.exists()) {
-		// Do nothing, file exists.
-		// }
-		// else {
-		// eine Datei
-		channelIds = new String[] { "power" };
+        // if (file.exists()) {
+        // Do nothing, file exists.
+        // }
+        // else {
+        // eine Datei
+        channelIds = new String[] { "power" };
 
-		// Logs 1 channel in second interval from 1 to 3 o'clock
+        // Logs 1 channel in second interval from 1 to 3 o'clock
 
-		HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
+        HashMap<String, LogChannel> logChannelList = new HashMap<>();
 
-		LogChannelTestImpl ch1 = new LogChannelTestImpl(Channel0Name, "dummy description", "kW", ValueType.DOUBLE,
-				loggingInterval, loggingTimeOffset);
+        LogChannelTestImpl ch1 = new LogChannelTestImpl(Channel0Name, "dummy description", "kW", ValueType.DOUBLE,
+                loggingInterval, loggingTimeOffset);
 
-		logChannelList.put(Channel0Name, ch1);
+        logChannelList.put(Channel0Name, ch1);
 
-		Calendar calendar = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00");
+        Calendar calendar = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00");
 
-		for (int i = 0; i < ((60 * 60 * 2) * (1000d / loggingInterval)); i++) {
+        for (int i = 0; i < ((60 * 60 * 2) * (1000d / loggingInterval)); i++) {
 
-			LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name,
-					new Record(new DoubleValue(i), calendar.getTimeInMillis()));
+            LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name,
+                    new Record(new DoubleValue(i), calendar.getTimeInMillis()));
 
-			LogIntervalContainerGroup group = new LogIntervalContainerGroup();
-			group.add(container1);
+            LogIntervalContainerGroup group = new LogIntervalContainerGroup();
+            group.add(container1);
 
-			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
-			lfw.log(group, loggingInterval, 0, calendar, logChannelList);
+            LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
+            lfw.log(group, loggingInterval, 0, calendar, logChannelList);
+            AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, 0, calendar.getTimeInMillis());
 
-			calendar.add(Calendar.MILLISECOND, loggingInterval);
-		}
-		// }
-	}
+            calendar.add(Calendar.MILLISECOND, loggingInterval);
+        }
+        // }
+    }
 
-	@AfterClass
-	public static void tearDown() {
+    @AfterClass
+    public static void tearDown() {
 
-		System.out.println("tearing down");
-		TestSuite.deleteTestFolder();
-	}
+        System.out.println("tearing down");
+        TestSuite.deleteTestFolder();
+    }
 
-	@Test
-	public void tc000_t1_t2_within_available_data() {
+    @Test
+    public void tc000_t1_t2_within_available_data() {
 
-		System.out.println("### Begin test tc000_t1_t2_within_available_data");
+        System.out.println("### Begin test tc000_t1_t2_within_available_data");
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:50:00").getTimeInMillis();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:51:00").getTimeInMillis();
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:50:00").getTimeInMillis();
+        long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:51:00").getTimeInMillis();
 
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		List<Record> records = fr.getValues(t1, t2);
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        List<Record> records = fr.getValues(t1, t2);
 
-		long expectedRecords = 7;
-		boolean result;
-		if (records.size() == expectedRecords) {
-			result = true;
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
-		assertTrue(result);
-	}
+        long expectedRecords = 7;
+        boolean result;
+        if (records.size() == expectedRecords) {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
+        assertTrue(result);
+    }
 
-	@Test
-	public void tc001_t1_before_available_data_t2_within() {
+    @Test
+    public void tc001_t1_before_available_data_t2_within() {
 
-		System.out.println("### Begin test tc001_t1_before_available_data_t2_within");
+        System.out.println("### Begin test tc001_t1_before_available_data_t2_within");
 
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTimeInMillis();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:10").getTimeInMillis();
-
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		List<Record> records = fr.getValues(t1, t2);
-
-		long expectedRecords = 0;
-		boolean result;
-
-		if (records.size() == expectedRecords) {
-			result = true;
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
-		assertTrue(result);
-	}
-
-	@Test
-	public void tc002_t2_after_available_data() {
-
-		System.out.println("### Begin test tc002_t2_after_available_data");
-
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00").getTimeInMillis();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:00:00").getTimeInMillis();
-
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		List<Record> records = fr.getValues(t1, t2);
-
-		long expectedRecords = 361; //
-
-		boolean result;
-		if (records.size() == expectedRecords) {
-			result = true;
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
-		assertTrue(result);
-	}
-
-	@Test
-	public void tc003_t1_t2_before_available_data() {
-
-		System.out.println("### Begin test tc003_t1_t2_before_available_data");
-
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTimeInMillis();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:59").getTimeInMillis();
-
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		List<Record> records = fr.getValues(t1, t2);
-
-		long expectedRecords = 0;
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-
-		boolean result = true;
-		int wrong = 0;
-		int ok = 0;
-
-		for (int i = 0; records.size() > i; i++) {
-			if (records.get(i).getFlag().equals(Flag.NO_VALUE_RECEIVED_YET)) {
-				++ok;
-			}
-			else {
-				++wrong;
-				result = false;
-			}
-		}
-		System.out.print(" records = " + records.size() + " (" + expectedRecords + " expected); ");
-		System.out.println("wrong = " + wrong + ", ok(with Flag 7) = " + ok);
-		assertTrue(result);
-	}
-
-	@Test
-	public void tc004_t1_t2_after_available_data() {
-
-		System.out.println("### Begin test tc004_t1_t2_after_available_data");
-
-		// test 5 - startTimestampRequest & endTimestampRequest after available logged data
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:00:01").getTimeInMillis();
-		long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:59:59").getTimeInMillis();
-
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		List<Record> records = fr.getValues(t1, t2);
-
-		long expectedRecords = 0;
-
-		boolean result;
-		if (records.size() == expectedRecords) {
-			result = true;
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
-		assertTrue(result);
-	}
-
-	@Test
-	public void tc005_t1_within_available_data() {
-
-		System.out.println("### Begin test tc005_t1_within_available_data");
-
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:11:10").getTimeInMillis();
-		boolean result;
-
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		Record record = fr.getValue(t1);
-
-		if (record != null) {
-			result = true;
-
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" record = " + result + "record = ");
-		assertTrue(result);
-	}
-
-	@Test
-	public void tc006_t1_before_available_data() {
-
-		System.out.println("### Begin test tc006_t1_before_available_data");
-
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:00").getTimeInMillis();
-		boolean result;
-
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-		Record record = fr.getValue(t1);
-
-		if (record == null) {
-			result = true;
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" no records = " + result);
-		assertTrue(result);
-	}
-
-	// @Test
-	public void tc007_t1_within_available_data_with_loggingInterval() {
-
-		System.out.println("### Begin test tc007_t1_within_available_data_with_loggingInterval");
-
-		boolean result;
-		long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:59:59").getTimeInMillis();
-		// get value looks from 02:59:59 to 3:00:00. before 3:00:00 a value exists
-		LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-
-		Record record = fr.getValue(t1);
-
-		if (record != null) {
-			result = true;
-		}
-		else {
-			result = false;
-		}
-		System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
-		System.out.println(" record = " + result);
-		assertTrue(result);
-	}
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTimeInMillis();
+        long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:10").getTimeInMillis();
+
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        List<Record> records = fr.getValues(t1, t2);
+
+        long expectedRecords = 0;
+        boolean result;
+
+        if (records.size() == expectedRecords) {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
+        assertTrue(result);
+    }
+
+    @Test
+    public void tc002_t2_after_available_data() {
+
+        System.out.println("### Begin test tc002_t2_after_available_data");
+
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00").getTimeInMillis();
+        long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:00:00").getTimeInMillis();
+
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        List<Record> records = fr.getValues(t1, t2);
+
+        long expectedRecords = 361; //
+
+        boolean result;
+        if (records.size() == expectedRecords) {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
+        assertTrue(result);
+    }
+
+    @Test
+    public void tc003_t1_t2_before_available_data() {
+
+        System.out.println("### Begin test tc003_t1_t2_before_available_data");
+
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:00").getTimeInMillis();
+        long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:59").getTimeInMillis();
+
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        List<Record> records = fr.getValues(t1, t2);
+
+        long expectedRecords = 0;
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+        boolean result = true;
+        int wrong = 0;
+        int ok = 0;
+
+        for (int i = 0; records.size() > i; i++) {
+            if (records.get(i).getFlag().equals(Flag.NO_VALUE_RECEIVED_YET)) {
+                ++ok;
+            }
+            else {
+                ++wrong;
+                result = false;
+            }
+        }
+        System.out.print(" records = " + records.size() + " (" + expectedRecords + " expected); ");
+        System.out.println("wrong = " + wrong + ", ok(with Flag 7) = " + ok);
+        assertTrue(result);
+    }
+
+    @Test
+    public void tc004_t1_t2_after_available_data() {
+
+        System.out.println("### Begin test tc004_t1_t2_after_available_data");
+
+        // test 5 - startTimestampRequest & endTimestampRequest after available logged data
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:00:01").getTimeInMillis();
+        long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:59:59").getTimeInMillis();
+
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        List<Record> records = fr.getValues(t1, t2);
+
+        long expectedRecords = 0;
+
+        boolean result;
+        if (records.size() == expectedRecords) {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected)");
+        assertTrue(result);
+    }
+
+    @Test
+    public void tc005_t1_within_available_data() {
+
+        System.out.println("### Begin test tc005_t1_within_available_data");
+
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:11:10").getTimeInMillis();
+        boolean result;
+
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        Record record = fr.getValue(t1);
+
+        if (record != null) {
+            result = true;
+
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" record = " + result + "record = ");
+        assertTrue(result);
+    }
+
+    @Test
+    public void tc006_t1_before_available_data() {
+
+        System.out.println("### Begin test tc006_t1_before_available_data");
+
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:00").getTimeInMillis();
+        boolean result;
+
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        Record record = fr.getValue(t1);
+
+        if (record == null) {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" no records = " + result);
+        assertTrue(result);
+    }
+
+    // @Test
+    public void tc007_t1_within_available_data_with_loggingInterval() {
+
+        System.out.println("### Begin test tc007_t1_within_available_data_with_loggingInterval");
+
+        boolean result;
+        long t1 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:59:59").getTimeInMillis();
+        // get value looks from 02:59:59 to 3:00:00. before 3:00:00 a value exists
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+
+        Record record = fr.getValue(t1);
+
+        if (record != null) {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+        System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
+        System.out.println(" record = " + result);
+        assertTrue(result);
+    }
 }

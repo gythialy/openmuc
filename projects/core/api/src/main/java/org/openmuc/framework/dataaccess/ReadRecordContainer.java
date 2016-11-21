@@ -25,8 +25,8 @@ import org.openmuc.framework.data.Record;
 
 public interface ReadRecordContainer {
 
-	public Record getRecord();
+    public Record getRecord();
 
-	public Channel getChannel();
+    public Channel getChannel();
 
 }

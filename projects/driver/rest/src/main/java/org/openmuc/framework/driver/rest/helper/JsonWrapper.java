@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openmuc.framework.config.ChannelScanInfo;
@@ -31,43 +32,51 @@ import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
+import org.openmuc.framework.lib.json.restObjects.RestChannel;
 
 public class JsonWrapper {
 
-	public String fromRecord(Record remoteRecord, ValueType valueType) {
+    public String fromRecord(Record remoteRecord, ValueType valueType) {
 
-		ToJson toJson = new ToJson();
-		toJson.addRecord(remoteRecord, valueType);
+        ToJson toJson = new ToJson();
+        toJson.addRecord(remoteRecord, valueType);
 
-		return toJson.toString();
-	}
+        return toJson.toString();
+    }
 
-	public List<ChannelScanInfo> toChannelList(InputStream stream) throws IOException {
+    public List<ChannelScanInfo> toChannelList(InputStream stream) throws IOException {
 
-		String jsonString = getStringFromInputStream(stream);
-		FromJson fromJson = new FromJson(jsonString);
+        String jsonString = getStringFromInputStream(stream);
+        FromJson fromJson = new FromJson(jsonString);
+        ArrayList<RestChannel> channelList = fromJson.getRestChannelArrayList();
+        ArrayList<ChannelScanInfo> channelScanInfos = new ArrayList<>();
 
-		return fromJson.getChannelScanInfoList();
-	}
+        for (RestChannel restChannel : channelList) {
+            ChannelScanInfo channelScanInfo = new ChannelScanInfo(restChannel.getId(), "", restChannel.getType(), 0);
+            channelScanInfos.add(channelScanInfo);
+        }
 
-	public Record toRecord(InputStream stream, ValueType valueType) throws IOException {
+        return channelScanInfos;
+    }
 
-		String jsonString = getStringFromInputStream(stream);
-		FromJson fromJson = new FromJson(jsonString);
+    public Record toRecord(InputStream stream, ValueType valueType) throws IOException {
 
-		return fromJson.getRecord(valueType);
-	}
+        String jsonString = getStringFromInputStream(stream);
+        FromJson fromJson = new FromJson(jsonString);
 
-	private String getStringFromInputStream(InputStream stream) throws IOException {
+        return fromJson.getRecord(valueType);
+    }
 
-		BufferedReader streamReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-		StringBuilder responseStrBuilder = new StringBuilder();
+    private String getStringFromInputStream(InputStream stream) throws IOException {
 
-		String inputStr;
-		while ((inputStr = streamReader.readLine()) != null) {
-			responseStrBuilder.append(inputStr);
-		}
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+        StringBuilder responseStrBuilder = new StringBuilder();
 
-		return responseStrBuilder.toString();
-	}
+        String inputStr;
+        while ((inputStr = streamReader.readLine()) != null) {
+            responseStrBuilder.append(inputStr);
+        }
+
+        return responseStrBuilder.toString();
+    }
 }

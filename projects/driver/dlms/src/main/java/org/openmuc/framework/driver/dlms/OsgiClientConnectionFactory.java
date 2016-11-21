@@ -37,24 +37,24 @@ import org.openmuc.jdlms.client.ip.UdpClientLayerFactory;
  */
 public final class OsgiClientConnectionFactory extends ClientConnectionFactory {
 
-	private final List<ILowerLayerFactory> factories;
+    private final List<ILowerLayerFactory> factories;
 
-	public OsgiClientConnectionFactory() {
-		factories = new ArrayList<ILowerLayerFactory>(3);
-		factories.add(new HdlcClientLayerFactory());
-		factories.add(new UdpClientLayerFactory());
-		factories.add(new TcpClientLayerFactory());
-	}
+    public OsgiClientConnectionFactory() {
+        factories = new ArrayList<>(3);
+        factories.add(new HdlcClientLayerFactory());
+        factories.add(new UdpClientLayerFactory());
+        factories.add(new TcpClientLayerFactory());
+    }
 
-	@Override
-	protected ILowerLayerFactory getLowerLayerFactory(
-			@SuppressWarnings("rawtypes") Class<? extends ClientConnectionSettings> settingsClass) {
-		for (ILowerLayerFactory factory : factories) {
-			if (factory.accepts(settingsClass)) {
-				return factory;
-			}
-		}
+    @Override
+    protected ILowerLayerFactory getLowerLayerFactory(
+            @SuppressWarnings("rawtypes") Class<? extends ClientConnectionSettings> settingsClass) {
+        for (ILowerLayerFactory factory : factories) {
+            if (factory.accepts(settingsClass)) {
+                return factory;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

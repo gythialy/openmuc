@@ -34,133 +34,133 @@ import gnu.io.UnsupportedCommOperationException;
 
 public class IecReceiver {
 
-	private static Logger logger = LoggerFactory.getLogger(IecReceiver.class);
-	// public final static int PROTOCOL_NORMAL = 0;
-	// public final static int PROTOCOL_SECONDARY = 1;
-	// public final static int PROTOCOL_HDLC = 2;
-	//
-	// public final static int MODE_DATA_READOUT = 0;
-	// public final static int MODE_PROGRAMMING = 1;
-	// public final static int MODE_BINARY_HDLC = 2;,
+    private static Logger logger = LoggerFactory.getLogger(IecReceiver.class);
+    // public final static int PROTOCOL_NORMAL = 0;
+    // public final static int PROTOCOL_SECONDARY = 1;
+    // public final static int PROTOCOL_HDLC = 2;
+    //
+    // public final static int MODE_DATA_READOUT = 0;
+    // public final static int MODE_PROGRAMMING = 1;
+    // public final static int MODE_BINARY_HDLC = 2;,
 
-	private CommPortIdentifier portId;
-	private SerialPort serialPort;
-	private final byte[] msgBuffer = new byte[10000];
-	private final byte[] inputBuffer = new byte[2000];
-	private DataInputStream inStream;
+    private CommPortIdentifier portId;
+    private SerialPort serialPort;
+    private final byte[] msgBuffer = new byte[10000];
+    private final byte[] inputBuffer = new byte[2000];
+    private DataInputStream inStream;
 
-	private class Timeout extends Thread {
-		private final long time;
-		private boolean end;
+    private class Timeout extends Thread {
+        private final long time;
+        private boolean end;
 
-		public Timeout(long msTimeout) {
-			time = msTimeout;
-			end = false;
-		}
+        public Timeout(long msTimeout) {
+            time = msTimeout;
+            end = false;
+        }
 
-		@Override
-		public void run() {
-			try {
-				Thread.sleep(time);
-			} catch (InterruptedException e) {
-			}
-			end = true;
-			return;
-		}
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+            }
+            end = true;
+            return;
+        }
 
-		public boolean isEnd() {
-			return end;
-		}
-	}
+        public boolean isEnd() {
+            return end;
+        }
+    }
 
-	public IecReceiver(String iface) throws Exception {
-		try {
-			portId = CommPortIdentifier.getPortIdentifier(iface);
-			serialPort = (SerialPort) portId.open("ehz_connector", 2000);
+    public IecReceiver(String iface) throws Exception {
+        try {
+            portId = CommPortIdentifier.getPortIdentifier(iface);
+            serialPort = (SerialPort) portId.open("ehz_connector", 2000);
 
-			serialPort.setSerialPortParams(9600, SerialPort.DATABITS_7, SerialPort.STOPBITS_1, SerialPort.PARITY_EVEN);
+            serialPort.setSerialPortParams(9600, SerialPort.DATABITS_7, SerialPort.STOPBITS_1, SerialPort.PARITY_EVEN);
 
-			inStream = new DataInputStream(serialPort.getInputStream());
+            inStream = new DataInputStream(serialPort.getInputStream());
 
-			if (inStream.available() > 0) {
-				inStream.read(inputBuffer);
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		} catch (PortInUseException e) {
-			throw new Exception("Port " + iface + " in use!");
-		} catch (UnsupportedCommOperationException e) {
-			throw new Exception("Error setting communication parameters!");
-		} catch (IOException e) {
-			throw new Exception("Cannot catch output stream!");
-		}
+            if (inStream.available() > 0) {
+                inStream.read(inputBuffer);
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+        } catch (PortInUseException e) {
+            throw new Exception("Port " + iface + " in use!");
+        } catch (UnsupportedCommOperationException e) {
+            throw new Exception("Error setting communication parameters!");
+        } catch (IOException e) {
+            throw new Exception("Cannot catch output stream!");
+        }
 
-	}
+    }
 
-	public byte[] receiveMessage(long msTimeout) throws IOException {
-		Timeout time = new Timeout(msTimeout);
-		time.start();
+    public byte[] receiveMessage(long msTimeout) throws IOException {
+        Timeout time = new Timeout(msTimeout);
+        time.start();
 
-		int bufferIndex = 0;
-		boolean start = false;
-		boolean end = false;
-		inStream.skip(inStream.available()); // inStream to current state
+        int bufferIndex = 0;
+        boolean start = false;
+        boolean end = false;
+        inStream.skip(inStream.available()); // inStream to current state
 
-		do {
-			if (inStream.available() > 0) {
-				int read = inStream.read(inputBuffer);
+        do {
+            if (inStream.available() > 0) {
+                int read = inStream.read(inputBuffer);
 
-				for (int i = 0; i < read; i++) {
-					byte input = inputBuffer[i];
-					if (input == '/' && !start) {
-						start = true;
-						bufferIndex = 0;
-					}
-					msgBuffer[bufferIndex] = input;
-					bufferIndex++;
-					if (input == '!' && start) {
-						end = true;
-					}
-				}
-			}
-			if (end && start) {
-				break;
-			}
+                for (int i = 0; i < read; i++) {
+                    byte input = inputBuffer[i];
+                    if (input == '/' && !start) {
+                        start = true;
+                        bufferIndex = 0;
+                    }
+                    msgBuffer[bufferIndex] = input;
+                    bufferIndex++;
+                    if (input == '!' && start) {
+                        end = true;
+                    }
+                }
+            }
+            if (end && start) {
+                break;
+            }
 
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-			}
-		} while (!time.isEnd());
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+            }
+        } while (!time.isEnd());
 
-		if (time.isEnd()) {
-			throw new IOException("Timeout");
-		}
+        if (time.isEnd()) {
+            throw new IOException("Timeout");
+        }
 
-		byte[] frame = new byte[bufferIndex];
+        byte[] frame = new byte[bufferIndex];
 
-		for (int i = 0; i < bufferIndex; i++) {
-			frame[i] = msgBuffer[i];
-		}
+        for (int i = 0; i < bufferIndex; i++) {
+            frame[i] = msgBuffer[i];
+        }
 
-		return frame;
-	}
+        return frame;
+    }
 
-	public void changeBaudrate(int baudrate) {
-		try {
-			logger.debug("Change baudrate to: " + baudrate);
-			serialPort.setSerialPortParams(baudrate, SerialPort.DATABITS_7, SerialPort.STOPBITS_1,
-					SerialPort.PARITY_EVEN);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    public void changeBaudrate(int baudrate) {
+        try {
+            logger.debug("Change baudrate to: " + baudrate);
+            serialPort.setSerialPortParams(baudrate, SerialPort.DATABITS_7, SerialPort.STOPBITS_1,
+                    SerialPort.PARITY_EVEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void close() {
-		serialPort.close();
-		serialPort = null;
-	}
+    public void close() {
+        serialPort.close();
+        serialPort = null;
+    }
 
 }

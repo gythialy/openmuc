@@ -27,90 +27,90 @@ import java.util.List;
 
 public class ModeDMessage {
 
-	private final byte[] frame;
+    private final byte[] frame;
 
-	private String vendorID;
-	private String identifier;
-	private List<String> dataSets;
+    private String vendorID;
+    private String identifier;
+    private List<String> dataSets;
 
-	public List<String> getDataSets() {
-		return dataSets;
-	}
+    public List<String> getDataSets() {
+        return dataSets;
+    }
 
-	public ModeDMessage(byte[] frame) {
-		this.frame = frame;
-	}
+    public ModeDMessage(byte[] frame) {
+        this.frame = frame;
+    }
 
-	public String getVendorID() {
-		return vendorID;
-	}
+    public String getVendorID() {
+        return vendorID;
+    }
 
-	public String getIdentifier() {
-		return identifier;
-	}
+    public String getIdentifier() {
+        return identifier;
+    }
 
-	public void parse() throws ParseException {
-		int position = 0;
-		try {
-			/* Check for start sign */
-			if (frame[0] != '/') {
-				throw new ParseException("Invalid character", 0);
-			}
+    public void parse() throws ParseException {
+        int position = 0;
+        try {
+            /* Check for start sign */
+            if (frame[0] != '/') {
+                throw new ParseException("Invalid character", 0);
+            }
 
-			/* Check for valid vendor ID (only upper case letters) */
-			for (position = 1; position < 4; position++) {
-				if (!(frame[position] > 64 && frame[position] < 91)) {
-					throw new ParseException("Invalid character", position);
-				}
-			}
+            /* Check for valid vendor ID (only upper case letters) */
+            for (position = 1; position < 4; position++) {
+                if (!(frame[position] > 64 && frame[position] < 91)) {
+                    throw new ParseException("Invalid character", position);
+                }
+            }
 
-			vendorID = new String(frame, 1, 3);
+            vendorID = new String(frame, 1, 3);
 
-			/* Baud rate sign needs to be '0' .. '6' */
-			if (frame[4] <= '0' || frame[4] >= '6') {
-				throw new ParseException("Invalid character", 4);
-			}
+            /* Baud rate sign needs to be '0' .. '6' */
+            if (frame[4] <= '0' || frame[4] >= '6') {
+                throw new ParseException("Invalid character", 4);
+            }
 
-			position = 5;
-			int i = 0;
-			/* Search for CRLF to extract identifier */
-			while (!((frame[position + i] == 0x0d) && (frame[position + i + 1] == 0x0a))) {
-				if (frame[position + i] == '!') {
-					throw new ParseException("Invalid end character", position + i);
-				}
-				i++;
-			}
+            position = 5;
+            int i = 0;
+            /* Search for CRLF to extract identifier */
+            while (!((frame[position + i] == 0x0d) && (frame[position + i + 1] == 0x0a))) {
+                if (frame[position + i] == '!') {
+                    throw new ParseException("Invalid end character", position + i);
+                }
+                i++;
+            }
 
-			identifier = new String(frame, 5, i - 1);
+            identifier = new String(frame, 5, i - 1);
 
-			position += i;
+            position += i;
 
-			/* Skip next CRLF */
-			position += 4;
+            /* Skip next CRLF */
+            position += 4;
 
-			/* Get data sets */
-			dataSets = new ArrayList<String>();
+            /* Get data sets */
+            dataSets = new ArrayList<>();
 
-			while (frame[position] != '!') {
+            while (frame[position] != '!') {
 
-				i = 0;
+                i = 0;
 
-				while (frame[position + i] != 0x0d) {
-					i++;
-				}
+                while (frame[position + i] != 0x0d) {
+                    i++;
+                }
 
-				String dataSet = new String(frame, position, i);
+                String dataSet = new String(frame, position, i);
 
-				dataSets.add(dataSet);
+                dataSets.add(dataSet);
 
-				position += (i + 2);
+                position += (i + 2);
 
-			}
+            }
 
-		} catch (IndexOutOfBoundsException e) {
-			throw new ParseException("Unexpected end of message", position);
-		}
+        } catch (IndexOutOfBoundsException e) {
+            throw new ParseException("Unexpected end of message", position);
+        }
 
-	}
+    }
 
 }

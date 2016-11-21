@@ -28,33 +28,29 @@ import tuwien.auto.calimero.exception.KNXFormatException;
 
 public class KnxValue2ByteFloat extends KnxValue {
 
-	/**
-	 * @param dptID
-	 * @throws KNXFormatException
-	 */
-	public KnxValue2ByteFloat(String dptID) throws KNXFormatException {
-		dptXlator = new DPTXlator2ByteFloat(dptID);
-	}
+    public KnxValue2ByteFloat(String dptID) throws KNXFormatException {
+        dptXlator = new DPTXlator2ByteFloat(dptID);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-	 */
-	@Override
-	public void setOpenMucValue(Value value) throws KNXFormatException {
-		((DPTXlator2ByteFloat) dptXlator).setValue(value.asFloat());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+     */
+    @Override
+    public void setOpenMucValue(Value value) throws KNXFormatException {
+        ((DPTXlator2ByteFloat) dptXlator).setValue(value.asFloat());
 
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
-	 */
-	@Override
-	public Value getOpenMucValue() {
-		return new FloatValue(((DPTXlator2ByteFloat) dptXlator).getValueFloat());
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
+     */
+    @Override
+    public Value getOpenMucValue() {
+        return new FloatValue(((DPTXlator2ByteFloat) dptXlator).getValueFloat());
+    }
 
 }

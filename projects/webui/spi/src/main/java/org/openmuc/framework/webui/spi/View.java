@@ -26,24 +26,24 @@ import java.util.List;
 
 public interface View {
 
-	List<String> getStyleSheets();
+    List<String> getStyleSheets();
 
-	List<String> getJavaScripts();
+    List<String> getJavaScripts();
 
-	String getTemplate();
+    String getTemplate();
 
-	HashMap<String, Object> getContext();
+    HashMap<String, Object> getContext();
 
-	String getPage();
+    String getPage();
 
-	String getRedirectLocation();
+    String getRedirectLocation();
 
-	viewtype getViewType();
+    viewtype getViewType();
 
-	public enum viewtype {
-		PLUGIN,
-		AJAX,
-		REDIRECT,
-		OTHERS;
-	}
+    public enum viewtype {
+        PLUGIN,
+        AJAX,
+        REDIRECT,
+        OTHERS;
+    }
 }

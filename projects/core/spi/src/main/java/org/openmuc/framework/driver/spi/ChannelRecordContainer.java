@@ -26,14 +26,14 @@ import org.openmuc.framework.dataaccess.ReadRecordContainer;
 
 public interface ChannelRecordContainer extends ReadRecordContainer {
 
-	public String getChannelAddress();
+    public String getChannelAddress();
 
-	public Object getChannelHandle();
+    public Object getChannelHandle();
 
-	public void setChannelHandle(Object handle);
+    public void setChannelHandle(Object handle);
 
-	public void setRecord(Record record);
+    public void setRecord(Record record);
 
-	public ChannelRecordContainer copy();
+    public ChannelRecordContainer copy();
 
 }

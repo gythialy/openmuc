@@ -25,8 +25,8 @@ import java.util.List;
 
 public interface RecordsReceivedListener {
 
-	public void newRecords(List<ChannelRecordContainer> recordContainers);
+    public void newRecords(List<ChannelRecordContainer> recordContainers);
 
-	public void connectionInterrupted(String driverId, Connection connection);
+    public void connectionInterrupted(String driverId, Connection connection);
 
 }

@@ -29,65 +29,65 @@ import org.openmuc.framework.data.Record;
  */
 public class AggregatorUtil {
 
-	// /**
-	// * Performs some tests on the record and returns its value as double on success <br>
-	// * - tests if record != null <br>
-	// * - tests if flag is valid <br>
-	// * - tests if value != null <br>
-	// *
-	// * @param record
-	// * @return the value as double
-	// * @throws SomethingWrongWithRecordException
-	// */
-	// public static double getDoubleRecordValue(Record record) throws AggregationException {
-	//
-	// double result;
-	//
-	// if (record != null) {
-	// Flag flag = record.getFlag();
-	// if (flag == Flag.VALID) {
-	// Value value = record.getValue();
-	// if (value != null) {
-	// result = value.asDouble();
-	// }
-	// else {
-	// throw new AggregationException("Value is null");
-	// }
-	// }
-	// else {
-	// throw new AggregationException("Flag != Valid - " + flag.toString());
-	// }
-	// }
-	// else {
-	// throw new AggregationException("Record is null");
-	// }
-	//
-	// return result;
-	// }
+    // /**
+    // * Performs some tests on the record and returns its value as double on success <br>
+    // * - tests if record != null <br>
+    // * - tests if flag is valid <br>
+    // * - tests if value != null <br>
+    // *
+    // * @param record
+    // * @return the value as double
+    // * @throws SomethingWrongWithRecordException
+    // */
+    // public static double getDoubleRecordValue(Record record) throws AggregationException {
+    //
+    // double result;
+    //
+    // if (record != null) {
+    // Flag flag = record.getFlag();
+    // if (flag == Flag.VALID) {
+    // Value value = record.getValue();
+    // if (value != null) {
+    // result = value.asDouble();
+    // }
+    // else {
+    // throw new AggregationException("Value is null");
+    // }
+    // }
+    // else {
+    // throw new AggregationException("Flag != Valid - " + flag.toString());
+    // }
+    // }
+    // else {
+    // throw new AggregationException("Record is null");
+    // }
+    //
+    // return result;
+    // }
 
-	/**
-	 * Returns the value of the last record of the list
-	 * <p>
-	 * Can be used for energy aggregation. Smart meter sums the energy automatically therefore the last value contains
-	 * the aggregated value
-	 * 
-	 * @param recordList
-	 *            List of Records
-	 * @return the value of the last record of the list
-	 * @throws AggregationException
-	 *             on error
-	 */
-	public static Record getLastRecordOfList(List<Record> recordList) throws AggregationException {
+    /**
+     * Returns the value of the last record of the list
+     * <p>
+     * Can be used for energy aggregation. Smart meter sums the energy automatically therefore the last value contains
+     * the aggregated value
+     * 
+     * @param recordList
+     *            List of Records
+     * @return the value of the last record of the list
+     * @throws AggregationException
+     *             on error
+     */
+    public static Record getLastRecordOfList(List<Record> recordList) throws AggregationException {
 
-		if (recordList.isEmpty()) {
-			throw new AggregationException("Empty record list.");
-		}
-		else if (recordList.size() == 1) {
-			// only one record in list which is automatically the last one.
-			return recordList.get(0);
-		}
-		else {
-			return recordList.get(recordList.size() - 1);
-		}
-	}
+        if (recordList.isEmpty()) {
+            throw new AggregationException("Empty record list.");
+        }
+        else if (recordList.size() == 1) {
+            // only one record in list which is automatically the last one.
+            return recordList.get(0);
+        }
+        else {
+            return recordList.get(recordList.size() - 1);
+        }
+    }
 }

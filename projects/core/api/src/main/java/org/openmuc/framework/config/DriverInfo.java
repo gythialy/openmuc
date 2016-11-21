@@ -22,67 +22,67 @@ package org.openmuc.framework.config;
 
 public class DriverInfo {
 
-	private final String id;
-	private final String description;
-	private final String deviceAddressSyntax;
-	private final String settingsSyntax;
-	private final String channelAddressSyntax;
-	private final String deviceScanSettingsSyntax;
+    private final String id;
+    private final String description;
+    private final String deviceAddressSyntax;
+    private final String settingsSyntax;
+    private final String channelAddressSyntax;
+    private final String deviceScanSettingsSyntax;
 
-	/**
-	 * Constructor to set driver info
-	 * 
-	 * @param id
-	 *            driver ID
-	 * @param description
-	 *            driver description
-	 * @param deviceAddressSyntax
-	 *            device address syntax
-	 * @param settingsSyntax
-	 *            device settings syntax
-	 * @param channelAddressSyntax
-	 *            channel address syntax
-	 * @param deviceScanSettingsSyntax
-	 *            device scan settings syntax
-	 */
-	public DriverInfo(String id, String description, String deviceAddressSyntax, String settingsSyntax,
-			String channelAddressSyntax, String deviceScanSettingsSyntax) {
-		this.id = id;
-		this.description = description;
-		this.deviceAddressSyntax = deviceAddressSyntax;
-		this.settingsSyntax = settingsSyntax;
-		this.channelAddressSyntax = channelAddressSyntax;
-		this.deviceScanSettingsSyntax = deviceScanSettingsSyntax;
-	}
+    /**
+     * Constructor to set driver info
+     * 
+     * @param id
+     *            driver ID
+     * @param description
+     *            driver description
+     * @param deviceAddressSyntax
+     *            device address syntax
+     * @param settingsSyntax
+     *            device settings syntax
+     * @param channelAddressSyntax
+     *            channel address syntax
+     * @param deviceScanSettingsSyntax
+     *            device scan settings syntax
+     */
+    public DriverInfo(String id, String description, String deviceAddressSyntax, String settingsSyntax,
+            String channelAddressSyntax, String deviceScanSettingsSyntax) {
+        this.id = id;
+        this.description = description;
+        this.deviceAddressSyntax = deviceAddressSyntax;
+        this.settingsSyntax = settingsSyntax;
+        this.channelAddressSyntax = channelAddressSyntax;
+        this.deviceScanSettingsSyntax = deviceScanSettingsSyntax;
+    }
 
-	/**
-	 * Returns the ID of the driver. The ID may only contain ASCII letters, digits, hyphens and underscores. By
-	 * convention the ID should be meaningful and all lower case letters (e.g. "mbus", "modbus").
-	 * 
-	 * @return the unique ID of the driver.
-	 */
-	public String getId() {
-		return id;
-	}
+    /**
+     * Returns the ID of the driver. The ID may only contain ASCII letters, digits, hyphens and underscores. By
+     * convention the ID should be meaningful and all lower case letters (e.g. "mbus", "modbus").
+     * 
+     * @return the unique ID of the driver.
+     */
+    public String getId() {
+        return id;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getDeviceAddressSyntax() {
-		return deviceAddressSyntax;
-	}
+    public String getDeviceAddressSyntax() {
+        return deviceAddressSyntax;
+    }
 
-	public String getSettingsSyntax() {
-		return settingsSyntax;
-	}
+    public String getSettingsSyntax() {
+        return settingsSyntax;
+    }
 
-	public String getChannelAddressSyntax() {
-		return channelAddressSyntax;
-	}
+    public String getChannelAddressSyntax() {
+        return channelAddressSyntax;
+    }
 
-	public String getDeviceScanSettingsSyntax() {
-		return deviceScanSettingsSyntax;
-	}
+    public String getDeviceScanSettingsSyntax() {
+        return deviceScanSettingsSyntax;
+    }
 
 }

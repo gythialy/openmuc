@@ -4,7 +4,11 @@
   <service>
     <provide interface="org.openmuc.framework.dataaccess.DataAccessService" />
     <provide interface="org.openmuc.framework.config.ConfigService" />
+     <provide interface="java.lang.Object"/>
   </service>
+  <property name="osgi.command.function" type="String" value="reload"/>
+  <property name="osgi.command.scope" type="String" value="openmuc"/>  
+  
   <reference name="driverService"
 	     interface="org.openmuc.framework.driver.spi.DriverService"
 	     bind="setDriverService"

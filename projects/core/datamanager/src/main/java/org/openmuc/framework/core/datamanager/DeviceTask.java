@@ -23,13 +23,11 @@ package org.openmuc.framework.core.datamanager;
 
 import org.openmuc.framework.driver.spi.DriverService;
 
-public abstract class DeviceTask extends Thread {
+abstract class DeviceTask extends Thread {
 
-	protected Device device;
-	protected DriverService driver;
-	protected DataManager dataManager;
+    protected Device device;
+    protected DriverService driver;
+    protected DataManager dataManager;
 
-	public abstract DeviceTaskType getType();
-
-	public abstract void setDeviceState();
+    public abstract DeviceTaskType getType();
 }

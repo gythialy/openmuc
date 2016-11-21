@@ -23,8 +23,8 @@ package org.openmuc.framework.dataaccess;
 
 public interface ChannelChangeListener {
 
-	public void channelModified(Channel channel);
+    public void channelModified(Channel channel);
 
-	public void channelDeleted(Channel channel);
+    public void channelDeleted(Channel channel);
 
 }

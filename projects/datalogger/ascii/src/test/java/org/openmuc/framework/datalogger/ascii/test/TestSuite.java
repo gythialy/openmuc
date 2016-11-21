@@ -31,56 +31,56 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ LogFileReaderTestSingleFile.class, LogFileReaderTestBrokenFile.class,
-		LogFileReaderTestMultipleFiles.class, LogFileWriterTest.class, MiscTests.class })
+        LogFileReaderTestMultipleFiles.class, LogFileWriterTest.class, MiscTests.class })
 public class TestSuite {
 
-	private static final String TESTFOLDER = "test";
+    private static final String TESTFOLDER = "test";
 
-	@BeforeClass
-	public static void setUp() {
+    @BeforeClass
+    public static void setUp() {
 
-		System.out.println("setting up");
-		createTestFolder();
-	}
+        System.out.println("setting up");
+        createTestFolder();
+    }
 
-	@AfterClass
-	public static void tearDown() {
+    @AfterClass
+    public static void tearDown() {
 
-		System.out.println("tearing down");
-		deleteTestFolder();
-	}
+        System.out.println("tearing down");
+        deleteTestFolder();
+    }
 
-	public static void createTestFolder() {
+    public static void createTestFolder() {
 
-		File testFolder = new File(TESTFOLDER);
-		if (!testFolder.exists()) {
-			testFolder.mkdir();
-		}
-	}
+        File testFolder = new File(TESTFOLDER);
+        if (!testFolder.exists()) {
+            testFolder.mkdir();
+        }
+    }
 
-	public static void deleteTestFolder() {
+    public static void deleteTestFolder() {
 
-		File testFolder = new File(TESTFOLDER);
-		try {
-			deleteRecursive(testFolder);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        File testFolder = new File(TESTFOLDER);
+        try {
+            deleteRecursive(testFolder);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-	private static boolean deleteRecursive(File path) throws FileNotFoundException {
+    private static boolean deleteRecursive(File path) throws FileNotFoundException {
 
-		if (!path.exists()) {
-			System.out.println("Method deleteRecursive(): Path does not exists. " + path.getAbsolutePath());
-		}
-		boolean ret = true;
-		if (path.isDirectory()) {
-			for (File f : path.listFiles()) {
-				ret = ret && deleteRecursive(f);
-			}
-		}
-		return ret && path.delete();
-	}
+        if (!path.exists()) {
+            System.out.println("Method deleteRecursive(): Path does not exists. " + path.getAbsolutePath());
+        }
+        boolean ret = true;
+        if (path.isDirectory()) {
+            for (File f : path.listFiles()) {
+                ret = ret && deleteRecursive(f);
+            }
+        }
+        return ret && path.delete();
+    }
 
 }

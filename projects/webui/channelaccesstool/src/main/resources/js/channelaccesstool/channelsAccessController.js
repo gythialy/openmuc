@@ -66,8 +66,8 @@
 		
 	    $scope.$on('$destroy', function () { 
 	    	$interval.cancel($scope.interval); 
-	    });	    
-		
+	    });
+
 	};
 
 	ChannelsAccessController.$inject = injectParams;

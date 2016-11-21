@@ -42,116 +42,116 @@ import org.openmuc.framework.driver.spi.ConnectionException;
  */
 public class IecConnection extends GeneralConnection {
 
-	private IecReceiver receiver;
+    private IecReceiver receiver;
 
-	public IecConnection(String deviceAddress, int timeout) throws ConnectionException {
-		name = "IEC - " + deviceAddress + " - ";
-		try {
-			receiver = new IecReceiver(deviceAddress);
-		} catch (Exception e) {
-			throw new ConnectionException(name + "serial port not found");
-		}
-	}
+    public IecConnection(String deviceAddress, int timeout) throws ConnectionException {
+        name = "IEC - " + deviceAddress + " - ";
+        try {
+            receiver = new IecReceiver(deviceAddress);
+        } catch (Exception e) {
+            throw new ConnectionException(name + "serial port not found");
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.ehz.Connection#close()
-	 */
-	@Override
-	public void close() {
-		receiver.close();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.ehz.Connection#close()
+     */
+    @Override
+    public void close() {
+        receiver.close();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.ehz.Connection#read(java.util.List, int)
-	 */
-	@Override
-	public void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
-		logger.trace(name + "reading channels");
-		try {
-			long timestamp = System.currentTimeMillis();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.ehz.Connection#read(java.util.List, int)
+     */
+    @Override
+    public void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
+        logger.trace(name + "reading channels");
+        try {
+            long timestamp = System.currentTimeMillis();
 
-			byte[] frame = receiver.receiveMessage(timeout);
-			ModeDMessage message = new ModeDMessage(frame);
-			message.parse();
-			List<String> dataSets = message.getDataSets();
+            byte[] frame = receiver.receiveMessage(timeout);
+            ModeDMessage message = new ModeDMessage(frame);
+            message.parse();
+            List<String> dataSets = message.getDataSets();
 
-			Map<String, Double> values = new LinkedHashMap<String, Double>();
-			for (String data : dataSets) {
-				DataSet dataSet = new DataSet(data);
-				String address = dataSet.getAddress();
-				double value = dataSet.getVal();
-				values.put(address, value);
-				logger.trace(name + address + " = " + value);
-			}
+            Map<String, Double> values = new LinkedHashMap<>();
+            for (String data : dataSets) {
+                DataSet dataSet = new DataSet(data);
+                String address = dataSet.getAddress();
+                double value = dataSet.getVal();
+                values.put(address, value);
+                logger.trace(name + address + " = " + value);
+            }
 
-			handleChannelRecordContainer(containers, values, timestamp);
-		} catch (IOException e) {
-			e.printStackTrace();
-			logger.error(name + "read failed");
-			close();
-			throw new ConnectionException(e);
-		} catch (ParseException e) {
-			logger.error(name + "parsing failed");
-			e.printStackTrace();
-		}
-	}
+            handleChannelRecordContainer(containers, values, timestamp);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.error(name + "read failed");
+            close();
+            throw new ConnectionException(e);
+        } catch (ParseException e) {
+            logger.error(name + "parsing failed");
+            e.printStackTrace();
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.ehz.Connection#listChannels(int)
-	 */
-	@Override
-	public List<ChannelScanInfo> listChannels(int timeout) {
-		List<ChannelScanInfo> channelInfos = new LinkedList<ChannelScanInfo>();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.ehz.Connection#listChannels(int)
+     */
+    @Override
+    public List<ChannelScanInfo> listChannels(int timeout) {
+        List<ChannelScanInfo> channelInfos = new LinkedList<>();
 
-		logger.debug(name + "scanning channels");
-		try {
-			byte[] frame = receiver.receiveMessage(timeout);
-			ModeDMessage message = new ModeDMessage(frame);
-			message.parse();
-			List<String> dataSets = message.getDataSets();
+        logger.debug(name + "scanning channels");
+        try {
+            byte[] frame = receiver.receiveMessage(timeout);
+            ModeDMessage message = new ModeDMessage(frame);
+            message.parse();
+            List<String> dataSets = message.getDataSets();
 
-			for (String data : dataSets) {
-				DataSet dataSet = new DataSet(data);
-				String channelAddress = dataSet.getAddress();
-				String description = "Current value: " + dataSet.getVal() + dataSet.getUnit();
-				ValueType valueType = ValueType.DOUBLE;
-				Integer valueTypeLength = null;
-				Boolean readable = true;
-				Boolean writable = false;
-				ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress, description, valueType,
-						valueTypeLength, readable, writable);
-				channelInfos.add(channelInfo);
-			}
+            for (String data : dataSets) {
+                DataSet dataSet = new DataSet(data);
+                String channelAddress = dataSet.getAddress();
+                String description = "Current value: " + dataSet.getVal() + dataSet.getUnit();
+                ValueType valueType = ValueType.DOUBLE;
+                Integer valueTypeLength = null;
+                Boolean readable = true;
+                Boolean writable = false;
+                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress, description, valueType,
+                        valueTypeLength, readable, writable);
+                channelInfos.add(channelInfo);
+            }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.warn(name + "read failed");
-		}
-		return channelInfos;
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.warn(name + "read failed");
+        }
+        return channelInfos;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.ehz.Connection#isWorking()
-	 */
-	@Override
-	public boolean isWorking() {
-		try {
-			byte[] frame = receiver.receiveMessage(1000);
-			ModeDMessage message = new ModeDMessage(frame);
-			message.parse();
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.ehz.Connection#isWorking()
+     */
+    @Override
+    public boolean isWorking() {
+        try {
+            byte[] frame = receiver.receiveMessage(1000);
+            ModeDMessage message = new ModeDMessage(frame);
+            message.parse();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
 
-	}
+    }
 
 }

@@ -22,21 +22,21 @@ package org.openmuc.framework.lib.json.exceptions;
 
 public class MissingJsonObjectException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3245778161912001429L;
-	private String message = "Searched JsonObject is missing. ";
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3245778161912001429L;
+    private String message = "Searched JsonObject is missing. ";
 
-	public MissingJsonObjectException() {
-	}
+    public MissingJsonObjectException() {
+    }
 
-	public MissingJsonObjectException(String message) {
-		this.message = message;
-	}
+    public MissingJsonObjectException(String message) {
+        this.message = message;
+    }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

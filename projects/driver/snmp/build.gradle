@@ -1,29 +1,29 @@
 
-configurations.create('embed')
+configurations.create("embed")
 
+def snmp4jVersion = "2.3.4"
 
 repositories {
   mavenCentral()
 }
 
 dependencies {
-  compile project(':openmuc-core-spi')
-  compile files('dependencies/snmp4j/snmp4j-2.3.4.jar')
-  embed files('dependencies/snmp4j/snmp4j-2.3.4.jar')
+  compile project(":openmuc-core-spi")
+  compile files("dependencies/snmp4j/snmp4j-" + snmp4jVersion + ".jar")
+  embed files("dependencies/snmp4j/snmp4j-" + snmp4jVersion + ".jar")
 }
 
 jar {
   manifest {
-    name = "OpenMUC Snmp Driver"
-    instruction 'Bundle-ClassPath', '.,lib/snmp4j-2.2.5.jar'
-    instruction 'Import-Package', '!org.snmp4j*,*'
-    instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
+    name = "OpenMUC SNMP Driver"
+    instruction "Bundle-ClassPath", ".,lib/snmp4j-" + snmp4jVersion + ".jar"
+    instruction "Import-Package", "!org.snmp4j*,*" + jarDefaultImportPackageVersion
+    instruction "Export-Package", ""
   }
 }
 
 jar {
-  into('lib') {
+  into("lib") {
     from configurations.embed
   }
 }

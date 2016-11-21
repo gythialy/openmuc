@@ -23,59 +23,59 @@ package org.openmuc.framework.data;
 
 public class ByteValue implements Value {
 
-	private final byte value;
+    private final byte value;
 
-	public ByteValue(byte value) {
-		this.value = value;
-	}
+    public ByteValue(byte value) {
+        this.value = value;
+    }
 
-	@Override
-	public double asDouble() {
-		return value;
-	}
+    @Override
+    public double asDouble() {
+        return value;
+    }
 
-	@Override
-	public float asFloat() {
-		return value;
-	}
+    @Override
+    public float asFloat() {
+        return value;
+    }
 
-	@Override
-	public long asLong() {
-		return value;
-	}
+    @Override
+    public long asLong() {
+        return value;
+    }
 
-	@Override
-	public int asInt() {
-		return value;
-	}
+    @Override
+    public int asInt() {
+        return value;
+    }
 
-	@Override
-	public short asShort() {
-		return value;
-	}
+    @Override
+    public short asShort() {
+        return value;
+    }
 
-	@Override
-	public byte asByte() {
-		return value;
-	}
+    @Override
+    public byte asByte() {
+        return value;
+    }
 
-	@Override
-	public boolean asBoolean() {
-		return (value != 0);
-	}
+    @Override
+    public boolean asBoolean() {
+        return (value != 0);
+    }
 
-	@Override
-	public byte[] asByteArray() {
-		return new byte[] { value };
-	}
+    @Override
+    public byte[] asByteArray() {
+        return new byte[] { value };
+    }
 
-	@Override
-	public String toString() {
-		return Byte.toString(value);
-	}
+    @Override
+    public String toString() {
+        return Byte.toString(value);
+    }
 
-	@Override
-	public String asString() {
-		return toString();
-	}
+    @Override
+    public String asString() {
+        return toString();
+    }
 }

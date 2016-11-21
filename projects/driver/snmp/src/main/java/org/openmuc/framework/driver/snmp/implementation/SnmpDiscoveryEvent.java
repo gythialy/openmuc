@@ -32,31 +32,31 @@ import org.snmp4j.smi.Address;
  */
 public class SnmpDiscoveryEvent extends EventObject {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1382183246520560859L;
-	private final Address deviceAddress;
-	private final SNMPVersion snmpVersion;
-	private final String description;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1382183246520560859L;
+    private final Address deviceAddress;
+    private final SNMPVersion snmpVersion;
+    private final String description;
 
-	public SnmpDiscoveryEvent(Object source, Address address, SNMPVersion version, String description) {
-		super(source);
-		deviceAddress = address;
-		snmpVersion = version;
-		this.description = description;
-	}
+    public SnmpDiscoveryEvent(Object source, Address address, SNMPVersion version, String description) {
+        super(source);
+        deviceAddress = address;
+        snmpVersion = version;
+        this.description = description;
+    }
 
-	public Address getDeviceAddress() {
-		return deviceAddress;
-	}
+    public Address getDeviceAddress() {
+        return deviceAddress;
+    }
 
-	public SNMPVersion getSnmpVersion() {
-		return snmpVersion;
-	}
+    public SNMPVersion getSnmpVersion() {
+        return snmpVersion;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
 }

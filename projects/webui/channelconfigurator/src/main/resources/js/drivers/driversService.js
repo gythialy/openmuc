@@ -47,9 +47,23 @@
 			return driver;
     	};
 
+		this.getInfos = function(id) {
+			var req = {
+				method: 'GET',
+				url: SETTINGS.API_URL + SETTINGS.DRIVERS_URL + id + SETTINGS.INFOS_URL,
+				headers: {
+					'Authorization': RestServerAuthService.getAuthHash(),
+				},
+			};
+
+			return $http(req).then(function(response){
+				return response.data.infos;
+			});
+		};
+
     	this.scan = function(driver, settings) {
     		var url = SETTINGS.API_URL + SETTINGS.DRIVERS_URL + driver.id + '/'+ SETTINGS.SCAN_URL;
-    		
+
     		if (settings) {
     			var url = url + '?settings='+settings;
     		}
@@ -66,6 +80,34 @@
 				return response.data;
 			});
     	};
+
+		this.scanInterrupt = function(driver) {
+			var req = {
+				method: 'PUT',
+				url: SETTINGS.API_URL + SETTINGS.DRIVERS_URL + driver.id + '/'+ SETTINGS.SCAN_INTERRUPT_URL,
+				headers: {
+					'Authorization': RestServerAuthService.getAuthHash(),
+				},
+			};
+
+			return $http(req).then(function(response){
+				return response.data;
+			});
+		};
+
+		this.scanProgressInfo = function(driver) {
+			var req = {
+				method: 'GET',
+				url: SETTINGS.API_URL + SETTINGS.DRIVERS_URL + driver.id + '/'+ SETTINGS.SCAN_PROGRESS_INFO_URL,
+				headers: {
+					'Authorization': RestServerAuthService.getAuthHash(),
+				},
+			};
+
+			return $http(req).then(function(response){
+				return response.data;
+			});
+		};
     	
     	this.destroy = function(id) {
     		var req = {
@@ -77,7 +119,7 @@
     				'Content-Type': 'application/json',
     				'Authorization': RestServerAuthService.getAuthHash(),
     			},
-    		}
+    		};
     		return $http(req).then(function(response){
 				return response.data;
 			});
@@ -110,7 +152,7 @@
         			'Content-Type': 'application/json', 
         			'Authorization': RestServerAuthService.getAuthHash(),
         		},
-        	}
+        	};
         	return $http(req).then(function(response){
     			return response.data;
     		});

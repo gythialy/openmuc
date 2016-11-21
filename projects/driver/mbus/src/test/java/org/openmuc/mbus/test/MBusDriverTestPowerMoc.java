@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
-import org.mockito.Mockito;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DeviceScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -25,332 +24,340 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(MBusDriver.class)
 public class MBusDriverTestPowerMoc {
 
-	@Test
-	public void testGetDriverInfo() {
-		MBusDriver mdriver = new MBusDriver();
-		Assert.assertTrue(mdriver.getInfo().getId().equals("mbus"));
-	}
+    @Test
+    public void testGetDriverInfo() {
+        MBusDriver mdriver = new MBusDriver();
+        Assert.assertTrue(mdriver.getInfo().getId().equals("mbus"));
+    }
 
-	/**
-	 * Test the connect Method of MBusDriver without the functionality of jMBus Called the
-	 * {@link #connect(String channelAdress, String bautrate) connect} Method
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testConnectSucceed() throws Exception {
-		String channelAdress = "/dev/ttyS100:5";
-		String bautrate = "2400";
-		connect(channelAdress, bautrate);
-	}
+    /**
+     * Test the connect Method of MBusDriver without the functionality of jMBus Called the
+     * {@link #connect(String channelAdress, String bautrate) connect} Method
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testConnectSucceed() throws Exception {
+        String channelAdress = "/dev/ttyS100:5";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test
-	public void testConnectionThreeParameters() throws Exception {
-		String channelAdress = "/dev/ttyS100:5:1";
-		String bautrate = "2400";
-		connect(channelAdress, bautrate);
-	}
+    @Test
+    public void testConnectSucceedWithSecondary() throws Exception {
+        String channelAdress = "/dev/ttyS100:74973267a7320404";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test
-	public void testConnectionBautrateIsEmpty() throws Exception {
-		String channelAdress = "/dev/ttyS100:5";
-		String bautrate = "";
-		connect(channelAdress, bautrate);
-	}
+    @Test
+    public void testConnectionBautrateIsEmpty() throws Exception {
+        String channelAdress = "/dev/ttyS100:5";
+        String bautrate = "";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test
-	public void TestConnectTwoTimes() throws Exception {
-		String channelAdress = "/dev/ttyS100:5";
-		String bautrate = "2400";
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
-		Assert.assertNotNull(mdriver.connect(channelAdress, bautrate));
-		Assert.assertNotNull(mdriver.connect(channelAdress, bautrate));
-	}
+    @Test
+    public void TestConnectTwoTimes() throws Exception {
+        String channelAdress = "/dev/ttyS100:5";
+        String bautrate = "2400";
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        Assert.assertNotNull(mdriver.connect(channelAdress, bautrate));
+        Assert.assertNotNull(mdriver.connect(channelAdress, bautrate));
+    }
 
-	/**
-	 * This Testmethod will test the connect Method of MBus Driver, without testing jMBus Library functions. With
-	 * Mockito and PowerMockito its possible to do this. At first it will create an MBusDriver Objekt. Then we mocking
-	 * an MBusSap Objects without functionality. If new MBusSap will created, it will return the mocked Object
-	 * "mockedMBusSap". If the linkReset Method will called, it will do nothing. If the read Method will call, we return
-	 * null.
-	 * 
-	 * @param channelAdress
-	 * @param bautrate
-	 * @throws IOException
-	 * @throws TimeoutException
-	 * @throws Exception
-	 * @throws ArgumentSyntaxException
-	 * @throws ConnectionException
-	 */
-	private void connect(String channelAdress, String bautrate) throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
-		Assert.assertNotNull(mdriver.connect(channelAdress, bautrate));
-	}
+    /**
+     * This Testmethod will test the connect Method of MBus Driver, without testing jMBus Library functions. With
+     * Mockito and PowerMockito its possible to do this. At first it will create an MBusDriver Objekt. Then we mocking
+     * an MBusSap Objects without functionality. If new MBusSap will created, it will return the mocked Object
+     * "mockedMBusSap". If the linkReset Method will called, it will do nothing. If the read Method will call, we return
+     * null.
+     * 
+     * @param deviceAddress
+     * @param bautrate
+     * @throws IOException
+     * @throws TimeoutException
+     * @throws Exception
+     * @throws ArgumentSyntaxException
+     * @throws ConnectionException
+     */
+    private void connect(String deviceAddress, String bautrate) throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        Assert.assertNotNull(mdriver.connect(deviceAddress, bautrate));
+    }
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testConnectionArgumentSyntaxExceptionNoPortSet() throws Exception {
-		String channelAdress = "/dev/ttyS100:";
-		String bautrate = "2400";
-		connect(channelAdress, bautrate);
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testConnectionArgumentSyntaxExceptionNoPortSet() throws Exception {
+        String channelAdress = "/dev/ttyS100:";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testConnectionChannelAddressEmpty() throws Exception {
-		String channelAdress = "";
-		String bautrate = "2400";
-		connect(channelAdress, bautrate);
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testConnectWithWrongSecondary() throws Exception {
+        String channelAdress = "/dev/ttyS100:74973267a20404";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testConnectionArgumentSyntaxExceptionChannelAddressWrongSyntax() throws Exception {
-		String channelAdress = "/dev/ttyS100:a";
-		String bautrate = "2400";
-		connect(channelAdress, bautrate);
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testConnectionChannelAddressEmpty() throws Exception {
+        String channelAdress = "";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testConnectionArgumentSyntaxExceptionToManyArguments() throws Exception {
-		String channelAdress = "/dev/ttyS100:5:1:10";
-		String bautrate = "2400";
-		connect(channelAdress, bautrate);
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testConnectionArgumentSyntaxExceptionChannelAddressWrongSyntax() throws Exception {
+        String channelAdress = "/dev/ttyS100:a";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testConnectionArgumentSyntaxExceptionBautIsNotANumber() throws Exception {
-		String channelAdress = "/dev/ttyS100:5";
-		String bautrate = "asd";
-		connect(channelAdress, bautrate);
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testConnectionArgumentSyntaxExceptionToManyArguments() throws Exception {
+        String channelAdress = "/dev/ttyS100:5:1";
+        String bautrate = "2400";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test(expected = ConnectionException.class)
-	public void testMBusSapOpenThrowsIllArgException() throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doThrow(new IOException()).when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
-		mdriver.connect("/dev/ttyS100:5", "2400");
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testConnectionArgumentSyntaxExceptionBautIsNotANumber() throws Exception {
+        String channelAdress = "/dev/ttyS100:5";
+        String bautrate = "asd";
+        connect(channelAdress, bautrate);
+    }
 
-	@Test(expected = ConnectionException.class)
-	public void testMBusSapLinkResetThrowsIOException() throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doThrow(new IOException()).when(mockedMBusSap).linkReset(Matchers.anyInt());
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
-		mdriver.connect("/dev/ttyS100:5", "2400");
-	}
+    @Test(expected = ConnectionException.class)
+    public void testMBusSapOpenThrowsIllArgException() throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doThrow(new IOException()).when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        mdriver.connect("/dev/ttyS100:5", "2400");
+    }
 
-	@Test(expected = ConnectionException.class)
-	public void testMBusSapReadThrowsTimeoutException() throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doThrow(new TimeoutException()).when(mockedMBusSap).read(Matchers.anyInt());
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		mdriver.connect("/dev/ttyS100:5", "2400");
-	}
+    @Test(expected = ConnectionException.class)
+    public void testMBusSapLinkResetThrowsIOException() throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doThrow(new IOException()).when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        mdriver.connect("/dev/ttyS100:5", "2400");
+    }
 
-	@Test(expected = ConnectionException.class)
-	public void testMBusSapReadThrowsTimeoutExceptionAtSecondRun() throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Mockito.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Mockito.anyInt())).thenReturn(null);
-		Assert.assertNotNull(mdriver.connect("/dev/ttyS100:5", "2400"));
-		PowerMockito.doThrow(new TimeoutException()).when(mockedMBusSap).read(Mockito.anyInt());
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Mockito.anyInt());
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		mdriver.connect("/dev/ttyS100:5", "2400");
-	}
+    @Test(expected = ConnectionException.class)
+    public void testMBusSapReadThrowsTimeoutException() throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doThrow(new TimeoutException()).when(mockedMBusSap).read(Matchers.anyInt());
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        mdriver.connect("/dev/ttyS100:5", "2400");
+    }
 
-	// ******************* SCAN TESTS ********************//
+    @Test(expected = ConnectionException.class)
+    public void testMBusSapReadThrowsTimeoutExceptionAtSecondRun() throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        Assert.assertNotNull(mdriver.connect("/dev/ttyS100:5", "2400"));
+        PowerMockito.doThrow(new TimeoutException()).when(mockedMBusSap).read(Matchers.anyInt());
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        mdriver.connect("/dev/ttyS100:5", "2400");
+    }
 
-	@Test
-	public void testScanForDevices() throws Exception {
+    // ******************* SCAN TESTS ********************//
 
-		scan("/dev/ttyS100 2400");
-	}
+    public void scan(String settings) throws Exception {
+        final MBusDriver mdriver = new MBusDriver();
+        DriverDeviceScanListener ddsl = new DriverDeviceScanListener() {
 
-	@Test
-	public void testScanForDevicesWithOutBautRate() throws Exception {
+            @Override
+            public void scanProgressUpdate(int progress) {
+                // TODO Auto-generated method stub
+                System.out.println("Progress: " + progress + "%");
 
-		scan("/dev/ttyS100");
-	}
+            }
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testScanForDevicesArgumentSyntaxException() throws Exception {
-		// NO Setting is set!
-		scan(new String());
-	}
+            @Override
+            public void deviceFound(DeviceScanInfo scanInfo) {
+                System.out.println("Device Found: " + scanInfo.toString());
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testScanForDevicesBautrateIsNotANumberArgumentSyntaxException() throws Exception {
-		// Bautrate isn't a number
-		scan("/dev/ttyS100 aaa");
-	}
+            }
+        };
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testScanForDevicesToManyArgumentsArgumentSyntaxException() throws Exception {
-		// TO Many Arguments
-		scan("/dev/ttyS100 2400 assda");
-	}
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.when(mockedMBusSap.read(1)).thenReturn(new VariableDataStructure(null, 0, 0, null, null));
+        PowerMockito.when(mockedMBusSap.read(250)).thenThrow(new TimeoutException());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenThrow(new TimeoutException());
+        class InterruptScanThread implements Runnable {
 
-	@Test(expected = ScanInterruptedException.class)
-	public void testInterrupedException() throws Exception {
-		final MBusDriver mdriver = new MBusDriver();
-		DriverDeviceScanListener ddsl = new DriverDeviceScanListener() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                    mdriver.interruptDeviceScan();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
-			@Override
-			public void scanProgressUpdate(int progress) {
-				// TODO Auto-generated method stub
-				System.out.println("Progress: " + progress + "%");
+            }
 
-			}
+        }
+        new InterruptScanThread().run();
+        mdriver.scanForDevices(settings, ddsl);
 
-			@Override
-			public void deviceFound(DeviceScanInfo scanInfo) {
-				System.out.println("Device Found: " + scanInfo.toString());
-				mdriver.interruptDeviceScan();
-			}
-		};
+    }
 
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt()))
-				.thenReturn(new VariableDataStructure(null, 0, 0, null, null));
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doNothing().when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+    @Test
+    public void testScanForDevices() throws Exception {
 
-		Assert.assertNotNull(mdriver.connect("/dev/ttyS100:5", "2400"));
-		mdriver.scanForDevices("/dev/ttyS100 2400", ddsl);
+        scan("/dev/ttyS100:2400");
+    }
 
-	}
+    @Test
+    public void testScanForDevicesWithOutBautRate() throws Exception {
 
-	@Test(expected = ArgumentSyntaxException.class)
-	public void testScanMBusSapOpenThrowsIllArgException() throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doThrow(new IllegalArgumentException()).when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Mockito.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Mockito.anyInt())).thenReturn(null);
-		mdriver.scanForDevices("/dev/ttyS100 2400", null);
-	}
+        scan("/dev/ttyS100");
+    }
 
-	@Test(expected = ScanException.class)
-	public void testScanMBusSapOpenIOException() throws Exception {
-		MBusDriver mdriver = new MBusDriver();
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.doThrow(new IOException()).when(mockedMBusSap).open();
-		PowerMockito.doNothing().when(mockedMBusSap).linkReset(Mockito.anyInt());
-		PowerMockito.when(mockedMBusSap.read(Mockito.anyInt())).thenReturn(null);
-		mdriver.scanForDevices("/dev/ttyS100 2400", null);
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testScanForDevicesArgumentSyntaxException() throws Exception {
+        // NO Setting is set!
+        scan(new String());
+    }
 
-	@Test(expected = ScanException.class)
-	public void testScanMBusSapReadThrowsIOException() throws Exception {
-		final MBusDriver mdriver = new MBusDriver();
-		DriverDeviceScanListener ddsl = new DriverDeviceScanListener() {
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testScanForDevicesBautrateIsNotANumberArgumentSyntaxException() throws Exception {
+        // Bautrate isn't a number
+        scan("/dev/ttyS100:aaa");
+    }
 
-			@Override
-			public void scanProgressUpdate(int progress) {
-				// TODO Auto-generated method stub
-				System.out.println("Progress: " + progress + "%");
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testScanForDevicesToManyArgumentsArgumentSyntaxException() throws Exception {
+        // TO Many Arguments
+        scan("/dev/ttyS100:2400:assda");
+    }
 
-			}
+    @Test(expected = ScanInterruptedException.class)
+    public void testInterrupedException() throws Exception {
+        final MBusDriver mdriver = new MBusDriver();
+        DriverDeviceScanListener ddsl = new DriverDeviceScanListener() {
 
-			@Override
-			public void deviceFound(DeviceScanInfo scanInfo) {
-				System.out.println("Device Found: " + scanInfo.toString());
+            @Override
+            public void scanProgressUpdate(int progress) {
+                // TODO Auto-generated method stub
+                System.out.println("Progress: " + progress + "%");
 
-			}
-		};
+            }
 
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.when(mockedMBusSap.read(1)).thenReturn(new VariableDataStructure(null, 0, 0, null, null));
-		PowerMockito.when(mockedMBusSap.read(250)).thenThrow(new TimeoutException());
-		PowerMockito.when(mockedMBusSap.read(Mockito.anyInt())).thenThrow(new IOException());
-		class InterruptScanThread implements Runnable {
+            @Override
+            public void deviceFound(DeviceScanInfo scanInfo) {
+                System.out.println("Device Found: " + scanInfo.toString());
+                mdriver.interruptDeviceScan();
+            }
+        };
 
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(100);
-					mdriver.interruptDeviceScan();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt()))
+                .thenReturn(new VariableDataStructure(null, 0, 0, null, null));
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doNothing().when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
 
-			}
+        Assert.assertNotNull(mdriver.connect("/dev/ttyS100:5", "2400"));
+        mdriver.scanForDevices("/dev/ttyS100:2400", ddsl);
 
-		}
-		new InterruptScanThread().run();
-		mdriver.scanForDevices("/dev/ttyS100 2400", ddsl);
+    }
 
-	}
+    @Test(expected = ArgumentSyntaxException.class)
+    public void testScanMBusSapOpenThrowsIllArgException() throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doThrow(new IllegalArgumentException()).when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        mdriver.scanForDevices("/dev/ttyS100:2400", null);
+    }
 
-	public void scan(String settings) throws Exception {
-		final MBusDriver mdriver = new MBusDriver();
-		DriverDeviceScanListener ddsl = new DriverDeviceScanListener() {
+    @Test(expected = ScanException.class)
+    public void testScanMBusSapOpenIOException() throws Exception {
+        MBusDriver mdriver = new MBusDriver();
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.doThrow(new IOException()).when(mockedMBusSap).open();
+        PowerMockito.doNothing().when(mockedMBusSap).linkReset(Matchers.anyInt());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenReturn(null);
+        mdriver.scanForDevices("/dev/ttyS100:2400", null);
+    }
 
-			@Override
-			public void scanProgressUpdate(int progress) {
-				// TODO Auto-generated method stub
-				System.out.println("Progress: " + progress + "%");
+    @Test(expected = ScanException.class)
+    public void testScanMBusSapReadThrowsIOException() throws Exception {
+        final MBusDriver mdriver = new MBusDriver();
+        DriverDeviceScanListener ddsl = new DriverDeviceScanListener() {
 
-			}
+            @Override
+            public void scanProgressUpdate(int progress) {
+                // TODO Auto-generated method stub
+                System.out.println("Progress: " + progress + "%");
 
-			@Override
-			public void deviceFound(DeviceScanInfo scanInfo) {
-				System.out.println("Device Found: " + scanInfo.toString());
+            }
 
-			}
-		};
+            @Override
+            public void deviceFound(DeviceScanInfo scanInfo) {
+                System.out.println("Device Found: " + scanInfo.toString());
 
-		MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
-		PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
-		PowerMockito.when(mockedMBusSap.read(1)).thenReturn(new VariableDataStructure(null, 0, 0, null, null));
-		PowerMockito.when(mockedMBusSap.read(250)).thenThrow(new TimeoutException());
-		PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenThrow(new TimeoutException());
-		class InterruptScanThread implements Runnable {
+            }
+        };
 
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(100);
-					mdriver.interruptDeviceScan();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+        MBusSap mockedMBusSap = PowerMockito.mock(MBusSap.class);
+        PowerMockito.whenNew(MBusSap.class).withAnyArguments().thenReturn(mockedMBusSap);
+        PowerMockito.when(mockedMBusSap.read(1)).thenReturn(new VariableDataStructure(null, 0, 0, null, null));
+        PowerMockito.when(mockedMBusSap.read(250)).thenThrow(new TimeoutException());
+        PowerMockito.when(mockedMBusSap.read(Matchers.anyInt())).thenThrow(new IOException());
+        class InterruptScanThread implements Runnable {
 
-			}
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                    mdriver.interruptDeviceScan();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
-		}
-		new InterruptScanThread().run();
-		mdriver.scanForDevices(settings, ddsl);
+            }
 
-	}
+        }
+        new InterruptScanThread().run();
+        mdriver.scanForDevices("/dev/ttyS100:2400", ddsl);
+
+    }
+
 }

@@ -23,102 +23,104 @@ import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
 public class LoggerUtilsTest {
 
-	LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, true);
+    LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, true);
 
-	private static int loggingInterval = 1; // ms;
-	private static int loggingTimeOffset = 0; // ms;
+    private static int loggingInterval = 1; // ms;
+    private static int loggingTimeOffset = 0; // ms;
 
-	private static String ch01 = "Double";
-	private static String dummy = "dummy";
+    private static String ch01 = "Double";
+    private static String dummy = "dummy";
 
-	private static HashMap<String, LogChannel> logChannelList = new HashMap<String, LogChannel>();
-	private static Calendar calendar = new GregorianCalendar();
+    private static HashMap<String, LogChannel> logChannelList = new HashMap<>();
+    private static Calendar calendar = new GregorianCalendar();
 
-	@BeforeClass
-	public static void setup() {
+    @BeforeClass
+    public static void setup() {
 
-		int sub = (int) (calendar.getTimeInMillis() % 10l);
-		calendar.add(Calendar.MILLISECOND, -loggingInterval * 5 - sub);
+        int sub = (int) (calendar.getTimeInMillis() % 10l);
+        calendar.add(Calendar.MILLISECOND, -loggingInterval * 5 - sub);
 
-		TestSuite.createTestFolder();
-		TestUtils.deleteExistingFile(loggingInterval, loggingTimeOffset, calendar);
+        TestSuite.createTestFolder();
+        TestUtils.deleteExistingFile(loggingInterval, loggingTimeOffset, calendar);
 
-		LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.DOUBLE,
-				loggingInterval, loggingTimeOffset);
+        LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.DOUBLE,
+                loggingInterval, loggingTimeOffset);
 
-		logChannelList.put(ch01, ch1);
+        logChannelList.put(ch01, ch1);
 
-		long timeStamp = calendar.getTimeInMillis();
+        long timeStamp = calendar.getTimeInMillis();
 
-		for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; ++i) {
 
-			LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
+            LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, false);
 
-			LogIntervalContainerGroup group = getGroup(timeStamp, i);
-			lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
-			calendar.add(Calendar.MILLISECOND, loggingInterval);
-		}
-	}
+            LogIntervalContainerGroup group = getGroup(timeStamp, i);
+            lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
+            AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, calendar.getTimeInMillis());
+            calendar.add(Calendar.MILLISECOND, loggingInterval);
+        }
+    }
 
-	@Test
-	public void tc_501_test_getFilenames() {
+    @Test
+    public void tc_501_test_getFilenames() {
 
-		List<String> expecteds = new ArrayList<String>();
-		expecteds.add("20151005_1000_500.dat");
-		expecteds.add("20151006_1000_500.dat");
-		expecteds.add("20151007_1000_500.dat");
-		expecteds.add("20151008_1000_500.dat");
+        List<String> expecteds = new ArrayList<>();
+        expecteds.add("20151005_1000_500.dat");
+        expecteds.add("20151006_1000_500.dat");
+        expecteds.add("20151007_1000_500.dat");
+        expecteds.add("20151008_1000_500.dat");
 
-		List<String> actual = LoggerUtils.getFilenames(1000, 500, 1444031465000l, 1444290665000l);
+        List<String> actual = LoggerUtils.getFilenames(1000, 500, 1444031465000l, 1444290665000l);
 
-		int i = 0;
-		for (String expected : expecteds) {
+        int i = 0;
+        for (String expected : expecteds) {
 
-			assertEquals(actual.get(i++), expected);
-		}
-	}
+            assertEquals(actual.get(i++), expected);
+        }
+    }
 
-	@Test
-	public void tc_502_test_getFilename() {
+    @Test
+    public void tc_502_test_getFilename() {
 
-		String expected = "20151005_1000_500.dat";
-		String actual = LoggerUtils.getFilename(1000, 500, 1444031465000l);
+        String expected = "20151005_1000_500.dat";
+        String actual = LoggerUtils.getFilename(1000, 500, 1444031465000l);
 
-		assertEquals(actual, expected);
-	}
+        assertEquals(actual, expected);
+    }
 
-	@Test
-	public void tc_503_test_fillUpFileWithErrorCode() {
+    @Test
+    public void tc_503_test_fillUpFileWithErrorCode() {
 
-		long lastTimestamp = LoggerUtils.fillUpFileWithErrorCode(TestUtils.TESTFOLDERPATH,
-				Integer.toString(loggingInterval), calendar);
+        long lastTimestamp = AsciiLogger.fillUpFileWithErrorCode(TestUtils.TESTFOLDERPATH,
+                Integer.toString(loggingInterval), calendar);
 
-		AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, lastTimestamp);
+        AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, lastTimestamp);
 
-		LogIntervalContainerGroup group = getGroup(calendar.getTimeInMillis(), 3);
-		calendar = new GregorianCalendar();
-		int sub = (int) (calendar.getTimeInMillis() % 10l);
-		calendar.add(Calendar.MILLISECOND, -sub + 10);
+        LogIntervalContainerGroup group = getGroup(calendar.getTimeInMillis(), 3);
+        calendar = new GregorianCalendar();
+        int sub = (int) (calendar.getTimeInMillis() % 10l);
+        calendar.add(Calendar.MILLISECOND, -sub + 10);
 
-		lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
+        lfw.log(group, loggingInterval, loggingTimeOffset, calendar, logChannelList);
+        AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, calendar.getTimeInMillis());
 
-		LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.DOUBLE,
-				loggingInterval, loggingTimeOffset);
-	}
+        LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.DOUBLE,
+                loggingInterval, loggingTimeOffset);
+    }
 
-	// ####################################################################################################################
-	// ####################################################################################################################
-	// ####################################################################################################################
+    // ####################################################################################################################
+    // ####################################################################################################################
+    // ####################################################################################################################
 
-	private static LogIntervalContainerGroup getGroup(long timeStamp, int i) {
+    private static LogIntervalContainerGroup getGroup(long timeStamp, int i) {
 
-		LogIntervalContainerGroup group = new LogIntervalContainerGroup();
+        LogIntervalContainerGroup group = new LogIntervalContainerGroup();
 
-		LogRecordContainer container1 = new LogRecordContainerImpl(ch01,
-				new Record(new DoubleValue(i * 7 - 0.555), timeStamp));
+        LogRecordContainer container1 = new LogRecordContainerImpl(ch01,
+                new Record(new DoubleValue(i * 7 - 0.555), timeStamp));
 
-		group.add(container1);
+        group.add(container1);
 
-		return group;
-	}
+        return group;
+    }
 }

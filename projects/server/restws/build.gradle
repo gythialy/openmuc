@@ -1,18 +1,20 @@
 configurations.create('embed')
 
+def gsonVersion = '2.7'
+
 dependencies {
   compile project(':openmuc-core-api')
   compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
-  compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
-  embed group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+  compile group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+  embed group: 'com.google.code.gson', name: 'gson', version: gsonVersion
 }
 
 jar {
   manifest {
     name = "OpenMUC Server - RESTful Web Service"
-    instruction 'Bundle-ClassPath', '.,lib/gson-2.3.1.jar'
+    instruction 'Bundle-ClassPath', '.,lib/gson-' + gsonVersion + '.jar'
     instruction 'Import-Package', '!com.google.gson.*,*'
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
+    instruction 'Export-Package', 'com.google.gson.*' + jarDefaultImportPackageVersion
   }
 }
 

@@ -30,6 +30,7 @@
 				return response.data.configs;
 			});    			
     	};
+
 	};
 
     DriverDataService.$inject = injectParams;

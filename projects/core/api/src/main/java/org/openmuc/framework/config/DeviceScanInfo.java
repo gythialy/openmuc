@@ -27,70 +27,92 @@ package org.openmuc.framework.config;
  */
 public class DeviceScanInfo {
 
-	private final String id;
-	private final String deviceAddress;
-	private final String settings;
-	private final String description;
+    private final String id;
+    private final String deviceAddress;
+    private final String settings;
+    private final String description;
 
-	public DeviceScanInfo(String deviceAddress, String settings, String description) {
-		if (deviceAddress == null) {
-			throw new IllegalArgumentException("deviceAddress must not be null.");
-		}
+    public DeviceScanInfo(String deviceAddress, String settings, String description) {
+        this("", deviceAddress, settings, description);
+    }
 
-		id = deviceAddress.replaceAll("[^a-zA-Z0-9]+", "");
+    public DeviceScanInfo(String id, String deviceAddress, String settings, String description) {
+        if (deviceAddress == null) {
+            throw new IllegalArgumentException("deviceAddress must not be null.");
+        }
+        if (id == null || id.isEmpty()) {
+            this.id = deviceAddress.replaceAll("[^a-zA-Z0-9]+", "");
+        }
+        else {
+            this.id = id;
+        }
 
-		this.deviceAddress = deviceAddress;
+        this.deviceAddress = deviceAddress;
 
-		if (settings == null) {
-			this.settings = "";
-		}
-		else {
-			this.settings = settings;
-		}
+        if (settings == null) {
+            this.settings = "";
+        }
+        else {
+            this.settings = settings;
+        }
 
-		if (description == null) {
-			this.description = "";
-		}
-		else {
-			this.description = description;
-		}
+        if (description == null) {
+            this.description = "";
+        }
+        else {
+            this.description = description;
+        }
 
-	}
+    }
 
-	/**
-	 * Gets the ID. The ID is generated out of interface + device address. Special chars are omitted.
-	 * 
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
+    /**
+     * Gets the ID. The ID is generated out of interface + device address. Special chars are omitted.
+     * 
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
 
-	/**
-	 * Gets the description.
-	 * 
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
+    /**
+     * Gets the description.
+     * 
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
 
-	/**
-	 * Gets the device address
-	 * 
-	 * @return the device address
-	 */
-	public String getDeviceAddress() {
-		return deviceAddress;
-	}
+    /**
+     * Gets the device address
+     * 
+     * @return the device address
+     */
+    public String getDeviceAddress() {
+        return deviceAddress;
+    }
 
-	/**
-	 * Gets the settings
-	 * 
-	 * @return the settings
-	 */
-	public String getSettings() {
-		return settings;
-	}
+    /**
+     * Gets the settings
+     * 
+     * @return the settings
+     */
+    public String getSettings() {
+        return settings;
+    }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nDeviceScanInfo:\n  ID: ")
+                .append(id)
+                .append("\n  DeviceAddress: ")
+                .append(deviceAddress)
+                .append("\n  Settings: ")
+                .append(settings)
+                .append("\n  Description: ")
+                .append(description);
+
+        return sb.toString();
+    }
 }

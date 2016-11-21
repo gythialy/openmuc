@@ -28,37 +28,37 @@ import org.osgi.service.component.ComponentContext;
 
 public final class ChannelAccessTool implements WebUiPluginService {
 
-	private Bundle bundle;
+    private Bundle bundle;
 
-	protected void activate(ComponentContext context) {
-		bundle = context.getBundleContext().getBundle();
-	}
+    protected void activate(ComponentContext context) {
+        bundle = context.getBundleContext().getBundle();
+    }
 
-	@Override
-	public String getAlias() {
-		return "channelaccesstool";
-	}
+    @Override
+    public String getAlias() {
+        return "channelaccesstool";
+    }
 
-	@Override
-	public String getName() {
-		return "Channel Access Tool";
-	}
+    @Override
+    public String getName() {
+        return "Channel Access Tool";
+    }
 
-	@Override
-	public Hashtable<String, String> getResources() {
-		Hashtable<String, String> resources = new Hashtable<String, String>();
+    @Override
+    public Hashtable<String, String> getResources() {
+        Hashtable<String, String> resources = new Hashtable<>();
 
-		resources.put("html", "html");
-		resources.put("css", "css");
-		resources.put("js", "js");
-		resources.put("images", "images");
+        resources.put("html", "html");
+        resources.put("css", "css");
+        resources.put("js", "js");
+        resources.put("images", "images");
 
-		return resources;
-	}
+        return resources;
+    }
 
-	@Override
-	public Bundle getContextBundle() {
-		return bundle;
-	}
+    @Override
+    public Bundle getContextBundle() {
+        return bundle;
+    }
 
 }

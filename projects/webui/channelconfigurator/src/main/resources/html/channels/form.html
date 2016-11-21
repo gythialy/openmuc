@@ -123,7 +123,7 @@
       </label>
       <div class="col-sm-6">
         <div class="input-group">
-	        <input type="text" class="form-control" id="loggingInterval" name="loggingInterval" ng-model="channel.configs.loggingInterval" ng-pattern="/^[0-9]{1,10}$/">
+	        <input type="text" class="form-control" id="loggingInterval" name="loggingInterval" ng-model="channel.configs.loggingInterval" ng-pattern="/^-1$|^[0-9]{1,10}$/">
 	        <div class="input-group-addon">ms</div>
 	      </div>
         <div class="form-error-container" ng-show="(channelForm.loggingInterval.$dirty && channelForm.loggingInterval.$invalid) || (channelForm.submitted && channelForm.loggingInterval.$invalid)">
@@ -168,7 +168,7 @@
       </label>
       <div class="col-sm-6">
         <div class="input-group">
-          <input type="text" class="form-control" id="samplingInterval" name="samplingInterval" ng-model="channel.configs.samplingInterval" ng-pattern="/^[0-9]{1,10}$/">
+          <input type="text" class="form-control" id="samplingInterval" name="samplingInterval" ng-model="channel.configs.samplingInterval" ng-pattern="/^-1$|^[0-9]{1,10}$/">
           <div class="input-group-addon">ms</div>
         </div>
         <div class="form-error-container" ng-show="(channelForm.samplingInterval.$dirty && channelForm.samplingInterval.$invalid) || (channelForm.submitted && channelForm.samplingInterval.$invalid)">

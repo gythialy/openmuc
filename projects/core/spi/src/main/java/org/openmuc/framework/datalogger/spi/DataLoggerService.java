@@ -28,27 +28,27 @@ import org.openmuc.framework.data.Record;
 
 public interface DataLoggerService {
 
-	String getId();
+    String getId();
 
-	void setChannelsToLog(List<LogChannel> channels);
+    void setChannelsToLog(List<LogChannel> channels);
 
-	void log(List<LogRecordContainer> containers, long timestamp);
+    void log(List<LogRecordContainer> containers, long timestamp);
 
-	/**
-	 * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
-	 * the channel with the given <code>channelId</code>.
-	 * 
-	 * @param channelId
-	 *            the channel ID.
-	 * @param startTime
-	 *            the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
-	 * @param endTime
-	 *            the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
-	 * @return a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
-	 *         the channel with the given <code>channelId</code>.
-	 * @throws IOException
-	 *             if any kind of error occurs accessing the logged data.
-	 */
-	List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
+    /**
+     * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
+     * the channel with the given <code>channelId</code>.
+     * 
+     * @param channelId
+     *            the channel ID.
+     * @param startTime
+     *            the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param endTime
+     *            the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @return a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
+     *         the channel with the given <code>channelId</code>.
+     * @throws IOException
+     *             if any kind of error occurs accessing the logged data.
+     */
+    List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
 
 }

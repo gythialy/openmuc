@@ -23,8 +23,8 @@ package org.openmuc.framework.config;
 
 public interface DriverChangeListener {
 
-	public void newDriver(String driverId);
+    void newDriver(String driverId);
 
-	public void driverRemoved(String driverId);
+    void driverRemoved(String driverId);
 
 }

@@ -25,8 +25,8 @@ import org.openmuc.framework.data.Record;
 
 public interface LogRecordContainer {
 
-	public String getChannelId();
+    public String getChannelId();
 
-	public Record getRecord();
+    public Record getRecord();
 
 }

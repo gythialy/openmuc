@@ -23,22 +23,22 @@ package org.openmuc.framework.config;
 
 public class IdCollisionException extends Exception {
 
-	private static final long serialVersionUID = -1887523116889727092L;
+    private static final long serialVersionUID = -1887523116889727092L;
 
-	public IdCollisionException() {
-		super();
-	}
+    public IdCollisionException() {
+        super();
+    }
 
-	public IdCollisionException(String s) {
-		super(s);
-	}
+    public IdCollisionException(String s) {
+        super(s);
+    }
 
-	public IdCollisionException(Throwable cause) {
-		super(cause);
-	}
+    public IdCollisionException(Throwable cause) {
+        super(cause);
+    }
 
-	public IdCollisionException(String s, Throwable cause) {
-		super(s, cause);
-	}
+    public IdCollisionException(String s, Throwable cause) {
+        super(s, cause);
+    }
 
 }

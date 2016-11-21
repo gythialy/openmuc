@@ -29,6 +29,6 @@ package org.openmuc.framework.driver.snmp.implementation;
  */
 public interface SnmpDiscoveryListener {
 
-	public void onNewDeviceFound(SnmpDiscoveryEvent e);
+    public void onNewDeviceFound(SnmpDiscoveryEvent e);
 
 }

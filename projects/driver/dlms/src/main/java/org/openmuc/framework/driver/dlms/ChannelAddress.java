@@ -25,91 +25,91 @@ import org.openmuc.jdlms.client.ObisCode;
 
 public class ChannelAddress {
 
-	private final int classId;
-	private final ObisCode instanceId;
-	private final String printableInstanceId;
-	private final int attributeId;
+    private final int classId;
+    private final ObisCode instanceId;
+    private final String printableInstanceId;
+    private final int attributeId;
 
-	public ChannelAddress(int classId, String instanceId, int attributeId) {
-		this.classId = classId;
-		printableInstanceId = instanceId;
-		this.instanceId = parseInstanceId(instanceId);
-		this.attributeId = attributeId;
-	}
+    public ChannelAddress(int classId, String instanceId, int attributeId) {
+        this.classId = classId;
+        printableInstanceId = instanceId;
+        this.instanceId = parseInstanceId(instanceId);
+        this.attributeId = attributeId;
+    }
 
-	public ChannelAddress(int classId, byte[] instanceId, int attributeId) {
-		this.classId = classId;
-		printableInstanceId = parseInstanceId(instanceId);
-		this.instanceId = parseInstanceId(printableInstanceId);
-		this.attributeId = attributeId;
-	}
+    public ChannelAddress(int classId, byte[] instanceId, int attributeId) {
+        this.classId = classId;
+        printableInstanceId = parseInstanceId(instanceId);
+        this.instanceId = parseInstanceId(printableInstanceId);
+        this.attributeId = attributeId;
+    }
 
-	public static ChannelAddress parse(String input) {
-		String[] tokens = input.split("/");
-		if (tokens.length != 3) {
-			throw new IllegalArgumentException("Channel address must be of format 'classId/logicalName/attributeId'");
-		}
+    public static ChannelAddress parse(String input) {
+        String[] tokens = input.split("/");
+        if (tokens.length != 3) {
+            throw new IllegalArgumentException("Channel address must be of format 'classId/logicalName/attributeId'");
+        }
 
-		int classId = Integer.parseInt(tokens[0]);
-		int attributeId = Integer.parseInt(tokens[2]);
-		String instanceId = tokens[1];
+        int classId = Integer.parseInt(tokens[0]);
+        int attributeId = Integer.parseInt(tokens[2]);
+        String instanceId = tokens[1];
 
-		return new ChannelAddress(classId, instanceId, attributeId);
-	}
+        return new ChannelAddress(classId, instanceId, attributeId);
+    }
 
-	private static ObisCode parseInstanceId(String idString) {
-		ObisCode result = null;
+    private static ObisCode parseInstanceId(String idString) {
+        ObisCode result = null;
 
-		String tokens[] = idString.split("\\.");
+        String tokens[] = idString.split("\\.");
 
-		if (tokens.length == 1 && idString.length() == 12) {
-			byte instanceId[] = new byte[6];
-			for (int i = 0; i < idString.length(); i += 2) {
-				instanceId[i / 2] = (byte) Integer.parseInt(idString.substring(i, i + 2), 16);
-			}
-			result = new ObisCode(instanceId[0], instanceId[1], instanceId[2], instanceId[3], instanceId[4],
-					instanceId[5]);
-		}
-		else if (tokens.length == 6) {
-			result = new ObisCode(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]),
-					Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), Integer.parseInt(tokens[5]));
-		}
-		else {
-			throw new IllegalArgumentException("Reduced ID codes are not supported");
-		}
+        if (tokens.length == 1 && idString.length() == 12) {
+            byte instanceId[] = new byte[6];
+            for (int i = 0; i < idString.length(); i += 2) {
+                instanceId[i / 2] = (byte) Integer.parseInt(idString.substring(i, i + 2), 16);
+            }
+            result = new ObisCode(instanceId[0], instanceId[1], instanceId[2], instanceId[3], instanceId[4],
+                    instanceId[5]);
+        }
+        else if (tokens.length == 6) {
+            result = new ObisCode(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]),
+                    Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), Integer.parseInt(tokens[5]));
+        }
+        else {
+            throw new IllegalArgumentException("Reduced ID codes are not supported");
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	private static String parseInstanceId(byte[] instanceId) {
-		StringBuilder result = new StringBuilder();
+    private static String parseInstanceId(byte[] instanceId) {
+        StringBuilder result = new StringBuilder();
 
-		result.append(Integer.toString(instanceId[0] & 0xff));
-		for (int i = 1; i < instanceId.length; i++) {
-			result.append(".").append(Integer.toString(instanceId[i] & 0xff));
-		}
+        result.append(Integer.toString(instanceId[0] & 0xff));
+        for (int i = 1; i < instanceId.length; i++) {
+            result.append(".").append(Integer.toString(instanceId[i] & 0xff));
+        }
 
-		return result.toString();
-	}
+        return result.toString();
+    }
 
-	public int getClassId() {
-		return classId;
-	}
+    public int getClassId() {
+        return classId;
+    }
 
-	public ObisCode getInstanceId() {
-		return instanceId;
-	}
+    public ObisCode getInstanceId() {
+        return instanceId;
+    }
 
-	public int getAttributeId() {
-		return attributeId;
-	}
+    public int getAttributeId() {
+        return attributeId;
+    }
 
-	public GetRequest createGetRequest() {
-		return new GetRequest(classId, instanceId, attributeId);
-	}
+    public GetRequest createGetRequest() {
+        return new GetRequest(classId, instanceId, attributeId);
+    }
 
-	@Override
-	public String toString() {
-		return classId + "/" + printableInstanceId + "/" + attributeId;
-	}
+    @Override
+    public String toString() {
+        return classId + "/" + printableInstanceId + "/" + attributeId;
+    }
 }

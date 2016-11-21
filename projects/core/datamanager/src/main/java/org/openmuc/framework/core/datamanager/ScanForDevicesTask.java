@@ -32,56 +32,56 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 
 public class ScanForDevicesTask implements Runnable {
-	private final DriverService driver;
-	private final String settings;
-	private final DeviceScanListener listener;
+    private final DriverService driver;
+    private final String settings;
+    private final DeviceScanListener listener;
 
-	public ScanForDevicesTask(DriverService driver, String settings, DeviceScanListener listener) {
-		this.driver = driver;
-		this.settings = settings;
-		this.listener = listener;
-	}
+    public ScanForDevicesTask(DriverService driver, String settings, DeviceScanListener listener) {
+        this.driver = driver;
+        this.settings = settings;
+        this.listener = listener;
+    }
 
-	@Override
-	public void run() {
-		try {
-			driver.scanForDevices(settings, new NonBlockingScanListener(listener));
-		} catch (UnsupportedOperationException e) {
-			listener.scanError("Device scan not supported by driver");
-			return;
-		} catch (ArgumentSyntaxException e) {
-			listener.scanError("Scan settings syntax invalid: " + e.getMessage());
-			return;
-		} catch (ScanException e) {
-			listener.scanError("IOException while scanning: " + e.getMessage());
-			return;
-		} catch (ScanInterruptedException e) {
-			listener.scanInterrupted();
-			return;
-		}
-		listener.scanFinished();
-	}
+    @Override
+    public void run() {
+        try {
+            driver.scanForDevices(settings, new NonBlockingScanListener(listener));
+        } catch (UnsupportedOperationException e) {
+            listener.scanError("Device scan not supported by driver");
+            return;
+        } catch (ArgumentSyntaxException e) {
+            listener.scanError("Scan settings syntax invalid: " + e.getMessage());
+            return;
+        } catch (ScanException e) {
+            listener.scanError("IOException while scanning: " + e.getMessage());
+            return;
+        } catch (ScanInterruptedException e) {
+            listener.scanInterrupted();
+            return;
+        }
+        listener.scanFinished();
+    }
 
-	class NonBlockingScanListener implements DriverDeviceScanListener {
-		List<DeviceScanInfo> scanInfos = new ArrayList<DeviceScanInfo>();
-		DeviceScanListener listener;
+    class NonBlockingScanListener implements DriverDeviceScanListener {
+        List<DeviceScanInfo> scanInfos = new ArrayList<>();
+        DeviceScanListener listener;
 
-		public NonBlockingScanListener(DeviceScanListener listener) {
-			this.listener = listener;
-		}
+        public NonBlockingScanListener(DeviceScanListener listener) {
+            this.listener = listener;
+        }
 
-		@Override
-		public void scanProgressUpdate(int progress) {
-			listener.scanProgress(progress);
-		}
+        @Override
+        public void scanProgressUpdate(int progress) {
+            listener.scanProgress(progress);
+        }
 
-		@Override
-		public void deviceFound(DeviceScanInfo scanInfo) {
-			if (!scanInfos.contains(scanInfo)) {
-				scanInfos.add(scanInfo);
-				listener.deviceFound(scanInfo);
-			}
-		}
-	}
+        @Override
+        public void deviceFound(DeviceScanInfo scanInfo) {
+            if (!scanInfos.contains(scanInfo)) {
+                scanInfos.add(scanInfo);
+                listener.deviceFound(scanInfo);
+            }
+        }
+    }
 
 }

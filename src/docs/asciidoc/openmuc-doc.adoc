@@ -1,0 +1,682 @@
+= OpenMUC User Guide
+include::common-settings.txt[]
+
+
+:numbered:
+
+
+== Intro
+
+OpenMUC is a software framework based on Java and OSGi that simplifies
+the development of customized monitoring, logging and control
+systems. It can be used as a basis to flexibly implement anything from
+simple data loggers to complex SCADA systems. The main goal of OpenMUC
+is to shield the application developer of monitoring and control
+applications from the details of the communication protocol and data
+logging technologies. Third parties are encouraged to create their own
+customized systems based on OpenMUC. OpenMUC is licensed under the
+GPL. If you need an individual license please
+link:https://www.openmuc.org/contact/[contact] us.
+
+For a short overview of OpenMUC's goals and features please visit our
+link:https://www.openmuc.org/openmuc/[overview page]. This guide is a
+detailed documentation on how OpenMUC works and how to use it.
+
+
+== Architecture
+
+The following image depicts the software layers of an OpenMUC
+system.
+
+:img-file: openmuc-software-layers.png
+image::{img-file}[title="OpenMUC software layers",width={width60}, link="{imagesdir}/{img-file}"]
+
+The OpenMUC framework runs within an OSGi environment which in turn is
+being run by a Java Virtual Machine. The underlying operating system
+and hardware can be chosen freely as long as it can run a Java 7 VM.
+
+OpenMUC consists essentially of various software modules which are
+implemented as OSGi bundles that run in the OSGi environment and
+communicate over OSGi services. The following figure illustrates the
+main modules that make up OpenMUC.
+
+:img-file: openmuc-bundles-with-numbers.png
+image::{img-file}[title="OpenMUC modules",width={width60}, link="{imagesdir}/{img-file}"]
+
+All modules except for the data manager are optional. Thus by
+selecting the modules you need you can easily create your own
+customized and lightweight system.
+
+The different modules in the picture are now further explained:
+
+. The *data manager* represents the core and center of
+OpenMUC. Virtually all other OpenMUC modules (e.g. drivers, data
+loggers, servers, applications and web interface plugins) communicate
+with it through OSGi services. The data manager gets automatically
+notified when new drivers or data loggers get installed. OpenMUC
+applications communicate with devices, access logged data or change
+the configuration by calling service functions provided by the data
+manager. It is therefore the data manager that shields the application
+programmer from the details of the communication and data logging
+technology. What the data manager does is mostly controlled through a
+central configuration.
+
+. The *channel configuration* holds the user defined data channels and
+its parameters. Data channels are the frameworks
+representation of data points in connected devices. Amongst others the
+channel configuration holds the following information:
++
+--
+
+	     .. communication parameters that the drivers require
+	     
+	     .. when to sample new data from connected devices
+
+	     .. when to send sampled data to existing data logger(s)
+for efficient persistent storage.
+
+The configuration is stored in the file
+conf/channels.xml. You may add or modify the configured channels by
+manually editing the channels.xml file or through the channel
+configurator web interface.
+--
+
+. A *driver* is used by the data manager to send/get data to/from a
+connected device. Thus a driver usually implements a communication
+protocol. Several communication drivers have already been developed
+(e.g. IEC 61850, ModbusTCP, KNX, DLMS/COSEM). Many drivers use
+standalone communication libraries (e.g. OpenIEC61850, jMBus)
+developed by the OpenMUC team. These libraries do not depend on the
+OpenMUC framework and can therefore be used by any Java
+application. New communication drivers for OpenMUC can be easily
+developed by third parties.
+
+. A *data logger* saves sampled data persistently. The data manager
+forwards sampled data to all available data loggers if configured to
+do so. Data loggers are specifically designed to store time series
+data for short storage and retrieval times. Note that this usually
+means that they are not SQL-based. OpenMUC currently includes two data
+loggers. The ASCII data logger saves data in a human readable text
+format while SlotsDB saves data in a more efficient binary format.
+
+. If all you want is sample and log data then you can use the OpenMUC
+framework as it is and simply configure it to your needs. But if you
+want to process sampled data or control a device you will want to
+write your own *application*. Like all other modules your application
+will be an OSGi bundle. In your application you can use the
+DataAccessService and the ConfigService provided by the data manager
+to access sampled and logged data. You may also issue immediate read
+or write commands. These are forwarded by the data manager to the
+driver. The configuration (when to sample and to log) can also be
+changed during run-time by the application. At all times the
+application only communicates with the data manager and is therefore
+not confronted with the complicated details of the communication
+technology being used.
+
+. If your application is located on a remote system (e.g. a smart
+phone or an Internet server) then the data and configuration can be
+accessed through an OpenMUC *server*. At the moment OpenMUC provides a
+RESTful web service for this purpose.
+
+. Finally the OpenMUC framework provides a web user interface
+(*WebUI*) for tasks such as configuration, visualization of sampled
+data or exporting logged data. The web interface is modular and
+provides a plug-in interface. This way developers may write a website
+that integrates into the main menu of the web interface. The WebUI is
+mostly for configuration and testing purposes. Most companies will
+want to create their own individual UI.
+
+
+    
+
+
+
+== Quick Start
+
+This chapter will give you an idea of how OpenMUC works by showing you
+how to run and adjust the demo framework which is part of the OpenMUC
+distribution. OpenMUC requires Java 7 or higher, therefore make sure
+it is installed on your machine.
+
+=== Framework Files
+
+The folder "framework" contains a configured OpenMUC framework that
+can be used as a basis to create your own customized OpenMUC framework
+for your task. The framework folder contains the following important
+files and folders:
+
+felix::
+
+    The main Apache Felix OSGi jar which is run to start OpenMUC.
+    
+bin::
+
+    Run scripts for Linux/Unix and Windows.
+
+bundle::
+
+    Contains all bundles that are started by the Felix OSGi
+    framework. Note that this folder does not contain all available
+    OpenMUC bundles but only a subset for demonstration purposes.
+
+log::
+
+    Log files produced by the running framework.
+
+conf::
+
+    Various configuration files of the framework.
+
+    
+    
+=== Starting the Demo
+
+First open a terminal and go to the folder named "framework".
+    
+To start OpenMUC on Linux run:
+        
+----
+./bin/openmuc start -fg
+----
+
+To start OpenMUC on Window run:
+    
+----
+bin\openmuc.bat
+----
+    
+This will start the Apache Felix OSGi framework which in turn starts
+all the bundles located in the "bundle" folder. Among the bundles that
+are started is the Apache Gogo shell. This shell is entered once you
+run OpenMUC.
+
+The shell can be used to start, stop, and reload bundles among other
+things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
+or "stop 0".
+
+
+Now type "lb" to list all installed bundles.
+
+You will see that among the active bundles are the Simple Demo App,
+the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
+as the CSV driver.
+
+=== Configuration
+
+One of the most important configuration files is
+conf/channels.xml. This file tells the OpenMUC Data Manager which data
+it shall sample, listen for, and log. This is done by configuring so
+called channels. Each channel represents a single data point whose
+value can be an integer, double, string or byte array.
+
+The demo's channels.xml configures among others channels whose values
+are read by the CSV driver. The channels are sampled/read and logged
+every 5 seconds.
+
+For more information about the channels.xml see the <<anchor-configuration,configuration>> chapter.
+
+=== Simple Demo App
+
+The simple demo app demonstrates how you can access channels and
+their records from an application. The app reads data from channels of
+the CSV driver, calculates new values from them and writes them to
+other channels. The app can be used as starting point to create your
+own OpenMUC application.
+
+        
+=== WebUI Walk Through
+    
+This section leads you through the framework's WebUI.
+
+Open a browser (works currently best with Google Chrome) and enter the
+URL "http://localhost:8888". This leads you to the login page. The
+default user is _admin_ and the default password is _admin_ as well.
+
+After successful login the OpenMUC Dashboard opens, which provides
+various plugins for configuration and visualization. A full
+description of the plugins can be found in the chapter
+<<anchor-web-ui,Web UI>>.
+
+Let us first look at the Channel Access Tool which provides the
+current value of each channel and also enables you to write
+values. Click on Channel Access Tool to open this plugin. The next
+page lists all available devices which are currently configured in
+OpenMUC. Select the _home1_ and proceed with _Access selected_.
+
+:img-file: webui-channelaccesstool-device-selection.png
+image::{img-file}[title="WebUI device selection",width={width60},link="{imagesdir}/{img-file}"]
+    
+On the next page you will see the latest records of all channels of
+home1. Each record consists of a data value, a timestamp when it was
+sampled and a quality flag.
+
+:img-file: webui-channelaccesstool-channels.png
+image::{img-file}[title="WebUI channel access tool",width={width60},link="{imagesdir}/{img-file}"]
+
+Let's have look at the _Data Plotter_. To get to the _Data Plotter_
+click on _Applications_ next to the OpenMUC logo and select __Data
+Plotter__.
+
+:img-file: webui-dataplotter.png
+image::{img-file}[title="WebUI data plotter",width={width60},link="{imagesdir}/{img-file}"]
+
+Select the _Live_ Data Plotter. To view the live data select the channels of your choice and
+click _Plot Data_.
+
+:img-file: webui-dataplotter-live.png
+image::{img-file}[title="WebUI live plotter",width={width60},link="{imagesdir}/{img-file}"]
+
+
+==== Add a New Channel
+
+All channels currently defined get their data using the CSV driver
+from the file "csv-driver/home1.csv". That file contains additional
+data. So let us now add a new channel to the OpenMUC configuration
+using the channel scan feature.
+
+In the WebUI go to the Channel Configurator. Click the tab
+"Devices". In the row of device "home1" click on the search/scan
+icon. It shows you all the channels available in that device. Once the
+scan has completed a list of available channels is shown. In this
+tutorial we select the channel with address
+"pv_energy_production". Click "add channels".
+
+Now the channel overview opens where we can find our selected
+channel. In the last step of the configuration we click on the edit
+icon of the channel and set the parameters _logging interval_ and
+_sampling interval_ to 5000 ms and change the unit to kWh.
+
+You can now check that the new channel was added to the
+"conf/channels.xml" file.
+
+After submitting the channel configuration we go back to the dashboard
+and open the Channel Access Tool. Here we select our home1 device and
+continue with _access selected_. Now we able to see the current values
+of the pv_energy_production channel.
+
+The logged data can be found in
+_openmuc/framework/data/ascii/<currentdate>_5000.dat_
+
+
+== Distribution
+
+The distribution contains the following important files and folders:
+
+build/libs-all::
+
+    All modules/bundles that make up the OpenMUC framework
+
+dependencies::
+
+    Information on the external dependencies of the OpenMUC
+    framework. Also contains the RXTX library (repacked as a bundle)
+    which is needed by many OpenMUC drivers based on serial
+    communication.
+
+projects::
+
+    All sources of the OpenMUC framework. You can easily change and
+    rebuild OpenMUC using Gradle.
+
+framework::
+
+    A ready to use OpenMUC demo framework that is introduced next.
+
+    
+== Running OpenMUC
+
+To start OpenMUC on Linux run:
+        
+----
+./bin/openmuc start
+----
+
+This runs OpenMUC as a background process. If you want to run OpenMUC
+in the foreground run:
+    
+----
+./bin/openmuc start -fg
+----
+    
+To start OpenMUC under Window run:
+    
+----
+bin\openmuc.bat
+----
+
+The Linux start script is a sophisticated bash script that can be used
+to start, stop, restart OpenMUC. The Windows run script is a simple
+bat file that starts OpenMUC. The following explanations will focus on
+using OpenMUC in a Linux environment as it is the more common
+scenario.
+
+Starting OpenMUC really means running the Felix OSGi Framework by
+executing
+
+java -jar felix/felix.jar
+
+The Felix OSGi Framework will then start all bundles located in the
+"bundle" folder.
+
+When you start OpenMUC in the foreground you will enter the Felix Gogo
+shell. From the shell you can start, stop and reload bundles among
+many other things. To quit the shell and stop the framework press
+ctrl+d or enter "stop 0".
+
+If you ran OpenMUC as a background process you can access the Gogo shell using the telnet:
+
+----
+netcat 127.0.0.1 6666
+----
+
+or using the openmuc run script
+
+----
+./bin/openmuc remote-shell
+----
+
+Pressing ctrl+d will exit the remote shell but not stop the openmuc framework.
+
+To stop OpenMUC run:
+
+----
+./bin/openmuc stop
+----
+
+== Install a Driver
+
+When you want to use a new driver you have to copy the corresponding jar file from the folder "build/libs-all/" to the "bundle" folder of the framework. Many drivers are "fat jars" which include their dependencies. An exception is the RXTX library which cannot be packed with the jars.
+
+
+=== Use a Driver with Serial Communication
+
+When you need to use a driver that uses serial communication you have to copy the RXTX bundle to the frameworks "bundle" folder.
+
+----
+cp ../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar ./bundle/
+----
+
+Additionally you need to install librxtx-java:
+
+----
+sudo apt-get install librxtx-java
+----
+
+The serial ports /dev/tty* are only accessible to members belonging to the group dialout. We therefore have to add our user to that group. E.g. using:
+
+----
+sudo adduser <yourUserName> dialout
+----
+        
+
+
+== Devices and Channels
+
+OpenMUC works on the basis of channels. A channel basically represents
+a single data point. Some examples for a channel are the metered
+active power of a smart meter, the temperature of a temperature
+sensor, any value of digital or analog I/O module or the some
+manufacture data of the device. Thus a channel can represent any kind
+of data point. The following picture illustrates the channel concept.
+
+.OpenMUCs Channel Concept
+image:openmuc_concept.png[width={width60}, alt="OpenMUC channel concept", link="images/openmuc_concept.png"]
+
+        
+[[anchor-configuration]]
+=== Configuration
+    
+The *conf/channels.xml* file is the main configuration file for
+OpenMUC. It tells the OpenMUC framework which channels it should log
+and sample. It contains a hierarchical structure of drivers, devices
+and channels. A driver can have one or more devices and devices can
+have one or more channels. Following listing shows a sample
+configuration to illustrate the hierarchical structure. The driver,
+device and channel options are explained afterwards.
+
+.channels.xml structure
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+	<logger>loggerId</logger>   
+
+	<driver id="driver_x">
+		<!-- driver options -->
+		<device>
+			<!-- device options -->
+			<channel>
+				<!-- channel options -->	    
+			</channel>
+			<channel>
+				<!-- channel options -->	                    
+			</channel>
+		</device>
+	</driver>
+</configuration>
+----
+
+
+The available driver settings, device settings and channel settings
+can be found in the
+link:https://www.openmuc.org/openmuc/javadoc/[Javadoc] of
+DriverConfig.java, DeviceConfig.java and ChannelConfig.java
+respectively.
+
+
+*Default Data Logger*
+
+You can define a default data logger by adding a logger element with
+the id of a data logger to the configuration. If available, that data
+logger is used to read logged values. The ids of data loggers shipped
+with the OpenMUC Framework are defined in the "Data Loggers"
+chapter. If no logger with the defined id is available, or the logger
+element is missing from the configuration, an arbitrary available
+logger is used to read logged values. Only one default logger may be
+defined. If multiple logger elements exists, only the first one is
+evaluated.
+
+This configuration only affects reading of already logged
+values. Channels are still logged by all available loggers.
+
+=== Sampling, Listening and Logging 
+
+* *sampling* is when the data manager frequently asks a driver to
+   retrieve a channel value.
+
+* *listening* is when the driver listens on a channel and forwards new
+   values to the data manager.
+
+* *logging* is when the data manager forwards the current sampled
+   value to the data loggers that are installed. The data loggers then
+   store the data persistently
+
+The following examples will give you a better understanding of these
+three settings.
+
+.Example 1: Just Sampling
+[source,xml]
+----
+<channel>
+	<id>channel1</id>
+	<channelAddress>dummy/channel/address/1</channelAddress>        
+	<samplingInterval>4s</samplingInterval>     
+</channel>
+----
+
+In example 1 the channel is sampled every 4 seconds which means the
+data manager requests every 4 seconds the current value from the
+driver.
+
+.Example 2: Sampling and Logging
+[source,xml]
+----
+<channel>
+	<id>channel2</id>
+	<channelAddress>dummy/channel/address/2</channelAddress>        
+	<samplingInterval>4s</samplingInterval>   
+	<loggingInterval>8s</loggingInterval>  
+</channel>
+----
+
+Example 2 extends example 1 by an additional logging. The logging
+interval is set to 8 seconds which means that every 8 seconds the last
+sampled value is stored in the database. In this case every second
+sampled value is stored because the sampling interval is 4 seconds. To
+log every sampled value the sampling interval and logging interval
+need to be the same.
+
+.Example 3: Just Listening
+[source,xml]
+----
+<channel>
+	<id>channel3</id>
+	<channelAddress>dummy/channel/address/3</channelAddress>        
+	<listening>true</listening>    
+</channel>
+----
+In example 3 listening instead of sampling is used. This means that the driver reports a new channel value to the data manager when the value has changed for example.
+
+.Example 4: Listening and Logging
+[source,xml]
+----
+ <channel>
+	<id>channel4</id>
+	<channelAddress>dummy/channel/address/4</channelAddress>        
+	<listening>true</listening>   
+	<loggingInterval>8s</loggingInterval>   
+</channel>   
+----
+Example 4 extends example 3 by an additional logging.
+
+IMPORTANT: When listening is true and additional a sampling interval is defined then the sampling is ignored.
+            
+
+
+include::sections/drivers.txt[]
+
+
+
+        
+    
+[[anchor-web-ui]]
+== The WebUI
+
+=== Plugins 
+
+Plotter::
+
+Plugin which provides plotter for visualisation of current and historical data
+
+Channel Access Tool::
+
+Plugin to show current values of selected channels. Provides possibility to set values. 
+ 
+Channel Configurator::
+
+Plugin for channel configuration e.g. channel name, sampling interval, logging interval
+
+Media Viewer::
+
+Plugin which allows to embed media files into OpenMUC's WebUI
+
+User Configurator::
+
+Plugin for user configuration 
+
+=== HTTPS
+
+You can access the WebUI over https as well:
+https://localhost:8889. To make the framework more secure you could
+disable http by setting org.apache.felix.http.enable in the
+conf/system.properties file to false.
+
+
+[[id_restful_web_services]]
+== REST Server
+
+The openmuc-server-restws bundle manages a RESTful web service to access all registered channels of the framework. The RESTful web service is accessed by the same port as the web interface mentioned in Chapter 2.
+
+TIP: The address to access the web service using the provided demo/framework folder is 'http://localhost:8888/rest/'
+
+=== Requirements
+
+
+In order to start the RESTful web service, the following bundle must be provided:
+
+ - Bundle that provides an org.osgi.service.http.HttpService service. In the demo framework, that service is provided by the org.apache.felix.http.jetty bundle.
+
+This bundles is already provided by the demo framework. The RESTful web service will start automatically with the framework without additional settings.
+
+=== Accessing channels
+
+
+The latest record of a single channel can be accessed, by sending a
+GET request at the address:
+'http://server-address/rest/channels/\{id\}' where \{id\} is replaced
+with the actual channel ID. The result will be latest record object of
+the channel encoded in JSON with the following structure:
+
+.Record JSON
+[source,json]
+----
+{
+  "timestamp" : time_val, /*milliseconds since Unix epoch*/
+  "flag" : flag_val,      /*status flag of the record as string*/
+  "value" : value_val     /*actual value. Omitted if "flag" != "valid"*/
+}
+----
+
+You can access logged values of a channel by adding
+'/history?from=fromTimestamp&until=untilTimestamp' to the channel
+address, fromTimestamp and untilTimestamp are both milliseconds since
+Unix epoch (1970-01-01 00:00:00). The result is a collection of
+records encoded as JSON.
+
+Additionally, the records off all available channels can be read in one
+go, by omitting the ID from the address. The result is a collection of
+channel objects encoded in JSON using this structure:
+
+.ChannelCollection JSON
+[source,json]
+----
+[
+	{
+		"id" : channel1_id,  /*ID of the channel as string*/
+		"record" : channel1_record /*current record. see Record JSON*/
+	},
+	{
+		"id" : channel2_id,  
+		"record" : channel2_record
+	}
+	...
+]
+----
+
+New records can be written to channels by sending a PUT request at the
+address that represents a channel. The data in the put request is a
+record encoded as specified in Record JSON above.
+
+If HTTPS is used to access the REST server then HTTP basic
+authentication is required. The login credentials are the same as the
+one used to log into the web interface of the OpenMUC Framework.
+
+
+
+
+== Authors
+
+Developers:
+
+* Stefan Feuerhahn
+* Marco Mittelsdorf
+* Dirk Zimmermann
+* Albrecht Schall
+
+Former developers:
+
+* Michael Zillgith
+* Karsten Müller-Bier
+* Simon Fey
+* Frederic Robra
+* Philipp Fels

@@ -27,87 +27,87 @@ import org.openmuc.framework.data.ValueType;
 
 public interface ChannelConfig {
 
-	public static final Boolean DISABLED_DEFAULT = false;
-	public static final String DESCRIPTION_DEFAULT = "";
-	public static final String CHANNEL_ADDRESS_DEFAULT = "";
-	public static final String UNIT_DEFAULT = "";
-	public static final ValueType VALUE_TYPE_DEFAULT = ValueType.DOUBLE;
-	public static final int BYTE_ARRAY_SIZE_DEFAULT = 10;
-	public static final int STRING_SIZE_DEFAULT = 10;
-	public static final boolean LISTENING_DEFAULT = false;
-	public static final int SAMPLING_INTERVAL_DEFAULT = -1;
-	public static final int SAMPLING_TIME_OFFSET_DEFAULT = 0;
-	public static final String SAMPLING_GROUP_DEFAULT = "";
-	public static final int LOGGING_INTERVAL_DEFAULT = -1;
-	public static final int LOGGING_TIME_OFFSET_DEFAULT = 0;
+    static final Boolean DISABLED_DEFAULT = false;
+    static final String DESCRIPTION_DEFAULT = "";
+    static final String CHANNEL_ADDRESS_DEFAULT = "";
+    static final String UNIT_DEFAULT = "";
+    static final ValueType VALUE_TYPE_DEFAULT = ValueType.DOUBLE;
+    static final int BYTE_ARRAY_SIZE_DEFAULT = 10;
+    static final int STRING_SIZE_DEFAULT = 10;
+    static final boolean LISTENING_DEFAULT = false;
+    static final int SAMPLING_INTERVAL_DEFAULT = -1;
+    static final int SAMPLING_TIME_OFFSET_DEFAULT = 0;
+    static final String SAMPLING_GROUP_DEFAULT = "";
+    static final int LOGGING_INTERVAL_DEFAULT = -1;
+    static final int LOGGING_TIME_OFFSET_DEFAULT = 0;
 
-	public String getId();
+    String getId();
 
-	public void setId(String id) throws IdCollisionException;
+    void setId(String id) throws IdCollisionException;
 
-	public String getDescription();
+    String getDescription();
 
-	public void setDescription(String description);
+    void setDescription(String description);
 
-	public String getChannelAddress();
+    String getChannelAddress();
 
-	public void setChannelAddress(String address);
+    void setChannelAddress(String address);
 
-	public String getUnit();
+    String getUnit();
 
-	public void setUnit(String unit);
+    void setUnit(String unit);
 
-	public ValueType getValueType();
+    ValueType getValueType();
 
-	public void setValueType(ValueType type);
+    void setValueType(ValueType type);
 
-	public Integer getValueTypeLength();
+    Integer getValueTypeLength();
 
-	public void setValueTypeLength(Integer maxLength);
+    void setValueTypeLength(Integer maxLength);
 
-	public Double getScalingFactor();
+    Double getScalingFactor();
 
-	public void setScalingFactor(Double factor);
+    void setScalingFactor(Double factor);
 
-	public Double getValueOffset();
+    Double getValueOffset();
 
-	public void setValueOffset(Double offset);
+    void setValueOffset(Double offset);
 
-	public Boolean isListening();
+    Boolean isListening();
 
-	public void setListening(Boolean listening);
+    void setListening(Boolean listening);
 
-	public Integer getSamplingInterval();
+    Integer getSamplingInterval();
 
-	public void setSamplingInterval(Integer interval);
+    void setSamplingInterval(Integer interval);
 
-	public Integer getSamplingTimeOffset();
+    Integer getSamplingTimeOffset();
 
-	public void setSamplingTimeOffset(Integer offset);
+    void setSamplingTimeOffset(Integer offset);
 
-	public String getSamplingGroup();
+    String getSamplingGroup();
 
-	public void setSamplingGroup(String group);
+    void setSamplingGroup(String group);
 
-	public Integer getLoggingInterval();
+    Integer getLoggingInterval();
 
-	public void setLoggingInterval(Integer interval);
+    void setLoggingInterval(Integer interval);
 
-	public Integer getLoggingTimeOffset();
+    Integer getLoggingTimeOffset();
 
-	public void setLoggingTimeOffset(Integer offset);
+    void setLoggingTimeOffset(Integer offset);
 
-	public Boolean isDisabled();
+    Boolean isDisabled();
 
-	public void setDisabled(Boolean disabled);
+    void setDisabled(Boolean disabled);
 
-	public void delete();
+    void delete();
 
-	public DeviceConfig getDevice();
+    DeviceConfig getDevice();
 
-	public List<ServerMapping> getServerMappings();
+    List<ServerMapping> getServerMappings();
 
-	public void addServerMapping(ServerMapping serverMapping);
+    void addServerMapping(ServerMapping serverMapping);
 
-	public void deleteServerMappings(String id);
+    void deleteServerMappings(String id);
 }

@@ -34,16 +34,16 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
  */
 public class SnmpDriverDiscoveryListener implements SnmpDiscoveryListener {
 
-	private final DriverDeviceScanListener scannerListener;
+    private final DriverDeviceScanListener scannerListener;
 
-	public SnmpDriverDiscoveryListener(DriverDeviceScanListener listener) {
-		scannerListener = listener;
-	}
+    public SnmpDriverDiscoveryListener(DriverDeviceScanListener listener) {
+        scannerListener = listener;
+    }
 
-	@Override
-	public void onNewDeviceFound(SnmpDiscoveryEvent e) {
-		DeviceScanInfo newDevice = new DeviceScanInfo(e.getDeviceAddress().toString(), null, e.getDescription());
-		scannerListener.deviceFound(newDevice);
-	}
+    @Override
+    public void onNewDeviceFound(SnmpDiscoveryEvent e) {
+        DeviceScanInfo newDevice = new DeviceScanInfo(e.getDeviceAddress().toString(), null, e.getDescription());
+        scannerListener.deviceFound(newDevice);
+    }
 
 }

@@ -15,26 +15,49 @@
 		$translate('DRIVER_SCAN_NOT_SUPPORTED').then(function(text) {
 			$scope.deviceWarningrText = text;
 		});
+
+        $translate('DRIVER_SCAN_NOT_INTERRUPTED').then(function(text) {
+            $scope.deviceWarningrText = text;
+        });
 		
 		$scope.driver = DriversService.getDriver($stateParams.id);
 		$scope.devices = [];
 		$scope.selectedDevices = [];
 		$scope.settings = "";
+        $scope.scanProgress = 0;
+        $scope.scanInterrupted = false;
+		$scope.deviceScanSettingsSyntax = "";
+		$scope.scanError = "";
+
+		$scope.getDeviceScanSettingsSyntax = function() {
+			DriversService.getInfos($scope.driver.id).then(function(driverInfo) {
+				$scope.deviceScanSettingsSyntax = driverInfo.deviceScanSettingsSyntax;
+			});
+		};
 
 		$scope.scanDriver = function() {
+            $scope.scanInterrupted = false;
 			$scope.scanDriverForm.submitted = true;
 			DriversService.scan($scope.driver, $scope.settings).then(function(response) {
 				$scope.devices = [];
     			$.each(response.devices, function(i, device) {
     				$scope.devices.push({configs: device});
     			});
-				
+
+                $scope.scanProgress = 100; // kills scanProgress intervall
 				$scope.scanDriverForm.submitted = false;
 			}, function(error) {
 				$alert({content: $scope.deviceWarningrText, type: 'warning'});
 				return $state.go('channelconfigurator.drivers.index');
 			});
 		};
+        
+        $scope.interruptScan = function() {
+            DriversService.scanInterrupt($scope.driver).then(function(response){
+            }, function(error) {
+                $alert({content: $scope.deviceErrorText, type: 'warning'});
+            });
+        };
 		
 		$scope.addDevices = function() {
 			$.each($scope.selectedDevices, function(i, d) {
@@ -48,7 +71,57 @@
 
 			return $state.go('channelconfigurator.devices.index');
 		};
-		
+
+		$scope.checkAll = function() {
+            var elements = document.getElementsByName('checkboxes');
+
+			if ($scope.master) {
+                angular.forEach(elements, function(value, key) {
+                    value.checked = true;
+                    $scope.selectedDevices[key] = $scope.devices[key];
+                });
+			}
+			else {
+                angular.forEach(elements, function(value, key) {
+                    value.checked = false;
+                });
+                $scope.selectedDevices.length = 0;
+			}
+		};
+
+        $scope.progress = function() {
+                var elem = document.getElementById("progressBarForeground");
+                var id = setInterval(frame, 1500);
+                function frame() {
+                    DriversService.scanProgressInfo($scope.driver).then(function (response) {
+						var scanInfo = response.scanProgressInfo;
+                        $scope.scanProgress = scanInfo.scanProgress;
+
+						if (scanInfo.scanError || scanInfo.isScanInterrupted) {
+                            $scope.scanInterrupted = true;
+							$scope.scanProgress = 100;
+							$scope.scanDriverForm.submitted = false;
+							$scope.scanError = scanInfo.scanError;
+						}
+                    }, function (error) {
+                    });
+                    if ($scope.scanProgress > 0) {
+                        if ($scope.scanProgress == 100) {
+                            clearInterval(id);
+                        } else {
+                            elem.style.width = $scope.scanProgress + '%';
+                            document.getElementById("progressBarLabel").innerHTML = $scope.scanProgress * 1 + '%';
+                    	}
+                    }
+                }
+            };
+
+		$scope.progressClear = function() {
+			$scope.scanProgress = 0;
+			var elem = document.getElementById("progressBarForeground");
+			elem.style.width = $scope.scanProgress + '%';
+			document.getElementById("progressBarLabel").innerHTML = $scope.scanProgress * 1 + '%';
+		}
 	};
 	
 	DriverScanController.$inject = injectParams;

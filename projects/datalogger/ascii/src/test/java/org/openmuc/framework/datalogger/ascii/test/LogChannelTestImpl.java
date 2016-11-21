@@ -25,71 +25,71 @@ import org.openmuc.framework.datalogger.spi.LogChannel;
 
 public class LogChannelTestImpl implements LogChannel {
 
-	private final String id;
-	private final String description;
-	private final String unit;
-	private final ValueType valueType;
-	private final Integer loggingInterval;
-	private final Integer loggingTimeOffset;
-	private Integer valueLength;
+    private final String id;
+    private final String description;
+    private final String unit;
+    private final ValueType valueType;
+    private final Integer loggingInterval;
+    private final Integer loggingTimeOffset;
+    private Integer valueLength;
 
-	public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
-			Integer loggingTimeOffset) {
+    public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
+            Integer loggingTimeOffset) {
 
-		this.id = id;
-		this.description = description;
-		this.unit = unit;
-		this.valueType = valueType;
-		this.loggingInterval = loggingInterval;
-		this.loggingTimeOffset = loggingTimeOffset;
-	}
+        this.id = id;
+        this.description = description;
+        this.unit = unit;
+        this.valueType = valueType;
+        this.loggingInterval = loggingInterval;
+        this.loggingTimeOffset = loggingTimeOffset;
+    }
 
-	public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
-			Integer loggingTimeOffset, int valueLength) {
+    public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
+            Integer loggingTimeOffset, int valueLength) {
 
-		this(id, description, unit, valueType, loggingInterval, loggingTimeOffset);
-		this.valueLength = valueLength;
-	}
+        this(id, description, unit, valueType, loggingInterval, loggingTimeOffset);
+        this.valueLength = valueLength;
+    }
 
-	@Override
-	public String getId() {
+    @Override
+    public String getId() {
 
-		return id;
-	}
+        return id;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return description;
-	}
+        return description;
+    }
 
-	@Override
-	public String getUnit() {
+    @Override
+    public String getUnit() {
 
-		return unit;
-	}
+        return unit;
+    }
 
-	@Override
-	public ValueType getValueType() {
+    @Override
+    public ValueType getValueType() {
 
-		return valueType;
-	}
+        return valueType;
+    }
 
-	@Override
-	public Integer getValueTypeLength() {
+    @Override
+    public Integer getValueTypeLength() {
 
-		return valueLength;
-	}
+        return valueLength;
+    }
 
-	@Override
-	public Integer getLoggingInterval() {
+    @Override
+    public Integer getLoggingInterval() {
 
-		return loggingInterval;
-	}
+        return loggingInterval;
+    }
 
-	@Override
-	public Integer getLoggingTimeOffset() {
+    @Override
+    public Integer getLoggingTimeOffset() {
 
-		return loggingTimeOffset;
-	}
+        return loggingTimeOffset;
+    }
 }

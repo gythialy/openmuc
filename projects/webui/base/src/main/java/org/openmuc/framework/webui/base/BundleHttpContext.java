@@ -36,63 +36,63 @@ import org.slf4j.LoggerFactory;
 
 public class BundleHttpContext implements HttpContext {
 
-	Bundle contextBundle;
-	AuthenticationService authService;
+    Bundle contextBundle;
+    AuthenticationService authService;
 
-	private final static Logger logger = LoggerFactory.getLogger(BundleHttpContext.class);
+    private final static Logger logger = LoggerFactory.getLogger(BundleHttpContext.class);
 
-	public BundleHttpContext(Bundle contextBundle, AuthenticationService authService) {
-		this.contextBundle = contextBundle;
-		this.authService = authService;
-	}
+    public BundleHttpContext(Bundle contextBundle, AuthenticationService authService) {
+        this.contextBundle = contextBundle;
+        this.authService = authService;
+    }
 
-	@Override
-	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// if (!request.getScheme().equals("https")) {
-		// response.sendError(HttpServletResponse.SC_FORBIDDEN);
-		// return false;
-		// }
+    @Override
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // if (!request.getScheme().equals("https")) {
+        // response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        // return false;
+        // }
 
-		// if (!authenticated(request)) {
-		// response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
-		// response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		// return false;
-		// }
+        // if (!authenticated(request)) {
+        // response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
+        // response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        // return false;
+        // }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public URL getResource(String name) {
-		if (name.startsWith("/media/")) {
-			File file = new File(System.getProperty("user.dir") + name);
-			if (!file.canRead()) {
-				return null;
-			}
-			try {
-				return file.toURI().toURL();
-			} catch (MalformedURLException e) {
-				return null;
-			}
-		}
-		else if (name.startsWith("/conf/webui/")) {
-			File file = new File(System.getProperty("user.dir") + name + ".conf");
-			if (!file.canRead()) {
-				return null;
-			}
-			try {
-				return file.toURI().toURL();
-			} catch (MalformedURLException e) {
-				return null;
-			}
-		}
-		return contextBundle.getResource(name);
+    @Override
+    public URL getResource(String name) {
+        if (name.startsWith("/media/")) {
+            File file = new File(System.getProperty("user.dir") + name);
+            if (!file.canRead()) {
+                return null;
+            }
+            try {
+                return file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
+        else if (name.startsWith("/conf/webui/")) {
+            File file = new File(System.getProperty("user.dir") + name + ".conf");
+            if (!file.canRead()) {
+                return null;
+            }
+            try {
+                return file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
+        return contextBundle.getResource(name);
 
-	}
+    }
 
-	@Override
-	public String getMimeType(String name) {
-		return null;
-	}
+    @Override
+    public String getMimeType(String name) {
+        return null;
+    }
 
 }

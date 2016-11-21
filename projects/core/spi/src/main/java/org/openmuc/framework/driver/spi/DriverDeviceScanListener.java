@@ -24,21 +24,21 @@ import org.openmuc.framework.config.DeviceScanInfo;
 
 public interface DriverDeviceScanListener {
 
-	/**
-	 * Can optionally be used by driver to let the Data Manager know about the device scan progress in percent.
-	 * Applications can access this value through the ConfigService.
-	 * 
-	 * @param progress
-	 *            the progress in percent.
-	 */
-	void scanProgressUpdate(int progress);
+    /**
+     * Can optionally be used by driver to let the Data Manager know about the device scan progress in percent.
+     * Applications can access this value through the ConfigService.
+     * 
+     * @param progress
+     *            the progress in percent.
+     */
+    void scanProgressUpdate(int progress);
 
-	/**
-	 * Is used by the driver to notify the Data Manager of new devices found during a scan.
-	 * 
-	 * @param scanInfo
-	 *            the information obtained from the device.
-	 */
-	void deviceFound(DeviceScanInfo scanInfo);
+    /**
+     * Is used by the driver to notify the Data Manager of new devices found during a scan.
+     * 
+     * @param scanInfo
+     *            the information obtained from the device.
+     */
+    void deviceFound(DeviceScanInfo scanInfo);
 
 }

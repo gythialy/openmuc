@@ -11,12 +11,23 @@
 		$translate('DEVICE_CREATED_ERROR').then(function(text) {
 			$scope.deviceErrorText = text;
 		});
+
+        $scope.driverInfo = {};
 		
 		if ($stateParams.driverId) {
 			$scope.driver = DriversService.getDriver($stateParams.driverId);
+			DriversService.getInfos($stateParams.driverId).then(function(driverInfo) {
+				$scope.driverInfo = driverInfo;
+
+			});
 		} else {
 			$scope.driver = [];
 		}
+
+        if(Object.keys($scope.driverInfo).length == 0) {
+            $scope.driverInfo["settingsSyntax"] = "N.A.";
+            $scope.driverInfo["deviceAddressSyntax"] = "N.A.";
+        }
 
 		$scope.device = {
 			driver: $scope.driver.id,

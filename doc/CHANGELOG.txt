@@ -1,3 +1,30 @@
+v0.16.0 10-Oct-2016
+-------------------
+
+- Demo Framework:
+
+  * Added sophisticated run script for Linux/Unix that enables start,
+    stop, reload etc.
+
+  * moved all configuration files to "conf" folder
+
+  * Sample app moved to main projects folder
+
+  * Dummy driver replaced by general CSV driver
+
+- Several smaller improvements to WebUI and REST server for more
+  convenience and better performance
+
+- M-Bus driver now support secondary address reading
+
+- Modbus driver: added support for RTU over TCP
+
+- components.xml of several projects is now generated automatically from
+  annotations
+
+- Various minor fixes. Among others to the KNX driver (thanks to
+  Daniel Lechner) and the SNMP driver (thanks to Epfianio Ticona).
+
 v0.15.3 11-Jan-2016
 -------------------
 - fixed various issues in web UI

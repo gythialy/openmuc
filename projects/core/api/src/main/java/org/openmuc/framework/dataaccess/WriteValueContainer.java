@@ -26,12 +26,12 @@ import org.openmuc.framework.data.Value;
 
 public interface WriteValueContainer {
 
-	public void setValue(Value value);
+    public void setValue(Value value);
 
-	public Value getValue();
+    public Value getValue();
 
-	public Flag getFlag();
+    public Flag getFlag();
 
-	public Channel getChannel();
+    public Channel getChannel();
 
 }

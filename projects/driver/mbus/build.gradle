@@ -1,51 +1,32 @@
 
-configurations.create('embed')
+configurations.create("embed")
 
-def jmbusversion = "2.1.1-SNAPSHOT"
+def jmbusversion = "2.2.2"
 
 dependencies {
 
-//  compile group: 'org.openmuc', name: 'jmbus', version: jmbusversion
-//  embed   group: 'org.openmuc', name: 'jmbus', version: jmbusversion
-  compile files('dependencies/jmbus/jmbus-' + jmbusversion + '.jar')
-  embed   files('dependencies/jmbus/jmbus-' + jmbusversion + '.jar')
+  compile group: "org.openmuc", name: "jmbus", version: jmbusversion
+  embed   group: "org.openmuc", name: "jmbus", version: jmbusversion
 
-  compile project(':openmuc-core-spi')
+  compile project(":openmuc-core-spi")
   
-  testCompile 'org.mockito:mockito-core:1.10.19'
-  testCompile 'org.powermock:powermock-api-mockito:1.6.2' 
-  testCompile 'org.powermock:powermock-module-junit4:1.6.2' 
+  testCompile "org.mockito:mockito-core:1.10.19"
+  testCompile "org.powermock:powermock-api-mockito:1.6.2" 
+  testCompile "org.powermock:powermock-module-junit4:1.6.2" 
 
 }
-
-
-
-repositories {
-  mavenCentral()
-  maven {
-    url "http://de497:8081/artifactory/libs-snapshot-local/" 
-  } 
-  //maven {
-   //url "http://de497:8081/artifactory/libs-release-local/" 
-  //}
-  maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
-}
-
 
 jar {
   manifest {
     name = "OpenMUC Driver - M-Bus"
-    instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar'
-    instruction 'Import-Package', '!org.openmuc.jmbus*,gnu.io,*'
-    instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
+    instruction "Bundle-ClassPath", ".,lib/jmbus-" + jmbusversion + ".jar"
+    instruction "Import-Package", "!org.openmuc.jmbus*,gnu.io,*" + jarDefaultImportPackageVersion
+    instruction "Export-Package", ""
   }
 }
 
 jar {
-  into('lib') {
+  into("lib") {
     from configurations.embed
   }
 }

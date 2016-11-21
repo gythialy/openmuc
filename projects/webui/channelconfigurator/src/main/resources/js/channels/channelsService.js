@@ -198,18 +198,28 @@
     	};
     	
     	this.writeValue = function(id, type, newValue) {
-    		
+
     		if (type=="STRING") {
     				var dataType = {record: {value: newValue}};
     		}
+    		else if (type=="BYTE_ARRAY") {
+    			// TODO: find a better solution to parse arrays.
+				var dataType = {record: {value: newValue}};
+		    }
     		else if (type=="INTEGER" || type=="LONG" || type=="SHORT" || type=="BYTE") {
     				var dataType = {record: {value: parseInt(newValue)}};
     		}
     		else if (type=="BOOLEAN") {
-    				var dataType = {record: {value: parseBoolean(newValue)}};
-    		}
-    		else if (type=="BYTE_ARRAY") {
-    				var dataType = {record: {value: newValue}};
+    			if (parseFloat(newValue)==1 || newValue=='true') {
+    				newValue = true
+    			}
+    			else if (parseFloat(newValue) == 0 || newValue=='false') {
+    				newValue = false
+    			}
+    			else {
+    				// throw error
+    			}
+    			var dataType = {record: {value: newValue}};
     		}
     		else {
     				var dataType = {record: {value: parseFloat(newValue)}};

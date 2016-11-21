@@ -30,13 +30,13 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ TestJsonHelper_fromJson.class /* , TestJsonHelper_toJson.class, /*<weitereKlassen.class> */ })
 public class TestSuit {
 
-	@BeforeClass
-	public static void setUp() {
-		System.out.println("setting up");
-	}
+    @BeforeClass
+    public static void setUp() {
+        System.out.println("setting up");
+    }
 
-	@AfterClass
-	public static void tearDown() {
-		System.out.println("tearing down");
-	}
+    @AfterClass
+    public static void tearDown() {
+        System.out.println("tearing down");
+    }
 }

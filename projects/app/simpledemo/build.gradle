@@ -1,0 +1,11 @@
+
+dependencies {
+  compile project(':openmuc-core-api')
+}
+
+jar {
+  manifest {
+    name = 'OpenMUC App - Simple Demo'
+    instruction 'Export-Package', ''
+  }
+}

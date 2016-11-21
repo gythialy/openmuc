@@ -28,58 +28,58 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
 public final class ChannelRecordContainerImpl implements ChannelRecordContainer {
 
-	private static final Record DEFAULT_RECORD = new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
+    private static final Record DEFAULT_RECORD = new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
 
-	ChannelImpl channel;
-	Record record = DEFAULT_RECORD;
-	Object channelHandle;
-	String channelAddress;
+    ChannelImpl channel;
+    Record record = DEFAULT_RECORD;
+    Object channelHandle;
+    String channelAddress;
 
-	public ChannelRecordContainerImpl(ChannelImpl channel) {
-		this.channel = channel;
-		channelAddress = channel.config.channelAddress;
-		channelHandle = channel.handle;
-	}
+    public ChannelRecordContainerImpl(ChannelImpl channel) {
+        this.channel = channel;
+        channelAddress = channel.config.channelAddress;
+        channelHandle = channel.handle;
+    }
 
-	private ChannelRecordContainerImpl(ChannelImpl channel, Record record) {
-		this.channel = channel;
-		channelAddress = channel.config.channelAddress;
-		channelHandle = channel.handle;
-		this.record = record;
-	}
+    private ChannelRecordContainerImpl(ChannelImpl channel, Record record) {
+        this.channel = channel;
+        channelAddress = channel.config.channelAddress;
+        channelHandle = channel.handle;
+        this.record = record;
+    }
 
-	@Override
-	public String getChannelAddress() {
-		return channelAddress;
-	}
+    @Override
+    public String getChannelAddress() {
+        return channelAddress;
+    }
 
-	@Override
-	public Object getChannelHandle() {
-		return channelHandle;
-	}
+    @Override
+    public Object getChannelHandle() {
+        return channelHandle;
+    }
 
-	@Override
-	public void setChannelHandle(Object handle) {
-		channelHandle = handle;
-	}
+    @Override
+    public void setChannelHandle(Object handle) {
+        channelHandle = handle;
+    }
 
-	@Override
-	public void setRecord(Record record) {
-		this.record = record;
-	}
+    @Override
+    public void setRecord(Record record) {
+        this.record = record;
+    }
 
-	@Override
-	public ChannelRecordContainer copy() {
-		return new ChannelRecordContainerImpl(channel, record);
-	}
+    @Override
+    public ChannelRecordContainer copy() {
+        return new ChannelRecordContainerImpl(channel, record);
+    }
 
-	@Override
-	public Channel getChannel() {
-		return channel;
-	}
+    @Override
+    public Channel getChannel() {
+        return channel;
+    }
 
-	@Override
-	public Record getRecord() {
-		return record;
-	}
+    @Override
+    public Record getRecord() {
+        return record;
+    }
 }

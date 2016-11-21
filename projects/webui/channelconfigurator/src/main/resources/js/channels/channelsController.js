@@ -8,6 +8,10 @@
 			$scope.channelOKText = text;
 		});
 
+        $translate('DELETE_CONFIRM_MESSAGE').then(function(confirmMessage) {
+            $scope.confirmMessage = confirmMessage;
+        });
+
 		$scope.drivers = [];
 		
 		DriversService.getDrivers().then(function(drivers){
@@ -28,19 +32,20 @@
 		});
 
 		$scope.deleteChannel = function(channelId) {
-			ChannelsService.destroy(channelId).then(function(data) {
-				$.each($scope.drivers, function(i, driver) {
-					$.each(driver['devices'], function(j, device) {
-						ChannelsService.getChannels(device).then(function(channels){
-							$scope.drivers[i]['devices'][j]['channels'] = channels;
+			if (confirm($scope.confirmMessage + " " + channelId + "?") == true) {
+				ChannelsService.destroy(channelId).then(function(data) {
+					$.each($scope.drivers, function(i, driver) {
+						$.each(driver['devices'], function(j, device) {
+							ChannelsService.getChannels(device).then(function(channels){
+								$scope.drivers[i]['devices'][j]['channels'] = channels;
+							});
 						});
-					});				
-				});
+					});
 
-				$alert({content: $scope.channelOKText, type: 'success'});
-				return $state.go('channelconfigurator.channels.index');			
-			});
-		
+					$alert({content: $scope.channelOKText, type: 'success'});
+					return $state.go('channelconfigurator.channels.index');
+				});
+			}
 		};
 		
 	};

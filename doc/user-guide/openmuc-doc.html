@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<title>OpenMUC User Guide</title>
+<style>
+/*
+ * AsciiDoc 'volnitsky' theme for xhtml11 and html5 backends.
+ * Based on css from http://volnitsky.com, which was in turn based on default
+ * theme from AsciiDoc
+ *
+ * FIXME: The styling is still a bit rough in places.
+ *
+ */
+
+/* Default font. */
+body {
+  font-family: Helvetica, sans-serif;
+  max-width:62.5em;
+  margin: auto;
+}
+
+/* Title font. */
+
+h1, h2, h3, h4, h5, h6 {
+    clear: both;
+    font-family: Helvetica, serif;
+    line-height: 1.3;
+}
+
+a {
+    border-bottom: 1px dotted #999999;
+    color: #378f03 !important;
+    text-decoration: none !important;
+}
+a:hover {
+    border-bottom: 1px solid #378f03;
+    color: #378f03 !important;
+    text-decoration: none !important;
+}
+
+em {
+  font-style: italic;
+  color: #4E4E4E;
+}
+
+strong {
+  font-weight: bold;
+  color: #000000;
+}
+
+
+div.sectionbody {
+/*  margin-left: 0;*/
+}
+
+hr {
+  border: 1px solid #575757;
+}
+
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+#author {
+  color: #575757;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+#footer {
+  font-size: small;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+
+#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+
+#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+div.admonitionblock {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #575757;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+div.verseblock > pre.content {
+  font-family: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #575757;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 2px solid silver;
+}
+
+div.exampleblock > div.content {
+  border-left: 2px solid silver;
+  padding: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: #575757;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #575757;
+}
+thead {
+  font-weight: bold;
+  color: #575757;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: #575757;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+@media print {
+  #footer-badges { display: none; }
+}
+
+#toctitle {
+  color: #575757;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 { margin-top: 0; margin-bottom: 0; }
+div.toclevel1 { margin-top: 0.3em; margin-left: 0; font-size: 1.0em; }
+div.toclevel2 { margin-top: 0.25em; margin-left: 2em; font-size: 0.9em; }
+div.toclevel3 { margin-left: 4em; font-size: 0.8em; }
+div.toclevel4 { margin-left: 6em; font-size: 0.8em; }
+
+
+
+.monospaced, tt, div.listingblock > div.content {
+  font-family:  Consolas, "Andale Mono", "Courier New", monospace;
+  color: #004400;
+  background: #f4f4f4;
+  max-width: 80em;
+  line-height: 1.2em;
+}
+
+.paragraph p  {
+  line-height: 1.5em;
+  margin-top: 1em;
+}
+
+/*.paragraph p, li, dd, .content { max-width: 85em; }
+.admonitionblock               { max-width: 35em; }*/
+
+div.sectionbody div.ulist > ul > li {
+  list-style-type: square;
+  color: #aaa;
+}
+  div.sectionbody div.ulist >  ul > li > * {
+    color: black;
+    /*font-size: 50%;*/
+  }
+
+
+div.sectionbody div.ulist > ul > li div.ulist > ul > li {
+  color: #ccd ;
+}
+  div.sectionbody div.ulist > ul > li div.ulist > ul > li > * {
+    color: black ;
+  }
+
+/*
+ * html5 specific
+ *
+ * */
+
+table.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+thead, p.tableblock.header {
+  font-weight: bold;
+  color: #575757;
+}
+p.tableblock {
+  margin-top: 0;
+}
+table.tableblock {
+  border-width: 3px;
+  border-spacing: 0px;
+  border-style: solid;
+  border-color: #575757;
+  border-collapse: collapse;
+}
+th.tableblock, td.tableblock {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #575757;
+}
+
+table.tableblock.frame-topbot {
+  border-left-style: hidden;
+  border-right-style: hidden;
+}
+table.tableblock.frame-sides {
+  border-top-style: hidden;
+  border-bottom-style: hidden;
+}
+table.tableblock.frame-none {
+  border-style: hidden;
+}
+
+th.tableblock.halign-left, td.tableblock.halign-left {
+  text-align: left;
+}
+th.tableblock.halign-center, td.tableblock.halign-center {
+  text-align: center;
+}
+th.tableblock.halign-right, td.tableblock.halign-right {
+  text-align: right;
+}
+
+th.tableblock.valign-top, td.tableblock.valign-top {
+  vertical-align: top;
+}
+th.tableblock.valign-middle, td.tableblock.valign-middle {
+  vertical-align: middle;
+}
+th.tableblock.valign-bottom, td.tableblock.valign-bottom {
+  vertical-align: bottom;
+}
+
+
+
+</style>
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{color:rgba(0,0,0,.4)}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top;line-height:1.45}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>OpenMUC User Guide</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_intro">1. Intro</a></li>
+<li><a href="#_architecture">2. Architecture</a></li>
+<li><a href="#_quick_start">3. Quick Start</a>
+<ul class="sectlevel2">
+<li><a href="#_framework_files">3.1. Framework Files</a></li>
+<li><a href="#_starting_the_demo">3.2. Starting the Demo</a></li>
+<li><a href="#_configuration">3.3. Configuration</a></li>
+<li><a href="#_simple_demo_app">3.4. Simple Demo App</a></li>
+<li><a href="#_webui_walk_through">3.5. WebUI Walk Through</a></li>
+</ul>
+</li>
+<li><a href="#_distribution">4. Distribution</a></li>
+<li><a href="#_running_openmuc">5. Running OpenMUC</a></li>
+<li><a href="#_install_a_driver">6. Install a Driver</a>
+<ul class="sectlevel2">
+<li><a href="#_use_a_driver_with_serial_communication">6.1. Use a Driver with Serial Communication</a></li>
+</ul>
+</li>
+<li><a href="#_devices_and_channels">7. Devices and Channels</a>
+<ul class="sectlevel2">
+<li><a href="#anchor-configuration">7.1. Configuration</a></li>
+<li><a href="#_sampling_listening_and_logging">7.2. Sampling, Listening and Logging</a></li>
+</ul>
+</li>
+<li><a href="#drivers">8. Drivers</a>
+<ul class="sectlevel2">
+<li><a href="#_modbus">8.1. Modbus</a></li>
+<li><a href="#_m_bus_wired">8.2. M-Bus (wired)</a></li>
+<li><a href="#_m_bus_wireless">8.3. M-Bus (wireless)</a></li>
+<li><a href="#_iec_61850">8.4. IEC 61850</a></li>
+<li><a href="#_iec_62056_part_21">8.5. IEC 62056 part 21</a></li>
+<li><a href="#_dlms_cosem">8.6. DLMS/COSEM</a></li>
+<li><a href="#_knx">8.7. KNX</a></li>
+<li><a href="#_ehz">8.8. eHZ</a></li>
+<li><a href="#_snmp">8.9. SNMP</a></li>
+<li><a href="#_aggregator">8.10. Aggregator</a></li>
+</ul>
+</li>
+<li><a href="#anchor-web-ui">9. The WebUI</a>
+<ul class="sectlevel2">
+<li><a href="#_plugins">9.1. Plugins</a></li>
+<li><a href="#_https">9.2. HTTPS</a></li>
+</ul>
+</li>
+<li><a href="#id_restful_web_services">10. REST Server</a>
+<ul class="sectlevel2">
+<li><a href="#_requirements">10.1. Requirements</a></li>
+<li><a href="#_accessing_channels">10.2. Accessing channels</a></li>
+</ul>
+</li>
+<li><a href="#_authors">11. Authors</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_intro">1. Intro</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenMUC is a software framework based on Java and OSGi that simplifies
+the development of customized monitoring, logging and control
+systems. It can be used as a basis to flexibly implement anything from
+simple data loggers to complex SCADA systems. The main goal of OpenMUC
+is to shield the application developer of monitoring and control
+applications from the details of the communication protocol and data
+logging technologies. Third parties are encouraged to create their own
+customized systems based on OpenMUC. OpenMUC is licensed under the
+GPL. If you need an individual license please
+<a href="https://www.openmuc.org/contact/">contact</a> us.</p>
+</div>
+<div class="paragraph">
+<p>For a short overview of OpenMUC&#8217;s goals and features please visit our
+<a href="https://www.openmuc.org/openmuc/">overview page</a>. This guide is a
+detailed documentation on how OpenMUC works and how to use it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture">2. Architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following image depicts the software layers of an OpenMUC
+system.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/openmuc-software-layers.png"><img src="images/openmuc-software-layers.png" alt="openmuc software layers" width="60%"></a>
+</div>
+<div class="title">Figure 1. OpenMUC software layers</div>
+</div>
+<div class="paragraph">
+<p>The OpenMUC framework runs within an OSGi environment which in turn is
+being run by a Java Virtual Machine. The underlying operating system
+and hardware can be chosen freely as long as it can run a Java 7 VM.</p>
+</div>
+<div class="paragraph">
+<p>OpenMUC consists essentially of various software modules which are
+implemented as OSGi bundles that run in the OSGi environment and
+communicate over OSGi services. The following figure illustrates the
+main modules that make up OpenMUC.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/openmuc-bundles-with-numbers.png"><img src="images/openmuc-bundles-with-numbers.png" alt="openmuc bundles with numbers" width="60%"></a>
+</div>
+<div class="title">Figure 2. OpenMUC modules</div>
+</div>
+<div class="paragraph">
+<p>All modules except for the data manager are optional. Thus by
+selecting the modules you need you can easily create your own
+customized and lightweight system.</p>
+</div>
+<div class="paragraph">
+<p>The different modules in the picture are now further explained:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <strong>data manager</strong> represents the core and center of
+OpenMUC. Virtually all other OpenMUC modules (e.g. drivers, data
+loggers, servers, applications and web interface plugins) communicate
+with it through OSGi services. The data manager gets automatically
+notified when new drivers or data loggers get installed. OpenMUC
+applications communicate with devices, access logged data or change
+the configuration by calling service functions provided by the data
+manager. It is therefore the data manager that shields the application
+programmer from the details of the communication and data logging
+technology. What the data manager does is mostly controlled through a
+central configuration.</p>
+</li>
+<li>
+<p>The <strong>channel configuration</strong> holds the user defined data channels and
+its parameters. Data channels are the frameworks
+representation of data points in connected devices. Amongst others the
+channel configuration holds the following information:</p>
+<div class="openblock">
+<div class="content">
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>communication parameters that the drivers require</p>
+</li>
+<li>
+<p>when to sample new data from connected devices</p>
+</li>
+<li>
+<p>when to send sampled data to existing data logger(s)
+for efficient persistent storage.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The configuration is stored in the file
+conf/channels.xml. You may add or modify the configured channels by
+manually editing the channels.xml file or through the channel
+configurator web interface.</p>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>A <strong>driver</strong> is used by the data manager to send/get data to/from a
+connected device. Thus a driver usually implements a communication
+protocol. Several communication drivers have already been developed
+(e.g. IEC 61850, ModbusTCP, KNX, DLMS/COSEM). Many drivers use
+standalone communication libraries (e.g. OpenIEC61850, jMBus)
+developed by the OpenMUC team. These libraries do not depend on the
+OpenMUC framework and can therefore be used by any Java
+application. New communication drivers for OpenMUC can be easily
+developed by third parties.</p>
+</li>
+<li>
+<p>A <strong>data logger</strong> saves sampled data persistently. The data manager
+forwards sampled data to all available data loggers if configured to
+do so. Data loggers are specifically designed to store time series
+data for short storage and retrieval times. Note that this usually
+means that they are not SQL-based. OpenMUC currently includes two data
+loggers. The ASCII data logger saves data in a human readable text
+format while SlotsDB saves data in a more efficient binary format.</p>
+</li>
+<li>
+<p>If all you want is sample and log data then you can use the OpenMUC
+framework as it is and simply configure it to your needs. But if you
+want to process sampled data or control a device you will want to
+write your own <strong>application</strong>. Like all other modules your application
+will be an OSGi bundle. In your application you can use the
+DataAccessService and the ConfigService provided by the data manager
+to access sampled and logged data. You may also issue immediate read
+or write commands. These are forwarded by the data manager to the
+driver. The configuration (when to sample and to log) can also be
+changed during run-time by the application. At all times the
+application only communicates with the data manager and is therefore
+not confronted with the complicated details of the communication
+technology being used.</p>
+</li>
+<li>
+<p>If your application is located on a remote system (e.g. a smart
+phone or an Internet server) then the data and configuration can be
+accessed through an OpenMUC <strong>server</strong>. At the moment OpenMUC provides a
+RESTful web service for this purpose.</p>
+</li>
+<li>
+<p>Finally the OpenMUC framework provides a web user interface
+(<strong>WebUI</strong>) for tasks such as configuration, visualization of sampled
+data or exporting logged data. The web interface is modular and
+provides a plug-in interface. This way developers may write a website
+that integrates into the main menu of the web interface. The WebUI is
+mostly for configuration and testing purposes. Most companies will
+want to create their own individual UI.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quick_start">3. Quick Start</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This chapter will give you an idea of how OpenMUC works by showing you
+how to run and adjust the demo framework which is part of the OpenMUC
+distribution. OpenMUC requires Java 7 or higher, therefore make sure
+it is installed on your machine.</p>
+</div>
+<div class="sect2">
+<h3 id="_framework_files">3.1. Framework Files</h3>
+<div class="paragraph">
+<p>The folder "framework" contains a configured OpenMUC framework that
+can be used as a basis to create your own customized OpenMUC framework
+for your task. The framework folder contains the following important
+files and folders:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">felix</dt>
+<dd>
+<p>The main Apache Felix OSGi jar which is run to start OpenMUC.</p>
+</dd>
+<dt class="hdlist1">bin</dt>
+<dd>
+<p>Run scripts for Linux/Unix and Windows.</p>
+</dd>
+<dt class="hdlist1">bundle</dt>
+<dd>
+<p>Contains all bundles that are started by the Felix OSGi
+framework. Note that this folder does not contain all available
+OpenMUC bundles but only a subset for demonstration purposes.</p>
+</dd>
+<dt class="hdlist1">log</dt>
+<dd>
+<p>Log files produced by the running framework.</p>
+</dd>
+<dt class="hdlist1">conf</dt>
+<dd>
+<p>Various configuration files of the framework.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_starting_the_demo">3.2. Starting the Demo</h3>
+<div class="paragraph">
+<p>First open a terminal and go to the folder named "framework".</p>
+</div>
+<div class="paragraph">
+<p>To start OpenMUC on Linux run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc start -fg</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To start OpenMUC on Window run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>bin\openmuc.bat</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will start the Apache Felix OSGi framework which in turn starts
+all the bundles located in the "bundle" folder. Among the bundles that
+are started is the Apache Gogo shell. This shell is entered once you
+run OpenMUC.</p>
+</div>
+<div class="paragraph">
+<p>The shell can be used to start, stop, and reload bundles among other
+things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
+or "stop 0".</p>
+</div>
+<div class="paragraph">
+<p>Now type "lb" to list all installed bundles.</p>
+</div>
+<div class="paragraph">
+<p>You will see that among the active bundles are the Simple Demo App,
+the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
+as the CSV driver.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuration">3.3. Configuration</h3>
+<div class="paragraph">
+<p>One of the most important configuration files is
+conf/channels.xml. This file tells the OpenMUC Data Manager which data
+it shall sample, listen for, and log. This is done by configuring so
+called channels. Each channel represents a single data point whose
+value can be an integer, double, string or byte array.</p>
+</div>
+<div class="paragraph">
+<p>The demo&#8217;s channels.xml configures among others channels whose values
+are read by the CSV driver. The channels are sampled/read and logged
+every 5 seconds.</p>
+</div>
+<div class="paragraph">
+<p>For more information about the channels.xml see the <a href="#anchor-configuration">configuration</a> chapter.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simple_demo_app">3.4. Simple Demo App</h3>
+<div class="paragraph">
+<p>The simple demo app demonstrates how you can access channels and
+their records from an application. The app reads data from channels of
+the CSV driver, calculates new values from them and writes them to
+other channels. The app can be used as starting point to create your
+own OpenMUC application.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_webui_walk_through">3.5. WebUI Walk Through</h3>
+<div class="paragraph">
+<p>This section leads you through the framework&#8217;s WebUI.</p>
+</div>
+<div class="paragraph">
+<p>Open a browser (works currently best with Google Chrome) and enter the
+URL "http://localhost:8888". This leads you to the login page. The
+default user is <em>admin</em> and the default password is <em>admin</em> as well.</p>
+</div>
+<div class="paragraph">
+<p>After successful login the OpenMUC Dashboard opens, which provides
+various plugins for configuration and visualization. A full
+description of the plugins can be found in the chapter
+<a href="#anchor-web-ui">Web UI</a>.</p>
+</div>
+<div class="paragraph">
+<p>Let us first look at the Channel Access Tool which provides the
+current value of each channel and also enables you to write
+values. Click on Channel Access Tool to open this plugin. The next
+page lists all available devices which are currently configured in
+OpenMUC. Select the <em>home1</em> and proceed with <em>Access selected</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-channelaccesstool-device-selection.png"><img src="images/webui-channelaccesstool-device-selection.png" alt="webui channelaccesstool device selection" width="60%"></a>
+</div>
+<div class="title">Figure 3. WebUI device selection</div>
+</div>
+<div class="paragraph">
+<p>On the next page you will see the latest records of all channels of
+home1. Each record consists of a data value, a timestamp when it was
+sampled and a quality flag.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-channelaccesstool-channels.png"><img src="images/webui-channelaccesstool-channels.png" alt="webui channelaccesstool channels" width="60%"></a>
+</div>
+<div class="title">Figure 4. WebUI channel access tool</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s have look at the <em>Data Plotter</em>. To get to the <em>Data Plotter</em>
+click on <em>Applications</em> next to the OpenMUC logo and select <em>Data
+Plotter</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-dataplotter.png"><img src="images/webui-dataplotter.png" alt="webui dataplotter" width="60%"></a>
+</div>
+<div class="title">Figure 5. WebUI data plotter</div>
+</div>
+<div class="paragraph">
+<p>Select the <em>Live</em> Data Plotter. To view the live data select the channels of your choice and
+click <em>Plot Data</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-dataplotter-live.png"><img src="images/webui-dataplotter-live.png" alt="webui dataplotter live" width="60%"></a>
+</div>
+<div class="title">Figure 6. WebUI live plotter</div>
+</div>
+<div class="sect3">
+<h4 id="_add_a_new_channel">3.5.1. Add a New Channel</h4>
+<div class="paragraph">
+<p>All channels currently defined get their data using the CSV driver
+from the file "csv-driver/home1.csv". That file contains additional
+data. So let us now add a new channel to the OpenMUC configuration
+using the channel scan feature.</p>
+</div>
+<div class="paragraph">
+<p>In the WebUI go to the Channel Configurator. Click the tab
+"Devices". In the row of device "home1" click on the search/scan
+icon. It shows you all the channels available in that device. Once the
+scan has completed a list of available channels is shown. In this
+tutorial we select the channel with address
+"pv_energy_production". Click "add channels".</p>
+</div>
+<div class="paragraph">
+<p>Now the channel overview opens where we can find our selected
+channel. In the last step of the configuration we click on the edit
+icon of the channel and set the parameters <em>logging interval</em> and
+<em>sampling interval</em> to 5000 ms and change the unit to kWh.</p>
+</div>
+<div class="paragraph">
+<p>You can now check that the new channel was added to the
+"conf/channels.xml" file.</p>
+</div>
+<div class="paragraph">
+<p>After submitting the channel configuration we go back to the dashboard
+and open the Channel Access Tool. Here we select our home1 device and
+continue with <em>access selected</em>. Now we able to see the current values
+of the pv_energy_production channel.</p>
+</div>
+<div class="paragraph">
+<p>The logged data can be found in
+<em>openmuc/framework/data/ascii/&lt;currentdate&gt;_5000.dat</em></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_distribution">4. Distribution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The distribution contains the following important files and folders:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">build/libs-all</dt>
+<dd>
+<p>All modules/bundles that make up the OpenMUC framework</p>
+</dd>
+<dt class="hdlist1">dependencies</dt>
+<dd>
+<p>Information on the external dependencies of the OpenMUC
+framework. Also contains the RXTX library (repacked as a bundle)
+which is needed by many OpenMUC drivers based on serial
+communication.</p>
+</dd>
+<dt class="hdlist1">projects</dt>
+<dd>
+<p>All sources of the OpenMUC framework. You can easily change and
+rebuild OpenMUC using Gradle.</p>
+</dd>
+<dt class="hdlist1">framework</dt>
+<dd>
+<p>A ready to use OpenMUC demo framework that is introduced next.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_running_openmuc">5. Running OpenMUC</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To start OpenMUC on Linux run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc start</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This runs OpenMUC as a background process. If you want to run OpenMUC
+in the foreground run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc start -fg</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To start OpenMUC under Window run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>bin\openmuc.bat</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Linux start script is a sophisticated bash script that can be used
+to start, stop, restart OpenMUC. The Windows run script is a simple
+bat file that starts OpenMUC. The following explanations will focus on
+using OpenMUC in a Linux environment as it is the more common
+scenario.</p>
+</div>
+<div class="paragraph">
+<p>Starting OpenMUC really means running the Felix OSGi Framework by
+executing</p>
+</div>
+<div class="paragraph">
+<p>java -jar felix/felix.jar</p>
+</div>
+<div class="paragraph">
+<p>The Felix OSGi Framework will then start all bundles located in the
+"bundle" folder.</p>
+</div>
+<div class="paragraph">
+<p>When you start OpenMUC in the foreground you will enter the Felix Gogo
+shell. From the shell you can start, stop and reload bundles among
+many other things. To quit the shell and stop the framework press
+ctrl+d or enter "stop 0".</p>
+</div>
+<div class="paragraph">
+<p>If you ran OpenMUC as a background process you can access the Gogo shell using the telnet:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>netcat 127.0.0.1 6666</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or using the openmuc run script</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc remote-shell</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Pressing ctrl+d will exit the remote shell but not stop the openmuc framework.</p>
+</div>
+<div class="paragraph">
+<p>To stop OpenMUC run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc stop</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_a_driver">6. Install a Driver</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When you want to use a new driver you have to copy the corresponding jar file from the folder "build/libs-all/" to the "bundle" folder of the framework. Many drivers are "fat jars" which include their dependencies. An exception is the RXTX library which cannot be packed with the jars.</p>
+</div>
+<div class="sect2">
+<h3 id="_use_a_driver_with_serial_communication">6.1. Use a Driver with Serial Communication</h3>
+<div class="paragraph">
+<p>When you need to use a driver that uses serial communication you have to copy the RXTX bundle to the frameworks "bundle" folder.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>cp ../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar ./bundle/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Additionally you need to install librxtx-java:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>sudo apt-get install librxtx-java</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The serial ports /dev/tty* are only accessible to members belonging to the group dialout. We therefore have to add our user to that group. E.g. using:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>sudo adduser &lt;yourUserName&gt; dialout</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_devices_and_channels">7. Devices and Channels</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenMUC works on the basis of channels. A channel basically represents
+a single data point. Some examples for a channel are the metered
+active power of a smart meter, the temperature of a temperature
+sensor, any value of digital or analog I/O module or the some
+manufacture data of the device. Thus a channel can represent any kind
+of data point. The following picture illustrates the channel concept.</p>
+</div>
+<div class="paragraph">
+<div class="title">OpenMUCs Channel Concept</div>
+<p><span class="image"><a class="image" href="images/openmuc_concept.png"><img src="images/openmuc_concept.png" alt="OpenMUC channel concept" width="60%"></a></span></p>
+</div>
+<div class="sect2">
+<h3 id="anchor-configuration">7.1. Configuration</h3>
+<div class="paragraph">
+<p>The <strong>conf/channels.xml</strong> file is the main configuration file for
+OpenMUC. It tells the OpenMUC framework which channels it should log
+and sample. It contains a hierarchical structure of drivers, devices
+and channels. A driver can have one or more devices and devices can
+have one or more channels. Following listing shows a sample
+configuration to illustrate the hierarchical structure. The driver,
+device and channel options are explained afterwards.</p>
+</div>
+<div class="listingblock">
+<div class="title">channels.xml structure</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;</span>
+<span class="tag">&lt;configuration&gt;</span>
+        <span class="tag">&lt;logger&gt;</span>loggerId<span class="tag">&lt;/logger&gt;</span>
+
+        <span class="tag">&lt;driver</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">driver_x</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+                <span class="comment">&lt;!-- driver options --&gt;</span>
+                <span class="tag">&lt;device&gt;</span>
+                        <span class="comment">&lt;!-- device options --&gt;</span>
+                        <span class="tag">&lt;channel&gt;</span>
+                                <span class="comment">&lt;!-- channel options --&gt;</span>
+                        <span class="tag">&lt;/channel&gt;</span>
+                        <span class="tag">&lt;channel&gt;</span>
+                                <span class="comment">&lt;!-- channel options --&gt;</span>
+                        <span class="tag">&lt;/channel&gt;</span>
+                <span class="tag">&lt;/device&gt;</span>
+        <span class="tag">&lt;/driver&gt;</span>
+<span class="tag">&lt;/configuration&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The available driver settings, device settings and channel settings
+can be found in the
+<a href="https://www.openmuc.org/openmuc/javadoc/">Javadoc</a> of
+DriverConfig.java, DeviceConfig.java and ChannelConfig.java
+respectively.</p>
+</div>
+<div class="paragraph">
+<p><strong>Default Data Logger</strong></p>
+</div>
+<div class="paragraph">
+<p>You can define a default data logger by adding a logger element with
+the id of a data logger to the configuration. If available, that data
+logger is used to read logged values. The ids of data loggers shipped
+with the OpenMUC Framework are defined in the "Data Loggers"
+chapter. If no logger with the defined id is available, or the logger
+element is missing from the configuration, an arbitrary available
+logger is used to read logged values. Only one default logger may be
+defined. If multiple logger elements exists, only the first one is
+evaluated.</p>
+</div>
+<div class="paragraph">
+<p>This configuration only affects reading of already logged
+values. Channels are still logged by all available loggers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sampling_listening_and_logging">7.2. Sampling, Listening and Logging</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>sampling</strong> is when the data manager frequently asks a driver to
+retrieve a channel value.</p>
+</li>
+<li>
+<p><strong>listening</strong> is when the driver listens on a channel and forwards new
+values to the data manager.</p>
+</li>
+<li>
+<p><strong>logging</strong> is when the data manager forwards the current sampled
+value to the data loggers that are installed. The data loggers then
+store the data persistently</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The following examples will give you a better understanding of these
+three settings.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example 1: Just Sampling</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channel&gt;</span>
+        <span class="tag">&lt;id&gt;</span>channel1<span class="tag">&lt;/id&gt;</span>
+        <span class="tag">&lt;channelAddress&gt;</span>dummy/channel/address/1<span class="tag">&lt;/channelAddress&gt;</span>
+        <span class="tag">&lt;samplingInterval&gt;</span>4s<span class="tag">&lt;/samplingInterval&gt;</span>
+<span class="tag">&lt;/channel&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In example 1 the channel is sampled every 4 seconds which means the
+data manager requests every 4 seconds the current value from the
+driver.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example 2: Sampling and Logging</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channel&gt;</span>
+        <span class="tag">&lt;id&gt;</span>channel2<span class="tag">&lt;/id&gt;</span>
+        <span class="tag">&lt;channelAddress&gt;</span>dummy/channel/address/2<span class="tag">&lt;/channelAddress&gt;</span>
+        <span class="tag">&lt;samplingInterval&gt;</span>4s<span class="tag">&lt;/samplingInterval&gt;</span>
+        <span class="tag">&lt;loggingInterval&gt;</span>8s<span class="tag">&lt;/loggingInterval&gt;</span>
+<span class="tag">&lt;/channel&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example 2 extends example 1 by an additional logging. The logging
+interval is set to 8 seconds which means that every 8 seconds the last
+sampled value is stored in the database. In this case every second
+sampled value is stored because the sampling interval is 4 seconds. To
+log every sampled value the sampling interval and logging interval
+need to be the same.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example 3: Just Listening</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channel&gt;</span>
+        <span class="tag">&lt;id&gt;</span>channel3<span class="tag">&lt;/id&gt;</span>
+        <span class="tag">&lt;channelAddress&gt;</span>dummy/channel/address/3<span class="tag">&lt;/channelAddress&gt;</span>
+        <span class="tag">&lt;listening&gt;</span>true<span class="tag">&lt;/listening&gt;</span>
+<span class="tag">&lt;/channel&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In example 3 listening instead of sampling is used. This means that the driver reports a new channel value to the data manager when the value has changed for example.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example 4: Listening and Logging</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"> <span class="tag">&lt;channel&gt;</span>
+        <span class="tag">&lt;id&gt;</span>channel4<span class="tag">&lt;/id&gt;</span>
+        <span class="tag">&lt;channelAddress&gt;</span>dummy/channel/address/4<span class="tag">&lt;/channelAddress&gt;</span>
+        <span class="tag">&lt;listening&gt;</span>true<span class="tag">&lt;/listening&gt;</span>
+        <span class="tag">&lt;loggingInterval&gt;</span>8s<span class="tag">&lt;/loggingInterval&gt;</span>
+<span class="tag">&lt;/channel&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example 4 extends example 3 by an additional logging.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+When listening is true and additional a sampling interval is defined then the sampling is ignored.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="drivers">8. Drivers</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_modbus">8.1. Modbus</h3>
+<div class="paragraph">
+<p>Modbus Homepage: <a href="http://www.modbus.org" class="bare">http://www.modbus.org</a><br>
+Modbus Protocol Specifications: <a href="http://www.modbus.org/specs.php" class="bare">http://www.modbus.org/specs.php</a><br>
+Modbus Master Simulator modpoll: <a href="http://www.modbusdriver.com/modpoll.html" class="bare">http://www.modbusdriver.com/modpoll.html</a></p>
+</div>
+<div class="paragraph">
+<p>The Modbus driver supports RTU, TCP and RTU over TCP.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top"><strong>TCP</strong> (ethernet)</th>
+<th class="tableblock halign-left valign-top"><strong>RTU</strong> (serial)</th>
+<th class="tableblock halign-left valign-top"><strong>RTUTCP</strong> (serial over ethernet)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID</p></td>
+<td class="tableblock halign-left valign-top" colspan="3"><p class="tableblock">modbus</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;ip&gt;[:&lt;port&gt;]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;serial port&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;ip&gt;[:&lt;port&gt;]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;type&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;type&gt;:&lt;encoding&gt;:&lt;baudrate&gt;:&lt;databits&gt;:&lt;parity&gt;:&lt;stopbits&gt;:&lt;echo&gt;:&lt;flowControlIn&gt;:&lt;flowControlOut&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;type&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top" colspan="3"><p class="tableblock">&lt;UnitId&gt;:&lt;PrimaryTable&gt;:&lt;Address&gt;:&lt;Datatyp&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>DeviceAddress</strong></p>
+</div>
+<div class="paragraph">
+<p><strong>For TCP and RTUTCP</strong><br>
+The DeviceAddress is specified by an IP address and an optional port. If no port is specified, the driver uses the modbus default port 502.</p>
+</div>
+<div class="paragraph">
+<p><strong>For RTU:</strong><br>
+The DeviceAddress is specified by a serial port like /dev/ttyS0.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The driver uses the jamod library which itself uses the rxtx library for serial communication. Therefor the librxtx-java package needs to be installed on the system. Furthermore the user needs to be in the groups dialout and plugdev
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>Settings</strong></p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 2. Settings</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Config</th>
+<th class="tableblock halign-left valign-top">Description/ Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;type&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RTU|TCP|RTUTCP</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;encoding&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SERIAL_ENCODING_RTU</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;baudrate&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer value: e.g.: 2400, 9600, 115200</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;databits&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DATABITS_5, DATABITS_6, DATABITS_7, DATABITS_8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;parity&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PARITY_EVEN, PARITY_MARK, PARITY_NONE, PARITY_ODD, PARITY_SPACE</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;stopbits&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STOPBITS_1, STOPBITS_1_5, STOPBITS_2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;echo&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ECHO_TRUE, ECHO_FALSE</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;flowControlIn&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FLOWCONTROL_NONE, FLOWCONTROL_RTSCTS_IN, FLOWCONTROL_XONXOFF_IN</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;flowControlOut&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FLOWCONTROL_NONE, FLOWCONTROL_RTSCTS_OUT, FLOWCONTROL_XONXOFF_OUT</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">Example Settings</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>
+RTU:SERIAL_ENCODING_RTU:38400:DATABITS_8:PARITY_NONE:STOPBITS_1 :ECHO_FALSE:FLOWCONTROL_NONE:FLOWCONTROL_NONE
+<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>ChannelAddress</strong></p>
+</div>
+<div class="paragraph">
+<p>The ChannelAddress consists of four parts: UnitId, PrimaryTable, Address and Datatyp which are explained in detail in the following table.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 3. Parameter Description</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UnitId</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In homogenious architecture (when just MODBUS TCP/IP is used)<br>
+On TCP/IP, the MODBUS server is addressed by its IP address; therefore, the MODBUS Unit Identifier is useless. The value 255 (0xFF) has to be used.
+</p><p class="tableblock">In heterogeneous architecture (when using MODBUS TCP/IP and MODBUS serial or MODBUS+)<br>
+This field is used for routing purpose when addressing a device on a MODBUS+ or MODBUS serial line sub-network. In that case, the “Unit Identifier” carries the MODBUS slave address of the remote device. The MODBUS slave device addresses on serial line are assigned from 1 to 247 (decimal). Address 0 is used as broadcast address.
+</p><p class="tableblock">Note: Some MODBUS devices act like a bridge or a gateway and require the UnitId even if they are accessed through TCP/IP. One of those devices is the Janitza UMG. To access data from the Janitza the UnitId has to be 1.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PrimaryTable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PrimaryTable defines the which part of the device memory should be accessed.
+Valid values: COILS, DISCRETE_INPUTS, INPUT_REGISTERS, HOLDING_REGISTERS</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Address of the channel/register. Decimal integer value - not hex!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Datatyp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Valid values:
+BOOLEAN, SHORT, INT, FLOAT, DOUBLE, LONG, BYTEARRAY[n] (n = number of REGISTERS not BYTES, 1 Register = 2 Bytes!)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<div class="title">Primary Tables and Channel Address</div>
+<p><span class="image"><a class="image" href="../images/driver_modbustcp_address.png"><img src="images/driver_modbustcp_address.png" alt="Driver Modbus Address" width="80%"></a></span></p>
+</div>
+<div class="paragraph">
+<p><strong>Valid Address Parameter Combinations</strong></p>
+</div>
+<div class="paragraph">
+<p>Since COILS and DISCRETE_INPUTS are used for bit access, only the data type BOOLEAN makes sense in combinations with of one of these. INPUT_REGISTERS and HOLDING_REGISTERS are used for register access. There is also a difference between reading and writing. Only COILS and HOLDING_REGISTERS are readable and writable. DISCRETE_INPUTS and INPUT_REGISTERS are read only. The following table gives an overview of valid parameter combinations of PrimaryTable and Datatyp.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 4. Valid Address Parameters for reading a channel</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Primary Table</th>
+<th class="tableblock halign-center valign-top">BOOLEAN</th>
+<th class="tableblock halign-center valign-top">SHORT</th>
+<th class="tableblock halign-center valign-top">INT</th>
+<th class="tableblock halign-center valign-top">FLOAT</th>
+<th class="tableblock halign-center valign-top">DOUBLE</th>
+<th class="tableblock halign-center valign-top">LONG</th>
+<th class="tableblock halign-center valign-top">BYTEARRAY[n]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">COILS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">DISCRETE_INPUTS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">INPUT_REGISTERS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">HOLDING_REGISTERS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 5. Valid Address Parameters for writing a channel</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Primary Table</th>
+<th class="tableblock halign-center valign-top">BOOLEAN</th>
+<th class="tableblock halign-center valign-top">SHORT</th>
+<th class="tableblock halign-center valign-top">INT</th>
+<th class="tableblock halign-center valign-top">FLOAT</th>
+<th class="tableblock halign-center valign-top">DOUBLE</th>
+<th class="tableblock halign-center valign-top">LONG</th>
+<th class="tableblock halign-center valign-top">BYTEARRAY[n]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">COILS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">DISCRETE_INPUTS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">INPUT_REGISTERS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><div class="verse">HOLDING_REGISTERS</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">-</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+<td class="tableblock halign-center valign-top"><div class="verse">x</div></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">Examples for valid addresses</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:INPUT_REGISTERS:100:SHORT<span class="tag">&lt;/channelAddress&gt;</span>
+<span class="tag">&lt;channelAddress&gt;</span>255:COILS:412:BOOLEAN<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Examples for invalid addresses</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:INPUT_REGISTERS:100:BOOLEAN<span class="tag">&lt;/channelAddress&gt;</span> (BOOLEAN doesn't go with INPUT_REGISTERS)
+<span class="tag">&lt;channelAddress&gt;</span>255:COILS:412:LONG<span class="tag">&lt;/channelAddress&gt;</span> (LONG does not go with COILS)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Function Codes</strong> (more detailed information about how the driver works)</p>
+</div>
+<div class="paragraph">
+<p>The driver is based on the Java Modbus Library (<a href="http://jamod.sourceforge.net">jamod</a>) which provides read and write access via modbus.
+Following table shows which modbus function code is used to access the data of the channel.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 6. Relation between function code and channel address</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">jamod Method</th>
+<th class="tableblock halign-left valign-top">Modbus Function Code</th>
+<th class="tableblock halign-left valign-top">Primary Table</th>
+<th class="tableblock halign-left valign-top">Access</th>
+<th class="tableblock halign-left valign-top">Java Data Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ReadCoilsRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 1  Read Coils</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coils</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ReadInputDiscretesRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 2  Read Discrete Inputs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Discrete Inputs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ReadMultipleRegistersRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 3  Read Holding Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Holding Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">short, int, double, long, float, bytearray[]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ReadInputRegistersRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 4  Read Input Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Input Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">short, int, double, long, float, bytearray[]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">WriteCoilRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 5  Write Single Coil</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coils</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">WriteMultipleCoilsRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 15 Write Multiple Coils</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coils</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">WriteMultipleRegistersRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC  6  Write Single Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Holding Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">short, int, double, long, float, bytearray[]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">WriteMultipleRegistersRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FC 16  Write Multiple Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Holding Registers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">short, int, double, long, float, bytearray[]</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Example</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:INPUT_REGISTERS:100:SHORT<span class="tag">&lt;/channelAddress&gt;</span> will be accessed via function code 4.</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_modbus_tcp_and_wago">8.1.1. Modbus TCP and Wago</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Till now the driver has been tested with some modules of the Wago 750 Series with the Fieldbus-Coupler 750-342
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If you want to use the Modbus TCP driver for accessing a Wago device you first need to know how the process image is build. From the process image you can derive the register addresses of your Wago modules (AO, AI, DO, DI). You find detailed information about the process image in <a href="http://www.wago.com/wagoweb/documentation/750/eng_manu/coupler_controller/m07500342_00000000_0en.pdf">WAGO 750-342 Manual</a> on page 46 and 47.</p>
+</div>
+<div class="paragraph">
+<p>The following Examples are based on figure <a href="#wago">Wago 750-342 Process Image</a><br></p>
+</div>
+<div class="paragraph">
+<p>*Example 1: Read AI 2 from first (left) 472-module (Register Address 0x0001)</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:INPUT_REGISTERS:1:SHORT<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Example 2: Read DI 3 from first (left) 472-module (Register Address 0x0003)</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:DISCRETE_INPUTS:3:BOOLEAN<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Example 3: Write AO 1 from first (left) 550-module (Register Address 0x0000/0x0200)</strong><br></p>
+</div>
+<div class="paragraph">
+<p>For writing only the +0x0200 addresses should be used! Since the driver accepts only a decimal channelAddress 0x0200 must be converted to decimal. The resulting address would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:HOLDING_REGISTERS:512:SHORT<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Example 4: Write DO 2 from 501-module (Register Address 0x0000/0x0201)</strong><br>
+For writing only the +0x0200 addresses should be used! Since the driver accepts only a decimal channelAddress 0x0201 must be converted to decimal. The resulting address would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:COILS:513:BOOLEAN<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Example 5: Read back DO 2 from 501-module (Register Address 0x0201)</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;channelAddress&gt;</span>255:COILS:513:BOOLEAN<span class="tag">&lt;/channelAddress&gt;</span> or
+<span class="tag">&lt;channelAddress&gt;</span>255:DISCRETE_INPUTS:513:BOOLEAN<span class="tag">&lt;/channelAddress&gt;</span></code></pre>
+</div>
+</div>
+<div id="wago" class="paragraph">
+<div class="title">Wago 750-342 Process Image</div>
+<p><span class="image"><a class="image" href="images/modbus_wago_process_image.png"><img src="images/modbus_wago_process_image.png" alt="Driver Modbus Wago process" width="80%"></a></span></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_m_bus_wired">8.2. M-Bus (wired)</h3>
+<div class="paragraph">
+<p>M-Bus is communication protocol to read out meters.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 7. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">mbus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;serial_port&gt;:&lt;mbus_address&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&lt;baudrate&gt;][:timeout]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;dib&gt;:&lt;vib&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Device Address</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;serial_port&gt; - The serial port should be given that connects to the M-Bus converter. (e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).</p>
+</div>
+<div class="paragraph">
+<p>&lt;mbus_address&gt; - The mbus adress can either be the the primary address or secondary address of the meter. The primary address is specified as integer (e.g. 1 for primary address 1) whereas the secondary address consits of 8 bytes that should be specified in hexadecimal form. (e.g. e30456a6b72e3e4e)</p>
+</div>
+<div class="paragraph">
+<p><strong>Settings</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;baudrate&gt; - If left empty the default is used: "2400"</p>
+</div>
+<div class="paragraph">
+<p>&lt;timeout&gt; - Defines the read timeout in ms. Default is 2500 ms. Example: t5000 for timeout of 5 seconds</p>
+</div>
+<div class="paragraph">
+<p><strong>Channel Address</strong></p>
+</div>
+<div class="paragraph">
+<p>Shall be of the format &lt;dib&gt;:&lt;vib&gt; in a hexadecimal string format (e.g. 04:03 or 02:fd48)</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_m_bus_wireless">8.3. M-Bus (wireless)</h3>
+<div class="paragraph">
+<p>Wireless M-Bus is communication protocol to read out meters and sensors.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 8. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">wmbus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;serial_port&gt;:&lt;secondary_address&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;transceiver&gt; &lt;mode&gt; [&lt;key&gt;]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;dib&gt;:&lt;vib&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Device Address</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;serial_port&gt; - The serial port used for communication. Examples are /dev/ttyS0 (Linux) or COM1 (Windows)</p>
+</div>
+<div class="paragraph">
+<p>&lt;secondary_address&gt; - The secondary address consists of 8 bytes that should be specified in hexadecimal form. (e.g. e30456a6b72e3e4e)</p>
+</div>
+<div class="paragraph">
+<p><strong>Settings</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;transceiver&gt; - The transceiver being used. It can be 'amber' or 'rc' for modules from RadioCrafts.</p>
+</div>
+<div class="paragraph">
+<p>&lt;mode&gt; - The wM-Bus mode can be S or T.</p>
+</div>
+<div class="paragraph">
+<p>&lt;key&gt; - The key in hexadecimal form.</p>
+</div>
+<div class="paragraph">
+<p><strong>Channel Address</strong></p>
+</div>
+<div class="paragraph">
+<p>Shall be of the format &lt;dib&gt;:&lt;vib&gt; in a hexadecimal string format (e.g. 04:03 or 02:fd48)</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_iec_61850">8.4. IEC 61850</h3>
+<div class="paragraph">
+<p>IEC 61850 is an international communication standard used mostly for
+substation automation and controlling distributed energy resources
+(DER). The IEC 61850 driver uses the client library from the
+OpenIEC61850 project.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">iec61850</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;host&gt;[:&lt;port&gt;]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[-a &lt;authentication parameter&gt;] [-lt &lt;local t-selector&gt;] [-rt &lt;remote t-selector&gt;]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;bda reference&gt;:&lt;fc&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Channel Address</strong></p>
+</div>
+<div class="paragraph">
+<p>The channel address should be the IEC 61850 Object Reference and the
+Functional Constraint of the Basic Data Attribute that is to be
+addressed separated by a colon.  Note that an IEC 61850 timestamp received will be
+converted to a LongValue that represents the milliseconds since
+1970. Some information is lost during this conversion because the IEC
+61850 timestamp is more exact.</p>
+</div>
+<div class="paragraph">
+<p><strong>Settings</strong></p>
+</div>
+<div class="paragraph">
+<p>The defaults for TSelLocal and TSelRemote are "00" and "01"
+respectively. You can also set either TSelector to the empty string
+(e.g. "-lt -rt"). This way they will be omitted in the connection
+request.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_iec_62056_part_21">8.5. IEC 62056 part 21</h3>
+<div class="paragraph">
+<p>The IEC 62056 part 21 driver can be used to read out meter via optical interface</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 9. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">iec62056p21</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;serial_port&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;data_set_id&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Device Address</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;serial_port&gt; - The serial port should be given that connects to the M-Bus converter. (e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).</p>
+</div>
+<div class="paragraph">
+<p><strong>Channel Address</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;data_set_id&gt; - Id of the data set. It is usually an OBIS code of the format A-B:C.D.E*F or on older EDIS code of the format C.D.E.that specifies exactly what the value of this data set represents.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dlms_cosem">8.6. DLMS/COSEM</h3>
+<div class="paragraph">
+<p>DLMS/COSEM is a international standardized protocol used mostly to communicate with smart meter devices. The DLMS/COSEM driver uses the client library developed by the jDLMS project. Currently, the DLMS/COSEM driver supports communication via HDLC and TCP/IP using Logical Name Referencing to retrieve values from the device.</p>
+</div>
+<div class="paragraph">
+<p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar (optional)</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">dlms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hdlc:&lt;serial-port&gt;[:&lt;server-physical-port&gt;]:&lt;server-logical&gt;:&lt;client-logical&gt;<br>
+                  tcp:&lt;server-ip&gt;[:&lt;server-port&gt;]:&lt;server-logical&gt;:&lt;client-logical&gt;<br></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[SendDisconnect=&lt;disconnect&gt;];[UseHandshake=&lt;handshake&gt;];[..]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;class-id&gt;/&lt;reference-id&gt;/&lt;attribute-id&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Interface Address</strong></p>
+</div>
+<div class="paragraph">
+<p>The interface address consists of all elements the driver needs to uniquely identify and address a physical smart meter and format depends on the used protocol. Refer to the following table for the format of the interface address.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 9.0909%;">
+<col style="width: 45.4545%;">
+<col style="width: 45.4546%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Protocol</th>
+<th class="tableblock halign-left valign-top">Physical-Connection</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hdlc</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;serial-port&gt;[:&lt;physical-device-id&gt;]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hdlc:ttyUSB0 or hdlc:ttyUSB0:16</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tcp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;server-ip&gt;[:&lt;server-port&gt;]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tcp:16:192.168.200.25 or tcp:16:192.168.200.25:4059</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Settings</strong></p>
+</div>
+<div class="paragraph">
+<p>Settings are separated by a semi-colon. The available settings are determined by the used protocol, defined as first parameter of the device address. All possible settings with a short description and default values are listed in the following table.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Options</th>
+<th class="tableblock halign-left valign-top">Protocol</th>
+<th class="tableblock halign-left valign-top">Values</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">all</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authorization password to access the smart meter device</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SendDisconnect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">all</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>true/false</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Send a disconnect message at DLMS layer on disconnecting from device. Set this flag to false if the remote device is expecting the disconnect message at a lower layer (like HDLC)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UseHandshake</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HDLC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>true/false</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use initial handshake to negotiate baud rate</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Baudrate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HDLC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>integer</em></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum supported baud rate (0 = no maximum). If UseHandshake = false, this value will be used to communicate with the device and <em>has</em> to be set</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ForceSingle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">all</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>true/false</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forces every attribute to be requested individually. This option has to be enabled to support Kamstrup 382 smart meter devices</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_knx">8.7. KNX</h3>
+<div class="paragraph">
+<p>KNX is a standardised protocol for intelligent buildings. The KNX
+driver uses KNXnet/IP to connect to the wired KNX BUS. The driver
+supports group read and writes and is also able to listen to the
+BUS. The driver uses the calimero library.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 10. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">knx</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">knxip://&lt;host_ip&gt;[:&lt;port&gt;] knxip://&lt;device_ip&gt;[:&lt;port&gt;]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[Address=&lt;Individual KNX address (e. g. 2.6.52)&gt;];[SerialNumber=&lt;Serial number&gt;]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;Group Adress&gt;:&lt;DPT_ID&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Device Address</strong></p>
+</div>
+<div class="paragraph">
+<p>The device address consists of the host IP and the IP of the KNX tunnel or router.</p>
+</div>
+<div class="paragraph">
+<p><strong>Channel Address</strong></p>
+</div>
+<div class="paragraph">
+<p>The channel address consist of the group address you want to monitor and the corresponding data point ID. A data point consists of a main number and a subtype. For example a boolean would be represented by the main number 1 and a switch by the subtype 001, the DPT_ID of a switch is 1.001.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ehz">8.8. eHZ</h3>
+<div class="paragraph">
+<p>OpenMUC driver for SML and IEC 62056-21</p>
+</div>
+<div class="paragraph">
+<p><strong>Dependencies:</strong> rxtxcomm_api-2.1.7.jar</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 11. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">ehz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sml://&lt;serialPort&gt; or iec://&lt;serialPort&gt;  e.g. sml:///dev/ttyUSB0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;OBIScode&gt; e.g. 10181ff (not 1-0:1.8.1*255)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>scanForDevices() and scanForChannels will return the specific configuration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_snmp">8.9. SNMP</h3>
+<div class="paragraph">
+<p>Simple Network Management Protocol (SNMP) is an Internet-standard protocol for monitoring and management of devices on IP networks.</p>
+</div>
+<div class="paragraph">
+<p><strong>Dependencies:</strong> snmp4j-2.2.5.jar</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 12. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">snmp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IP/snmpPort</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">settings string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SNMP OID address</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Device Address</strong></p>
+</div>
+<div class="paragraph">
+<p>IP address and available SNMP port of the target device should be provided as Device Address.</p>
+</div>
+<div class="paragraph">
+<p><strong>Example for Device Address:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>192.168.1.1/161</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Settings</strong></p>
+</div>
+<div class="paragraph">
+<p>All settings are stored in "SnmpDriverSettingVariableNames" enum.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 13. Setting Parameters</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">SNMPVersion</th>
+<th class="tableblock halign-left valign-top">"SNMPVersion" enum contains all available values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">USERNAME</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SECURITYNAME</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AUTHENTICATIONPASSPHRASE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">is the same COMMUNITY word in SNMP V2c</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PRIVACYPASSPHRASE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>SNMPVersion</strong></p>
+</div>
+<div class="paragraph">
+<p>SNMPVersion is an enum variable containing valid SNMP versions. (V1, V2c, V3)</p>
+</div>
+<div class="paragraph">
+<p><strong>Example for valid settings string:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>SNMPVersion=V2c:USERNAME=public:SECURITYNAME=public:AUTHENTICATIONPASSPHRASE=password</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to read specific channel, corresponding SNMP OID shall be passed.</p>
+</div>
+<div class="paragraph">
+<p><strong>Example for SNMP OID:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>1.3.6.1.2.1.1.1.0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For scanning SNMP enabled devices in the network, range of IP addresses shall be provided. This functionality is implemented only for SNMP V2c.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_aggregator">8.10. Aggregator</h3>
+<div class="paragraph">
+<p>The Aggregator which performs aggregation of logged values from a channel. It uses the DriverService and the DataAccessService. It is therefore a kind of OpenMUC driver/application mix. The aggregator is fully configurable through the channels.xml config file.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 14. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">aggregator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">virtual device e.g "aggregatordevice"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;sourceChannelId&gt;:&lt;aggregationType&gt;[:&lt;quality&gt;]</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Channel Address</strong></p>
+</div>
+<div class="paragraph">
+<p>&lt;sourceChannelId&gt; - id of channel to be aggregated</p>
+</div>
+<div class="paragraph">
+<p>&lt;aggregationType&gt; -</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>AVG: calculates the average of all values of interval (e.g. for average power)</p>
+</li>
+<li>
+<p>LAST: takes the last value of interval (e.g. for energy)</p>
+</li>
+<li>
+<p>DIFF: calculates difference of first and last value of interval</p>
+</li>
+<li>
+<p>PULS_ENERGY,&lt;pulses per Wh&gt;,&lt;max counter&gt;: calculates energy from pulses of interval (e.g. for pulse counter/meter). Example: PULSE_ENERGY,10,65535</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>&lt;quality&gt; - Range 0.0 - 1.0. Percentage of the expected valid/available logged records for aggregation. Default value is 1.0. Example: Aggregation of 5s values to 15min. The 15min interval consists of 180 5s values. If quality is 0.9 then at least 162 of 180 values must be valid/available for aggregation. NOTE: The missing/invalid values could appear as block at the beginning or end of the interval, which might be problematic for some aggregation types</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="paragraph">
+<p>Channel A (channelA) is sampled and logged every 10 seconds.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"> <span class="tag">&lt;channelid</span><span class="error">=</span><span class="error">&quot;</span><span class="attribute-name">channelA</span><span class="error">&quot;</span><span class="tag">&gt;</span>
+   <span class="tag">&lt;samplingInterval&gt;</span>10s<span class="tag">&lt;/samplingInterval&gt;</span>
+   <span class="tag">&lt;loggingInterval&gt;</span>10s<span class="tag">&lt;/loggingInterval&gt;</span>
+ <span class="tag">&lt;/channel&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you want a channel B (channelB) which contains the same values as channel A but in a 1 minute resolution by using the 'average' as aggregation type. You can achieve this by simply adding the aggregator driver to your channel config file and define a the channel B as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"> <span class="tag">&lt;driver</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">aggregator</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+   <span class="tag">&lt;device</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">aggregatordevice</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+     <span class="tag">&lt;channelid</span><span class="error">=</span><span class="error">&quot;</span><span class="attribute-name">channelB</span><span class="error">&quot;</span><span class="tag">&gt;</span>
+       <span class="tag">&lt;channelAddress&gt;</span>channelA:avg<span class="tag">&lt;/channelAddress&gt;</span>
+       <span class="tag">&lt;samplingInterval&gt;</span>60s<span class="tag">&lt;/samplingInterval&gt;</span>
+       <span class="tag">&lt;loggingInterval&gt;</span>60s<span class="tag">&lt;/loggingInterval&gt;</span>
+     <span class="tag">&lt;/channel&gt;</span>
+   <span class="tag">&lt;/device&gt;</span>
+ <span class="tag">&lt;/driver&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The new (aggregated) channel has the id channelB. The channel address consists of the channel id of the original channel and the aggregation type which is channelA:avg in this example. OpenMUC calls the read method of the aggregator every minute. The aggregator then gets all logged records from channelA of the last minute, calculates the average and sets this value for the record of channelB.
+NOTE: It&#8217;s recommended to specify the samplingTimeOffset for channelB. It should be between samplingIntervalB - samplingIntervalA and samplingIntervalB. In this example: 50 &lt; offset &lt; 60. This constraint ensures that values are AGGREGATED CORRECTLY. At hh:mm:55 the aggregator gets the logged values of channelA and at hh:mm:60 respectively hh:mm:00 the aggregated value is logged.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"> <span class="tag">&lt;driver</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">aggregator</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+   <span class="tag">&lt;device</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">aggregatordevice</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+     <span class="tag">&lt;channelid</span><span class="error">=</span><span class="error">&quot;</span><span class="attribute-name">channelB</span><span class="error">&quot;</span><span class="tag">&gt;</span>
+       <span class="tag">&lt;channelAddress&gt;</span>channelA:avg<span class="tag">&lt;/channelAddress&gt;</span>
+       <span class="tag">&lt;samplingInterval&gt;</span>60s<span class="tag">&lt;/samplingInterval&gt;</span>
+       <span class="tag">&lt;samplingTimeOffset&gt;</span>55s<span class="tag">&lt;/samplingTimeOffset&gt;</span>
+       <span class="tag">&lt;loggingInterval&gt;</span>60s<span class="tag">&lt;/loggingInterval&gt;</span>
+     <span class="tag">&lt;/channel&gt;</span>
+   <span class="tag">&lt;/device&gt;</span>
+ <span class="tag">&lt;/driver&gt;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="anchor-web-ui">9. The WebUI</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_plugins">9.1. Plugins</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Plotter</dt>
+<dd>
+<p>Plugin which provides plotter for visualisation of current and historical data</p>
+</dd>
+<dt class="hdlist1">Channel Access Tool</dt>
+<dd>
+<p>Plugin to show current values of selected channels. Provides possibility to set values.</p>
+</dd>
+<dt class="hdlist1">Channel Configurator</dt>
+<dd>
+<p>Plugin for channel configuration e.g. channel name, sampling interval, logging interval</p>
+</dd>
+<dt class="hdlist1">Media Viewer</dt>
+<dd>
+<p>Plugin which allows to embed media files into OpenMUC&#8217;s WebUI</p>
+</dd>
+<dt class="hdlist1">User Configurator</dt>
+<dd>
+<p>Plugin for user configuration</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_https">9.2. HTTPS</h3>
+<div class="paragraph">
+<p>You can access the WebUI over https as well:
+<a href="https://localhost:8889" class="bare">https://localhost:8889</a>. To make the framework more secure you could
+disable http by setting org.apache.felix.http.enable in the
+conf/system.properties file to false.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="id_restful_web_services">10. REST Server</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The openmuc-server-restws bundle manages a RESTful web service to access all registered channels of the framework. The RESTful web service is accessed by the same port as the web interface mentioned in Chapter 2.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+The address to access the web service using the provided demo/framework folder is 'http://localhost:8888/rest/'
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_requirements">10.1. Requirements</h3>
+<div class="paragraph">
+<p>In order to start the RESTful web service, the following bundle must be provided:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Bundle that provides an org.osgi.service.http.HttpService service. In the demo framework, that service is provided by the org.apache.felix.http.jetty bundle.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This bundles is already provided by the demo framework. The RESTful web service will start automatically with the framework without additional settings.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_accessing_channels">10.2. Accessing channels</h3>
+<div class="paragraph">
+<p>The latest record of a single channel can be accessed, by sending a
+GET request at the address:
+'http://server-address/rest/channels/{id}' where {id} is replaced
+with the actual channel ID. The result will be latest record object of
+the channel encoded in JSON with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="title">Record JSON</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">timestamp</span><span class="delimiter">&quot;</span></span> : <span class="error">t</span><span class="error">i</span><span class="error">m</span><span class="error">e</span><span class="error">_</span><span class="error">v</span><span class="error">a</span><span class="error">l</span>, <span class="error">/</span><span class="error">*</span><span class="error">m</span><span class="error">i</span><span class="error">l</span><span class="error">l</span><span class="error">i</span><span class="error">s</span><span class="error">e</span><span class="error">c</span><span class="error">o</span><span class="error">n</span><span class="error">d</span><span class="error">s</span> <span class="error">s</span><span class="error">i</span><span class="error">n</span><span class="error">c</span><span class="error">e</span> <span class="error">U</span><span class="error">n</span><span class="error">i</span><span class="error">x</span> <span class="error">e</span><span class="error">p</span><span class="error">o</span><span class="error">c</span><span class="error">h</span><span class="error">*</span><span class="error">/</span>
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">flag</span><span class="delimiter">&quot;</span></span> : <span class="error">f</span><span class="error">l</span><span class="error">a</span><span class="error">g</span><span class="error">_</span><span class="error">v</span><span class="error">a</span><span class="error">l</span>,      <span class="error">/</span><span class="error">*</span><span class="error">s</span><span class="error">t</span><span class="error">a</span><span class="error">t</span><span class="error">u</span><span class="error">s</span> <span class="error">f</span><span class="error">l</span><span class="error">a</span><span class="error">g</span> <span class="error">o</span><span class="error">f</span> <span class="error">t</span><span class="error">h</span><span class="error">e</span> <span class="error">r</span><span class="error">e</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">d</span> <span class="error">a</span><span class="error">s</span> <span class="error">s</span><span class="error">t</span><span class="error">r</span><span class="error">i</span><span class="error">n</span><span class="error">g</span><span class="error">*</span><span class="error">/</span>
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span> : <span class="error">v</span><span class="error">a</span><span class="error">l</span><span class="error">u</span><span class="error">e</span><span class="error">_</span><span class="error">v</span><span class="error">a</span><span class="error">l</span>     <span class="error">/</span><span class="error">*</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">u</span><span class="error">a</span><span class="error">l</span> <span class="error">v</span><span class="error">a</span><span class="error">l</span><span class="error">u</span><span class="error">e</span><span class="error">.</span> <span class="error">O</span><span class="error">m</span><span class="error">i</span><span class="error">t</span><span class="error">t</span><span class="error">e</span><span class="error">d</span> <span class="error">i</span><span class="error">f</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">flag</span><span class="delimiter">&quot;</span></span> <span class="error">!</span><span class="error">=</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">valid</span><span class="delimiter">&quot;</span></span><span class="error">*</span><span class="error">/</span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can access logged values of a channel by adding
+'/history?from=fromTimestamp&amp;until=untilTimestamp' to the channel
+address, fromTimestamp and untilTimestamp are both milliseconds since
+Unix epoch (1970-01-01 00:00:00). The result is a collection of
+records encoded as JSON.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, the records off all available channels can be read in one
+go, by omitting the ID from the address. The result is a collection of
+channel objects encoded in JSON using this structure:</p>
+</div>
+<div class="listingblock">
+<div class="title">ChannelCollection JSON</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">[
+        {
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span> : <span class="error">c</span><span class="error">h</span><span class="error">a</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">l</span><span class="integer">1</span><span class="error">_</span><span class="error">i</span><span class="error">d</span>,  <span class="error">/</span><span class="error">*</span><span class="error">I</span><span class="error">D</span> <span class="error">o</span><span class="error">f</span> <span class="error">t</span><span class="error">h</span><span class="error">e</span> <span class="error">c</span><span class="error">h</span><span class="error">a</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">l</span> <span class="error">a</span><span class="error">s</span> <span class="error">s</span><span class="error">t</span><span class="error">r</span><span class="error">i</span><span class="error">n</span><span class="error">g</span><span class="error">*</span><span class="error">/</span>
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">record</span><span class="delimiter">&quot;</span></span> : <span class="error">c</span><span class="error">h</span><span class="error">a</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">l</span><span class="integer">1</span><span class="error">_</span><span class="error">r</span><span class="error">e</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">d</span> <span class="error">/</span><span class="error">*</span><span class="error">c</span><span class="error">u</span><span class="error">r</span><span class="error">r</span><span class="error">e</span><span class="error">n</span><span class="error">t</span> <span class="error">r</span><span class="error">e</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">d</span><span class="error">.</span> <span class="error">s</span><span class="error">e</span><span class="error">e</span> <span class="error">R</span><span class="error">e</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">d</span> <span class="error">J</span><span class="error">S</span><span class="error">O</span><span class="error">N</span><span class="error">*</span><span class="error">/</span>
+        },
+        {
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span> : <span class="error">c</span><span class="error">h</span><span class="error">a</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">l</span><span class="integer">2</span><span class="error">_</span><span class="error">i</span><span class="error">d</span>,
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">record</span><span class="delimiter">&quot;</span></span> : <span class="error">c</span><span class="error">h</span><span class="error">a</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">l</span><span class="integer">2</span><span class="error">_</span><span class="error">r</span><span class="error">e</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">d</span>
+        }
+        <span class="error">.</span><span class="error">.</span><span class="error">.</span>
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>New records can be written to channels by sending a PUT request at the
+address that represents a channel. The data in the put request is a
+record encoded as specified in Record JSON above.</p>
+</div>
+<div class="paragraph">
+<p>If HTTPS is used to access the REST server then HTTP basic
+authentication is required. The login credentials are the same as the
+one used to log into the web interface of the OpenMUC Framework.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_authors">11. Authors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Developers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Stefan Feuerhahn</p>
+</li>
+<li>
+<p>Marco Mittelsdorf</p>
+</li>
+<li>
+<p>Dirk Zimmermann</p>
+</li>
+<li>
+<p>Albrecht Schall</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Former developers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Michael Zillgith</p>
+</li>
+<li>
+<p>Karsten Müller-Bier</p>
+</li>
+<li>
+<p>Simon Fey</p>
+</li>
+<li>
+<p>Frederic Robra</p>
+</li>
+<li>
+<p>Philipp Fels</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2016-10-10 21:10:00 +02:00
+</div>
+</div>
+</body>
+</html>

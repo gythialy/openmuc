@@ -31,34 +31,34 @@ import java.util.Locale;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 
 public class TestUtils {
-	public static final String TESTFOLDER = "test";
-	public static final String TESTFOLDERPATH = System.getProperty("user.dir") + "/" + TESTFOLDER + "/";
+    public static final String TESTFOLDER = "test";
+    public static final String TESTFOLDERPATH = System.getProperty("user.dir") + "/" + TESTFOLDER + "/";
 
-	public static Calendar stringToDate(String format, String strDate) {
+    public static Calendar stringToDate(String format, String strDate) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.GERMAN);
-		Date date = null;
-		try {
-			date = sdf.parse(strDate);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.GERMAN);
+        Date date = null;
+        try {
+            date = sdf.parse(strDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-		Calendar calendar = new GregorianCalendar(Locale.getDefault());
-		calendar.setTime(date);
+        Calendar calendar = new GregorianCalendar(Locale.getDefault());
+        calendar.setTime(date);
 
-		return calendar;
-	}
+        return calendar;
+    }
 
-	public static void deleteExistingFile(int loggingInterval, int loggingTimeOffset, Calendar calendar) {
+    public static void deleteExistingFile(int loggingInterval, int loggingTimeOffset, Calendar calendar) {
 
-		String filename = LoggerUtils.getFilename(loggingInterval, loggingTimeOffset, calendar.getTimeInMillis());
-		File file = new File(TestUtils.TESTFOLDERPATH + filename);
+        String filename = LoggerUtils.getFilename(loggingInterval, loggingTimeOffset, calendar.getTimeInMillis());
+        File file = new File(TestUtils.TESTFOLDERPATH + filename);
 
-		if (file.exists()) {
-			System.out.println("Delete File " + filename);
-			file.delete();
-		}
+        if (file.exists()) {
+            System.out.println("Delete File " + filename);
+            file.delete();
+        }
 
-	}
+    }
 }

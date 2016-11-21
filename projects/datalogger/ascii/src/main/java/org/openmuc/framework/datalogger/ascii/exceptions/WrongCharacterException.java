@@ -22,19 +22,19 @@ package org.openmuc.framework.datalogger.ascii.exceptions;
 
 public class WrongCharacterException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5561675714266963968L;
-	private final String message;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -5561675714266963968L;
+    private final String message;
 
-	public WrongCharacterException(String message) {
-		this.message = message;
-	}
+    public WrongCharacterException(String message) {
+        this.message = message;
+    }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+    @Override
+    public String getMessage() {
+        return message;
+    }
 
 }

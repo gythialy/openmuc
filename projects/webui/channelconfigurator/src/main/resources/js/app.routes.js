@@ -16,10 +16,11 @@
 	                            {
 	                                name: "openmuc.drivers",
 	                                files: ['channelconfigurator/js/drivers/driversController.js', 
-	                                        'channelconfigurator/js/drivers/driversService.js', 
+	                                        'channelconfigurator/js/drivers/driversService.js',
 	                                        'channelconfigurator/js/drivers/driverDataService.js', 
 	                                        'channelconfigurator/js/drivers/driverEditController.js', 
-	                                        'channelconfigurator/js/drivers/driverNewController.js', 
+	                                        'channelconfigurator/js/drivers/driverNewController.js',
+											'channelconfigurator/js/drivers/driverInfosController.js',
 	                                        'channelconfigurator/js/drivers/driverScanController.js', 
 	                                        'channelconfigurator/js/drivers/driversDirective.js',
 	                                        'channelconfigurator/js/channels/channelConfiguratorTabsDirective.js',
@@ -58,6 +59,22 @@
 					controller: "DriverEditController",
 	        		requireLogin: true,
 	        	}).
+                state('channelconfigurator.drivers.infos', {
+                    url: "/drivers/infos:id",
+                    templateUrl: 'channelconfigurator/html/drivers/infos.html',
+                    controller: "DriverInfosController",
+                    requireLogin: true,
+                    resolve: {
+                        drivers: function ($ocLazyLoad) {
+                            return $ocLazyLoad.load(
+                                {
+                                    name: "openmuc.drivers",
+                                    files: ['channelconfigurator/js/drivers/driversService.js']
+                                }
+                            )
+                        }
+                    }
+                }).
 	        	state('channelconfigurator.drivers.scan', {
 	        		url: "/drivers/scan/:id",
 					templateUrl: 'channelconfigurator/html/drivers/scan.html',
@@ -113,13 +130,13 @@
 	        		requireLogin: true,
 	        	}).
 	        	state('channelconfigurator.devices.edit', {
-	        		url: "/devices/edit/:id",
+	        		url: "/devices/edit/:deviceId?driverId",
 					templateUrl: 'channelconfigurator/html/devices/edit.html',
 					controller: "DeviceEditController",
 	        		requireLogin: true,
 	        	}).
 	        	state('channelconfigurator.devices.scan', {
-	        		url: "/devices/scan/:id",
+	        		url: "/devices/scan/:deviceId",
 					templateUrl: 'channelconfigurator/html/devices/scan.html',
 					controller: "DeviceScanController",
 	        		requireLogin: true,

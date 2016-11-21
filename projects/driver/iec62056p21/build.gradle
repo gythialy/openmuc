@@ -14,9 +14,8 @@ jar {
   manifest {
     name = "OpenMUC Driver - IEC 62056-21 Mode C"
     instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
-    instruction 'Import-Package', '!org.openmuc.j62056*,gnu.io,*'
+    instruction 'Import-Package', '!org.openmuc.j62056*,gnu.io,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
   }
 }
 

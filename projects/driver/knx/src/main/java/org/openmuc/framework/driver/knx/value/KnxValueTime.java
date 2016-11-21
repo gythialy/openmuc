@@ -28,32 +28,28 @@ import tuwien.auto.calimero.exception.KNXFormatException;
 
 public class KnxValueTime extends KnxValue {
 
-	/**
-	 * @param dptID
-	 * @throws KNXFormatException
-	 */
-	public KnxValueTime(String dptID) throws KNXFormatException {
-		dptXlator = new DPTXlatorTime(dptID);
-	}
+    public KnxValueTime(String dptID) throws KNXFormatException {
+        dptXlator = new DPTXlatorTime(dptID);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-	 */
-	@Override
-	public void setOpenMucValue(Value value) throws KNXFormatException {
-		((DPTXlatorTime) dptXlator).setValue(value.asLong());
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+     */
+    @Override
+    public void setOpenMucValue(Value value) throws KNXFormatException {
+        ((DPTXlatorTime) dptXlator).setValue(value.asLong());
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
-	 */
-	@Override
-	public Value getOpenMucValue() {
-		return new LongValue(((DPTXlatorTime) dptXlator).getValueMilliseconds());
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
+     */
+    @Override
+    public Value getOpenMucValue() {
+        return new LongValue(((DPTXlatorTime) dptXlator).getValueMilliseconds());
+    }
 
 }

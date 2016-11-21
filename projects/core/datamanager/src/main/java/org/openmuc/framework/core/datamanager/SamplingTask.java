@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
-import org.openmuc.framework.dataaccess.DeviceState;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
@@ -33,130 +32,125 @@ import org.slf4j.LoggerFactory;
 
 public final class SamplingTask extends DeviceTask {
 
-	private final static Logger logger = LoggerFactory.getLogger(SamplingTask.class);
+    private final static Logger logger = LoggerFactory.getLogger(SamplingTask.class);
 
-	List<ChannelRecordContainerImpl> channelRecordContainers;
-	private boolean methodNotExceptedExceptionThrown = false;
-	private boolean unknownDriverExceptionThrown = false;
-	private volatile boolean disabled = false;
+    List<ChannelRecordContainerImpl> channelRecordContainers;
+    private boolean methodNotExceptedExceptionThrown = false;
+    private boolean unknownDriverExceptionThrown = false;
+    private volatile boolean disabled = false;
 
-	boolean running = false;
-	boolean startedLate = false;
-	String samplingGroup;
+    boolean running = false;
+    boolean startedLate = false;
+    String samplingGroup;
 
-	public SamplingTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels,
-			String samplingGroup) {
-		this.dataManager = dataManager;
-		this.device = device;
-		channelRecordContainers = selectedChannels;
-		this.samplingGroup = samplingGroup;
-	}
+    public SamplingTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels,
+            String samplingGroup) {
+        this.dataManager = dataManager;
+        this.device = device;
+        channelRecordContainers = selectedChannels;
+        this.samplingGroup = samplingGroup;
+    }
 
-	// called by main thread
-	public void storeValues() {
-		if (disabled) {
-			return;
-		}
-		disabled = true;
-		if (methodNotExceptedExceptionThrown) {
-			for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-				channelRecordContainer.channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
-			}
-		}
-		else if (unknownDriverExceptionThrown) {
-			for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-				channelRecordContainer.channel.setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
-			}
-		}
-		else {
-			for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-				channelRecordContainer.channel.setNewRecord(channelRecordContainer.record);
-			}
-		}
-	}
+    // called by main thread
+    public void storeValues() {
+        if (disabled) {
+            return;
+        }
+        disabled = true;
+        if (methodNotExceptedExceptionThrown) {
+            for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
+                channelRecordContainer.channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
+            }
+        }
+        else if (unknownDriverExceptionThrown) {
+            for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
+                channelRecordContainer.channel.setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
+            }
+        }
+        else {
+            for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
+                channelRecordContainer.channel.setNewRecord(channelRecordContainer.record);
+            }
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	protected void executeRead() throws UnsupportedOperationException, ConnectionException {
-		// TODO must pass containerListHandle
-		device.connection.read((List<ChannelRecordContainer>) ((List<?>) channelRecordContainers), null, samplingGroup);
-	}
+    @SuppressWarnings("unchecked")
+    protected void executeRead() throws UnsupportedOperationException, ConnectionException {
+        // TODO must pass containerListHandle
+        device.connection.read((List<ChannelRecordContainer>) ((List<?>) channelRecordContainers), null, samplingGroup);
+    }
 
-	protected void taskAborted() {
-	}
+    protected void taskAborted() {
+    }
 
-	@Override
-	public final void run() {
+    @Override
+    public final void run() {
 
-		try {
-			executeRead();
-		} catch (UnsupportedOperationException e) {
-			methodNotExceptedExceptionThrown = true;
-		} catch (ConnectionException e) {
-			// Connection to device lost. Signal to device instance and end task without notifying DataManager
-			logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
-					e.getMessage());
+        try {
+            executeRead();
+        } catch (UnsupportedOperationException e) {
+            methodNotExceptedExceptionThrown = true;
+        } catch (ConnectionException e) {
+            // Connection to device lost. Signal to device instance and end task without notifying DataManager
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+                    e.getMessage());
 
-			synchronized (dataManager.disconnected) {
-				dataManager.disconnected.add(device);
-			}
-			dataManager.interrupt();
-			return;
-		} catch (Exception e) {
-			logger.warn("unexpected exception thrown by read funtion of driver ", e);
-			unknownDriverExceptionThrown = true;
-		}
+            synchronized (dataManager.disconnectedDevices) {
+                dataManager.disconnectedDevices.add(device);
+            }
+            dataManager.interrupt();
+            return;
+        } catch (Exception e) {
+            logger.warn("unexpected exception thrown by read funtion of driver ", e);
+            unknownDriverExceptionThrown = true;
+        }
 
-		for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-			channelRecordContainer.channel.handle = channelRecordContainer.getChannelHandle();
-		}
+        for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
+            channelRecordContainer.channel.handle = channelRecordContainer.getChannelHandle();
+        }
 
-		synchronized (dataManager.samplingTaskFinished) {
-			dataManager.samplingTaskFinished.add(this);
-		}
-		dataManager.interrupt();
-	}
+        synchronized (dataManager.samplingTaskFinished) {
+            dataManager.samplingTaskFinished.add(this);
+        }
+        dataManager.interrupt();
+    }
 
-	// called by main thread
-	public final void timeout() {
-		if (disabled) {
-			return;
-		}
+    // called by main thread
+    public final void timeout() {
+        if (disabled) {
+            return;
+        }
 
-		disabled = true;
-		if (startedLate) {
-			for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-				driverChannel.channel.setFlag(Flag.STARTED_LATE_AND_TIMED_OUT);
-			}
-		}
-		else if (running) {
-			for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-				driverChannel.channel.setFlag(Flag.TIMEOUT);
-			}
-		}
-		else {
-			for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-				driverChannel.channel.setFlag(Flag.DEVICE_OR_INTERFACE_BUSY);
-			}
-			device.removeTask(this);
-		}
+        disabled = true;
+        if (startedLate) {
+            for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
+                driverChannel.channel.setFlag(Flag.STARTED_LATE_AND_TIMED_OUT);
+            }
+        }
+        else if (running) {
+            for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
+                driverChannel.channel.setFlag(Flag.TIMEOUT);
+            }
+        }
+        else {
+            for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
+                driverChannel.channel.setFlag(Flag.DEVICE_OR_INTERFACE_BUSY);
+            }
+            device.removeTask(this);
+        }
 
-	}
+    }
 
-	@Override
-	public final DeviceTaskType getType() {
-		return DeviceTaskType.SAMPLE;
-	}
+    @Override
+    public final DeviceTaskType getType() {
+        return DeviceTaskType.SAMPLE;
+    }
 
-	@Override
-	public final void setDeviceState() {
-		device.state = DeviceState.READING;
-	}
-
-	public final void deviceNotConnected() {
-		for (ChannelRecordContainer recordContainer : channelRecordContainers) {
-			recordContainer.setRecord(new Record(Flag.COMM_DEVICE_NOT_CONNECTED));
-		}
-		taskAborted();
-	}
+    public final void deviceNotConnected() {
+        for (ChannelRecordContainer recordContainer : channelRecordContainers) {
+            recordContainer.setRecord(new Record(Flag.COMM_DEVICE_NOT_CONNECTED));
+        }
+        taskAborted();
+    }
 
 }

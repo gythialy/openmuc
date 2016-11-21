@@ -1,6 +1,8 @@
 
 dependencies {
   compile project(':openmuc-core-spi') 
+  compile group:'org.apache.felix',name:'org.apache.felix.gogo.runtime', version:'0.16.2'
+  compile group:'biz.aQute.bnd',name:'annotation', version:'2.4.0'
 }
 
 jar {

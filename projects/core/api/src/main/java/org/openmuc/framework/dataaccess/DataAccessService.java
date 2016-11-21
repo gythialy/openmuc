@@ -30,18 +30,23 @@ import java.util.List;
  */
 public interface DataAccessService {
 
-	public Channel getChannel(String id);
+    Channel getChannel(String id);
 
-	public Channel getChannel(String id, ChannelChangeListener channelChangeListener);
+    Channel getChannel(String id, ChannelChangeListener channelChangeListener);
 
-	public List<String> getAllIds();
+    /**
+     * Get the list of all channel IDs.
+     * 
+     * @return the list of all channel IDs.
+     */
+    List<String> getAllIds();
 
-	public List<LogicalDevice> getLogicalDevices(String type);
+    List<LogicalDevice> getLogicalDevices(String type);
 
-	public List<LogicalDevice> getLogicalDevices(String type, LogicalDeviceChangeListener logicalDeviceChangeListener);
+    List<LogicalDevice> getLogicalDevices(String type, LogicalDeviceChangeListener logicalDeviceChangeListener);
 
-	public void read(List<ReadRecordContainer> values);
+    void read(List<ReadRecordContainer> values);
 
-	public void write(List<WriteValueContainer> values);
+    void write(List<WriteValueContainer> values);
 
 }

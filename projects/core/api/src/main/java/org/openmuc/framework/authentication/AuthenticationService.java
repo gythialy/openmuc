@@ -29,13 +29,13 @@ import java.util.Set;
  */
 public interface AuthenticationService {
 
-	public boolean login(String name, String password);
+    public boolean login(String name, String password);
 
-	public boolean contains(String user);
+    public boolean contains(String user);
 
-	public void delete(String user);
+    public void delete(String user);
 
-	public void register(String user, String pwd);
+    public void register(String user, String pwd);
 
-	public Set<String> getAllUsers();
+    public Set<String> getAllUsers();
 }

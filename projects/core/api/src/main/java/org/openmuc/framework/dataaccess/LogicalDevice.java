@@ -23,8 +23,8 @@ package org.openmuc.framework.dataaccess;
 
 public interface LogicalDevice {
 
-	public Channel getChannel(String parameterName);
+    public Channel getChannel(String parameterName);
 
-	public Channel getChannel(String parameterName, ChannelChangeListener channelChangeListener);
+    public Channel getChannel(String parameterName, ChannelChangeListener channelChangeListener);
 
 }

@@ -34,7 +34,11 @@
 		$scope.isChannelsEditPage = function() {
 			return $location.url().search('/channels/edit') > -1;
 		};
-		
+
+		$scope.isDriversInfosPage = function() {
+			return $location.url().search('/drivers/infos') > -1;
+		};
+
 		$scope.isDriversNewPage = function() {
 			return $location.url().search('/drivers/new') > -1;
 		};
