@@ -41,7 +41,7 @@ We can support your development. We offer:
 ## Architecture
 The following picture illustrates how OpenMUC works.
 
-![OpenMUC framework overview](http://i.imgur.com/RAdGIpA.png)
+![OpenMUC framework overview](src/docs/asciidoc/images/openmuc-bundles-with-numbers.png)
 
 OpenMUC framework overview
 
@@ -62,4 +62,4 @@ All boxes seen in the picture are implemented as software modules called OSGi bu
 - Frederic Robra
 - Karsten Müller-Bier
 
-Read the [user guide](https://rawgit.com/gythialy/openmuc/master/doc/userguide/openmuc-doc.html) on how to get started with the library.
+Read the [user guide](https://rawgit.com/gythialy/openmuc/master/doc/user-guide/openmuc-doc.html) on how to get started with the library.
