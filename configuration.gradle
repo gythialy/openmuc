@@ -71,12 +71,12 @@ configure(javaProjects) {
 
 task updateBundles(type:Exec) {
   dependsOn(distributionProjects.install)
-  commandLine "./framework/bin/openmuc", "update-bundles"
+   commandLine "./framework/bin/openmuc", "update-bundles"
 }
 
 tasks.withType(Tar) {
 
-  dependsOn(updateBundles)
+//  dependsOn(updateBundles)
   
   into(project.name) {
 
