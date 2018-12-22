@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,14 +24,42 @@ package org.openmuc.framework.dataaccess;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Value;
 
+/**
+ * A container to write a to channel.
+ * 
+ * @see Channel#getWriteContainer()
+ * @see DataAccessService#write(java.util.List)
+ */
 public interface WriteValueContainer {
 
-    public void setValue(Value value);
+    /**
+     * Set the value of the container.
+     * 
+     * @param value
+     *            the value to set on the channel.
+     * @see #getChannel()
+     */
+    void setValue(Value value);
 
-    public Value getValue();
+    /**
+     * Get the value of the container.
+     * 
+     * @return the value which has been set via {@link #setValue(Value)}.
+     */
+    Value getValue();
 
-    public Flag getFlag();
+    /**
+     * Get the resulting of the write action.
+     * 
+     * @return the result of the write. Only available if the value has been written.
+     */
+    Flag getFlag();
 
-    public Channel getChannel();
+    /**
+     * Get the corresponding channel.
+     * 
+     * @return the channel.
+     */
+    Channel getChannel();
 
 }

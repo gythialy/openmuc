@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,56 +21,115 @@
 
 package org.openmuc.framework.driver.modbus;
 
+/**
+ * Matching from Java Datatyp to Modbus Register
+ * 
+ * One modbus register has the size of two Bytes
+ */
+
 public enum EDatatype {
 
-    BOOLEAN("boolean", 1), // 1 Bit
-    SHORT("short", 1), // 1 Register
-    INT("int", 2), // 2 Registers
-    FLOAT("float", 2), // 2 Registers
-    DOUBLE("double", 4), // 4 Registers
-    LONG("long", 4), // 4 Registers
-    BYTEARRAY("bytearray", 0), // registerCount is calculated dynamically, the 0 will be overwritten
-    BYTE_HIGH("byte_high", 1),
-    BYTE_LOW("byte_low", 1);
+    /** 1 Bit */
+    BOOLEAN(1),
 
-    private final String datatype;
-    private final int registerCount;
+    // not implemented yet
+    /// ** RHB register high byte */
+    // INT8_RHB("int8_rhb", 1),
 
-    EDatatype(String datatypeAsString, int registerSize) {
-        datatype = datatypeAsString;
-        registerCount = registerSize;
+    // not implemented yet
+    /// ** RLB register low byte */
+    // INT8_RLB("int8_rlb", 1),
+
+    /**
+     * @deprecated Use INT16 instead
+     */
+    @Deprecated
+    SHORT(1),
+
+    /** 1 Register, 2 bytes */
+    INT16(1),
+
+    /** 2 Register, 4 bytes */
+    INT32(2),
+
+    // not implemented yet
+    // /** 4 Register, 8 bytes */
+    // INT64( 4),
+
+    // not implemented yet
+    /// ** to convert register high byte RHB to uint8 */
+    // UINT8_RHB( 1),
+
+    // not implemented yet
+    /// ** to convert register low byte RLB to uint8 */
+    // UINT8_RLB( 1),
+
+    /** 1 Register, 2 bytes */
+    UINT16(1),
+
+    /** 2 Register, 4 bytes */
+    UINT32(2),
+
+    /** 2 Register, 4 bytes */
+    FLOAT(2),
+
+    /** 4 Register, 8 bytes */
+    DOUBLE(4),
+
+    /** 4 Register, 8 bytes */
+    LONG(4),
+
+    /** n Registers, n*2 bytes. Note: 0 will be overwritten */
+    BYTEARRAY(0),
+
+    /** n Registers, n*2 bytes. Note: max. registers 4; 0 will be overwritten */
+    BYTEARRAYLONG(0);
+
+    // not implemented yet
+    /// ** 1 Register, 2 bytes, access high byte of a register */
+    // BYTE_HIGH( 1),
+
+    // not implemented yet
+    /// ** 1 Register, 2 bytes, access low byte of a register */
+    // BYTE_LOW( 1);
+
+    private final int registerSize;
+
+    private EDatatype(int registerSize) {
+        this.registerSize = registerSize;
     }
 
-    public int getRegisterCount() {
-        return registerCount;
+    public int getRegisterSize() {
+        return registerSize;
     }
 
-    @Override
-    public String toString() {
-        return datatype;
-    }
-
-    public static EDatatype getEnumFromString(String enumAsString) {
+    public static EDatatype getEnum(String string) {
         EDatatype returnValue = null;
 
-        if (enumAsString != null) {
+        if (string != null) {
+            string = string.toUpperCase();
 
             for (EDatatype type : EDatatype.values()) {
-                if (enumAsString.equals(type.datatype)) {
-                    returnValue = EDatatype.valueOf(enumAsString.toUpperCase());
+                if (string.equals(type.toString())) {
+                    returnValue = type;
                     break;
                 }
-                else if (enumAsString.toUpperCase().matches("BYTEARRAY\\[\\d+\\]")) {
+                else if (string.toUpperCase().matches(EDatatype.BYTEARRAY + "\\[\\d+\\]")) {
                     // Special check for BYTEARRAY[n] datatyp
                     returnValue = EDatatype.BYTEARRAY;
+                    break;
+                }
+                else if (string.toUpperCase().matches(EDatatype.BYTEARRAYLONG + "\\[\\d+\\]")) {
+                    // Special check for BYTEARRAYLONG[n] datatyp
+                    returnValue = EDatatype.BYTEARRAYLONG;
                     break;
                 }
             }
         }
 
         if (returnValue == null) {
-            throw new RuntimeException(enumAsString
-                    + " is not supported. Use one of the following supported datatypes: " + getSupportedDatatypes());
+            throw new RuntimeException(string + " is not supported. Use one of the following supported datatypes: "
+                    + getSupportedDatatypes());
         }
 
         return returnValue;
@@ -94,24 +153,18 @@ public enum EDatatype {
     /**
      * Checks if the datatype is valid
      * 
-     * @param enumAsString
+     * @param string
      *            Enum as String
      * @return true if valid, otherwise false
      */
-    public static boolean isValidDatatype(String enumAsString) {
+    public static boolean isValid(String string) {
         boolean returnValue = false;
 
-        for (EDatatype type : EDatatype.values()) {
-
-            if (type.toString().toLowerCase().equals(enumAsString.toLowerCase())) {
+        try {
+            if (getEnum(string) != null) {
                 returnValue = true;
-                break;
             }
-            else if (enumAsString.toUpperCase().matches("BYTEARRAY\\[\\d+\\]")) {
-                // Special check for BYTEARRAY[n] datatyp
-                returnValue = true;
-                break;
-            }
+        } catch (RuntimeException e) {
         }
 
         return returnValue;

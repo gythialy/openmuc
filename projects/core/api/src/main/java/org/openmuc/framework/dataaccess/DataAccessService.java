@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,9 +24,7 @@ package org.openmuc.framework.dataaccess;
 import java.util.List;
 
 /**
- * 
  * Service interface to get access to the measurement and control data of connected communication devices.
- * 
  */
 public interface DataAccessService {
 
@@ -45,8 +43,23 @@ public interface DataAccessService {
 
     List<LogicalDevice> getLogicalDevices(String type, LogicalDeviceChangeListener logicalDeviceChangeListener);
 
+    /**
+     * Execute the read on the read value containers.
+     * 
+     * @param values
+     *            a list of ReadRecordContainer
+     * @see Channel#getReadContainer()
+     */
     void read(List<ReadRecordContainer> values);
 
+    /**
+     * Execute the write on the write value containers.
+     * 
+     * @param values
+     *            a list of WriteValueContainer.
+     * 
+     * @see Channel#getWriteContainer()
+     */
     void write(List<WriteValueContainer> values);
 
 }

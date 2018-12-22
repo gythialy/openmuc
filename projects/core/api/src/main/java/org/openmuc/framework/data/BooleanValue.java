@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,52 +31,27 @@ public class BooleanValue implements Value {
 
     @Override
     public double asDouble() {
-        if (value) {
-            return 1.0;
-        }
-        else {
-            return 0.0;
-        }
+        return asByte();
     }
 
     @Override
     public float asFloat() {
-        if (value) {
-            return 1.0f;
-        }
-        else {
-            return 0.0f;
-        }
+        return asByte();
     }
 
     @Override
     public long asLong() {
-        if (value) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
+        return asByte();
     }
 
     @Override
     public int asInt() {
-        if (value) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
+        return asByte();
     }
 
     @Override
     public short asShort() {
-        if (value) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
+        return asByte();
     }
 
     @Override
@@ -96,12 +71,7 @@ public class BooleanValue implements Value {
 
     @Override
     public byte[] asByteArray() {
-        if (value) {
-            return new byte[] { 1 };
-        }
-        else {
-            return new byte[] { 0 };
-        }
+        return new byte[] { asByte() };
     }
 
     @Override

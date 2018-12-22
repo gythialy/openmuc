@@ -1,32 +1,48 @@
 
-configurations.create("embed")
+def projectName = 'OpenMUC Driver - M-Bus'
+def projectDescription = 'M-Bus (wired) driver for the OpenMUC framework.'
 
-def jmbusversion = "2.2.2"
+configurations.create('embed')
+
+def jmbusversion = '3.0.1'
+def jrxtxversion = '1.0.0'
 
 dependencies {
 
-  compile group: "org.openmuc", name: "jmbus", version: jmbusversion
-  embed   group: "org.openmuc", name: "jmbus", version: jmbusversion
+  compile group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+  embed   group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+  compile group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
 
-  compile project(":openmuc-core-spi")
+  compile project(':openmuc-core-spi')
   
-  testCompile "org.mockito:mockito-core:1.10.19"
-  testCompile "org.powermock:powermock-api-mockito:1.6.2" 
-  testCompile "org.powermock:powermock-module-junit4:1.6.2" 
+  testCompile 'org.mockito:mockito-core:1.10.19'
+  testCompile 'org.powermock:powermock-api-mockito:1.6.2' 
+  testCompile 'org.powermock:powermock-module-junit4:1.6.2' 
 
 }
 
 jar {
   manifest {
-    name = "OpenMUC Driver - M-Bus"
-    instruction "Bundle-ClassPath", ".,lib/jmbus-" + jmbusversion + ".jar"
-    instruction "Import-Package", "!org.openmuc.jmbus*,gnu.io,*" + jarDefaultImportPackageVersion
-    instruction "Export-Package", ""
+    name = projectName
+    instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar,lib/jrxtx-' + jrxtxversion + '.jar'
+    instruction 'Import-Package', '!org.openmuc.jmbus*,gnu.io,*' + jarDefaultImportPackageVersion
+    instruction 'Export-Package', ''
   }
 }
 
 jar {
-  into("lib") {
+  into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

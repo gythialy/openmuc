@@ -1,5 +1,5 @@
 (function(){
-		
-	angular.module('openmuc.dataplotter', []);
+
+    angular.module('openmuc.dataplotter', []);
 
 })();

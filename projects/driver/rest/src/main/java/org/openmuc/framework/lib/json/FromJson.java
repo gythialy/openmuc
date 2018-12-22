@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -34,6 +34,7 @@ import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.ByteValue;
 import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.FloatValue;
 import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
@@ -45,16 +46,16 @@ import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.dataaccess.DeviceState;
 import org.openmuc.framework.lib.json.exceptions.MissingJsonObjectException;
 import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException;
-import org.openmuc.framework.lib.json.restObjects.RestChannel;
-import org.openmuc.framework.lib.json.restObjects.RestChannelConfig;
-import org.openmuc.framework.lib.json.restObjects.RestChannelConfigMapper;
-import org.openmuc.framework.lib.json.restObjects.RestDeviceConfig;
-import org.openmuc.framework.lib.json.restObjects.RestDeviceConfigMapper;
-import org.openmuc.framework.lib.json.restObjects.RestDriverConfig;
-import org.openmuc.framework.lib.json.restObjects.RestDriverConfigMapper;
-import org.openmuc.framework.lib.json.restObjects.RestRecord;
-import org.openmuc.framework.lib.json.restObjects.RestUserConfig;
-import org.openmuc.framework.lib.json.restObjects.RestValue;
+import org.openmuc.framework.lib.json.rest.objects.RestChannel;
+import org.openmuc.framework.lib.json.rest.objects.RestChannelConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestChannelConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestDeviceConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestDeviceConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestDriverConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestDriverConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestRecord;
+import org.openmuc.framework.lib.json.rest.objects.RestUserConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestValue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -86,14 +87,12 @@ public class FromJson {
     }
 
     public Record getRecord(ValueType valueType) throws ClassCastException {
-
-        Record record = null;
         JsonElement jse = jsonObject.get(Const.RECORD);
-
-        if (!jse.isJsonNull()) {
-            record = getRecord(gson.fromJson(jse, RestRecord.class), valueType);
+        if (jse.isJsonNull()) {
+            return null;
         }
-        return record;
+
+        return convertRestRecordToRecord(gson.fromJson(jse, RestRecord.class), valueType);
     }
 
     public ArrayList<Record> getRecordArrayList(ValueType valueType) throws ClassCastException {
@@ -109,7 +108,7 @@ public class FromJson {
                 recordList.add(getRecord(valueType));
             }
         }
-        if (recordList.size() == 0) {
+        if (recordList.isEmpty()) {
             recordList = null;
         }
         return recordList;
@@ -147,15 +146,13 @@ public class FromJson {
 
     public void setChannelConfig(ChannelConfig channelConfig, String id) throws JsonSyntaxException,
             IdCollisionException, RestConfigIsNotCorrectException, MissingJsonObjectException {
-
         JsonElement jse = jsonObject.get(Const.CONFIGS);
 
-        if (!jse.isJsonNull()) {
-            RestChannelConfigMapper.setChannelConfig(channelConfig, gson.fromJson(jse, RestChannelConfig.class), id);
-        }
-        else {
+        if (jse.isJsonNull()) {
             throw new MissingJsonObjectException();
         }
+
+        RestChannelConfigMapper.setChannelConfig(channelConfig, gson.fromJson(jse, RestChannelConfig.class), id);
     }
 
     public void setDeviceConfig(DeviceConfig deviceConfig, String id) throws JsonSyntaxException, IdCollisionException,
@@ -197,7 +194,7 @@ public class FromJson {
                 resultList.add(iteratorJsonArray.next().toString());
             }
         }
-        if (resultList.size() == 0) {
+        if (resultList.isEmpty()) {
             resultList = null;
         }
         return resultList;
@@ -214,7 +211,7 @@ public class FromJson {
         return stringArray;
     }
 
-    public ArrayList<RestChannel> getRestChannelArrayList() throws ClassCastException {
+    public List<RestChannel> getRestChannelList() {
 
         ArrayList<RestChannel> recordList = new ArrayList<>();
         JsonElement jse = jsonObject.get("records");
@@ -231,7 +228,7 @@ public class FromJson {
                 recordList.add(rc);
             }
         }
-        if (recordList.size() == 0) {
+        if (recordList.isEmpty()) {
             return null;
         }
         return recordList;
@@ -325,70 +322,58 @@ public class FromJson {
         }
     }
 
-    private Record getRecord(RestRecord rrc, ValueType type) throws ClassCastException {
-
+    private Record convertRestRecordToRecord(RestRecord rrc, ValueType type) throws ClassCastException {
         Object value = rrc.getValue();
+        Flag flag = rrc.getFlag();
         Value retValue = null;
+
         if (value != null) {
-            retValue = getValue(type, value);
+            retValue = convertValueToMucValue(type, value);
         }
-        return new Record(retValue, rrc.getTimestamp(), rrc.getFlag());
+        if (flag == null) {
+            return new Record(retValue, rrc.getTimestamp());
+        }
+        else {
+            return new Record(retValue, rrc.getTimestamp(), rrc.getFlag());
+        }
     }
 
-    private Value getValue(ValueType type, Object value) throws ClassCastException {
+    private Value convertValueToMucValue(ValueType type, Object value) throws ClassCastException {
         // TODO: check all value types, if it is really a float, double, ...
 
         if (value.getClass().isInstance(new RestValue())) {
             value = ((RestValue) value).getValue();
         }
-        Value retValue = null;
+
         switch (type) {
         case FLOAT:
-            FloatValue fvalue = new FloatValue(((Double) value).floatValue());
-            retValue = fvalue;
-            break;
+            return new FloatValue(((Double) value).floatValue());
         case DOUBLE:
-            DoubleValue dValue = new DoubleValue((Double) value);
-            retValue = dValue;
-            break;
+            return new DoubleValue((Double) value);
         case SHORT:
-            ShortValue shValue = new ShortValue(((Double) value).shortValue());
-            retValue = shValue;
-            break;
+            return new ShortValue(((Double) value).shortValue());
         case INTEGER:
-            IntValue iValue = new IntValue(((Double) value).intValue());
-            retValue = iValue;
-            break;
+            return new IntValue(((Double) value).intValue());
         case LONG:
-            LongValue lValue = new LongValue(((Double) value).longValue());
-            retValue = lValue;
-            break;
+            return new LongValue(((Double) value).longValue());
         case BYTE:
-            ByteValue byValue = new ByteValue(((Double) value).byteValue());
-            retValue = byValue;
-            break;
+            return new ByteValue(((Double) value).byteValue());
         case BOOLEAN:
-            BooleanValue boValue = new BooleanValue((Boolean) value);
-            retValue = boValue;
-            break;
+            return new BooleanValue((Boolean) value);
         case BYTE_ARRAY:
             @SuppressWarnings("unchecked")
-            ArrayList<Double> arrayList = ((ArrayList<Double>) value);
+            List<Double> arrayList = ((ArrayList<Double>) value);
             byte[] byteArray = new byte[arrayList.size()];
             for (int i = 0; i < arrayList.size(); ++i) {
                 byteArray[i] = arrayList.get(i).byteValue();
             }
-            ByteArrayValue baValue = new ByteArrayValue(byteArray);
-            retValue = baValue;
-            break;
+            return new ByteArrayValue(byteArray);
         case STRING:
-            StringValue stValue = new StringValue((String) value);
-            retValue = stValue;
-            break;
+            return new StringValue((String) value);
         default:
-            break;
+            // should not occur
+            return new StringValue(value.toString());
         }
-        return retValue;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 public final class SlotsDatabaseUtil {
 
-    private final static Logger logger = LoggerFactory.getLogger(SlotsDatabaseUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlotsDatabaseUtil.class);
 
     public static void printWholeFile(File file) throws IOException {
         if (!file.getName().contains(SlotsDb.FILE_EXTENSION)) {

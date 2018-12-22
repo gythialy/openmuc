@@ -24,7 +24,7 @@
 		$scope.devices = [];
 		$scope.selectedDevices = [];
 		$scope.settings = "";
-        $scope.scanProgress = 0;
+        $scope.scanProgress = -1;
         $scope.scanInterrupted = false;
 		$scope.deviceScanSettingsSyntax = "";
 		$scope.scanError = "";
@@ -36,6 +36,8 @@
 		};
 
 		$scope.scanDriver = function() {
+            progressClear();
+            progress();
             $scope.scanInterrupted = false;
 			$scope.scanDriverForm.submitted = true;
 			DriversService.scan($scope.driver, $scope.settings).then(function(response) {
@@ -89,7 +91,7 @@
 			}
 		};
 
-        $scope.progress = function() {
+        var progress = function() {
                 var elem = document.getElementById("progressBarForeground");
                 var id = setInterval(frame, 1500);
                 function frame() {
@@ -105,9 +107,9 @@
 						}
                     }, function (error) {
                     });
-                    if ($scope.scanProgress > 0) {
+                    if ($scope.scanProgress >= 0) {
                         if ($scope.scanProgress == 100) {
-                            clearInterval(id);
+								clearInterval(id);
                         } else {
                             elem.style.width = $scope.scanProgress + '%';
                             document.getElementById("progressBarLabel").innerHTML = $scope.scanProgress * 1 + '%';
@@ -116,11 +118,13 @@
                 }
             };
 
-		$scope.progressClear = function() {
-			$scope.scanProgress = 0;
-			var elem = document.getElementById("progressBarForeground");
-			elem.style.width = $scope.scanProgress + '%';
-			document.getElementById("progressBarLabel").innerHTML = $scope.scanProgress * 1 + '%';
+		var progressClear = function() {
+            if ($scope.scanProgress > 0) {
+                $scope.scanProgress = 0;
+                var elem = document.getElementById("progressBarForeground");
+                elem.style.width = $scope.scanProgress + '%';
+                document.getElementById("progressBarLabel").innerHTML = $scope.scanProgress * 1 + '%';
+            }
 		}
 	};
 	

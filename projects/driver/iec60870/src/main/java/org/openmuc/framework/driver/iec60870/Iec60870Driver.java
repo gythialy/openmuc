@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,12 +38,12 @@ import org.osgi.service.component.annotations.Component;
 @Component
 public final class Iec60870Driver implements DriverService {
 
-    private final static String ID = "iec60870";
-    private final static String DESCRIPTION = "This driver can be used to access IEC 60870-104 devices";
+    private static final String DRIVER_ID = "iec60870";
+    private static final String DESCRIPTION = "This driver can be used to access IEC 60870-104 devices";
 
-    private final static DriverInfo info = new DriverInfo(ID, DESCRIPTION, DeviceAddress.syntax(DeviceAddress.class),
-            DeviceSettings.syntax(DeviceSettings.class), ChannelAddress.syntax(ChannelAddress.class),
-            DeviceScanSettings.syntax(DeviceScanSettings.class));
+    private static final DriverInfo info = new DriverInfo(DRIVER_ID, DESCRIPTION,
+            DeviceAddress.syntax(DeviceAddress.class), DeviceSettings.syntax(DeviceSettings.class),
+            ChannelAddress.syntax(ChannelAddress.class), DeviceScanSettings.syntax(DeviceScanSettings.class));
 
     @Override
     public DriverInfo getInfo() {
@@ -65,7 +65,7 @@ public final class Iec60870Driver implements DriverService {
     @Override
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
-        return new Iec60870Connection(new DeviceAddress(deviceAddress), new DeviceSettings(settings));
+        return new Iec60870Connection(new DeviceAddress(deviceAddress), new DeviceSettings(settings), DRIVER_ID);
     }
 
 }

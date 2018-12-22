@@ -4,42 +4,29 @@
 
 	var ChannelsAccessToolController = function($scope, $location, $alert, $translate, DevicesService) {
 
-		$translate('SELECT_AT_LEAST_ONE_DEVICE').then(function(text) {
-			$scope.selectOneDevice = text;
-		});
+		$translate('SELECT_AT_LEAST_ONE_DEVICE').then(text => selectOneDevice = text);
 
 		$scope.devices = [];
 
-		DevicesService.getAllDevices().then(function(devices){
-			return $scope.devices = devices;
-		});
+		DevicesService.getAllDevices().then(devices => $scope.devices = devices);
 
 		$scope.checkedDevices = {};
 
-		$scope.accessChannels = function() {
-			if (jQuery.isEmptyObject($scope.checkedDevices)) {
-				$alert({content: $scope.selectOneDevice, type: 'warning'});
+		$scope.accessChannels = () => {
+			if (Object.keys($scope.checkedDevices).length === 0) {
+				$alert({content: selectOneDevice, type: 'warning'});
 			} else {
 				$location.path('/channelaccesstool/access').search($scope.checkedDevices);
 			}
 		};
 
-        $scope.checkAll = function () {
+        $scope.checkAll = (checked) => {
             var elements = document.getElementsByName('checkedDevices');
-            if ($scope.checkAllDevices) {
-                 angular.forEach(elements, function(value, key) {
-                     value.checked = true;
-                     $scope.checkedDevices[$scope.devices[key].id] = 'on';
-                 });
-            }
-            else {
-                angular.forEach(elements, function(value, key) {
-                    value.checked = false;
-                    $scope.checkedDevices[$scope.devices[key].id] = 'off';
-                });
-            }
-        }
-
+		 	elements.forEach((value, key) => {
+				value.checked = checked;
+			    $scope.checkedDevices[$scope.devices[key].id] = checked;
+		 	});
+        };
 	};
 
 	ChannelsAccessToolController.$inject = injectParams;

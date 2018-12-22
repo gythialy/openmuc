@@ -2,7 +2,7 @@ package org.openmuc.framework.driver.csv.channel;
 
 import java.util.List;
 
-import org.openmuc.framework.driver.csv.CsvException;
+import org.openmuc.framework.driver.csv.exceptions.CsvException;
 import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.slf4j.Logger;
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class CsvTimeChannel implements CsvChannel {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CsvTimeChannel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvTimeChannel.class);
 
     /** remember index of last valid sampled value */
     protected int lastReadIndex = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,7 +23,6 @@ package org.openmuc.framework.driver.iec62056p21;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -37,30 +36,60 @@ import org.openmuc.framework.driver.spi.ChannelValueContainer;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.j62056.DataMessage;
 import org.openmuc.j62056.DataSet;
+import org.openmuc.j62056.Iec21Port;
+import org.openmuc.j62056.Iec21Port.Builder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Iec62056Connection implements Connection {
 
-    private final org.openmuc.j62056.Connection connection;
+    private Iec21Port iec21Port;
+    private int retries = 0;
 
-    public Iec62056Connection(org.openmuc.j62056.Connection connection) {
-        this.connection = connection;
+    private static final Logger logger = LoggerFactory.getLogger(Iec62056Connection.class);
+    private final boolean readStandard;
+    private final Builder configuredBuilder;
+    private final String requestStartCharacter;
+
+    public Iec62056Connection(Builder configuredBuilder, int retries, boolean readStandard,
+            String requestStartCharacter) throws ConnectionException {
+        this.configuredBuilder = configuredBuilder;
+        this.readStandard = readStandard;
+        this.requestStartCharacter = requestStartCharacter;
+
+        if (retries > 0) {
+            this.retries = retries;
+        }
+
+        try {
+            iec21Port = configuredBuilder.buildAndOpen();
+        } catch (IOException e) {
+            throw new ConnectionException(e.getMessage());
+        }
+        try {
+            iec21Port.read();
+        } catch (IOException e) {
+            iec21Port.close();
+            throw new ConnectionException("IOException trying to read meter: " + e.getMessage(), e);
+        }
+
+        sleep(5000);
     }
 
     @Override
     public List<ChannelScanInfo> scanForChannels(String settings)
             throws UnsupportedOperationException, ScanException, ConnectionException {
-
         List<DataSet> dataSets;
+        DataMessage dataMessage;
+
         try {
-            dataSets = connection.read();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new ScanException(e1);
-        } catch (TimeoutException e) {
-            e.printStackTrace();
+            dataMessage = iec21Port.read();
+        } catch (IOException e) {
             throw new ScanException(e);
         }
+        dataSets = dataMessage.getDataSets();
 
         if (dataSets == null) {
             throw new ScanException("Read timeout.");
@@ -71,9 +100,10 @@ public class Iec62056Connection implements Connection {
         for (DataSet dataSet : dataSets) {
             try {
                 Double.parseDouble(dataSet.getValue());
-                scanInfos.add(new ChannelScanInfo(dataSet.getId(), "", ValueType.DOUBLE, null));
+                scanInfos.add(new ChannelScanInfo(dataSet.getAddress(), "", ValueType.DOUBLE, null));
             } catch (NumberFormatException e) {
-                scanInfos.add(new ChannelScanInfo(dataSet.getId(), "", ValueType.STRING, dataSet.getValue().length()));
+                scanInfos.add(
+                        new ChannelScanInfo(dataSet.getAddress(), "", ValueType.STRING, dataSet.getValue().length()));
             }
 
         }
@@ -84,31 +114,50 @@ public class Iec62056Connection implements Connection {
     @Override
     public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
             throws UnsupportedOperationException, ConnectionException {
+        List<DataSet> dataSets = new ArrayList<>();
+        dataSets.addAll(read(containers));
 
-        List<DataSet> dataSets;
-        try {
-            dataSets = connection.read();
-        } catch (IOException e) {
-            for (ChannelRecordContainer container : containers) {
-                container.setRecord(new Record(Flag.DRIVER_ERROR_READ_FAILURE));
-            }
-            return null;
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-            throw new ConnectionException("Read timed out: " + e.getMessage());
+        if (readStandard) {
+            configuredBuilder.setRequestStartCharacters("/?");
+            setPort(configuredBuilder);
+            sleep(500);
+            dataSets.addAll(read(containers));
+            configuredBuilder.setRequestStartCharacters(requestStartCharacter);
+            setPort(configuredBuilder);
         }
 
-        if (dataSets == null) {
-            for (ChannelRecordContainer container : containers) {
-                container.setRecord(new Record(Flag.TIMEOUT));
-            }
-            return null;
-        }
+        setRecords(containers, dataSets);
+        return null;
+    }
 
+    private List<DataSet> read(List<ChannelRecordContainer> containers) {
+        List<DataSet> dataSetsRet = new ArrayList<>();
+        DataMessage dataMessage;
+        for (int i = 0; i <= retries; ++i) {
+            try {
+                dataMessage = iec21Port.read();
+                List<DataSet> dataSets = dataMessage.getDataSets();
+                if (dataSetsRet != null) {
+                    i = retries;
+                    dataSetsRet = dataSets;
+                }
+            } catch (IOException e) {
+                if (i >= retries) {
+                    for (ChannelRecordContainer container : containers) {
+                        container.setRecord(new Record(Flag.DRIVER_ERROR_READ_FAILURE));
+                    }
+                }
+            }
+        }
+        return dataSetsRet;
+    }
+
+    public static void setRecords(List<ChannelRecordContainer> containers, List<DataSet> dataSets) {
         long time = System.currentTimeMillis();
+
         for (ChannelRecordContainer container : containers) {
             for (DataSet dataSet : dataSets) {
-                if (dataSet.getId().equals(container.getChannelAddress())) {
+                if (dataSet.getAddress().equals(container.getChannelAddress())) {
                     String value = dataSet.getValue();
                     if (value != null) {
                         try {
@@ -122,14 +171,18 @@ public class Iec62056Connection implements Connection {
                 }
             }
         }
-
-        return null;
     }
 
     @Override
     public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
             throws UnsupportedOperationException, ConnectionException {
-        throw new UnsupportedOperationException();
+        Iec62056Listener iec62056Listener = new Iec62056Listener();
+        iec62056Listener.registerOpenMucListener(containers, listener);
+        try {
+            iec21Port.listen(iec62056Listener);
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
     }
 
     @Override
@@ -140,6 +193,28 @@ public class Iec62056Connection implements Connection {
 
     @Override
     public void disconnect() {
-        connection.close();
+        if (iec21Port != null) {
+            iec21Port.close();
+        }
     }
+
+    private void setPort(Builder configuredBuilder) throws ConnectionException {
+        if (!iec21Port.isClosed()) {
+            iec21Port.close();
+        }
+        try {
+            iec21Port = configuredBuilder.buildAndOpen();
+        } catch (IOException e) {
+            throw new ConnectionException(e.getMessage());
+        }
+    }
+
+    private void sleep(int sleeptime) {
+        try { // FIXME: Sleep to avoid to early read after connection. Meters have some delay.
+            Thread.sleep(sleeptime);
+        } catch (InterruptedException e1) {
+            logger.error(e1.getMessage());
+        }
+    }
+
 }

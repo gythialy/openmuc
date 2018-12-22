@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,15 +21,8 @@
 package org.openmuc.framework.driver.aggregator;
 
 public class AggregationException extends Exception {
-
-    private final String message;
-
     public AggregationException(String message) {
-        this.message = message;
+        super(message);
     }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
 }

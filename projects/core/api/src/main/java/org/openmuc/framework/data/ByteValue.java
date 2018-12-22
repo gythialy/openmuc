@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,61 +21,15 @@
 
 package org.openmuc.framework.data;
 
-public class ByteValue implements Value {
-
-    private final byte value;
+public class ByteValue extends NumberValue {
 
     public ByteValue(byte value) {
-        this.value = value;
-    }
-
-    @Override
-    public double asDouble() {
-        return value;
-    }
-
-    @Override
-    public float asFloat() {
-        return value;
-    }
-
-    @Override
-    public long asLong() {
-        return value;
-    }
-
-    @Override
-    public int asInt() {
-        return value;
-    }
-
-    @Override
-    public short asShort() {
-        return value;
-    }
-
-    @Override
-    public byte asByte() {
-        return value;
-    }
-
-    @Override
-    public boolean asBoolean() {
-        return (value != 0);
+        super(value);
     }
 
     @Override
     public byte[] asByteArray() {
-        return new byte[] { value };
+        return new byte[] { super.asByte() };
     }
 
-    @Override
-    public String toString() {
-        return Byte.toString(value);
-    }
-
-    @Override
-    public String asString() {
-        return toString();
-    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,6 +21,7 @@
 package org.openmuc.framework.driver.knx;
 
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import org.openmuc.framework.config.DeviceScanInfo;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import tuwien.auto.calimero.knxnetip.Discoverer;
 import tuwien.auto.calimero.knxnetip.servicetype.SearchResponse;
+import tuwien.auto.calimero.knxnetip.util.DeviceDIB;
 
 public class KnxIpDiscover {
 
@@ -41,7 +43,6 @@ public class KnxIpDiscover {
 
     public KnxIpDiscover(String interfaceAddress, boolean natAware, boolean mcastResponse) throws IOException {
         try {
-            // System.setProperty("java.net.preferIPv4Stack", "true");
             InetAddress localHost = InetAddress.getByName(interfaceAddress);
             discoverer = new Discoverer(localHost, 0, natAware, mcastResponse);
         } catch (Exception e) {
@@ -61,7 +62,6 @@ public class KnxIpDiscover {
             searchResponses = discoverer.getSearchResponses();
         } catch (Exception e) {
             logger.warn("A network I/O error occurred");
-            e.printStackTrace();
             throw new IOException(e);
         }
         if (searchResponses != null) {
@@ -70,12 +70,15 @@ public class KnxIpDiscover {
     }
 
     private void notifyListener(DriverDeviceScanListener listener) {
-
         for (SearchResponse response : searchResponses) {
+
             StringBuilder deviceAddress = new StringBuilder();
             deviceAddress.append(KnxDriver.ADDRESS_SCHEME_KNXIP).append("://");
-            String ipAddress = response.getControlEndpoint().getAddress().getHostAddress();
-            if (ipAddress.contains(":")) { // if it is an ipv6 address
+
+            InetAddress address = response.getControlEndpoint().getAddress();
+            String ipAddress = address.getHostAddress();
+
+            if (address instanceof Inet6Address) {
                 deviceAddress.append("[").append(ipAddress).append("]");
             }
             else {
@@ -83,8 +86,9 @@ public class KnxIpDiscover {
             }
             deviceAddress.append(":").append(response.getControlEndpoint().getPort());
 
-            String name = response.getDevice().getSerialNumberString();
-            String description = response.getDevice().toString();
+            DeviceDIB deviceDIB = response.getDevice();
+            String name = deviceDIB.getSerialNumberString();
+            String description = deviceDIB.toString();
 
             logger.debug("Found " + deviceAddress + " - " + name + " - " + description);
 

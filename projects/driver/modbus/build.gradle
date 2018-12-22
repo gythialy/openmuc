@@ -1,4 +1,7 @@
 
+def projectName = "OpenMUC Driver - Modbus"
+def projectDescription = "Modbus driver for the OpenMUC framework."
+
 configurations.create('embed')
 
 repositories {
@@ -7,16 +10,16 @@ repositories {
 
 dependencies {
   compile project(':openmuc-core-spi')
-
-  compile group: 'net.wimpi', name: 'jamod', version: '1.2'
-  embed group: 'net.wimpi', name: 'jamod', version: '1.2'
+  compile files('../../../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar')
+  compile files('../../../dependencies/j2mod/j2mod-r100.jar')
+  embed files('../../../dependencies/j2mod/j2mod-r100.jar')
 }
 
 jar {
   manifest {
-    name = "OpenMUC Modbus Driver"
-    instruction 'Bundle-ClassPath', '.,lib/jamod-1.2.jar'
-    instruction 'Import-Package', '!net.wimpi*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
+    name = projectName
+    instruction 'Bundle-ClassPath', '.,lib/j2mod-r100.jar'
+    instruction 'Import-Package', '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
   }
 }
@@ -24,5 +27,16 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

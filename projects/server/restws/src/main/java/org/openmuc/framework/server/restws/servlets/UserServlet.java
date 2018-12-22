@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,21 +33,23 @@ import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.lib.json.Const;
 import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
-import org.openmuc.framework.lib.json.restObjects.RestUserConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestUserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserServlet extends GenericServlet {
 
+    private static final String REQUESTED_REST_PATH_IS_NOT_AVAILABLE = "Requested rest path is not available.";
+    private static final String REST_PATH = " Rest Path = ";
     private static final long serialVersionUID = -5635380730045771853L;
-    private final static Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
+    private static final String APPLICATION_JSON = "application/json";
+    private static final Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
 
     private AuthenticationService authenticationService;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -67,32 +69,27 @@ public class UserServlet extends GenericServlet {
 
                 if (pathInfoArray.length == 1) {
 
-                    String userID = pathInfoArray[0].replace("/", "");
+                    String userId = pathInfoArray[0].replace("/", "");
 
-                    if (userID.equalsIgnoreCase(Const.GROUPS)) {
+                    if (userId.equalsIgnoreCase(Const.GROUPS)) {
 
                         List<String> groupList = new ArrayList<>();
                         groupList.add(""); // TODO: add real groups, if groups exists in OpenMUC
                         json.addStringList(Const.GROUPS, groupList);
                     }
-                    else if (authenticationService.contains(userID)) {
-                        RestUserConfig restUserConfig = new RestUserConfig();
-                        restUserConfig.setId(userID);
-                        restUserConfig.setPassword("*****");
-                        restUserConfig.setGroups(new String[] { "" });
-                        restUserConfig.setDescription("");
-                        json.addRestUserConfig(restUserConfig);
+                    else if (authenticationService.contains(userId)) {
+                        json.addRestUserConfig(new RestUserConfig(userId));
                     }
 
                     else {
                         ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                                "User does not exist.", " User = ", userID);
+                                "User does not exist.", " User = ", userId);
                     }
 
                 }
                 else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                            "Requested rest path is not available.", " Path Info = ", request.getPathInfo());
+                            REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Path Info = ", request.getPathInfo());
                 }
 
             }
@@ -102,43 +99,42 @@ public class UserServlet extends GenericServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
-        if (pathAndQueryString != null) {
+        if (pathAndQueryString == null) {
+            return;
+        }
 
-            setServices();
-            String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
-            FromJson json = new FromJson(ServletLib.getJsonText(request));
+        setServices();
+        String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
+        FromJson json = new FromJson(ServletLib.getJsonText(request));
 
-            if (pathInfo.equals("/")) {
-                RestUserConfig userConfig = json.getRestUserConfig();
+        if (pathInfo.equals("/")) {
+            RestUserConfig userConfig = json.getRestUserConfig();
 
-                if (authenticationService.contains(userConfig.getId())) {
-                    ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                            "User already exists.", " User = ", userConfig.getId());
-                }
-                else if (userConfig.getPassword() == null || userConfig.getPassword().equals("")) {
-                    ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
-                            "Password is mandatory.");
-                }
-                else {
-                    authenticationService.register(userConfig.getId(), userConfig.getPassword());
-                }
-
+            if (authenticationService.contains(userConfig.getId())) {
+                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+                        "User already exists.", " User = ", userConfig.getId());
+            }
+            else if (userConfig.getPassword() == null || userConfig.getPassword().isEmpty()) {
+                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
+                        "Password is mandatory.");
             }
             else {
-                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                        "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                authenticationService.register(userConfig.getId(), userConfig.getPassword());
             }
+
+        }
+        else {
+            ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+                    REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
         }
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -150,11 +146,11 @@ public class UserServlet extends GenericServlet {
             if (pathInfo.equals("/")) {
                 RestUserConfig userConfig = json.getRestUserConfig();
 
-                if (userConfig.getPassword() == null || userConfig.getPassword().equals("")) {
+                if (userConfig.getPassword() == null || userConfig.getPassword().isEmpty()) {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
                             "Password is mandatory.");
                 }
-                else if (userConfig.getOldPassword() == null || userConfig.getOldPassword().equals("")) {
+                else if (userConfig.getOldPassword() == null || userConfig.getOldPassword().isEmpty()) {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
                             "Old password is mandatory.");
                 }
@@ -175,7 +171,7 @@ public class UserServlet extends GenericServlet {
             }
             else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                        "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                        REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
             }
         }
     }
@@ -183,8 +179,7 @@ public class UserServlet extends GenericServlet {
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -209,18 +204,17 @@ public class UserServlet extends GenericServlet {
             }
             else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                        "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                        REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
             }
 
         }
         else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                    "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                    REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
         }
     }
 
     private void setServices() {
-
         this.authenticationService = handleAuthenticationService(null);
     }
 

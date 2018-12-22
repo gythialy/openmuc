@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,9 +28,6 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 /**
  * In scanner we need to notify a listener which is given in arguments and also we have to create another listener in
  * order to listen to SNMP scanner in SnmpDevice. So we notify given listener in callback method of SnmpDevice listener
- * 
- * @author Mehran Shakeri
- * 
  */
 public class SnmpDriverDiscoveryListener implements SnmpDiscoveryListener {
 

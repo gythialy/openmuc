@@ -7,7 +7,7 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 public class CsvChannelRecordContainer implements ChannelRecordContainer {
 
     private Record record;
-    private String channelAddress;
+    private final String channelAddress;
 
     public CsvChannelRecordContainer(String channelAddress) {
         this.channelAddress = channelAddress;

@@ -16,22 +16,17 @@ public class LastAggregation extends AggregatorChannel {
         super(simpleAddress, dataAccessService);
     }
 
-    /**
-     * Performs aggregation
-     */
     @Override
     public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
-
-        Record record;
-
         try {
             List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-            record = AggregatorUtil.getLastRecordOfList(recordList);
+            return AggregatorUtil.findLastRecordIn(recordList).getValue().asDouble();
+        } catch (AggregationException e) {
+            throw e;
         } catch (Exception e) {
             throw new AggregationException(e.getMessage());
         }
 
-        return record.getValue().asDouble();
     }
 
 }

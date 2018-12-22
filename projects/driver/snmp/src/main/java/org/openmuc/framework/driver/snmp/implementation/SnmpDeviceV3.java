@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -32,11 +32,6 @@ import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 
-/**
- * 
- * @author Mehran Shakeri
- * 
- */
 public class SnmpDeviceV3 extends SnmpDevice {
 
     // private UserTarget target; // snmp v3 target
@@ -174,13 +169,11 @@ public class SnmpDeviceV3 extends SnmpDevice {
     }
 
     public String getSettings() {
-        String settings = SnmpDriverSettingVariableNames.SNMPVersion.toString() + "=" + SNMPVersion.V3 + ":"
+        return SnmpDriverSettingVariableNames.SNMP_VERSION.toString() + "=" + SNMPVersion.V3 + ":"
                 + SnmpDriverSettingVariableNames.USERNAME + "=" + username + ":"
                 + SnmpDriverSettingVariableNames.SECURITYNAME + "=" + securityName + ":"
                 + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=" + authenticationPassphrase + ":"
                 + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=" + privacyPassphrase;
-
-        return settings;
 
     }
 

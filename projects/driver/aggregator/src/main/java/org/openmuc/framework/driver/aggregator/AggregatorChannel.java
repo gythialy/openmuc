@@ -13,8 +13,6 @@ import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
 
 public abstract class AggregatorChannel {
 
-    public abstract double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException;
-
     protected ChannelAddress channelAddress;
     protected Channel aggregatedChannel;
     protected Channel sourceChannel;
@@ -42,6 +40,19 @@ public abstract class AggregatorChannel {
 
         checkIntervals();
     }
+
+    /**
+     * Performs aggregation.
+     * 
+     * @param currentTimestamp
+     *            start TS.
+     * @param endTimestamp
+     *            stop TS.
+     * @return the aggregated value.
+     * @throws AggregationException
+     *             if an error occurs.
+     */
+    public abstract double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException;
 
     public List<Record> getLoggedRecords(long currentTimestamp, long endTimestamp)
             throws DataLoggerNotAvailableException, IOException, AggregationException {
@@ -140,26 +151,21 @@ public abstract class AggregatorChannel {
      * NOTE: directly manipulates the records object for all future operations!
      */
     private void removeErrorRecords(List<Record> records) {
-
-        for (Iterator<Record> recordIterator = records.iterator(); recordIterator.hasNext();) {
+        Iterator<Record> recordIterator = records.iterator();
+        while (recordIterator.hasNext()) {
             Record record = recordIterator.next();
-            if (record == null) {
+            // check if the value is null or the flag isn't valid
+            if (record == null || record.getValue() == null || !record.getFlag().equals(Flag.VALID)) {
                 recordIterator.remove();
+                continue;
             }
-            else {
-                // check if the value is null or the flag isn't valid
-                if (record.getValue() == null || !record.getFlag().equals(Flag.VALID)) {
-                    recordIterator.remove();
-                }
-                else {
-                    try {
-                        // check if the value can be converted to double
-                        record.getValue().asDouble();
-                    } catch (TypeConversionException e) {
-                        // remove record since it can't be cast to double for further processing
-                        recordIterator.remove();
-                    }
-                }
+
+            try {
+                // check if the value can be converted to double
+                record.getValue().asDouble();
+            } catch (TypeConversionException e) {
+                // remove record since it can't be cast to double for further processing
+                recordIterator.remove();
             }
         }
     }

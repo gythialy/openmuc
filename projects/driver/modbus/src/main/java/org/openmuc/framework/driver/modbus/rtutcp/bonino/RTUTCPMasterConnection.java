@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.io.ModbusTransport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.io.ModbusTransport;
 
 /**
  * @author bonino
@@ -14,6 +17,9 @@ import net.wimpi.modbus.io.ModbusTransport;
  * 
  */
 public class RTUTCPMasterConnection implements MasterConnection {
+
+    private static final Logger logger = LoggerFactory.getLogger(RTUTCPMasterConnection.class);
+
     // the log identifier
     public static final String logId = "[RTUTCPMasterConnection]: ";
 
@@ -65,9 +71,8 @@ public class RTUTCPMasterConnection implements MasterConnection {
         // if not connected, try to connect
         if (!this.connected) {
             // handle debug...(TODO: logging?)
-            if (Modbus.debug) {
-                System.out.println(RTUTCPMasterConnection.logId + "connecting...)");
-            }
+
+            logger.info("connecting...");
 
             // create a socket towards the remote slave
             this.socket = new Socket(this.slaveIPAddress, this.slaveIPPort);
@@ -81,10 +86,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
             // set the connected flag at true
             connected = true;
 
-            // handle debug...(TODO: logging?)
-            if (Modbus.debug) {
-                System.out.println(RTUTCPMasterConnection.logId + "successfully connected)");
-            }
+            logger.info("successfully connected");
         }
     }// connect
 
@@ -99,11 +101,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
             try {
                 this.modbusRTUTCPTransport.close();
             } catch (IOException e) {
-                // handle debug...(TODO: logging?)
-                if (Modbus.debug) {
-                    System.out
-                            .println(RTUTCPMasterConnection.logId + " error while closing the connection, cause:" + e);
-                }
+                logger.error("error while closing the connection, cause:", e);
             }
 
             // if everything is fine, set the connected flag at false

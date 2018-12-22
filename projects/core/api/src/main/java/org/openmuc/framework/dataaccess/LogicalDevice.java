@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,8 +23,8 @@ package org.openmuc.framework.dataaccess;
 
 public interface LogicalDevice {
 
-    public Channel getChannel(String parameterName);
+    Channel getChannel(String parameterName);
 
-    public Channel getChannel(String parameterName, ChannelChangeListener channelChangeListener);
+    Channel getChannel(String parameterName, ChannelChangeListener channelChangeListener);
 
 }

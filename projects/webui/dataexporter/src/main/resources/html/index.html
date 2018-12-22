@@ -5,53 +5,72 @@
 <fieldset>
   <legend>{{'EXPORT_OPTIONS' | translate}}</legend>
   <form class="form-horizontal" ng-submit="exportData()" novalidate>
-  
-    <div class="form-group">
-	    <label for="date_since" class="col-sm-2 control-label">{{'EXPORT_DATA_SINCE' | translate}}:</label>
-	    <div class="col-sm-6">
-        <input type="text" size="10" class="form-control" ng-model="startDate" data-autoclose="1" placeholder="Date" bs-datepicker>
-	    </div>
-	  </div>
-    
-    <div class="form-group">
-	    <label for="date_until" class="col-sm-2 control-label">{{'EXPORT_DATA_UNTIL' | translate}}:</label>
-      <div class="col-sm-6">
-        <input type="text" size="10" class="form-control" ng-model="endDate" data-autoclose="1" placeholder="Date" bs-datepicker>
+
+      <div class="form-group">
+          <label for="date_since" class="col-sm-2 control-label">{{'EXPORT_DATA_SINCE' | translate}}:</label>
+          <div class="col-sm-2">
+              <div class="input-group">
+                  <input type="text" class="form-control" ng-model="startDate" data-autoclose="1" placeholder="{{'DATE' | translate}}" bs-datepicker>
+              </div>
+          </div>
+          <div class="col-sm-2">
+              <div class="input-group">
+                  <input type="text" class="form-control" ng-model="startDate" data-autoclose="1" placeholder="{{'TIME' | translate}}" bs-timepicker>
+              </div>
+          </div>
       </div>
-	  </div>
-    
+      </div>
+
+      <div class="form-group">
+          <label for="date_until" class="col-sm-2 control-label">{{'EXPORT_DATA_UNTIL' | translate}}:</label>
+          <div class="col-sm-2">
+              <div class="input-group">
+                  <input type="text" class="form-control" ng-model="endDate" data-autoclose="1" placeholder="{{'DATE' | translate}}" bs-datepicker>
+              </div>
+          </div>
+          <div class="col-sm-2">
+              <div class="input-group">
+                  <input type="text" class="form-control" ng-model="endDate" data-autoclose="1" placeholder="{{'TIME' | translate}}" bs-timepicker>
+              </div>
+          </div>
+      </div>
+
     <div class="form-group">
 	    <label for="time_format" class="col-sm-2 control-label">{{'TIME_FORMAT' | translate}}:</label>
       <div class="col-sm-6">
-				<select name="time_format" id="time_format" class="form-control">
-				  <option value="1">ISO 8601 + Unix timestamp</option>
-				  <option value="2">ISO 8601</option>
-				  <option value="3">Unix timestamp</option>
-				  <option value="4">Java timestamp</option>
-				</select>
+				<select ng-model="timeFormat" name="timeFormat" id="timeFormat" class="form-control">
+                  <option value="1">Java timestamp</option>
+<!--
+                  <option value="2">Unix timestamp</option>
+                  <option value="3">ISO 8601</option>
+                  <option value="4">ISO 8601 + Unix timestamp</option>
+-->
+                </select>
 		  </div>
 	  </div>
-    
+
     <div class="form-group">
       <label class="col-sm-2 control-label">
         {{'SELECT_CHANNELS_TO_EXPORT' | translate}}
       </label>
-      
+
       <div class="col-sm-6">
         <div class="col-sm-6" ng-repeat="channel in channels">
           <label class="sr-only">{{channel.name}}</label>
-          <label><input type="checkbox" checklist-model="selectedChannels" checklist-value="channel"> {{channel}}</label>
+          <label>
+              <input type="checkbox" checklist-model="selectedChannels" checklist-value="channel"> {{channel}}
+          </label>
         </div>
       </div>
     </div>
-    
+
     <br />
-    
+
     <div class="form-group text-right">
       <div class="col-sm-8">
 	      <input type="submit" class="btn btn-primary" value="{{'GENERATE_DATA' | translate}} ..."/>
 	      <button type="button" ng-csv="data" filename="exporteddata.csv" csv-header="getHeader()" class="btn btn-primary" ng-disabled="disableExport">{{'EXPORT'| translate}}</button>
-      </div>  
+      </div>
     </div>
   </form>
 </fieldset>

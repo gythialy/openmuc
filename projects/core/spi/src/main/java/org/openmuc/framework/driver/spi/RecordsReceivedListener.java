@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,8 +25,8 @@ import java.util.List;
 
 public interface RecordsReceivedListener {
 
-    public void newRecords(List<ChannelRecordContainer> recordContainers);
+    void newRecords(List<ChannelRecordContainer> recordContainers);
 
-    public void connectionInterrupted(String driverId, Connection connection);
+    void connectionInterrupted(String driverId, Connection connection);
 
 }

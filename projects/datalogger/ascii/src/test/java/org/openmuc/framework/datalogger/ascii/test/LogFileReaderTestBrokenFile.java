@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,9 +35,9 @@ public class LogFileReaderTestBrokenFile {
     private String fileDate;
 
     String dateFormat = "yyyyMMdd HH:mm:ss";
-    private final static int loggingInterval = 1000; // ms
+    private static final int loggingInterval = 1000; // ms
     static int loggingTimeOffset = 0; // ms
-    private final static String Channel0Name = "power";
+    private static final String Channel0Name = "power";
 
     LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "Comment", "W", ValueType.DOUBLE,
             loggingInterval, loggingTimeOffset);
@@ -53,7 +53,7 @@ public class LogFileReaderTestBrokenFile {
         long t2 = TestUtils.stringToDate(dateFormat, fileDate + " 12:00:10").getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         long expectedRecords = 0;
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());

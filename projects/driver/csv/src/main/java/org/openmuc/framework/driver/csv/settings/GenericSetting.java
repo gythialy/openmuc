@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory;
 
 public abstract class GenericSetting {
 
-    private final static String SEPARATOR = ";";
-    private final static String PAIR_SEP = "=";
-    private final static String PREFIX = "prefix";
-    private final static String TYPE = "type";
-    private final static String MANDATORY = "mandatory";
-    private final static Locale LOCALE = Locale.ENGLISH;
+    private static final String SEPARATOR = ";";
+    private static final String PAIR_SEP = "=";
+    private static final String PREFIX = "prefix";
+    private static final String TYPE = "type";
+    private static final String MANDATORY = "mandatory";
+    private static final Locale LOCALE = Locale.ENGLISH;
 
-    private final static Logger logger = LoggerFactory.getLogger(GenericSetting.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenericSetting.class);
 
     @SuppressWarnings("unchecked")
     public static String syntax(Class<? extends GenericSetting> genericSettings) {

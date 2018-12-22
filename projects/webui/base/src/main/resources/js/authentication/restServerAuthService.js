@@ -1,10 +1,13 @@
 (function(){
 
-	var injectParams = [];
-	
-	var RestServerAuthService = function() {
+	var injectParams = ['AuthService'];
+
+	var RestServerAuthService = function(AuthService) {
+
     	this.getAuthHash = function() {
-    		return 'Basic ' + btoa("admin:admin");
+			if (AuthService.isLoggedIn) {
+				return 'Basic ' + btoa(AuthService.currentUsername() + ":" + AuthService.currentPwd());
+			}
     	};
     };
 

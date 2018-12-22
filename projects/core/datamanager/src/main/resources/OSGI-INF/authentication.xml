@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<component name="authentication">
-  <implementation class="org.openmuc.framework.core.authentication.Authentication" /> 
-  <service>
-      <provide interface="org.openmuc.framework.authentication.AuthenticationService"/>
-  </service>
-</component>

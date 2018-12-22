@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,9 +23,6 @@ package org.openmuc.framework.webui.base;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -38,19 +35,17 @@ import org.openmuc.framework.webui.spi.WebUiPluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 @SuppressWarnings("serial")
-public final class WebUiBaseServlet extends HttpServlet {
+public class WebUiBaseServlet extends HttpServlet {
 
-    private final static Logger logger = LoggerFactory.getLogger(WebUiBaseServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebUiBaseServlet.class);
 
     private static final int SESSION_TIMEOUT = 300;
 
     private final WebUiBase webUiBase;
-
-    private final static Gson gson = new Gson();
 
     public WebUiBaseServlet(WebUiBase webUiBase) {
         this.webUiBase = webUiBase;
@@ -58,8 +53,12 @@ public final class WebUiBaseServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String servletPath = req.getServletPath();
 
-        if ("/applications".equals(req.getPathInfo())) {
+        if (servletPath == null) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Path is null.");
+        }
+        else if ("/applications".equals(servletPath)) {
 
             if (req.getSession().isNew()) {
                 req.getSession().invalidate();
@@ -67,28 +66,31 @@ public final class WebUiBaseServlet extends HttpServlet {
                 return;
             }
 
-            List<Application> applications = new ArrayList<>();
-            for (WebUiPluginService webUiApplication : webUiBase.pluginsByAlias.values()) {
-                Application application = new Application();
-                application.setAlias(webUiApplication.getAlias());
-                application.setName(webUiApplication.getName());
-                applications.add(application);
+            JsonArray jApplications = new JsonArray();
+            for (WebUiPluginService webUiApp : webUiBase.pluginsByAlias.values()) {
+                JsonObject app = new JsonObject();
+                app.addProperty("alias", webUiApp.getAlias());
+                app.addProperty("name", webUiApp.getName());
+                jApplications.add(app);
             }
-            Type typeOfSrc = new TypeToken<List<Application>>() {
-            }.getType();
-            logger.debug(gson.toJsonTree(applications, typeOfSrc).toString());
-            resp.getWriter().println(gson.toJsonTree(applications, typeOfSrc));
+
+            String applicationsStr = jApplications.toString();
+
+            logger.debug(applicationsStr);
+
+            resp.setContentType("application/json");
+            resp.getWriter().println(applicationsStr);
             return;
         }
 
         InputStream inputStream = getServletContext().getResourceAsStream("page.html");
         OutputStream outputStream = resp.getOutputStream();
+        resp.setContentType("text/html");
 
         copyStream(inputStream, outputStream);
 
         outputStream.close();
         inputStream.close();
-
     }
 
     public static void copyStream(InputStream input, OutputStream output) throws IOException {
@@ -101,8 +103,7 @@ public final class WebUiBaseServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        if ("/login".equals(req.getPathInfo())) {
+        if ("/login".equals(req.getServletPath())) {
             String user = req.getParameter("user");
             String pwd = req.getParameter("pwd");
 
@@ -118,49 +119,7 @@ public final class WebUiBaseServlet extends HttpServlet {
                 req.getSession().invalidate(); // invalidate the session
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
-
-            // String redirect = req.getParameter("redirect");
-            // if (redirect.contains("logout")) {
-            // redirect = "/openmuc";
-            // }
-            // resp.sendRedirect(redirect);
         }
-        // else if (req.getPathInfo().equals("/account")) {
-        // AuthenticationService auth = webUiBase.getAuthenticationService();
-        // String user = (String) req.getSession().getValue("user");
-        // String pwd = req.getParameter("pwd");
-        // logger.info(user + " is trying to change his account...");
-        // if (auth.login(user, pwd)) {
-        // if (req.getParameter("change").equals("pwd")) {
-        // String newPwd = req.getParameter("newPwd");
-        // String rePwd = req.getParameter("rePwd");
-        // if (newPwd.equals(rePwd)) {
-        // auth.delete(user);
-        // auth.register(user, newPwd);
-        // logger.info("succeeded! (Password changed)");
-        // }
-        // else {
-        // logger.info("failed! (Password mismatch)");
-        // }
-        // }
-        // else if (req.getParameter("change").equals("user")) {
-        // String newUser = req.getParameter("newUser");
-        // if (!newUser.equals("") && !auth.contains(newUser) && !newUser.contains(":")) {
-        // auth.delete(user);
-        // auth.register(newUser, pwd);
-        // req.getSession().putValue("user", newUser);
-        // logger.info("suceeded! (Username changed to " + newUser + ")\n");
-        // }
-        // else {
-        // logger.info("failed! (Username could not be changed)\n");
-        // }
-        // }
-        // }
-        // else {
-        // logger.info("failed! (Login failed)\n");
-        // }
-        // resp.sendRedirect(req.getRequestURI());
-        // }
         else {
             doGet(req, resp);
         }

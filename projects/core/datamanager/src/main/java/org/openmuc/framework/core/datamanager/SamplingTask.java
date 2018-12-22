@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public final class SamplingTask extends DeviceTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(SamplingTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(SamplingTask.class);
 
     List<ChannelRecordContainerImpl> channelRecordContainers;
     private boolean methodNotExceptedExceptionThrown = false;
@@ -59,17 +59,17 @@ public final class SamplingTask extends DeviceTask {
         disabled = true;
         if (methodNotExceptedExceptionThrown) {
             for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-                channelRecordContainer.channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
+                channelRecordContainer.getChannel().setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
             }
         }
         else if (unknownDriverExceptionThrown) {
             for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-                channelRecordContainer.channel.setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
+                channelRecordContainer.getChannel().setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
             }
         }
         else {
             for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-                channelRecordContainer.channel.setNewRecord(channelRecordContainer.record);
+                channelRecordContainer.getChannel().setNewRecord(channelRecordContainer.getRecord());
             }
         }
     }
@@ -92,7 +92,7 @@ public final class SamplingTask extends DeviceTask {
             methodNotExceptedExceptionThrown = true;
         } catch (ConnectionException e) {
             // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.getId(),
                     e.getMessage());
 
             synchronized (dataManager.disconnectedDevices) {
@@ -106,7 +106,7 @@ public final class SamplingTask extends DeviceTask {
         }
 
         for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
-            channelRecordContainer.channel.handle = channelRecordContainer.getChannelHandle();
+            channelRecordContainer.getChannel().handle = channelRecordContainer.getChannelHandle();
         }
 
         synchronized (dataManager.samplingTaskFinished) {
@@ -124,17 +124,17 @@ public final class SamplingTask extends DeviceTask {
         disabled = true;
         if (startedLate) {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-                driverChannel.channel.setFlag(Flag.STARTED_LATE_AND_TIMED_OUT);
+                driverChannel.getChannel().setFlag(Flag.STARTED_LATE_AND_TIMED_OUT);
             }
         }
         else if (running) {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-                driverChannel.channel.setFlag(Flag.TIMEOUT);
+                driverChannel.getChannel().setFlag(Flag.TIMEOUT);
             }
         }
         else {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
-                driverChannel.channel.setFlag(Flag.DEVICE_OR_INTERFACE_BUSY);
+                driverChannel.getChannel().setFlag(Flag.DEVICE_OR_INTERFACE_BUSY);
             }
             device.removeTask(this);
         }

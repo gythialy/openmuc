@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FutureValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
@@ -173,7 +174,7 @@ public class SnmpChannel implements Channel {
     }
 
     @Override
-    public void write(List<Record> records) {
+    public void writeFuture(List<FutureValue> values) {
         // TODO Auto-generated method stub
 
     }
@@ -220,4 +221,12 @@ public class SnmpChannel implements Channel {
         // TODO Auto-generated method stub
         return 0;
     }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void write(List<Record> values) {
+        // TODO Auto-generated method stub
+
+    }
+
 }

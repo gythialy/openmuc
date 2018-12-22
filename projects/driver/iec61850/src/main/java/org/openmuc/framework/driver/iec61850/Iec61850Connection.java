@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -68,9 +68,9 @@ import org.slf4j.LoggerFactory;
 
 public final class Iec61850Connection implements Connection {
 
-    private final static Logger logger = LoggerFactory.getLogger(Iec61850Connection.class);
+    private static final Logger logger = LoggerFactory.getLogger(Iec61850Connection.class);
 
-    private final static String STRING_SEPARATOR = ",";
+    private static final String STRING_SEPARATOR = ",";
 
     private final ClientAssociation clientAssociation;
     private final ServerModel serverModel;

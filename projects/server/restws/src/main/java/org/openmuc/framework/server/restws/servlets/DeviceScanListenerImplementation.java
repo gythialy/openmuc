@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openmuc.framework.config.DeviceScanInfo;
 import org.openmuc.framework.config.DeviceScanListener;
-import org.openmuc.framework.lib.json.restObjects.RestScanProgressInfo;
+import org.openmuc.framework.lib.json.rest.objects.RestScanProgressInfo;
 
 class DeviceScanListenerImplementation implements DeviceScanListener {
     private final RestScanProgressInfo restScanProgressInfo = new RestScanProgressInfo();
@@ -32,20 +32,20 @@ class DeviceScanListenerImplementation implements DeviceScanListener {
     }
 
     @Override
-    synchronized public void scanFinished() {
-        notify();
+    public synchronized void scanFinished() {
+        notifyAll();
         restScanProgressInfo.setScanFinished(true);
     }
 
     @Override
-    synchronized public void scanInterrupted() {
-        notify();
+    public synchronized void scanInterrupted() {
+        notifyAll();
         restScanProgressInfo.setScanInterrupted(true);
     }
 
     @Override
-    synchronized public void scanError(String message) {
-        notify();
+    public synchronized void scanError(String message) {
+        notifyAll();
         restScanProgressInfo.setScanError(message);
     }
 
@@ -59,6 +59,7 @@ class DeviceScanListenerImplementation implements DeviceScanListener {
             try {
                 wait();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
         return scannedDevicesList;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,14 +28,18 @@ import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import net.wimpi.modbus.procimg.InputRegister;
-import net.wimpi.modbus.util.BitVector;
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.util.BitVector;
 
 /**
  * Represents a group of channels which is used for a multiple read request
  */
 public class ModbusChannelGroup {
+
+    private static final Logger logger = LoggerFactory.getLogger(ModbusChannelGroup.class);
 
     private static final int INVALID = -1;
 
@@ -170,6 +174,7 @@ public class ModbusChannelGroup {
     }
 
     public void setChannelValues(InputRegister[] inputRegisters, List<ChannelRecordContainer> containers) {
+
         for (ModbusChannel channel : channels) {
             // determine start index of the registers which contain the values of the channel
             int registerIndex = channel.getStartAddress() - getStartAddress();
@@ -180,11 +185,15 @@ public class ModbusChannelGroup {
 
             // now we have a register array which contains the value of the channel
             ChannelRecordContainer container = searchContainer(channel.getChannelAddress(), containers);
-            ModbusDriverUtil util = new ModbusDriverUtil();
+
             long receiveTime = System.currentTimeMillis();
 
-            Value value = util.getRegistersValue(registers, channel.getDatatype());
-            // logger.debug("got value: " + value + " for channel: " + channel.getChannelAddress());
+            Value value = ModbusDriverUtil.getRegistersValue(registers, channel.getDatatype());
+
+            if (logger.isTraceEnabled()) {
+                logger.trace("response value channel " + channel.getChannelAddress() + ": " + value.toString());
+            }
+
             container.setRecord(new Record(value, receiveTime));
         }
     }
@@ -205,8 +214,9 @@ public class ModbusChannelGroup {
     }
 
     private ChannelRecordContainer searchContainer(String channelAddress, List<ChannelRecordContainer> containers) {
-        for (ChannelRecordContainer container : containers) {
-            if (container.getChannelAddress().toUpperCase().equals(channelAddress.toUpperCase())) {
+        for (int i = 0, n = containers.size(); i < n; i++) {
+            ChannelRecordContainer container = containers.get(i);
+            if (container.getChannelAddress().equalsIgnoreCase(channelAddress)) {
                 return container;
             }
         }

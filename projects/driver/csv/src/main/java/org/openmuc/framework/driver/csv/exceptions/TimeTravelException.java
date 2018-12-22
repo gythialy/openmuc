@@ -1,7 +1,5 @@
 package org.openmuc.framework.driver.csv.exceptions;
 
-import org.openmuc.framework.driver.csv.CsvException;
-
 /**
  * Exception for illogical time jumps. <br>
  * <br>

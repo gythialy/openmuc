@@ -1,11 +1,24 @@
 
+def projectName = "OpenMUC Core - SPI"
+
 dependencies {
   compile project(':openmuc-core-api') 
 }
 
 jar {
   manifest {
-    name = "OpenMUC Core - SPI"
+    name = projectName
     instruction 'Export-Package', '*'
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description "The core SPI of the OpenMUC framework."
+      }
+    }
   }
 }

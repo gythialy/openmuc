@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,19 +23,17 @@ package org.openmuc.framework.authentication;
 import java.util.Set;
 
 /**
- * 
  * Service interface to get access to the framework wide user management and authentication
- * 
  */
 public interface AuthenticationService {
 
-    public boolean login(String name, String password);
+    boolean login(String name, String password);
 
-    public boolean contains(String user);
+    boolean contains(String user);
 
-    public void delete(String user);
+    void delete(String user);
 
-    public void register(String user, String pwd);
+    void register(String user, String pwd);
 
-    public Set<String> getAllUsers();
+    Set<String> getAllUsers();
 }

@@ -1,7 +1,10 @@
 
+def projectName = "OpenMUC Driver - KNX"
+def projectDescription = "KNX driver for the OpenMUC framework."
+
 configurations.create('embed')
 
-def calimerovers = '2.2.1'
+def calimerovers = '2.3'
 
 dependencies {
   compile project(':openmuc-core-spi')
@@ -12,7 +15,7 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Driver - KNX"
+    name = projectName
     instruction 'Bundle-ClassPath', '.,lib/calimero-core-' + calimerovers + '.jar'
     instruction 'Import-Package', '!tuwien.auto.calimero*,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
@@ -22,5 +25,16 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

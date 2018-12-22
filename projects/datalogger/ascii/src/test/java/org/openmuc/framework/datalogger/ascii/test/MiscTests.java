@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,8 +29,15 @@ import org.junit.Test;
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 
 public class MiscTests {
+
+    public static final byte[] BYTE_ARRAY = { (byte) 0x00, (byte) 0x01, (byte) 0x0A, (byte) 0xAA, (byte) 0xBB,
+            (byte) 0xF7, (byte) 0xFF, (byte) 0xCA, (byte) 0xD5, 0x5E };
+    public static final String STRING_BYTE_ARRAY = "0x00010AAABBF7FFCAD55E";
+
+    StringBuilder sb = new StringBuilder();
 
     @AfterClass
     public static void tearDown() {
@@ -92,11 +99,13 @@ public class MiscTests {
             expectedResult = testData.get(input);
 
             try {
-                String result = IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
+                sb.setLength(0);
 
-                System.out.println(input + " --> " + result + " " + expectedResult);
+                IESDataFormatUtils.convertDoubleToStringWithMaxLength(sb, input, Const.VALUE_SIZE_DOUBLE);
 
-                Assert.assertEquals(expectedResult, result);
+                System.out.println(input + " --> " + sb.toString() + " " + expectedResult);
+
+                Assert.assertEquals(expectedResult, sb.toString());
 
             } catch (WrongScalingException e) {
                 e.printStackTrace();
@@ -113,7 +122,8 @@ public class MiscTests {
         double input = 100000000.0;
 
         try {
-            IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
+            sb.setLength(0);
+            IESDataFormatUtils.convertDoubleToStringWithMaxLength(sb, input, Const.VALUE_SIZE_DOUBLE);
             Assert.assertTrue("Expected WrongScalingException", false);
         } catch (WrongScalingException e) {
             Assert.assertTrue(true);
@@ -122,10 +132,21 @@ public class MiscTests {
         input = -100000000.0;
 
         try {
-            IESDataFormatUtils.convertDoubleToStringWithMaxLength(input, Const.VALUE_SIZE_DOUBLE);
+            sb.setLength(0);
+            IESDataFormatUtils.convertDoubleToStringWithMaxLength(sb, input, Const.VALUE_SIZE_DOUBLE);
             Assert.assertTrue("Expected WrongScalingException", false);
         } catch (WrongScalingException e) {
             Assert.assertTrue(true);
         }
     }
+
+    @Test
+    public void testByteArrayConversion() {
+        sb.setLength(0);
+        sb.append(Const.HEXADECIMAL);
+        LoggerUtils.byteArrayToHexString(sb, BYTE_ARRAY);
+
+        Assert.assertEquals(sb.toString(), STRING_BYTE_ARRAY);
+    }
+
 }

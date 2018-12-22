@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class ModbusChannel {
 
-    private final static Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
 
     /** Contains values to define the access method of the channel */
     public static enum EAccess {
@@ -37,16 +37,16 @@ public class ModbusChannel {
     public static final int IGNORE_UNIT_ID = -1;
 
     /** A Parameter of the channel address */
-    private final int UNITID = 0;
+    private static final int UNITID = 0;
 
     /** A Parameter of the channel address */
-    private final int PRIMARYTABLE = 1;
+    private static final int PRIMARYTABLE = 1;
 
     /** A Parameter of the channel address */
-    private final int ADDRESS = 2;
+    private static final int ADDRESS = 2;
 
     /** A Parameter of the channel address */
-    private final int DATATYPE = 3;
+    private static final int DATATYPE = 3;
 
     /** Start address to read or write from */
     private int startAddress;
@@ -127,7 +127,7 @@ public class ModbusChannel {
         boolean returnValue = false;
         if ((params[UNITID].matches("\\d+?") || params[UNITID].equals(""))
                 && EPrimaryTable.isValidValue(params[PRIMARYTABLE]) && params[ADDRESS].matches("\\d+?")
-                && EDatatype.isValidDatatype(params[DATATYPE])) {
+                && EDatatype.isValid(params[DATATYPE])) {
             returnValue = true;
         }
         return returnValue;
@@ -162,12 +162,13 @@ public class ModbusChannel {
             }
             break;
         case SHORT:
-        case INT:
+        case INT16:
+        case INT32:
+        case UINT16:
+        case UINT32:
         case FLOAT:
         case DOUBLE:
         case LONG:
-        case BYTE_HIGH:
-        case BYTE_LOW:
         case BYTEARRAY:
             if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
                 functionCode = EFunctionCode.FC_03_READ_HOLDING_REGISTERS;
@@ -194,17 +195,24 @@ public class ModbusChannel {
                 invalidWriteAddressParameterCombination();
             }
             break;
-        case BYTE_HIGH:
-        case BYTE_LOW:
+        // case BYTE_HIGH:
+        // case BYTE_LOW:
+        // // case SHORT:
+        // case INT8:
+        // case UINT8:
+        // if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+        // functionCode = EFunctionCode.FC_06_WRITE_SINGLE_REGISTER;
+        // }
+        // else {
+        // invalidWriteAddressParameterCombination();
+        // }
+        // break;
+        // case INT:
         case SHORT:
-            if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-                functionCode = EFunctionCode.FC_06_WRITE_SINGLE_REGISTER;
-            }
-            else {
-                invalidWriteAddressParameterCombination();
-            }
-            break;
-        case INT:
+        case INT16:
+        case INT32:
+        case UINT16:
+        case UINT32:
         case FLOAT:
         case DOUBLE:
         case LONG:
@@ -236,7 +244,7 @@ public class ModbusChannel {
     }
 
     private void setDatatype(String datatype) {
-        this.datatype = EDatatype.getEnumFromString(datatype);
+        this.datatype = EDatatype.getEnum(datatype);
     }
 
     private void setUnitId(String unitId) {
@@ -268,7 +276,7 @@ public class ModbusChannel {
         }
         else {
             // all other datatyps
-            count = datatype.getRegisterCount();
+            count = datatype.getRegisterSize();
         }
     }
 

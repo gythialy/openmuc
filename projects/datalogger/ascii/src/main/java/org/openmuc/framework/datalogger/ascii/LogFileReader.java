@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,8 +24,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.DoubleValue;
@@ -42,7 +46,7 @@ public class LogFileReader {
 
     private static final Logger logger = LoggerFactory.getLogger(LogFileReader.class);
 
-    private final String channelId;
+    private final String[] ids;
     private final String path;
     private final int loggingInterval;
     private final int logTimeOffset;
@@ -62,7 +66,7 @@ public class LogFileReader {
     public LogFileReader(String path, LogChannel logChannel) {
 
         this.path = path;
-        channelId = logChannel.getId();
+        ids = new String[] { logChannel.getId(), Const.TIMESTAMP_STRING };
         this.loggingInterval = logChannel.getLoggingInterval();
         this.logTimeOffset = logChannel.getLoggingTimeOffset();
         firstTimestampFromFile = -1;
@@ -77,15 +81,17 @@ public class LogFileReader {
      *            end time stamp
      * @return All records of the given time span
      */
-    public List<Record> getValues(long startTimestamp, long endTimestamp) {
+    public Map<String, List<Record>> getValues(long startTimestamp, long endTimestamp) {
 
         this.startTimestamp = startTimestamp;
         this.endTimestamp = endTimestamp;
 
-        List<Record> allRecords = new ArrayList<>();
-
         List<String> filenames = LoggerUtils.getFilenames(loggingInterval, logTimeOffset, this.startTimestamp,
                 this.endTimestamp);
+        Map<String, List<Record>> recordsMap = new HashMap<>();
+        for (String id : ids) {
+            recordsMap.put(id, new ArrayList<Record>());
+        }
 
         for (int i = 0; i < filenames.size(); i++) {
             Boolean nextFile = false;
@@ -104,29 +110,19 @@ public class LogFileReader {
             if (i > 0) {
                 nextFile = true;
             }
-            List<Record> fileRecords = processFile(filepath, nextFile);
-            if (fileRecords != null) {
-                allRecords.addAll(fileRecords);
-                if (logger.isTraceEnabled()) {
-                    logger.trace("read records: " + fileRecords.size());
-                }
-            }
-            else {
-                // some error occurred while processing the file so no records will be added
-            }
-
+            processFile(recordsMap, filepath, nextFile);
         }
-        return allRecords;
+        return recordsMap;
     }
 
     /**
-     * get a single record of time stamp
+     * get a single record from single channel of time stamp
      *
      * @param timestamp
      *            time stamp
      * @return Record on success, otherwise null
      */
-    public Record getValue(long timestamp) {
+    public Map<String, Record> getValue(long timestamp) {
 
         // Returns a record which lays within the interval [timestamp, timestamp + loggingInterval]
         // The interval is necessary for a requested time stamp which lays between the time stamps of two logged values
@@ -134,28 +130,28 @@ public class LogFileReader {
         // method will return the record of t2_logged because this lays within the interval [7,12]
         // If the t_request matches exactly a logged time stamp, then the according record is returned.
 
-        Record record = null;
-        List<Record> records = getValues(timestamp, timestamp);// + loggingInterval);
-        if (records.size() == 0) {
-            // no record found for requested timestamp
+        Map<String, List<Record>> recordsMap = getValues(timestamp, timestamp);
+        Map<String, Record> recordMap = new HashMap<>();
 
-            // TODO statt null flag 3 setzen!
-            record = null;
-        }
-        else if (records.size() == 1) {
-            // t_request lays between two logged values
-            record = records.get(0);
-        }
-        else if (records.size() == 2) {
-            // t_request matches exactly a logged value
-            // so getVaules returns a record for t_request and one for t_request+loggingInterval
-            record = records.get(0);
+        for (Entry<String, List<Record>> entries : recordsMap.entrySet()) {
+            List<Record> recordList = entries.getValue();
+            Record record;
+
+            if (recordList == null || recordList.size() == 0) {
+                // no record found for requested timestamp
+                record = null;// new Record(Flag.UNKNOWN_ERROR);
+            }
+            else if (recordsMap.size() == 1) {
+                // t_request lays between two logged values
+                record = recordList.get(0);
+            }
+            else {
+                record = new Record(Flag.UNKNOWN_ERROR);
+            }
+            recordMap.put(entries.getKey(), record);
         }
 
-        // nur wert zurückgeben wenn zeitstempel identisch ist
-        // sonst
-
-        return record;
+        return recordMap;
     }
 
     /**
@@ -167,9 +163,9 @@ public class LogFileReader {
      *            if it is the next file and not the first between a time span
      * @return records on success, otherwise null
      */
-    private List<Record> processFile(String filepath, Boolean nextFile) {
+    private Map<String, List<Record>> processFile(Map<String, List<Record>> recordsMap, String filepath,
+            Boolean nextFile) {
 
-        List<Record> records = new ArrayList<>();
         String line = null;
         long currentPosition = 0;
         long rowSize;
@@ -182,13 +178,13 @@ public class LogFileReader {
             return null;
         }
         try {
-            int channelColumn = -1;
-            while (channelColumn <= 0) {
+            Map<String, Integer> channelsColumnsMap = null;
+            while (channelsColumnsMap == null) {
                 line = raf.readLine();
-                channelColumn = LoggerUtils.getColumnNumberByName(line, channelId);
-                unixTimestampColumn = LoggerUtils.getColumnNumberByName(line, Const.TIMESTAMP_STRING);
+                channelsColumnsMap = LoggerUtils.getColumnNumbersByNames(line, ids);
             }
 
+            unixTimestampColumn = channelsColumnsMap.get(Const.TIMESTAMP_STRING);
             firstValueLine = raf.readLine();
 
             rowSize = firstValueLine.length() + 1; // +1 because of "\n"
@@ -212,19 +208,19 @@ public class LogFileReader {
 
                 while ((line = raf.readLine()) != null && currentTimestamp <= endTimestamp) {
 
-                    processLine(line, channelColumn, records);
+                    processLine(line, channelsColumnsMap, recordsMap);
                     currentTimestamp += loggingInterval;
                 }
                 raf.close();
             }
             else {
-                records = null; // because the column of the channel was not identified
+                recordsMap = null; // because the column of the channel was not identified
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            records = null;
+            logger.error(e.getMessage());
+            recordsMap = null;
         }
-        return records;
+        return recordsMap;
     }
 
     /**
@@ -234,26 +230,28 @@ public class LogFileReader {
      *            the line to process
      * @param channelColumn
      *            channel column
-     * @param records
+     * @param recordsMap
      *            list of records
      */
-    private void processLine(String line, int channelColumn, List<Record> records) {
+    private void processLine(String line, Map<String, Integer> channelsColumnsMap,
+            Map<String, List<Record>> recordsMap) {
 
         if (!line.startsWith(Const.COMMENT_SIGN)) {
-            readRecordFromLine(line, channelColumn, records);
+            readRecordsFromLine(line, channelsColumnsMap, recordsMap);
         }
     }
 
     /**
-     * Reads records from a line.
+     * read the records from a line.
      * 
      * @param line
      *            to read
      * @param column
      *            of the channelId
-     * @return Record read from line
+     * @return Records read from line
      */
-    private void readRecordFromLine(String line, int channelColumn, List<Record> records) {
+    private void readRecordsFromLine(String line, Map<String, Integer> channelsColumnsMap,
+            Map<String, List<Record>> recordsMap) {
 
         String columnValue[] = line.split(Const.SEPARATOR);
 
@@ -263,17 +261,24 @@ public class LogFileReader {
             long timestampMS = ((Double) (timestampS * (1000))).longValue();
 
             if (isTimestampPartOfRequestedInterval(timestampMS)) {
-                Record record = convertLogfileEntryToRecord(columnValue[channelColumn].trim(), timestampMS);
-                records.add(record);
+                for (Entry<String, Integer> entry : channelsColumnsMap.entrySet()) {
+                    Record record = convertLogfileEntryToRecord(columnValue[entry.getValue()].trim(), timestampMS);
+                    List<Record> list = recordsMap.get(entry.getKey());
+                    if (list == null) {
+                        recordsMap.put(entry.getKey(), new ArrayList<Record>());
+                        list = recordsMap.get(entry.getKey());
+                    }
+                    list.add(record);
+                }
             }
             else {
-                // for debugging
-                // SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
-                // logger.trace("timestampMS: " + sdf.format(timestampMS) + " " + timestampMS);
+                if (logger.isTraceEnabled()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+                    logger.trace("timestampMS: " + sdf.format(timestampMS) + " " + timestampMS);
+                }
             }
         } catch (NumberFormatException e) {
-            logger.debug("It's not a timestamp.");
-            e.printStackTrace();
+            logger.warn("It's not a timestamp.\n", e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
@@ -322,14 +327,6 @@ public class LogFileReader {
 
         long pos = numberOfLinesToSkip * rowSize + firstValuePos;
 
-        // for debugging
-        // logger.trace("pos " + pos);
-        // logger.trace("startTimestamp " + startTimestamp);
-        // logger.trace("firstTimestamp " + firstTimestampOfFile);
-        // logger.trace("loggingInterval " + loggingInterval);
-        // logger.trace("rowSize " + rowSize);
-        // logger.trace("firstValuePos " + firstValuePos);
-
         return pos;
     }
 
@@ -350,10 +347,7 @@ public class LogFileReader {
             record = new Record(new DoubleValue(Double.parseDouble(strValue)), timestamp, Flag.VALID);
         }
         else {
-            // fehlerfall, wenn errors "errxx" geloggt wurden
-            // record = new Record(null, timestamp, Flag);
             record = getRecordFromNonNumberValue(strValue, timestamp);
-
         }
         return record;
     }

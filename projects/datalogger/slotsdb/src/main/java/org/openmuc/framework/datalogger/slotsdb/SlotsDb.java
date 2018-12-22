@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 @Component
 public final class SlotsDb implements DataLoggerService {
 
-    private final static Logger logger = LoggerFactory.getLogger(SlotsDb.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlotsDb.class);
 
     /*
      * File extension for SlotsDB files. Only these Files will be loaded.

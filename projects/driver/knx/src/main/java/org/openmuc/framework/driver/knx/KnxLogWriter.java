@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -71,7 +71,7 @@ public class KnxLogWriter extends LogWriter {
         }
 
         if (logger.isTraceEnabled() && t != null) {
-            t.printStackTrace();
+            logger.warn(t.getMessage());
         }
     }
 

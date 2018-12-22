@@ -20,7 +20,6 @@ import org.openmuc.framework.data.Value;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.dataaccess.RecordListener;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -36,7 +35,7 @@ public final class SimpleDemoApp extends Thread {
     private static final DecimalFormat DF = new DecimalFormat("#0.000", DFS);
 
     // ChannelIDs, see conf/channel.xml
-    private static final String ID_POWER_ELECTIC_VEHICLE = "power_electic_vehicle";
+    private static final String ID_POWER_ELECTIC_VEHICLE = "power_electric_vehicle";
     private static final String ID_POWER_GRID = "power_grid";
     private static final String ID_STATUS_ELECTRIC_VEHICLE = "status_electric_vehicle";
     private static final String ID_ENERGY_EXPORTED = "enery_exported";
@@ -52,6 +51,7 @@ public final class SimpleDemoApp extends Thread {
     private volatile boolean deactivatedSignal;
 
     // With the dataAccessService you can access to your measured and control data of your devices.
+    @Reference
     private DataAccessService dataAccessService;
 
     // Channel for accessing data of a channel.
@@ -73,7 +73,7 @@ public final class SimpleDemoApp extends Thread {
      * @param context
      */
     @Activate
-    protected void activate(ComponentContext context) {
+    private void activate() {
         logger.info("Activating Demo App");
         setName("OpenMUC Simple Demo App");
         start();
@@ -85,7 +85,7 @@ public final class SimpleDemoApp extends Thread {
      * @param context
      */
     @Deactivate
-    protected void deactivate(ComponentContext context) {
+    private void deactivate() {
         logger.info("Deactivating Demo App");
         deactivatedSignal = true;
 
@@ -94,21 +94,6 @@ public final class SimpleDemoApp extends Thread {
             this.join();
         } catch (InterruptedException e) {
         }
-    }
-
-    /**
-     * To set the DataAccessService dataAccessService for your app.
-     */
-    @Reference
-    protected void bindDataAccessService(DataAccessService dataAccessService) {
-        this.dataAccessService = dataAccessService;
-    }
-
-    /**
-     * To unset the DataAccessService dataAccessService for your app.
-     */
-    protected void unbindDataAccessService(DataAccessService dataAccessService) {
-        this.dataAccessService = null;
     }
 
     /**

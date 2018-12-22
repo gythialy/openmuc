@@ -1,4 +1,4 @@
-include "openmuc-app-simpledemo", "openmuc-core-api", "openmuc-core-datamanager", "openmuc-core-spi", "openmuc-datalogger-ascii", "openmuc-datalogger-slotsdb", "openmuc-driver-aggregator", "openmuc-driver-csv", "openmuc-driver-dlms", "openmuc-driver-ehz", "openmuc-driver-iec60870", "openmuc-driver-iec61850", "openmuc-driver-iec62056p21", "openmuc-driver-knx", "openmuc-driver-mbus", "openmuc-driver-modbus", "openmuc-driver-rest", "openmuc-driver-snmp", "openmuc-driver-wmbus", "openmuc-server-restws", "openmuc-webui-base", "openmuc-webui-channelaccesstool", "openmuc-webui-channelconfigurator", "openmuc-webui-dataexporter", "openmuc-webui-dataplotter", "openmuc-webui-mediaviewer", "openmuc-webui-spi", "openmuc-webui-userconfigurator"
+include "openmuc-app-simpledemo", "openmuc-core-api", "openmuc-core-datamanager", "openmuc-core-spi", "openmuc-datalogger-ascii", "openmuc-datalogger-slotsdb", "openmuc-driver-aggregator", "openmuc-driver-csv", "openmuc-driver-dlms", "openmuc-driver-ehz", "openmuc-driver-iec60870", "openmuc-driver-iec61850", "openmuc-driver-iec62056p21", "openmuc-driver-knx", "openmuc-driver-mbus", "openmuc-driver-modbus", "openmuc-driver-rest", "openmuc-driver-snmp", "openmuc-driver-wmbus", "openmuc-server-modbus", "openmuc-server-restws", "openmuc-webui-base", "openmuc-webui-channelaccesstool", "openmuc-webui-channelconfigurator", "openmuc-webui-dataexporter", "openmuc-webui-dataplotter", "openmuc-webui-mediaviewer", "openmuc-webui-spi", "openmuc-webui-userconfigurator"
 
 project(":openmuc-app-simpledemo").projectDir = file("projects/app/simpledemo")
 project(":openmuc-core-api").projectDir = file("projects/core/api")
@@ -19,6 +19,7 @@ project(":openmuc-driver-modbus").projectDir = file("projects/driver/modbus")
 project(":openmuc-driver-rest").projectDir = file("projects/driver/rest")
 project(":openmuc-driver-snmp").projectDir = file("projects/driver/snmp")
 project(":openmuc-driver-wmbus").projectDir = file("projects/driver/wmbus")
+project(":openmuc-server-modbus").projectDir = file("projects/server/modbus")
 project(":openmuc-server-restws").projectDir = file("projects/server/restws")
 project(":openmuc-webui-base").projectDir = file("projects/webui/base")
 project(":openmuc-webui-channelaccesstool").projectDir = file("projects/webui/channelaccesstool")

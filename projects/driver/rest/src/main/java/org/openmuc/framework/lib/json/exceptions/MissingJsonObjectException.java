@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,22 +21,14 @@
 package org.openmuc.framework.lib.json.exceptions;
 
 public class MissingJsonObjectException extends Exception {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = 3245778161912001429L;
-    private String message = "Searched JsonObject is missing. ";
 
     public MissingJsonObjectException() {
+        this("Searched JsonObject is missing.");
     }
 
     public MissingJsonObjectException(String message) {
-        this.message = message;
+        super(message);
     }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
 }
