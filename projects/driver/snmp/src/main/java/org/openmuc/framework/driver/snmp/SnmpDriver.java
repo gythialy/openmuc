@@ -20,6 +20,9 @@
  */
 package org.openmuc.framework.driver.snmp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -36,22 +39,36 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 public final class SnmpDriver implements DriverService {
 
     private static final Logger logger = LoggerFactory.getLogger(SnmpDriver.class);
 
     private static final DriverInfo info = new DriverInfo("snmp", "snmp v1/v2c/v3 are supported.", "?", "?", "?", "?");
+
+    // AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
+    public enum SnmpDriverSettingVariableNames {
+        SNMP_VERSION,
+        USERNAME,
+        SECURITYNAME,
+        AUTHENTICATIONPASSPHRASE,
+        PRIVACYPASSPHRASE
+    };
+
+    // AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
+    public enum SnmpDriverScanSettingVariableNames {
+        SNMP_VERSION,
+        USERNAME,
+        SECURITYNAME,
+        AUTHENTICATIONPASSPHRASE,
+        PRIVACYPASSPHRASE,
+        STARTIP,
+        ENDIP
+    };
+
     // exception messages
     private static final String NULL_DEVICE_ADDRESS_EXCEPTION = "No device address found in config. Please specify one [eg. \"1.1.1.1/161\"].";
-
-    ;
     private static final String NULL_SETTINGS_EXCEPTION = "No device settings found in config. Please specify settings.";
-
-    ;
     private static final String INCORRECT_SETTINGS_FORMAT_EXCEPTION = "Format of setting string is invalid! \n Please use this format: "
             + "USERNAME=username:SECURITYNAME=securityname:AUTHENTICATIONPASSPHRASE=password:PRIVACYPASSPHRASE=privacy";
     private static final String INCORRECT_SNMP_VERSION_EXCEPTION = "Incorrect snmp version value. "
@@ -66,17 +83,19 @@ public final class SnmpDriver implements DriverService {
 
     /**
      * Currently only supports SNMP V2c
-     * <p>
+     * 
      * Default port number 161 is used
-     *
-     * @param settings at least must contain<br>
-     *
-     *                 <br>
-     *                 SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE: (community word) in case of more than on
-     *                 value, they should be separated by ",". No community word is allowed to contain "," <br>
-     *                 SnmpDriverScanSettingVariableNames.STARTIP: Start of IP range <br>
-     *                 SnmpDriverScanSettingVariableNames.ENDIP: End of IP range <br>
-     *                 eg. "AUTHENTICATIONPASSPHRASE=community,public:STARTIP=1.1.1.1:ENDIP=1.10.1.1"
+     * 
+     * @param settings
+     *            at least must contain<br>
+     * 
+     *            <br>
+     *            SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE: (community word) in case of more than on
+     *            value, they should be separated by ",". No community word is allowed to contain "," <br>
+     *            SnmpDriverScanSettingVariableNames.STARTIP: Start of IP range <br>
+     *            SnmpDriverScanSettingVariableNames.ENDIP: End of IP range <br>
+     *            eg. "AUTHENTICATIONPASSPHRASE=community,public:STARTIP=1.1.1.1:ENDIP=1.10.1.1"
+     * 
      */
     @Override
     public void scanForDevices(String settings, DriverDeviceScanListener listener)
@@ -108,10 +127,15 @@ public final class SnmpDriver implements DriverService {
     }
 
     /**
-     * @param settings SNMPVersion=V2c:COMMUNITY=value:SECURITYNAME=value:AUTHENTICATIONPASSPHRASE=value:PRIVACYPASSPHRASE=
-     *                 value
-     * @throws ConnectionException     thrown if SNMP listen or initialization failed
-     * @throws ArgumentSyntaxException thrown if Device address foramt is wrong
+     * 
+     * @param settings
+     *            SNMPVersion=V2c:COMMUNITY=value:SECURITYNAME=value:AUTHENTICATIONPASSPHRASE=value:PRIVACYPASSPHRASE=
+     *            value
+     * 
+     * @throws ConnectionException
+     *             thrown if SNMP listen or initialization failed
+     * @throws ArgumentSyntaxException
+     *             thrown if Device address foramt is wrong
      */
     @Override
     public Connection connect(String deviceAddress, String settings)
@@ -123,9 +147,11 @@ public final class SnmpDriver implements DriverService {
         // check arguments
         if (deviceAddress == null || deviceAddress.equals("")) {
             throw new ArgumentSyntaxException(NULL_DEVICE_ADDRESS_EXCEPTION);
-        } else if (settings == null || settings.equals("")) {
+        }
+        else if (settings == null || settings.equals("")) {
             throw new ArgumentSyntaxException(NULL_SETTINGS_EXCEPTION);
-        } else {
+        }
+        else {
 
             Map<String, String> mappedSettings = settingParser(settings);
 
@@ -140,21 +166,21 @@ public final class SnmpDriver implements DriverService {
 
             // create SnmpDevice object based on SNMP version
             switch (snmpVersion) {
-                case V1:
-                case V2c:
-                    device = new SnmpDeviceV1V2c(snmpVersion, deviceAddress,
-                            mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()));
-                    break;
-                case V3:
-                    device = new SnmpDeviceV3(deviceAddress,
-                            mappedSettings.get(SnmpDriverSettingVariableNames.USERNAME.toString()),
-                            mappedSettings.get(SnmpDriverSettingVariableNames.SECURITYNAME.toString()),
-                            mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()),
-                            mappedSettings.get(SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE.toString()));
-                    break;
+            case V1:
+            case V2c:
+                device = new SnmpDeviceV1V2c(snmpVersion, deviceAddress,
+                        mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()));
+                break;
+            case V3:
+                device = new SnmpDeviceV3(deviceAddress,
+                        mappedSettings.get(SnmpDriverSettingVariableNames.USERNAME.toString()),
+                        mappedSettings.get(SnmpDriverSettingVariableNames.SECURITYNAME.toString()),
+                        mappedSettings.get(SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE.toString()),
+                        mappedSettings.get(SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE.toString()));
+                break;
 
-                default:
-                    throw new ArgumentSyntaxException(INCORRECT_SNMP_VERSION_EXCEPTION);
+            default:
+                throw new ArgumentSyntaxException(INCORRECT_SNMP_VERSION_EXCEPTION);
             }
 
         }
@@ -166,12 +192,12 @@ public final class SnmpDriver implements DriverService {
      * Read settings string and put them in a Key,Value HashMap Each setting consists of a pair of key/value and is
      * separated by ":" from other settings Inside the setting string, key and value are separated by "=" e.g.
      * "key1=value1:key2=value3" Be careful! "=" and ":" are not allowed in keys and values
-     * <p>
+     * 
      * if your key contains more than one value, you can separate values by ",". in this case "," is not allowed in
      * values.
-     *
+     * 
      * @param settings
-     * @return Map<String   ,   String>
+     * @return Map<String,String>
      * @throws ArgumentSyntaxException
      */
     private Map<String, String> settingParser(String settings) throws ArgumentSyntaxException {
@@ -188,26 +214,6 @@ public final class SnmpDriver implements DriverService {
             throw new ArgumentSyntaxException(INCORRECT_SETTINGS_FORMAT_EXCEPTION);
         }
         return settingsMaper;
-    }
-
-    // AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
-    public enum SnmpDriverSettingVariableNames {
-        SNMP_VERSION,
-        USERNAME,
-        SECURITYNAME,
-        AUTHENTICATIONPASSPHRASE,
-        PRIVACYPASSPHRASE
-    }
-
-    // AUTHENTICATIONPASSPHRASE is the same COMMUNITY word in SNMP V2c
-    public enum SnmpDriverScanSettingVariableNames {
-        SNMP_VERSION,
-        USERNAME,
-        SECURITYNAME,
-        AUTHENTICATIONPASSPHRASE,
-        PRIVACYPASSPHRASE,
-        STARTIP,
-        ENDIP
     }
 
 }

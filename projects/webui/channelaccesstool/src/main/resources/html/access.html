@@ -2,53 +2,51 @@
 
 <div ng-repeat="device in checkedDevices">
 
-    <div class="alert alert-primary"><b>{{device.id}}</b></div>
-
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th>{{'CHANNEL_ACCESS_TOOL_CHANNEL_ID' | translate}}</th>
-                <th>{{'LATEST_RECORD' | translate}}</th>
-                <th><label for="value-input">{{'WRITE' | translate}}</label></th>
-                <th>{{'DESCRIPTION' | translate}}</th>
-            </tr>
-            </thead>
-            <tr ng-repeat="channel in channelsMapAsArray(device.channels)">
-                <td>{{channel.id}}</td>
-                <td>
-                    <div>
-                        <b>{{'VALUE' | translate}}:</b> {{channel.records.value | intArrayToHexArray}} <span> {{channel.data.unit}}</span>
-                    </div>
-                    <div>
-                        <b>{{'TIME' | translate}}:</b> {{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss a'}}
-                    </div>
-                    <div>
-                        <b>{{'FLAG' | translate}}:</b> {{channel.records.flag}}
-                    </div>
-                </td>
-                <td>
-                    <form class="form-inline">
-                        <input id="value-input" type="text" class="form-control" ng-model="channel.newValue"/>
-                        <input type="submit"
-                               ng-click="setNewValue(channel, true)"
-                               class="btn btn-default" value="{{'WRITE_VALUE' | translate}}"
-                               data-title="{{'WRITE_VALUE_DESCRIPTION' | translate}}"
-                               bs-tooltip/>
-                        <input type="submit"
-                               ng-click="setNewValue(channel, false)"
-                               class="btn btn-default" value="{{'SET_RECORD' | translate}}"
-                               data-title="{{'SET_RECORD_DESCRIPTION' | translate}}"
-                               bs-tooltip/>
-                    </form>
-                </td>
-                <td>{{device.data.description}}</td>
-            </tr>
-        </table>
-    </div>
+  <div>
+    <table id="access-tool-table" class="table table-hover">
+			<caption uib-tooltip="{{device.configs.description}}" tooltip-append-to-body="true"><b>{{device.id}}</b></caption>
+	    <thead>
+	      <tr>
+	        <th class="border" width="24%">{{'CHANNEL_ACCESS_TOOL_CHANNEL_ID' | translate}}</th>
+					<th class="border" width="28%">{{'VALUE' | translate}}</th>
+					<th class="border" width="14%">{{'TIME' | translate}}</th>
+	        <th class="border" width="34%">{{'WRITE' | translate}}</th>
+	      </tr>
+	    </thead>
+	    <tr ng-repeat="channel in channelsMapAsArray(device.channels)">
+	      <td class="border" uib-tooltip="{{channel.data.description}}" tooltip-append-to-body="true">{{channel.id}}</td>
+	      <td class="border textRight" ng-class="{flagInvalid: channel.records.flag !== 'VALID'}">
+	        <div ng-show="channel.records.flag == 'VALID'">
+				{{channel.records.value | intArrayToHexArray | dropValueDecimals}} <span> {{channel.data.unit}}</span>
+					</div>
+					<div ng-show="channel.records.flag !== 'VALID'">
+						{{channel.records.flag}}
+					</div>
+				</td>
+				<td class="border">
+	        <div id="time">
+				{{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss'}}
+	        </div>
+	      </td>
+	      <td class="border accessInput">
+	        <form class="form-inline" id="access">
+				<input id="value-input" type="text" class="form-control plot" ng-model="channel.newValue" />
+				<input type="submit"
+					   ng-click="setNewValue(channel, true)"
+					   class="btn btn-secondary text-dark" value="{{'WRITE_VALUE' | translate}}"
+					   uib-tooltip="{{'WRITE_VALUE_DESCRIPTION' | translate}}" />
+				<input type="submit"
+					   ng-click="setNewValue(channel, false)"
+					   class="btn btn-secondary text-dark" value="{{'SET_RECORD' | translate}}"
+					   uib-tooltip="{{'SET_RECORD_DESCRIPTION' | translate}}" />
+	        </form>
+	      </td>
+	    </tr>
+	  </table>
+  </div>
 
 </div>
 
-<br/>
+<br />
 
-<a ui-sref="channelaccesstool.index" class="btn btn-default">{{'BACK_TO_SELECTION' | translate}}</a>
+<a ui-sref="channelaccesstool.index" class="btn btn-secondary bg-light text-dark">{{'BACK_TO_SELECTION' | translate}}</a>

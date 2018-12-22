@@ -20,6 +20,15 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.lib.json.Const;
 import org.openmuc.framework.lib.json.FromJson;
@@ -27,14 +36,6 @@ import org.openmuc.framework.lib.json.ToJson;
 import org.openmuc.framework.lib.json.rest.objects.RestUserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class UserServlet extends GenericServlet {
 
@@ -50,19 +51,21 @@ public class UserServlet extends GenericServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-
         if (pathAndQueryString != null) {
 
             setServices();
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
             ToJson json = new ToJson();
 
+            java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
+
             if (pathInfo.equals("/")) {
                 Set<String> userSet = authenticationService.getAllUsers();
                 List<String> userList = new ArrayList<>();
                 userList.addAll(userSet);
                 json.addStringList(Const.USERS, userList);
-            } else {
+            }
+            else {
                 String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
 
                 if (pathInfoArray.length == 1) {
@@ -74,14 +77,18 @@ public class UserServlet extends GenericServlet {
                         List<String> groupList = new ArrayList<>();
                         groupList.add(""); // TODO: add real groups, if groups exists in OpenMUC
                         json.addStringList(Const.GROUPS, groupList);
-                    } else if (authenticationService.contains(userId)) {
+                    }
+                    else if (authenticationService.contains(userId)) {
                         json.addRestUserConfig(new RestUserConfig(userId));
-                    } else {
+                    }
+
+                    else {
                         ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                                 "User does not exist.", " User = ", userId);
                     }
 
-                } else {
+                }
+                else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Path Info = ", request.getPathInfo());
                 }
@@ -95,6 +102,7 @@ public class UserServlet extends GenericServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString == null) {
             return;
@@ -110,14 +118,17 @@ public class UserServlet extends GenericServlet {
             if (authenticationService.contains(userConfig.getId())) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "User already exists.", " User = ", userConfig.getId());
-            } else if (userConfig.getPassword() == null || userConfig.getPassword().isEmpty()) {
+            }
+            else if (userConfig.getPassword() == null || userConfig.getPassword().isEmpty()) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
                         "Password is mandatory.");
-            } else {
+            }
+            else {
                 authenticationService.register(userConfig.getId(), userConfig.getPassword());
             }
 
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
         }
@@ -127,6 +138,7 @@ public class UserServlet extends GenericServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -140,22 +152,27 @@ public class UserServlet extends GenericServlet {
                 if (userConfig.getPassword() == null || userConfig.getPassword().isEmpty()) {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
                             "Password is mandatory.");
-                } else if (userConfig.getOldPassword() == null || userConfig.getOldPassword().isEmpty()) {
+                }
+                else if (userConfig.getOldPassword() == null || userConfig.getOldPassword().isEmpty()) {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_PRECONDITION_FAILED, logger,
                             "Old password is mandatory.");
-                } else if (authenticationService.contains(userConfig.getId())) {
+                }
+                else if (authenticationService.contains(userConfig.getId())) {
                     String id = userConfig.getId();
                     if (authenticationService.login(id, userConfig.getOldPassword())) {
                         authenticationService.register(id, userConfig.getPassword());
-                    } else {
+                    }
+                    else {
                         ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_UNAUTHORIZED, logger,
                                 "Old password is wrong.");
                     }
-                } else {
+                }
+                else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             "User does not exist.", " User = ", userConfig.getId());
                 }
-            } else {
+            }
+            else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
             }
@@ -167,6 +184,7 @@ public class UserServlet extends GenericServlet {
             throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -182,16 +200,19 @@ public class UserServlet extends GenericServlet {
 
                 if (authenticationService.contains(userID)) {
                     authenticationService.delete(userID);
-                } else {
+                }
+                else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             "Requested user does not exist.", " User = ", userID);
                 }
-            } else {
+            }
+            else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
             }
 
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
         }

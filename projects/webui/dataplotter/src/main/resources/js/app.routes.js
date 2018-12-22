@@ -15,9 +15,8 @@
                             {
                                 name: "openmuc.dataplotter",
                                 serie: true,
-                                files: ['channelconfigurator/js/app.js',
-                                    'channelconfigurator/js/channels/channelsService.js',
-                                    'channelconfigurator/js/channels/channelDataService.js',
+                                files: ['openmuc/js/channels/channelsService.js',
+                                    'openmuc/js/channels/channelDataService.js',
                                     'dataplotter/js/dataplotter/dataPlotterService.js',
                                     'dataplotter/js/dataplotter/dataPlotterIndexController.js',
                                     'dataplotter/js/dataplotter/plottingTabsDirective.js',
@@ -25,7 +24,6 @@
                                     'dataplotter/css/libs/d3/nv.d3.css',
                                     'dataplotter/js/libs/d3/d3.v3.min.js',
                                     'dataplotter/js/libs/d3/nv.d3.min.js',
-                                    'dataplotter/js/libs/d3/angularjs-nvd3-directives.min.js',
                                     'openmuc/js/libs/checklistmodel/checklist-model.min.js']
                             }
                         )

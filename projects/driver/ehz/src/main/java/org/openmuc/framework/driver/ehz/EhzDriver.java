@@ -21,7 +21,14 @@
 
 package org.openmuc.framework.driver.ehz;
 
-import org.openmuc.framework.config.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DriverInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
@@ -31,15 +38,18 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 @Component
 public class EhzDriver implements DriverService {
 
     public static final String ID = "ehz";
+
+    private static Logger logger = LoggerFactory.getLogger(EhzDriver.class);
+
     private static final String ADDR_IEC = "iec";
     private static final String ADDR_SML = "sml";
+
+    private boolean interruptScan = false;
+
     private static final DriverInfo info = new DriverInfo(ID,
             // description
             "Driver for IEC 62056-21 and SML.",
@@ -51,8 +61,6 @@ public class EhzDriver implements DriverService {
             "e.g.: 0100010800FF",
             // device scan settings
             "N.A.");
-    private static Logger logger = LoggerFactory.getLogger(EhzDriver.class);
-    private boolean interruptScan = false;
 
     @Override
     public DriverInfo getInfo() {
@@ -108,7 +116,8 @@ public class EhzDriver implements DriverService {
     private void addDevice(DriverDeviceScanListener listener, String spName, URI deviceAddress) {
         if (deviceAddress != null) {
             listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", ""));
-        } else {
+        }
+        else {
             logger.info("No ehz device found at {}", spName);
         }
     }
@@ -155,7 +164,8 @@ public class EhzDriver implements DriverService {
             if (device.getScheme().equals(ADDR_IEC)) {
                 logger.trace("Connecting to iec device");
                 return new IecConnection(device.getPath(), GeneralConnection.TIMEOUT);
-            } else if (device.getScheme().equals(ADDR_SML)) {
+            }
+            else if (device.getScheme().equals(ADDR_SML)) {
                 logger.trace("Connecting to sml device");
                 return new SmlConnection(device.getPath());
             }

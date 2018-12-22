@@ -20,10 +20,10 @@
  */
 package org.openmuc.framework.lib.json.rest.objects;
 
+import java.util.List;
+
 import org.openmuc.framework.config.ServerMapping;
 import org.openmuc.framework.data.ValueType;
-
-import java.util.List;
 
 public class RestChannelConfig {
 

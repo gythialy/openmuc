@@ -1,11 +1,35 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.aggregator.types;
+
+import java.util.List;
 
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.driver.aggregator.*;
-
-import java.util.List;
+import org.openmuc.framework.driver.aggregator.AggregationException;
+import org.openmuc.framework.driver.aggregator.AggregatorChannel;
+import org.openmuc.framework.driver.aggregator.AggregatorConstants;
+import org.openmuc.framework.driver.aggregator.AggregatorUtil;
+import org.openmuc.framework.driver.aggregator.ChannelAddress;
 
 public class PulseEnergyAggregation extends AggregatorChannel {
 
@@ -19,8 +43,22 @@ public class PulseEnergyAggregation extends AggregatorChannel {
         super(simpleAddress, dataAccessService);
     }
 
+    @Override
+    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
+
+        try {
+            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
+            return getPulsesEnergy(channelAddress, sourceChannel, recordList, aggregatedChannel);
+        } catch (AggregationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AggregationException(e.getMessage());
+        }
+
+    }
+
     private static double getPulsesEnergy(ChannelAddress simpleAdress, Channel sourceChannel, List<Record> recordList,
-                                          Channel aggregatedChannel) throws AggregationException, AggregationException {
+            Channel aggregatedChannel) throws AggregationException, AggregationException {
 
         // parse type address params. length = 3: <type,pulsePerWh,maxCounterValue>
         String[] typeParams = simpleAdress.getAggregationType().split(AggregatorConstants.TYPE_PARAM_SEPARATOR);
@@ -45,7 +83,7 @@ public class PulseEnergyAggregation extends AggregatorChannel {
     }
 
     private static double calcImpulsValue(Channel sourceChannel, List<Record> recordList, long samplingInterval,
-                                          double pulsesPerX, double maxCounterValue) throws AggregationException {
+            double pulsesPerX, double maxCounterValue) throws AggregationException {
 
         if (recordList.isEmpty()) {
             throw new AggregationException("List holds less than 1 records, calculation of pulses not possible.");
@@ -59,13 +97,14 @@ public class PulseEnergyAggregation extends AggregatorChannel {
     }
 
     private static double calcPulsesValue(double actualPulses, double pulsesHist, double pulsesPerX,
-                                          long loggingInterval, double maxCounterValue) {
+            long loggingInterval, double maxCounterValue) {
 
         double pulses = actualPulses - pulsesHist;
 
         if (pulses >= 0.0) {
             pulses = actualPulses - pulsesHist;
-        } else {
+        }
+        else {
             pulses = (maxCounterValue - pulsesHist) + actualPulses;
         }
         return pulses / pulsesPerX * (loggingInterval / 1000.);
@@ -82,20 +121,6 @@ public class PulseEnergyAggregation extends AggregatorChannel {
         } while (srcChannel.getLatestRecord().getTimestamp() == timestamp);
 
         return srcChannel.getLatestRecord().getValue().asDouble();
-    }
-
-    @Override
-    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
-
-        try {
-            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-            return getPulsesEnergy(channelAddress, sourceChannel, recordList, aggregatedChannel);
-        } catch (AggregationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AggregationException(e.getMessage());
-        }
-
     }
 
 }

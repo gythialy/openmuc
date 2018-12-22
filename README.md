@@ -62,4 +62,4 @@ All boxes seen in the picture are implemented as software modules called OSGi bu
 - Frederic Robra
 - Karsten Müller-Bier
 
-Read the [user guide](https://rawgit.com/gythialy/openmuc/master/doc/user-guide/openmuc-doc.html) on how to get started with the library.
+Read the [user guide](https://gythialy.github.io/openmuc/) on how to get started with the library.

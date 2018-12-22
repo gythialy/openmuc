@@ -42,9 +42,9 @@ public class WebUiBaseServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(WebUiBaseServlet.class);
 
     /**
-     * 5 minutes.
+     * 10 minutes.
      */
-    private static final int SESSION_TIMEOUT = 300;
+    private static final int SESSION_TIMEOUT = 600;
 
     private final WebUiBase webUiBase;
 
@@ -84,6 +84,7 @@ public class WebUiBaseServlet extends HttpServlet {
 
             String applicationsStr = jApplications.toString();
 
+            java.util.Date time = new java.util.Date(req.getSession().getLastAccessedTime());
             logger.debug(applicationsStr);
 
             resp.setContentType("application/json");

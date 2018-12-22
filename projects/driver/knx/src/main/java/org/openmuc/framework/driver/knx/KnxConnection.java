@@ -20,14 +20,27 @@
  */
 package org.openmuc.framework.driver.knx;
 
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.knx.value.KnxValue;
-import org.openmuc.framework.driver.spi.*;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import tuwien.auto.calimero.DataUnitBuilder;
 import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.IndividualAddress;
@@ -42,19 +55,12 @@ import tuwien.auto.calimero.link.medium.TPSettings;
 import tuwien.auto.calimero.process.ProcessCommunicator;
 import tuwien.auto.calimero.process.ProcessCommunicatorImpl;
 
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 public class KnxConnection implements Connection {
 
+    private static Logger logger = LoggerFactory.getLogger(KnxConnection.class);
     private static final int DEFAULT_PORT = 3671;
     private static final int DEFAULT_TIMEOUT = 2;
-    private static Logger logger = LoggerFactory.getLogger(KnxConnection.class);
+
     private KNXNetworkLink knxNetworkLink;
     private ProcessCommunicator processCommunicator;
     private KnxProcessListener processListener;
@@ -74,7 +80,8 @@ public class KnxConnection implements Connection {
                 interfaceURI = new URI(deviceAddressSubStrings[0]);
                 deviceURI = new URI(deviceAddressSubStrings[1]);
                 isKNXIP = true;
-            } else {
+            }
+            else {
                 deviceURI = new URI(deviceAddress);
                 isKNXIP = false;
             }
@@ -99,7 +106,8 @@ public class KnxConnection implements Connection {
                         } catch (KNXFormatException e) {
                             logger.warn("wrong format of individual address in settings");
                         }
-                    } else if (key.equalsIgnoreCase("serialnumber")) {
+                    }
+                    else if (key.equalsIgnoreCase("serialnumber")) {
                         if (value.length() == 12) {
                             value = value.toLowerCase();
                             for (int i = 0; i < 6; i++) {
@@ -118,7 +126,8 @@ public class KnxConnection implements Connection {
             name = interfaceURI.getHost() + " - " + deviceURI.getHost();
             logger.debug("connecting over KNX/IP from " + name.replace("-", "to"));
             connectNetIP(interfaceURI, deviceURI, address);
-        } else {
+        }
+        else {
             logger.error("wrong format of device URI in deviceAddress");
             throw new ArgumentSyntaxException();
         }
@@ -131,24 +140,6 @@ public class KnxConnection implements Connection {
         } catch (KNXLinkClosedException e) {
             throw new ConnectionException(e);
         }
-    }
-
-    private static KnxGroupDP createKnxGroupDP(String channelAddress) throws KNXException, ArgumentSyntaxException {
-        String[] address = channelAddress.split(":");
-        KnxGroupDP dp = null;
-
-        if (address.length != 2 && address.length != 4) {
-            throw new ArgumentSyntaxException("Channel address has a wrong format. ");
-        } else {
-            GroupAddress main = new GroupAddress(address[0]);
-            String dptID = address[1];
-            dp = new KnxGroupDP(main, channelAddress, dptID);
-            if (address.length == 4) {
-                boolean AET = address[2].equals("1");
-                String value = address[3];
-            }
-        }
-        return dp;
     }
 
     private boolean isSchemeOk(URI uri, String scheme) {
@@ -251,7 +242,8 @@ public class KnxConnection implements Connection {
             int timeoutSec = (timeout / 1000);
             if (timeoutSec > 0) {
                 processCommunicator.setResponseTimeout(timeoutSec);
-            } else {
+            }
+            else {
                 processCommunicator.setResponseTimeout(DEFAULT_TIMEOUT);
             }
         }
@@ -282,7 +274,8 @@ public class KnxConnection implements Connection {
                     groupDP = createKnxGroupDP(container.getChannelAddress());
                     logger.debug("New datapoint: " + groupDP);
                     container.setChannelHandle(groupDP);
-                } else {
+                }
+                else {
                     groupDP = (KnxGroupDP) container.getChannelHandle();
                 }
 
@@ -333,7 +326,8 @@ public class KnxConnection implements Connection {
                     groupDP = createKnxGroupDP(container.getChannelAddress());
                     logger.debug("New datapoint: " + groupDP);
                     container.setChannelHandle(groupDP);
-                } else {
+                }
+                else {
                     groupDP = (KnxGroupDP) container.getChannelHandle();
                 }
 
@@ -341,7 +335,8 @@ public class KnxConnection implements Connection {
                 boolean state = write(groupDP, KnxDriver.timeout);
                 if (state) {
                     container.setFlag(Flag.VALID);
-                } else {
+                }
+                else {
                     container.setFlag(Flag.UNKNOWN_ERROR);
                 }
             } catch (ArgumentSyntaxException e) {
@@ -352,6 +347,25 @@ public class KnxConnection implements Connection {
             }
         }
         return null;
+    }
+
+    private static KnxGroupDP createKnxGroupDP(String channelAddress) throws KNXException, ArgumentSyntaxException {
+        String[] address = channelAddress.split(":");
+        KnxGroupDP dp = null;
+
+        if (address.length != 2 && address.length != 4) {
+            throw new ArgumentSyntaxException("Channel address has a wrong format. ");
+        }
+        else {
+            GroupAddress main = new GroupAddress(address[0]);
+            String dptID = address[1];
+            dp = new KnxGroupDP(main, channelAddress, dptID);
+            if (address.length == 4) {
+                boolean AET = address[2].equals("1");
+                String value = address[3];
+            }
+        }
+        return dp;
     }
 
 }

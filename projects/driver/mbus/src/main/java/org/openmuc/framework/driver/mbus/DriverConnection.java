@@ -20,35 +20,48 @@
  */
 package org.openmuc.framework.driver.mbus;
 
-import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.driver.spi.*;
-import org.openmuc.jmbus.*;
-import org.openmuc.jmbus.DataRecord.DataValueType;
-import org.openmuc.jmbus.DataRecord.Description;
-import org.openmuc.jmbus.DataRecord.FunctionField;
-import org.openmuc.jrxtx.SerialPortTimeoutException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.jmbus.Bcd;
+import org.openmuc.jmbus.DataRecord;
+import org.openmuc.jmbus.DataRecord.DataValueType;
+import org.openmuc.jmbus.DataRecord.Description;
+import org.openmuc.jmbus.DataRecord.FunctionField;
+import org.openmuc.jmbus.MBusConnection;
+import org.openmuc.jmbus.SecondaryAddress;
+import org.openmuc.jmbus.VariableDataStructure;
+import org.openmuc.jrxtx.SerialPortTimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DriverConnection implements Connection {
     private static final Logger logger = LoggerFactory.getLogger(DriverConnection.class);
 
-    private final SerialInterface serialInterface;
+    private final ConnectionInterface serialInterface;
     private final int mBusAddress;
     private final SecondaryAddress secondaryAddress;
+    private final static int delay = 100; // delay in ms // ToDo: make it configurable (some devices need 2 s)
 
     private boolean resetApplication = false;
     private boolean resetLink = false;
 
-    public DriverConnection(SerialInterface serialInterface, int mBusAddress, SecondaryAddress secondaryAddress) {
+    public DriverConnection(ConnectionInterface serialInterface, int mBusAddress, SecondaryAddress secondaryAddress) {
         this.serialInterface = serialInterface;
         this.secondaryAddress = secondaryAddress;
         this.mBusAddress = mBusAddress;
@@ -66,53 +79,58 @@ public class DriverConnection implements Connection {
                 MBusConnection mBusConnection = serialInterface.getMBusConnection();
                 if (secondaryAddress != null) {
                     mBusConnection.selectComponent(secondaryAddress);
-                } else {
+                }
+                else {
                     mBusConnection.linkReset(mBusAddress);
                 }
+                sleep(delay);
+
                 VariableDataStructure variableDataStructure = mBusConnection.read(mBusAddress);
 
                 List<DataRecord> dataRecords = variableDataStructure.getDataRecords();
 
                 for (DataRecord dataRecord : dataRecords) {
 
-                    String vib = DatatypeConverter.printHexBinary(dataRecord.getVib());
-                    String dib = DatatypeConverter.printHexBinary(dataRecord.getDib());
+                    String vib = Helper.bytesToHex(dataRecord.getVib());
+                    String dib = Helper.bytesToHex(dataRecord.getDib());
 
                     ValueType valueType;
                     Integer valueLength;
 
                     switch (dataRecord.getDataValueType()) {
 
-                        case STRING:
-                            valueType = ValueType.STRING;
-                            valueLength = 25;
-                            break;
-                        case LONG:
-                            if (dataRecord.getMultiplierExponent() == 0) {
-                                valueType = ValueType.LONG;
-                            } else {
-                                valueType = ValueType.DOUBLE;
-                            }
-                            valueLength = null;
-                            break;
-                        case DOUBLE:
-                        case DATE:
+                    case STRING:
+                        valueType = ValueType.STRING;
+                        valueLength = 25;
+                        break;
+                    case LONG:
+                        if (dataRecord.getMultiplierExponent() == 0) {
+                            valueType = ValueType.LONG;
+                        }
+                        else {
                             valueType = ValueType.DOUBLE;
-                            valueLength = null;
-                            break;
-                        case BCD:
-                            if (dataRecord.getMultiplierExponent() == 0) {
-                                valueType = ValueType.DOUBLE;
-                            } else {
-                                valueType = ValueType.LONG;
-                            }
-                            valueLength = null;
-                            break;
-                        case NONE:
-                        default:
-                            valueType = ValueType.BYTE_ARRAY;
-                            valueLength = 100;
-                            break;
+                        }
+                        valueLength = null;
+                        break;
+                    case DOUBLE:
+                    case DATE:
+                        valueType = ValueType.DOUBLE;
+                        valueLength = null;
+                        break;
+                    case BCD:
+                        if (dataRecord.getMultiplierExponent() == 0) {
+                            valueType = ValueType.DOUBLE;
+                        }
+                        else {
+                            valueType = ValueType.LONG;
+                        }
+                        valueLength = null;
+                        break;
+                    case NONE:
+                    default:
+                        valueType = ValueType.BYTE_ARRAY;
+                        valueLength = 100;
+                        break;
                     }
 
                     String unit = "";
@@ -171,30 +189,32 @@ public class DriverConnection implements Connection {
         final String scaledValueString = ";ScaledValue:";
 
         switch (dataValueType) {
-            case DATE:
-            case STRING:
-                builder.append(valuePlacHolder).append((dataValue).toString());
-                break;
-            case DOUBLE:
+        case DATE:
+        case STRING:
+            builder.append(valuePlacHolder).append((dataValue).toString());
+            break;
+        case DOUBLE:
+            builder.append(scaledValueString).append(scaledDataValue);
+            break;
+        case LONG:
+            if (multiplierExponent == 0) {
+                builder.append(valuePlacHolder).append(dataValue);
+            }
+            else {
                 builder.append(scaledValueString).append(scaledDataValue);
-                break;
-            case LONG:
-                if (multiplierExponent == 0) {
-                    builder.append(valuePlacHolder).append(dataValue);
-                } else {
-                    builder.append(scaledValueString).append(scaledDataValue);
-                }
-                break;
-            case BCD:
-                if (multiplierExponent == 0) {
-                    builder.append(valuePlacHolder).append((dataValue).toString());
-                } else {
-                    builder.append(scaledValueString).append(scaledDataValue);
-                }
-                break;
-            case NONE:
-                builder.append(";value:NONE");
-                break;
+            }
+            break;
+        case BCD:
+            if (multiplierExponent == 0) {
+                builder.append(valuePlacHolder).append((dataValue).toString());
+            }
+            else {
+                builder.append(scaledValueString).append(scaledDataValue);
+            }
+            break;
+        case NONE:
+            builder.append(";value:NONE");
+            break;
         }
 
         return builder.toString();
@@ -295,15 +315,15 @@ public class DriverConnection implements Connection {
 
     private int setDibVibs(List<DataRecord> dataRecords, String[] dibvibs, int i) {
         for (DataRecord dataRecord : dataRecords) {
-            String dibHex = DatatypeConverter.printHexBinary(dataRecord.getDib());
-            String vibHex = DatatypeConverter.printHexBinary(dataRecord.getVib());
+            String dibHex = Helper.bytesToHex(dataRecord.getDib());
+            String vibHex = Helper.bytesToHex(dataRecord.getVib());
             dibvibs[i++] = MessageFormat.format("{0}:{1}", dibHex, vibHex);
         }
         return i;
     }
 
     private boolean setRecords(List<ChannelRecordContainer> containers, MBusConnection mBusConnection, long timestamp,
-                               List<DataRecord> dataRecords, String[] dibvibs, int i) throws ConnectionException {
+            List<DataRecord> dataRecords, String[] dibvibs, int i) throws ConnectionException {
         boolean selectForReadoutSet = false;
 
         for (ChannelRecordContainer container : containers) {
@@ -370,39 +390,41 @@ public class DriverConnection implements Connection {
     private void setContainersRecord(long timestamp, ChannelRecordContainer container, DataRecord dataRecord) {
         try {
             switch (dataRecord.getDataValueType()) {
-                case DATE:
-                    container.setRecord(
-                            new Record(new DoubleValue(((Date) dataRecord.getDataValue()).getTime()), timestamp));
-                    break;
-                case STRING:
-                    container.setRecord(new Record(new StringValue((String) dataRecord.getDataValue()), timestamp));
-                    break;
-                case DOUBLE:
+            case DATE:
+                container.setRecord(
+                        new Record(new DoubleValue(((Date) dataRecord.getDataValue()).getTime()), timestamp));
+                break;
+            case STRING:
+                container.setRecord(new Record(new StringValue((String) dataRecord.getDataValue()), timestamp));
+                break;
+            case DOUBLE:
+                container.setRecord(new Record(new DoubleValue(dataRecord.getScaledDataValue()), timestamp));
+                break;
+            case LONG:
+                if (dataRecord.getMultiplierExponent() == 0) {
+                    container.setRecord(new Record(new LongValue((Long) dataRecord.getDataValue()), timestamp));
+                }
+                else {
                     container.setRecord(new Record(new DoubleValue(dataRecord.getScaledDataValue()), timestamp));
-                    break;
-                case LONG:
-                    if (dataRecord.getMultiplierExponent() == 0) {
-                        container.setRecord(new Record(new LongValue((Long) dataRecord.getDataValue()), timestamp));
-                    } else {
-                        container.setRecord(new Record(new DoubleValue(dataRecord.getScaledDataValue()), timestamp));
-                    }
-                    break;
-                case BCD:
-                    if (dataRecord.getMultiplierExponent() == 0) {
-                        container.setRecord(
-                                new Record(new LongValue(((Bcd) dataRecord.getDataValue()).longValue()), timestamp));
-                    } else {
-                        container.setRecord(new Record(new DoubleValue(((Bcd) dataRecord.getDataValue()).longValue()
-                                * Math.pow(10, dataRecord.getMultiplierExponent())), timestamp));
-                    }
-                    break;
-                case NONE:
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION));
-                    if (logger.isWarnEnabled()) {
-                        logger.warn("Received data record with <dib>:<vib> = " + container.getChannelAddress()
-                                + " has value type NONE.");
-                    }
-                    break;
+                }
+                break;
+            case BCD:
+                if (dataRecord.getMultiplierExponent() == 0) {
+                    container.setRecord(
+                            new Record(new LongValue(((Bcd) dataRecord.getDataValue()).longValue()), timestamp));
+                }
+                else {
+                    container.setRecord(new Record(new DoubleValue(((Bcd) dataRecord.getDataValue()).longValue()
+                            * Math.pow(10, dataRecord.getMultiplierExponent())), timestamp));
+                }
+                break;
+            case NONE:
+                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION));
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Received data record with <dib>:<vib> = " + container.getChannelAddress()
+                            + " has value type NONE.");
+                }
+                break;
             }
         } catch (IllegalStateException e) {
             container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION));
@@ -430,6 +452,14 @@ public class DriverConnection implements Connection {
 
     void setResetLink(boolean resetLink) {
         this.resetLink = resetLink;
+    }
+
+    private void sleep(long millisec) throws ConnectionException {
+        try {
+            Thread.sleep(millisec);
+        } catch (InterruptedException e) {
+            throw new ConnectionException(e);
+        }
     }
 
 }

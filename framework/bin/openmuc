@@ -217,7 +217,7 @@ case "$1" in
         then
             eval $GRADLE -p ../ install
         fi
-        eval $GRADLE -b conf/bundles.conf.gradle updateBundles
+        eval $GRADLE -b conf/bundles.conf.gradle updateBundles --warning-mode all
         ;;
     remote-shell)
         echo "Using netcat to connect to remote shell at 127.0.0.1:6666"

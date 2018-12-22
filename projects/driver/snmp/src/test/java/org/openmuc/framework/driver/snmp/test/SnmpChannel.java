@@ -20,11 +20,21 @@
  */
 package org.openmuc.framework.driver.snmp.test;
 
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.*;
-
 import java.io.IOException;
 import java.util.List;
+
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FutureValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.ChannelState;
+import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.dataaccess.ReadRecordContainer;
+import org.openmuc.framework.dataaccess.RecordListener;
+import org.openmuc.framework.dataaccess.WriteValueContainer;
 
 public class SnmpChannel implements Channel {
 

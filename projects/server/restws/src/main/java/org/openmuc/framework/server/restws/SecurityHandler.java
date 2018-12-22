@@ -20,15 +20,16 @@
  */
 package org.openmuc.framework.server.restws;
 
-import org.openmuc.framework.authentication.AuthenticationService;
-import org.osgi.framework.Bundle;
-import org.osgi.service.http.HttpContext;
+import java.io.IOException;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
-import java.net.URL;
+
+import org.openmuc.framework.authentication.AuthenticationService;
+import org.osgi.framework.Bundle;
+import org.osgi.service.http.HttpContext;
 
 public class SecurityHandler implements HttpContext {
 

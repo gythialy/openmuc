@@ -37,6 +37,18 @@ public class ModeDMessage {
         this.dataSets = dataSets;
     }
 
+    public List<String> getDataSets() {
+        return dataSets;
+    }
+
+    public String getVendorId() {
+        return vendorId;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
     public static ModeDMessage parse(byte[] frame) throws ParseException {
         int position = 0;
         try {
@@ -100,18 +112,6 @@ public class ModeDMessage {
             throw new ParseException("Unexpected end of message", position);
         }
 
-    }
-
-    public List<String> getDataSets() {
-        return dataSets;
-    }
-
-    public String getVendorId() {
-        return vendorId;
-    }
-
-    public String getIdentifier() {
-        return identifier;
     }
 
 }

@@ -2,7 +2,7 @@ def projectName = "OpenMUC Data Logger - SlotsDB"
 
 
 dependencies {
-    compile project(':openmuc-core-spi')
+    implementation project(':openmuc-core-spi')
 }
 
 jar {

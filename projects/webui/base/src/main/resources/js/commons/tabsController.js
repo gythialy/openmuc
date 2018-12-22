@@ -1,26 +1,30 @@
 (function () {
 
-    var injectParams = ['$scope', '$location'];
+    var injectParams = ['$scope', '$location', '$rootScope'];
 
-    var TabsController = function ($scope, $location) {
+    var TabsController = function ($scope, $location, $rootScope) {
         $scope.isTabActive = function (url) {
             return $location.url().search(url) > -1;
         };
 
         $scope.isDriversPage = function () {
-            return $location.url() == "/channelconfigurator/";
+            return $location.url() === "/channelconfigurator/";
+        };
+
+        $scope.isDriversNotPage = function () {
+            return $location.url() !== "/channelconfigurator/";
         };
 
         $scope.isDevicesPage = function () {
-            return $location.url() == "/channelconfigurator/devices";
+            return $location.url() === "/channelconfigurator/devices";
         };
 
         $scope.isChannelsPage = function () {
-            return $location.url() == "/channelconfigurator/channels";
+            return $location.url() === "/channelconfigurator/channels";
         };
 
         $scope.isOptionsPage = function () {
-            return $location.url() == "/channelconfigurator/options";
+            return $location.url() === "/channelconfigurator/options";
         };
 
         $scope.isDriversEditPage = function () {
@@ -60,21 +64,30 @@
         }
 
         $scope.isDataPlotterPage = function () {
-            return $location.url() == '/dataplotter/data/';
+            return $location.url() === '/dataplotter/data/';
         };
 
         $scope.isLivePlotterPage = function () {
-            return $location.url() == '/dataplotter/live/';
+            return $location.url() === '/dataplotter/live/';
         };
 
         $scope.isPlotterPageActive = function (type, name) {
-            if ($location.url() == '/dataplotter/' + type + "/" + encodeURIComponent(name)) {
+            if ($location.url() === '/dataplotter/' + type + "/" + encodeURIComponent(name)) {
                 return true;
             } else {
                 return false;
             }
         };
 
+        $rootScope.activeTabIndex;
+
+        $scope.setTabIndex = function (index) {
+            $rootScope.activeTabIndex = index;
+        };
+
+        $scope.revertSelected = function () {
+            $rootScope.selectedChannels = [];
+        };
     };
 
     TabsController.$inject = injectParams;

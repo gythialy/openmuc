@@ -1,7 +1,11 @@
 <plotting-tabs class="clearfix display-block"></plotting-tabs>
 
-<div class="well" id="graph">
-    <svg viewBox="0 0 450 300" class="plotter-place-holder"></svg>
+<div class="card bg-light" id="graph">
+    <div class="card-body" ng-hide="plotter">{{'NO_GRAPH_CREATED_YET' | translate}}</div>
+</div>
+
+<div class="card bg-light" id="graph">
+    <svg viewBox="0 0 450 270" class="plotter-place-holder" ng-show="plotter"></svg>
 </div>
 
 <form name="plot_form" class="form-horizontal" ng-submit="plotData()" novalidate>
@@ -10,33 +14,34 @@
             {{'PLOT_OPTIONS' | translate}}
             <span style="float: right;">
                 <a href
-                   ng-click="advanced = true"
-                   ng-hide="advanced"
+                   ng-click="advanced = !advanced"
                    class="small text-muted">{{'SHOW_ADVANCED' | translate}}</a>
             </span>
         </legend>
 
-        <div class="form-group" ng-show="advanced">
-            <label for="refresh" class="col-sm-2 control-label">
+        <div class="form-group row" ng-show="advanced">
+            <label for="refresh" class="col-md-2 control-label">
                 {{'REFRESH' | translate}}
             </label>
-            <div class="col-sm-6">
+            <div class="col-md-6">
                 <div class="input-group">
                     <input id="refresh" type="text" class="form-control" ng-model="refresh">
-                    <div class="input-group-addon">ms</div>
+                    <div class="input-group-append">
+                        <span class="input-group-text">ms</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="start_date" class="col-sm-2 control-label">
+        <div class="form-group row">
+            <label for="start_date" class="col-md-2 control-label">
                 {{'PLOT_TIME_PERIOD' | translate}}
             </label>
-            <div id="start_date">
-                <div class="col-sm-2">
+            <div id="start_date" class="col-md-4 row">
+                <div class="col-md-6">
                     <input type="text" class="form-control" ng-model="timePeriod">
                 </div>
-                <div class="col-sm-2">
+                <div class="col-md-6">
                     <select class="form-control" name="timePeriodUnit" ng-model="timePeriodUnit">
                         <option value="seconds">{{'SECONDS' | translate}}</option>
                         <option value="minutes">{{'MINUTES' | translate}}</option>
@@ -46,16 +51,16 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="col-sm-2 control-label">
+        <div class="form-group row">
+            <label class="col-md-2 control-label">
                 {{'SELECT_CHANNEL' | translate}}
             </label>
 
-            <div class="col-sm-6">
-                <div class="col-sm-5" ng-repeat="channel in channels">
+            <div class="col-md-6 row">
+                <div class="col-md-5" ng-repeat="channel in channels">
                     <label class="sr-only">{{channel.label}}</label>
-                    <label data-title="{{channel.valueType == 'STRING'  ? ('CHANNEL_VALUE_NOT_PLOTTABLE' | translate) : ''}}"
-                           bs-tooltip>
+                    <label uib-tooltip="{{channel.valueType == 'STRING'  ? ('CHANNEL_VALUE_NOT_PLOTTABLE' | translate) : ''}}"
+                           ng-class="{deactivated: channel.valueType == 'STRING'}">
                         <input type="checkbox"
                                checklist-model="selectedChannels"
                                checklist-value="channel"
@@ -66,9 +71,9 @@
             </div>
         </div>
 
-        <div class="col-sm-8 text-right">
+        <div class="col-md-8 text-right">
             <input type="submit" class="btn btn-primary" value="{{'PLOT_DATA' | translate}}"
-                   ng-disabled="plotDisabled()">
+                   ng-disabled="plotDisabled()" ng-click="plotter = true">
             <input type="button"
                    class="btn btn-primary"
                    ng-click="togglePlotting()"

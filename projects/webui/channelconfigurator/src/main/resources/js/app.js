@@ -1,8 +1,8 @@
-(function () {
+(function(){
 
-    angular.module('openmuc.channels', []);
-    angular.module('openmuc.devices', []);
-    angular.module('openmuc.drivers', []);
-    angular.module('openmuc.options', []);
+	angular.module('openmuc.channels', ['ui.bootstrap']);
+	angular.module('openmuc.devices', ['ui.bootstrap']);
+	angular.module('openmuc.drivers', ['ui.bootstrap']);
+	angular.module('openmuc.options', ['ui.bootstrap']);
 
 })();

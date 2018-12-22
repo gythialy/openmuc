@@ -42,11 +42,6 @@ public class SnmpTest {
                 + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=privacy";
     }
 
-    @AfterClass
-    public static void afterClass() {
-        snmpDriver = null;
-    }
-
     @Test(expected = ArgumentSyntaxException.class)
     public void testInvalidSettingStringNumber() throws ConnectionException, ArgumentSyntaxException {
 
@@ -121,5 +116,10 @@ public class SnmpTest {
     @Test(expected = ArgumentSyntaxException.class)
     public void testEmptySnmpVersoin() throws ConnectionException, ArgumentSyntaxException {
         snmpDriver.connect("1.1.1.1/1", correctSetting);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        snmpDriver = null;
     }
 }

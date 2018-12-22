@@ -2,8 +2,8 @@ def projectName = "OpenMUC WebUI - Channel Access Tool"
 def projectDescription = "Channel Access Tool plug-in for the WebUI of the OpenMUC framework."
 
 dependencies {
-    compile project(':openmuc-core-api')
-    compile project(':openmuc-webui-spi')
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-webui-spi')
 }
 
 jar {

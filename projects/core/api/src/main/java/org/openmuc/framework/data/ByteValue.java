@@ -29,7 +29,7 @@ public class ByteValue extends NumberValue {
 
     @Override
     public byte[] asByteArray() {
-        return new byte[]{super.asByte()};
+        return new byte[] { super.asByte() };
     }
 
 }

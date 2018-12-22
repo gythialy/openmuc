@@ -20,10 +20,9 @@
  */
 package org.openmuc.framework.driver.modbus.tcp;
 
-import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.ModbusIOException;
-import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
-import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
+import java.net.InetAddress;
+import java.util.List;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -40,8 +39,10 @@ import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.util.List;
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.ModbusIOException;
+import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
+import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 /**
  * Modbus connection using TCP for data transfer
@@ -49,9 +50,10 @@ import java.util.List;
 public class ModbusTCPConnection extends ModbusConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(ModbusTCPConnection.class);
-    private final int timeoutMs;
+
     private TCPMasterConnection connection;
     private ModbusTCPTransaction transaction;
+    private final int timeoutMs;
 
     public ModbusTCPConnection(String deviceAddress, int timeoutMs) throws ConnectionException {
 

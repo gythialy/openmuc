@@ -7,10 +7,21 @@
     <!--  JQuery -->
     <script src="openmuc/js/libs/jquery/jquery.min.js"></script>
 
+    <!--  Angular -->
+    <script src='openmuc/js/libs/angularjs/angular.min.js' type='text/javascript'></script>
+    <script src='openmuc/js/libs/angularjs/angular-cookies.min.js' type='text/javascript'></script>
+    <script src='openmuc/js/libs/angularjs/angular-ui-router.min.js' type='text/javascript'></script>
+    <script src='openmuc/js/libs/angularjs/angular-route.min.js' type='text/javascript'></script>
+    <script src="openmuc/js/libs/angularjs/angular-notify.min.js" type='text/javascript'></script>
+    <script src="openmuc/js/libs/angularjs/angular-translate.min.js" type='text/javascript'></script>
+    <script src="openmuc/js/libs/angularjs/angular-translate-storage-cookie.min.js" type='text/javascript'></script>
+    <script src="openmuc/js/libs/angularjs/angular-input-match.min.js" type='text/javascript'></script>
+    <script src="openmuc/js/libs/angularjs/oc-lazy-load.min.js" type='text/javascript'></script>
+
     <!-- Bootstrap -->
+    <link href="openmuc/css/libs/angularjs/angular-notify.css" rel="stylesheet">
     <link href="openmuc/css/libs/bootstrap/bootstrap.css" rel="stylesheet">
-    <script src="openmuc/js/libs/bootstrap/bootstrap.min.js"></script>
-    <link href="openmuc/css/libs/bootstrap/bootstrap-additions.css" rel="stylesheet">
+    <script src="openmuc/js/libs/bootstrap/ui-bootstrap-tpls-3.0.5.min.js"></script>
 
     <!-- Stylesheets -->
     <link href="openmuc/css/main.css" rel="stylesheet" type="text/css"/>
@@ -18,21 +29,9 @@
     <link href="openmuc/css/dashboard/dashboard.css" rel="stylesheet" type="text/css"/>
     <link href="openmuc/css/libs/fontawesome/font-awesome.css" rel="stylesheet"/>
 
-    <!--  Angular -->
-    <script src='openmuc/js/libs/angularjs/angular.min.js' type='text/javascript'></script>
-    <script src='openmuc/js/libs/angularjs/angular-cookies.min.js' type='text/javascript'></script>
-    <script src='openmuc/js/libs/angularjs/angular-ui-router.min.js' type='text/javascript'></script>
-    <script src='openmuc/js/libs/angularjs/angular-route.min.js' type='text/javascript'></script>
-    <script src="openmuc/js/libs/angularjs/angular-strap.min.js" type='text/javascript'></script>
-    <script src="openmuc/js/libs/angularjs/angular-strap.tpl.min.js" type='text/javascript'></script>
-    <script src="openmuc/js/libs/angularjs/angular-translate.min.js" type='text/javascript'></script>
-    <script src="openmuc/js/libs/angularjs/angular-translate-storage-cookie.min.js" type='text/javascript'></script>
-    <script src="openmuc/js/libs/angularjs/angular-input-match.min.js" type='text/javascript'></script>
-    <script src="openmuc/js/libs/angularjs/oc-lazy-load.min.js" type='text/javascript'></script>
-
     <!--
     Used for date picker locale
-    <script type='text/javascript' src="https://code.angularjs.org/1.2.5/i18n/angular-locale_de-de.js"></script>
+    <script type='text/javascript' src="https://code.angularjs.org/1.7.4/i18n/angular-locale_de-de.js"></script>
     -->
 
     <!--  AngularMotion -->
@@ -58,13 +57,13 @@
     <link href="openmuc/images/openmuc-favicon.png" rel="icon" type="image/png"/>
 </head>
 
-<body ng-controller="ApplicationController">
+<body id="bodyID" ng-controller="ApplicationController">
 <div id="wrap">
 
-    <nav class="navbar navbar-default" id="header" role="navigation">
+    <nav class="navbar navbar-expand-md bg-light" id="header" role="navigation">
         <div class="container">
             <div class="navbar-header">
-                <button class="navbar-toggle collapsed" data-target="#openmuc-navbar" data-toggle="collapse"
+                <button class="navbar-toggler collapsed" data-target="#openmuc-navbar" data-toggle="collapse"
                         type="button">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
@@ -78,16 +77,17 @@
 
             <div class="collapse navbar-collapse" id="openmuc-navbar">
                 <ul class="nav navbar-nav" ng-if="isLoggedIn()" role="menu">
-                    <li class="dropdown">
-                        <a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <li class="nav-item" uib-dropdown>
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                           uib-dropdown-toggle>
                             <i class="fa fa-th-large fa-lg"></i>
                             <span class="dropdown-label">{{ 'APPLICATIONS' | translate }}</span>
                             <span class="caret"></span>
                         </a>
 
-                        <ul class="dropdown-menu" ng-controller="DashboardController" role="menu">
-                            <li ng-repeat="app in availableApps">
-                                <a ui-sref="{{app.alias}}.index">
+                        <ul class="dropdown-menu" ng-controller="DashboardController" role="menu" uib-dropdown-menu>
+                            <li ng-controller="TabsController" ng-repeat="app in availableApps">
+                                <a class="dropdown-item" ng-click="setTabIndex(0)" ui-sref="{{app.alias}}.index">
 	                    <span class="icon">
 	                      <img src="{{app.alias}}/images/icon.png"/>
 	                    </span>{{app.name}}
@@ -97,9 +97,10 @@
                     </li>
                 </ul>
 
-                <ul class="nav navbar-nav navbar-right" role="tablist">
-                    <li class="dropdown" role="presentation">
-                        <a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                <ul class="nav navbar-nav ml-auto" role="tablist">
+                    <li class="nav-item" role="presentation" uib-dropdown>
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                           uib-dropdown-toggle>
                    <span ng-if="currentLanguageIsEnglish()">
                      <span class="flag flag-en"></span>
                      <span class="dropdown-label">{{ 'BUTTON_LANG_EN' | translate }}</span>
@@ -110,35 +111,37 @@
                    </span>
                             <span class="caret"></span>
                         </a>
-                        <ul class="dropdown-menu" role="menu">
+                        <ul class="dropdown-menu" role="menu" uib-dropdown-menu>
                             <li ng-if="currentLanguageIsGerman()">
-                                <a ng-click="changeLanguage('en')">
+                                <a class="dropdown-item" ng-click="changeLanguage('en')">
                                     <span class="flag flag-en"></span>
                                     <span class="dropdown-label">{{ 'BUTTON_LANG_EN' | translate }}</span>
                                 </a>
                             </li>
                             <li ng-if="currentLanguageIsEnglish()">
-                                <a ng-click="changeLanguage('de')">
+                                <a class="dropdown-item" ng-click="changeLanguage('de')">
                                     <span class="flag flag-de"></span>
                                     <span class="dropdown-label">{{ 'BUTTON_LANG_DE' | translate }}</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
-                    <li class="dropdown" ng-if="isLoggedIn()" role="presentation">
-                        <a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <li class="nav-item" ng-if="isLoggedIn()" role="presentation" uib-dropdown>
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                           uib-dropdown-toggle>
                             <i class="fa fa-user fa-lg"></i>
                             <span class="dropdown-label">{{ currentUsername() }}</span>
                             <span class="caret"></span>
                         </a>
-                        <ul class="dropdown-menu" role="menu">
+                        <ul class="dropdown-menu" role="menu" uib-dropdown-menu>
                             <li>
-                                <a class="clearfix" ui-sref="userconfigurator.edit({id: currentUser.user})">
+                                <a class="clearfix dropdown-item"
+                                   ui-sref="userconfigurator.edit({id: currentUser.user})">
                                     <span class="icon fa fa-pencil"></span> {{ 'EDIT_PROFILE' | translate }}
                                 </a>
                             </li>
                             <li>
-                                <a class="clearfix" ng-click="logout()">
+                                <a class="clearfix dropdown-item" ng-click="logout()">
                                     <span class="icon fa fa-power-off"></span> {{ 'LOGOUT' | translate }}
                                 </a>
                             </li>

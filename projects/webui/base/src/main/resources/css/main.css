@@ -1,5 +1,6 @@
 html,
 body {
+    font-size: 14px;
     height: 100%;
 }
 
@@ -16,9 +17,9 @@ body {
 }
 
 @media (min-width: 768px) {
-    #openmuc-navbar .navbar-nav > li > a {
-        padding-top: 25px;
-        padding-bottom: 25px;
+    #openmuc-navbar .navbar-nav .nav-item .nav-link {
+        padding-top: 7px;
+        padding-bottom: 7px;
         margin: 0px 2px;
     }
 
@@ -32,11 +33,11 @@ body {
     margin-left: 15px;
 }
 
-#openmuc-navbar a {
+#openmuc-navbar .nav-link {
     cursor: pointer;
 }
 
-#openmuc-navbar .dropdown li a {
+#openmuc-navbar .dropdown .nav-item .nav-link {
     padding-top: 8px;
     padding-bottom: 8px;
 }
@@ -101,7 +102,7 @@ body {
 }
 
 .dropdown .icon {
-    color: #79B0A6;
+    color: #00947a;
     margin-right: 10px;
     font-size: 20px;
     width: 28px;

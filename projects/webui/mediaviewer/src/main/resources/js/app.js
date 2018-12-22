@@ -1,5 +1,5 @@
-(function () {
+(function(){
 
-    angular.module('openmuc.mediaviewer', []);
+	angular.module('openmuc.mediaviewer', ['ui.bootstrap']);
 
 })();

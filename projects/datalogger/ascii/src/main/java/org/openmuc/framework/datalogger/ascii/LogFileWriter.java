@@ -20,6 +20,17 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
@@ -35,17 +46,15 @@ import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
-
 public class LogFileWriter {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogFileWriter.class);
     private final StringBuilder sb = new StringBuilder();
     private final StringBuilder sbValue = new StringBuilder();
+
     private final String directoryPath;
-    private final boolean isFillUpFiles;
+    private static final Logger logger = LoggerFactory.getLogger(LogFileWriter.class);
     private File actualFile;
+    private final boolean isFillUpFiles;
 
     public LogFileWriter(String directoryPath, boolean isFillUpFiles) {
 
@@ -55,15 +64,20 @@ public class LogFileWriter {
 
     /**
      * Main logger writing controller.
-     *
-     * @param group           log interval container group
-     * @param loggingInterval logging interval
-     * @param logTimeOffset   logging time offset
-     * @param calendar        calendar of current time
-     * @param logChannelList  logging channel list
+     * 
+     * @param group
+     *            log interval container group
+     * @param loggingInterval
+     *            logging interval
+     * @param logTimeOffset
+     *            logging time offset
+     * @param calendar
+     *            calendar of current time
+     * @param logChannelList
+     *            logging channel list
      */
     public void log(LogIntervalContainerGroup group, int loggingInterval, int logTimeOffset, Calendar calendar,
-                    Map<String, LogChannel> logChannelList) {
+            Map<String, LogChannel> logChannelList) {
 
         PrintStream out = getStream(group, loggingInterval, logTimeOffset, calendar, logChannelList);
 
@@ -87,7 +101,7 @@ public class LogFileWriter {
     }
 
     private void fillUpFile(int loggingInterval, int logTimeOffset, Calendar calendar,
-                            Map<String, LogChannel> logChannelList, List<LogRecordContainer> logRecordContainer, PrintStream out) {
+            Map<String, LogChannel> logChannelList, List<LogRecordContainer> logRecordContainer, PrintStream out) {
 
         Long lastLoglineTimestamp = AsciiLogger.getLastLoggedLineTimeStamp(loggingInterval, logTimeOffset);
 
@@ -114,7 +128,7 @@ public class LogFileWriter {
     }
 
     private String getLoggingLine(List<LogRecordContainer> logRecordContainer, Map<String, LogChannel> logChannelList,
-                                  Calendar calendar, boolean isError32) {
+            Calendar calendar, boolean isError32) {
         sb.setLength(0);
 
         LoggerUtils.setLoggerTimestamps(sb, calendar);
@@ -145,74 +159,77 @@ public class LogFileWriter {
                         // write error flag
                         LoggerUtils.buildError(sbValue, Flag.CANNOT_WRITE_NULL_VALUE);
                         size = getDataTypeSize(logChannel, i);
-                    } else {
+                    }
+                    else {
                         ValueType valueType = logChannel.getValueType();
 
                         switch (valueType) {
-                            case BOOLEAN:
-                                sbValue.append((recordValue.asShort())).toString();
-                                break;
-                            case LONG:
-                                sbValue.append((recordValue.asLong())).toString();
-                                size = Const.VALUE_SIZE_LONG;
-                                break;
-                            case INTEGER:
-                                sbValue.append((recordValue.asInt())).toString();
-                                size = Const.VALUE_SIZE_INTEGER;
-                                break;
-                            case SHORT:
-                                sbValue.append((recordValue.asShort())).toString();
-                                size = Const.VALUE_SIZE_SHORT;
-                                break;
-                            case DOUBLE:
-                            case FLOAT:
-                                size = Const.VALUE_SIZE_DOUBLE;
-                                try {
-                                    IESDataFormatUtils.convertDoubleToStringWithMaxLength(sbValue, recordValue.asDouble(),
-                                            size);
-                                } catch (WrongScalingException e) {
-                                    LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
-                                    logger.error(e.getMessage() + " ChannelId: " + channelID);
-                                }
-                                break;
-                            case BYTE_ARRAY:
-                                left = false;
-                                size = checkMinimalValueSize(getDataTypeSize(logChannel, i));
-                                byte[] byteArray = recordValue.asByteArray();
-                                if (byteArray.length > size) {
-                                    LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
-                                    logger.error("The byte array is too big, length is ", byteArray.length,
-                                            " but max. length allowed is ", size, ", ChannelId: ", channelID);
-                                } else {
-                                    sbValue.append(Const.HEXADECIMAL);
-                                    LoggerUtils.byteArrayToHexString(sbValue, byteArray);
-                                }
-                                break;
-                            case STRING:
-                                left = false;
-                                size = checkMinimalValueSize(getDataTypeSize(logChannel, i));
-                                sbValue.append(recordValue.asString());
-                                int valueLength = sbValue.length();
-                                try {
-                                    checkStringValue(sbValue);
-                                } catch (WrongCharacterException e) {
-                                    LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
-                                    logger.error(e.getMessage());
-                                }
-                                if (valueLength > size) {
-                                    LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
-                                    logger.error("The string is too big, length is ", valueLength,
-                                            " but max. length allowed is ", size, ", ChannelId: ", channelID);
-                                }
-                                break;
-                            case BYTE:
-                                sbValue.append(String.format("0x%02x", recordValue.asByte()));
-                                break;
-                            default:
-                                throw new RuntimeException("unsupported valueType");
+                        case BOOLEAN:
+                            sbValue.append((recordValue.asShort())).toString();
+                            break;
+                        case LONG:
+                            sbValue.append((recordValue.asLong())).toString();
+                            size = Const.VALUE_SIZE_LONG;
+                            break;
+                        case INTEGER:
+                            sbValue.append((recordValue.asInt())).toString();
+                            size = Const.VALUE_SIZE_INTEGER;
+                            break;
+                        case SHORT:
+                            sbValue.append((recordValue.asShort())).toString();
+                            size = Const.VALUE_SIZE_SHORT;
+                            break;
+                        case DOUBLE:
+                        case FLOAT:
+                            size = Const.VALUE_SIZE_DOUBLE;
+                            try {
+                                IESDataFormatUtils.convertDoubleToStringWithMaxLength(sbValue, recordValue.asDouble(),
+                                        size);
+                            } catch (WrongScalingException e) {
+                                LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
+                                logger.error(e.getMessage() + " ChannelId: " + channelID);
+                            }
+                            break;
+                        case BYTE_ARRAY:
+                            left = false;
+                            size = checkMinimalValueSize(getDataTypeSize(logChannel, i));
+                            byte[] byteArray = recordValue.asByteArray();
+                            if (byteArray.length > size) {
+                                LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
+                                logger.error("The byte array is too big, length is ", byteArray.length,
+                                        " but max. length allowed is ", size, ", ChannelId: ", channelID);
+                            }
+                            else {
+                                sbValue.append(Const.HEXADECIMAL);
+                                LoggerUtils.byteArrayToHexString(sbValue, byteArray);
+                            }
+                            break;
+                        case STRING:
+                            left = false;
+                            size = checkMinimalValueSize(getDataTypeSize(logChannel, i));
+                            sbValue.append(recordValue.asString());
+                            int valueLength = sbValue.length();
+                            try {
+                                checkStringValue(sbValue);
+                            } catch (WrongCharacterException e) {
+                                LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
+                                logger.error(e.getMessage());
+                            }
+                            if (valueLength > size) {
+                                LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
+                                logger.error("The string is too big, length is ", valueLength,
+                                        " but max. length allowed is ", size, ", ChannelId: ", channelID);
+                            }
+                            break;
+                        case BYTE:
+                            sbValue.append(String.format("0x%02x", recordValue.asByte()));
+                            break;
+                        default:
+                            throw new RuntimeException("unsupported valueType");
                         }
                     }
-                } else {
+                }
+                else {
                     // write error flag
                     LoggerUtils.buildError(sbValue, record.getFlag());
                     size = checkMinimalValueSize(getDataTypeSize(logChannel, i));
@@ -221,7 +238,8 @@ public class LogFileWriter {
                 if (isError32) {
                     logRecordContainer.set(i, new LogRecordContainerAscii(channelID, recordBackup));
                 }
-            } else {
+            }
+            else {
                 // got no data
                 LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
                 size = checkMinimalValueSize(getDataTypeSize(logChannel, i));
@@ -230,7 +248,8 @@ public class LogFileWriter {
             if (left) {
                 LoggerUtils.addSpaces(sbValue.length(), size, sb);
                 sb.append(sbValue);
-            } else {
+            }
+            else {
                 sb.append(sbValue);
                 LoggerUtils.addSpaces(sbValue.length(), size, sb);
             }
@@ -245,19 +264,23 @@ public class LogFileWriter {
 
     /**
      * Checks a string if it is IESData conform, e.g. wrong characters. If not it will drop a error.
-     *
-     * @param value the string value which should be checked
+     * 
+     * @param value
+     *            the string value which should be checked
      */
     private void checkStringValue(StringBuilder sbValue) throws WrongCharacterException {
         String value = sbValue.toString();
         if (value.startsWith(Const.ERROR)) {
             throw new WrongCharacterException("Wrong character: String begins with: " + Const.ERROR);
-        } else if (value.startsWith(Const.HEXADECIMAL)) {
+        }
+        else if (value.startsWith(Const.HEXADECIMAL)) {
             throw new WrongCharacterException("Wrong character: String begins with: " + Const.HEXADECIMAL);
-        } else if (value.contains(Const.SEPARATOR)) {
+        }
+        else if (value.contains(Const.SEPARATOR)) {
             throw new WrongCharacterException(
                     "Wrong character: String contains separator character: " + Const.SEPARATOR);
-        } else if (!value.matches("^[\\x00-\\x7F]*")) {
+        }
+        else if (!value.matches("^[\\x00-\\x7F]*")) {
             throw new WrongCharacterException("Wrong character: Non ASCII character in String.");
         }
     }
@@ -272,7 +295,7 @@ public class LogFileWriter {
 
     /**
      * Returns the PrintStream for logging.
-     *
+     * 
      * @param group
      * @param loggingInterval
      * @param date
@@ -280,7 +303,7 @@ public class LogFileWriter {
      * @return the PrintStream for logging.
      */
     private PrintStream getStream(LogIntervalContainerGroup group, int loggingInterval, int logTimeOffset,
-                                  Calendar calendar, Map<String, LogChannel> logChannelList) {
+            Calendar calendar, Map<String, LogChannel> logChannelList) {
 
         String filename = LoggerUtils.buildFilename(loggingInterval, logTimeOffset, calendar);
 
@@ -291,7 +314,8 @@ public class LogFileWriter {
         try {
             if (file.exists()) {
                 out = new PrintStream(new FileOutputStream(file, true), false, Const.CHAR_SET);
-            } else {
+            }
+            else {
                 out = new PrintStream(new FileOutputStream(file, true), false, Const.CHAR_SET);
                 String headerString = LogFileHeader.getIESDataFormatHeaderString(group, file.getName(), loggingInterval,
                         logChannelList);
@@ -309,7 +333,7 @@ public class LogFileWriter {
 
     /**
      * Returns the size of a DataType / ValueType.
-     *
+     * 
      * @param logChannel
      * @param iterator
      * @return size of DataType / ValueType.
@@ -325,13 +349,16 @@ public class LogFileWriter {
             if (isString) {
                 // get length from channel for String / ByteArray
                 size = logChannel.getValueTypeLength();
-            } else if (isByteArray) {
+            }
+            else if (isByteArray) {
                 size = Const.HEXADECIMAL.length() + logChannel.getValueTypeLength() * 2;
-            } else {
+            }
+            else {
                 // get length from channel for simple value types
                 size = LoggerUtils.getLengthOfValueType(logChannel.getValueType());
             }
-        } else {
+        }
+        else {
             // get length from file
             ValueType vt = LoggerUtils.identifyValueType(iterator + Const.NUM_OF_TIME_TYPES_IN_HEADER + 1, actualFile);
             size = LoggerUtils.getLengthOfValueType(vt);

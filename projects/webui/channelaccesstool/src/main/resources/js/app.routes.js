@@ -13,8 +13,8 @@
                         return $ocLazyLoad.load(
                             {
                                 name: "openmuc.channelaccesstool",
-                                files: ['channelconfigurator/js/devices/devicesService.js',
-                                    'channelconfigurator/js/devices/deviceDataService.js',
+                                files: ['openmuc/js/devices/devicesService.js',
+                                    'openmuc/js/devices/deviceDataService.js',
                                     'channelaccesstool/js/channelaccesstool/channelsAccessToolFilters.js',
                                     'channelaccesstool/js/channelaccesstool/channelsAccessToolController.js']
                             }
@@ -36,8 +36,8 @@
                         return $ocLazyLoad.load(
                             {
                                 name: "openmuc.channelaccesstool",
-                                files: ['channelconfigurator/js/channels/channelsService.js',
-                                    'channelconfigurator/js/channels/channelDataService.js',
+                                files: ['openmuc/js/channels/channelsService.js',
+                                    'openmuc/js/channels/channelDataService.js',
                                     'channelaccesstool/js/channelaccesstool/channelsAccessController.js']
                             }
                         )

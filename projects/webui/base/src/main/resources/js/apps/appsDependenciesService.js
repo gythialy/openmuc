@@ -8,7 +8,7 @@
             var files = [];
 
             return AvailableAppsService.getAll().then(function (response) {
-                $.each(response, function (index, value) {
+                angular.forEach(response, function (value, index) {
                     files.push(value.alias + '/js/app.js');
                     files.push(value.alias + '/js/app.routes.js');
                 });

@@ -2,8 +2,8 @@ def projectName = "OpenMUC Driver - Aggregator"
 def projectDescription = "Aggregator driver for the OpenMUC framework."
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile project(':openmuc-core-api')
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-api')
 }
 
 jar {

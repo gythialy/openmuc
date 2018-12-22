@@ -3,6 +3,71 @@
 [[drivers]]
 == Drivers
 
+=== Install a Driver
+
+For installing a new driver you have two possible ways.
+
+==== Copy driver
+Copy the corresponding driver jar file from the folder "build/libs-all/" to the
+"bundle" folder of the framework. Many drivers are "fat jars" which include their
+dependencies. An exception is the RXTX library which cannot be packed
+with the jars.
+
+==== Editing bundles configuration
+In /openmuc/framework/conf/bundles.conf.gradle you can find the list of all used
+bundles e.g.:
+
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base", version: openmucVersion
+----
+
+If you want to add a new driver to the list, e.g. M-Bus, you can do this:
+
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc",           name: "jrxtx",               version: "1.0.1"
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",   version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base",  version: openmucVersion
+----
+
+Afterwards you have to execute in /openmuc/framework/bin/
+----
+./openmuc update-bundles
+----
+If this is the first time using ./openmuc update-bundles you have to add the parameter -i
+----
+./openmuc update-bundles -i
+----
+
+==== Use a Driver with Serial Communication
+
+When you need to use a driver that uses serial communication you have
+to copy the RXTX bundle to the frameworks "bundle" folder.
+
+----
+cp ../dependencies/rxtx/jrxtx-1.0.1.jar ./bundle/
+----
+
+Additionally you need to install librxtx-java:
+
+----
+sudo apt-get install librxtx-java
+----
+
+The serial ports /dev/tty* are only accessible to members belonging to
+the group dialout. We therefore have to add our user to that
+group. E.g. using:
+
+----
+sudo adduser <yourUserName> dialout
+----
+
+
 === Modbus
 
 
@@ -633,7 +698,44 @@ In order to read specific channel, corresponding SNMP OID shall be passed.
 For scanning SNMP enabled devices in the network, range of IP addresses shall be
 provided. This functionality is implemented only for SNMP V2c.
 
+=== CSV ===
 
+The csv driver supports sampling from a csv file. This feature can be very helpful during application development or show cases, when no real hardware is available. For example, our SimpleDemoApp uses data provided by the csv driver.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | csv
+|Device Address | path to csv file (e.g. /path/to/my.csv) 
+|Settings | samplingmode=<samplingmode>[;rewind=<rewind>]
+|Channel Address | column name
+|=========================================================
+
+*Settings*
+
+* *Samplingmode* configures how the csv file is sampled. Currently, three different modes are supported:
+** line - starts sampling from the first line of the csv file. Timestamps are ignored and each sampling reads the next line. 
+** unixtimestamp - csv file must contain a column with the name __unixtimestamp__, values must be in milliseconds. During sampling the driver searches the closest unixtimestamp which is &gt;= the sampling timestamp. Therefore, the driver keeps returning the same value for sampling timestamps which are before the next unixtimestamp of the csv file.
+** hhmmss - csv file must contain a column with the name __hhmmss__ and the time values must be in the format: hhmmss. 
+
+* *rewind* - If __true__ and the last line of the csv file is reached, then the driver will start sampling again from first line. This option can only be used in combination with sampling mode __hhmmss__ or __line__.
+
+The columns _unixtimestamp_ and _hhmmss_ are part of the log files created by the AsciiLogger, therefore the csv driver supports these files.
+
+.Example configuration for csv driver
+[source,xml]
+----
+<device id="smarthome">
+  <description/>
+  <deviceAddress>./csv-driver/smarthome.csv</deviceAddress>
+  <settings>samplingmode=hhmmss;rewind=true</settings>
+  <channel id="power_pv">
+    <channelAddress>power_photovoltaics</channelAddress>
+    <unit>W</unit>
+    <samplingInterval>5s</samplingInterval>
+    <loggingInterval>5s</loggingInterval>
+</channel>
+----
 
 
 === Aggregator

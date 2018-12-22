@@ -1,9 +1,12 @@
 (function () {
 
-    var injectParams = ['$scope', '$stateParams', '$state', '$q', '$translate', 'ChannelsService', '$alert', 'ChannelDataService'];
+    var injectParams = ['$scope', '$stateParams', '$state', '$q', '$translate', 'ChannelsService', 'notify', 'ChannelDataService'];
     var noData;
 
-    var DataPlotterController = function ($scope, $stateParams, $state, $q, $translate, ChannelsService, $alert, ChannelDataService) {
+    var DataPlotterController = function ($scope, $stateParams, $state, $q, $translate, ChannelsService, notify, ChannelDataService) {
+
+        $scope.mstep = 1;
+        $scope.options = {mstep: [1, 5, 10, 15]}
 
         if ($stateParams.name) {
             $scope.dataPlotter = $scope.getPlotter($stateParams.name);
@@ -26,22 +29,6 @@
 
         }
 
-        if ($scope.dataPlotter && $scope.dataPlotter.yAxisLabel) {
-            $scope.yLabel = $scope.dataPlotter.yAxisLabel;
-        } else {
-            $translate('VALUES').then((text) = > $scope.yLabel = text
-        )
-            ;
-        }
-
-        if ($scope.dataPlotter && $scope.dataPlotter.xAxisLabel) {
-            $scope.xLabel = $scope.dataPlotter.xAxisLabel;
-        } else {
-            $translate('TIME').then((text) = > $scope.xLabel = text
-        )
-            ;
-        }
-
         $scope.isTS = $scope.dataPlotter && $scope.dataPlotter.isTS;
 
         $translate('NO_DATA_TO_DISPLAY').then(text = > noData = text
@@ -51,8 +38,10 @@
         $scope.channels = [];
         $scope.selectedChannels = [];
 
-        ChannelsService.getAllChannelsIds().then(function (channels) {
+        ChannelsService.getAllChannels().then(async
 
+        function (channels) {
+            channels = channels.records;
             var allConfigChannelsDefined = false;
 
             if ($scope.dataPlotter && $scope.dataPlotter.channels) {
@@ -70,48 +59,129 @@
                 ;
             } else {
                 $scope.channels = channels.map((channel) = > {
-                    return {id: channel, label: channel, preselect: false};
+                    return {id: channel.id, label: channel.id, preselect: false, valueType: channel.valueType};
             })
                 ;
 
-                $scope.channels.forEach(c = > {
-                    ChannelDataService.channelHasHistoricValues(c).then(r = > c.historic = r
-            )
-                ;
-            })
-                ;
+                for (let channel of $scope.channels) {
+                    var config = await
+                    ChannelDataService.channelHasHistoricValues(channel);
+                    if (config != false) {
+                        channel.historic = await
+                        config;
+                        var logging = await
+                        ChannelDataService.getChannelConfig(channel, 'loggingInterval');
+                        channel.loggingInterval = await
+                        logging.loggingInterval;
+                    }
+                }
+
+                for (let channel of $scope.channels) {
+                    //console.log(channel.preselect);
+                    if (channel.preselect === 'true') {
+                        $scope.selectedChannels.push(channel);
+                    }
+                    var config = await
+                    ChannelDataService.getChannelConfig(channel, 'unit');
+                    if (config === true) {
+                    } else {
+                        channel.unit = await
+                        config.unit;
+                    }
+                }
             }
             //console.log($scope.channels);
 
-        });
+        }
 
-        nv.addGraph(function () {
-            var data = [];
-            buildChart(data);
-        });
-
+    )
+        ;
 
         var buildChart = function (data) {
-            var chart = nv.models.lineChart()
-                .margin({left: 70, right: 22})  //Adjust chart margins to give the x-axis some breathing room.
+            var chart = nv.models.lineWithFocusChart()
+                .margin({left: 55, right: 25})  //Adjust chart margins to give the x-axis some breathing room.
                 .interactive(true)
                 .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
-                .showLegend(false)       //Show the legend, allowing users to turn on/off line series.
+                .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
                 .showYAxis(true)        //Show the y-axis
                 .showXAxis(true)        //Show the x-axis
-                .tooltips(true)
                 .forceY(plotRange())
                 .noData(noData)
                 .width(450)
                 .height(300);
 
+            chart.legend.maxKeyLength(100);
+
+            if (data == undefined) {
+                console.log(data);
+                chart.useInteractiveGuideline(false);
+                chart.showXAxis(false);
+            }
+
+            chart.interactiveLayer.tooltip.contentGenerator(function (d) {
+                var unixDate = new Date(d.value + 1000);
+                var month = unixDate.getMonth() + 1;
+                var date = ('0' + unixDate.getDate()).slice(-2);
+                var hour = unixDate.getHours();
+                var min = ('0' + unixDate.getMinutes()).slice(-2);
+                var time = date + '.' + month + '. ' + hour + ':' + min;
+                var header = time;
+                var headerhtml = "<thead><tr><td colspan='3'><strong class='x-value'>" + header + "</strong></td></tr></thead>";
+                var bodyhtml = "<tbody>";
+                var series = d.series;
+                series.forEach((c, i) = > {
+                    var unit;
+                let channel = data.find(o = > o.key === c.key
+            )
+                ;
+                if (channel.unit == undefined) {
+                    unit = '';
+                } else {
+                    unit = ' ' + channel.unit;
+                }
+                var valueUnit;
+                if (c.value == undefined) {
+                    valueUnit = 'undefined';
+                } else {
+                    valueUnit = c.value.toFixed(3) + unit;
+                }
+
+                bodyhtml = bodyhtml + '<tr><td class="legend-color-guide"><div style="background-color: ' + c.color + ';"></div></td><td class="key">' + c.key
+                    + '</td><td class="value">' + valueUnit
+                    + '</td></tr>';
+
+            })
+                ;
+                bodyhtml = bodyhtml + '</tbody>';
+                return "<table>" + headerhtml + '' + bodyhtml + "</table>";
+            });
+
+            data.forEach((c, i) = > {
+                let channel = data.find(o = > o.key === c.key
+        )
+            ;
+            position = data.indexOf(channel);
+            channel.values.forEach(function (value) {
+                valuePosition = channel.values.indexOf(value);
+                if (value.x !== channel.values[valuePosition + 1].x - channel.loggingInterval && value.y !== null) {
+                    data[position].values.splice(valuePosition + 1, 0, {
+                        x: value.x + channel.loggingInterval,
+                        y: null,
+                        series: 0
+                    });
+                }
+            });
+        })
+            ;
+
             chart.xAxis     //Chart x-axis settings
-                .axisLabel(xAxisLabel())
                 .tickFormat(xAxisTickFormat());
 
             chart.yAxis     //Chart y-axis settings
-                .axisLabel(yAxisLabel())
-                .tickFormat(yAxisTickFormat());
+                .tickFormat(d3.format('.03f'));
+
+            chart.x2Axis     //Chart x-axis settings
+                .tickFormat(xAxisTickFormat());
 
             /* Done setting the chart up? Time to render it!*/
             //     d3.select('#graph svg')    //Select the <svg> element you want to render the chart in.
@@ -124,9 +194,18 @@
             nv.utils.windowResize(() = > chart.update()
         )
             ;
-
+            d3.selectAll('.nv-series')[0].forEach(function (d, i) {
+                var group = d3.select(d);
+                var circle = group.select('circle');
+                circle.attr('transform', 'scale(0.6)');
+            });
             return chart;
         };
+
+        nv.addGraph(function () {
+            var data = [];
+            buildChart(data);
+        });
 
         $scope.channelPlottable = function (channel) {
             return channel.historic && (channel.valueType !== 'STRING');
@@ -141,7 +220,9 @@
                     return {
                         key: channel.id,
                         values: response,
-                        color: channel.color
+                        color: channel.color,
+                        unit: channel.unit,
+                        loggingInterval: channel.loggingInterval
                     };
                 });
             }
@@ -151,7 +232,9 @@
                     return {
                         key: channel.label,
                         values: response,
-                        color: channel.color
+                        color: channel.color,
+                        unit: channel.unit,
+                        loggingInterval: channel.loggingInterval
                     };
                 });
             }
@@ -162,22 +245,14 @@
                 var d2 = d.filter((c) = > c.values.length !== 0
         )
             ;
-
             if (d2.length !== d.length) {
-                $alert({content: 'Can not plot all channels.', type: 'warning'});
+                notify({message: 'Can not plot all channels', position: "right", classes: "alert-warning"});
             }
             buildChart(d2);
         })
             ;
         };
 
-        var xAxisLabel = function () {
-            return $scope.xLabel;
-        };
-
-        var yAxisLabel = function () {
-            return $scope.yLabel;
-        };
         /*
          var insertLinebreaks = function (d) {
          var el = d3.select(this).text();
@@ -232,7 +307,7 @@
         var xAxisTickFormat = function () {
             return (d) =
         >
-            d3.time.format('%m.%d. %H:%M')(new Date(d));
+            d3.time.format('%d.%m. %H:%M')(new Date(d));
             //var xRange = xRangeHrs();
             //if(xRange <= 48){
             //	return function (d) {
@@ -246,14 +321,16 @@
 
         };
 
-        var yAxisTickFormat = function () {
-            return d =
-        >
-            d;
-        };
-
         $scope.disabledPlot = function () {
-            return $scope.selectedChannels.length == 0;// || $scope.selectedChannels.length > 3;
+            if ($scope.selectedChannels.length === 0) {
+                return true;
+            } else {
+                if ($scope.startDate === null || $scope.endDate === null) {
+                    return true;
+                } else {
+                    return false
+                }
+            }
         };
 
         var plotRange = function () {

@@ -12,8 +12,9 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 
 /**
  * @author bonino
- * <p>
- * https://github.com/dog-gateway/jamod-rtu-over-tcp
+ * 
+ *         https://github.com/dog-gateway/jamod-rtu-over-tcp
+ * 
  */
 public class ModbusRTUTCPTransaction implements ModbusTransaction {
 
@@ -38,8 +39,9 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     /**
      * Constructs a new <tt>ModbusTCPTransaction</tt> instance with a given <tt>ModbusRequest</tt> to be send when the
      * transaction is executed.
-     *
-     * @param request a <tt>ModbusRequest</tt> instance.
+     * 
+     * @param request
+     *            a <tt>ModbusRequest</tt> instance.
      */
     public ModbusRTUTCPTransaction(ModbusRequest request) {
         setRequest(request);
@@ -48,8 +50,9 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     /**
      * Constructs a new <tt>ModbusTCPTransaction</tt> instance with a given <tt>TCPMasterConnection</tt> to be used for
      * transactions.
-     *
-     * @param con a <tt>TCPMasterConnection</tt> instance.
+     * 
+     * @param con
+     *            a <tt>TCPMasterConnection</tt> instance.
      */
     public ModbusRTUTCPTransaction(RTUTCPMasterConnection con) {
         setConnection(con);
@@ -60,8 +63,9 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
      * Sets the connection on which this <tt>ModbusTransaction</tt> should be executed.
      * <p>
      * An implementation should be able to handle open and closed connections. <br>
-     *
-     * @param con a <tt>TCPMasterConnection</tt>.
+     * 
+     * @param con
+     *            a <tt>TCPMasterConnection</tt>.
      */
     public void setConnection(RTUTCPMasterConnection con) {
         m_Connection = con;
@@ -69,14 +73,14 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     }// setConnection
 
     @Override
-    public ModbusRequest getRequest() {
-        return m_Request;
-    }// getRequest
-
-    @Override
     public void setRequest(ModbusRequest req) {
         m_Request = req;
     }// setRequest
+
+    @Override
+    public ModbusRequest getRequest() {
+        return m_Request;
+    }// getRequest
 
     @Override
     public ModbusResponse getResponse() {
@@ -101,32 +105,33 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     }// getTransactionID
 
     @Override
-    public boolean isCheckingValidity() {
-        return m_ValidityCheck;
-    }// isCheckingValidity
-
-    @Override
     public void setCheckingValidity(boolean b) {
         m_ValidityCheck = b;
     }// setCheckingValidity
 
+    @Override
+    public boolean isCheckingValidity() {
+        return m_ValidityCheck;
+    }// isCheckingValidity
+
+    /**
+     * Sets the flag that controls whether a connection is openend and closed for <b>each</b> execution or not.
+     * 
+     * @param b
+     *            true if reconnecting, false otherwise.
+     */
+    public void setReconnecting(boolean b) {
+        m_Reconnecting = b;
+    }// setReconnecting
+
     /**
      * Tests if the connection will be openend and closed for <b>each</b> execution.
-     *
+     * 
      * @return true if reconnecting, false otherwise.
      */
     public boolean isReconnecting() {
         return m_Reconnecting;
     }// isReconnecting
-
-    /**
-     * Sets the flag that controls whether a connection is openend and closed for <b>each</b> execution or not.
-     *
-     * @param b true if reconnecting, false otherwise.
-     */
-    public void setReconnecting(boolean b) {
-        m_Reconnecting = b;
-    }// setReconnecting
 
     @Override
     public int getRetries() {
@@ -184,7 +189,7 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
                         }
                     } while (m_Response != null
                             && (!isCheckingValidity() || (m_Request.getTransactionID() != 0
-                            && m_Request.getTransactionID() != m_Response.getTransactionID()))
+                                    && m_Request.getTransactionID() != m_Response.getTransactionID()))
                             && ++retryCounter < retryLimit);
 
                     if (retryCounter >= retryLimit) {
@@ -240,8 +245,9 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
 
     /**
      * checkValidity -- Verify the transaction IDs match or are zero.
-     *
-     * @throws ModbusException if the transaction was not valid.
+     * 
+     * @throws ModbusException
+     *             if the transaction was not valid.
      */
     private void checkValidity() throws ModbusException {
         if (m_Request.getTransactionID() == 0 || m_Response.getTransactionID() == 0) {
@@ -263,7 +269,8 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
         if (isCheckingValidity()) {
             if (c_TransactionID >= Modbus.MAX_TRANSACTION_ID) {
                 c_TransactionID = 1;
-            } else {
+            }
+            else {
                 c_TransactionID++;
             }
         }

@@ -1,18 +1,18 @@
 <div ng-controller="TabsController">
     <div ng-if="!confFile">
-        <ul class="nav nav-tabs">
-            <li ng-class="{active: isDataPlotterPage()}" role="presentation"><a ui-sref="dataplotter.data">{{'DATA_PLOTTER'
-                | translate}}</a></li>
-            <li ng-class="{active: isLivePlotterPage()}" role="presentation"><a ui-sref="dataplotter.live">{{'LIVE_PLOTTER'
-                | translate}}</a></li>
-        </ul>
+        <uib-tabset class="nav nav-tabs">
+            <uib-tab class="nav-item active" data-toggle="tab" heading="{{'DATA_PLOTTER' | translate}}"
+                     ui-sref="dataplotter.data"></uib-tab>
+            <uib-tab class="nav-item active" data-toggle="tab" heading="{{'LIVE_PLOTTER' | translate}}"
+                     ui-sref="dataplotter.live"></uib-tab>
+        </uib-tabset>
     </div>
     <div ng-if="confFile">
-        <ul class="nav nav-tabs">
-            <li ng-repeat="plotter in confFile" role="presentation">
-                <a ng-class="{active: isPlotterPageActive(plotter.type, plotter.name)}"
-                   ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})">{{plotter.name}}</a>
-            </li>
-        </ul>
+        <uib-tabset active="activeTabIndex" class="nav nav-tabs">
+            <uib-tab class="nav-item" heading="{{plotter.name}}" index="plotter.name"
+                     ng-click="setTabIndex(plotter.name)" ng-repeat="plotter in confFile"
+                     ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})">
+            </uib-tab>
+        </uib-tabset>
     </div>
 </div>

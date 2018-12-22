@@ -25,52 +25,49 @@ import org.slf4j.LoggerFactory;
 
 public class ModbusChannel {
 
-    /**
-     * A Parameter of the channel address
-     */
-    public static final int IGNORE_UNIT_ID = -1;
     private static final Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
-    /**
-     * A Parameter of the channel address
-     */
+
+    /** Contains values to define the access method of the channel */
+    public static enum EAccess {
+        READ,
+        WRITE
+    }
+
+    /** A Parameter of the channel address */
+    public static final int IGNORE_UNIT_ID = -1;
+
+    /** A Parameter of the channel address */
     private static final int UNITID = 0;
-    /**
-     * A Parameter of the channel address
-     */
+
+    /** A Parameter of the channel address */
     private static final int PRIMARYTABLE = 1;
-    /**
-     * A Parameter of the channel address
-     */
+
+    /** A Parameter of the channel address */
     private static final int ADDRESS = 2;
-    /**
-     * A Parameter of the channel address
-     */
+
+    /** A Parameter of the channel address */
     private static final int DATATYPE = 3;
-    /**
-     * Start address to read or write from
-     */
+
+    /** Start address to read or write from */
     private int startAddress;
-    /**
-     * Number of registers/coils to be read or written
-     */
+
+    /** Number of registers/coils to be read or written */
     private int count;
-    /**
-     * Used to determine the register/coil count
-     */
+
+    /** Used to determine the register/coil count */
     private EDatatype datatype;
-    /**
-     * Used to determine the appropriate transaction method
-     */
+
+    /** Used to determine the appropriate transaction method */
     private EFunctionCode functionCode;
-    /**
-     * Specifies whether the channel should be read or written
-     */
+
+    /** Specifies whether the channel should be read or written */
     private EAccess accessFlag;
-    /**
-     *
-     */
+
+    /** */
     private EPrimaryTable primaryTable;
+
     private String channelAddress;
+
     /**
      * Is needed when the target device is behind a gateway/bridge which connects Modbus TCP with Modbus+ or Modbus
      * Serial. Note: Some devices requires the unitId even if they are in a Modbus TCP Network and have their own IP.
@@ -92,7 +89,8 @@ public class ModbusChannel {
             setCount(addressParams[DATATYPE]);
             setAccessFlag(accessFlag);
             setFunctionCode();
-        } else {
+        }
+        else {
             throw new RuntimeException("Address initialization faild! Invalid parameters used: " + channelAddress);
         }
 
@@ -112,12 +110,14 @@ public class ModbusChannel {
             param[PRIMARYTABLE] = addressParams[0];
             param[ADDRESS] = addressParams[1];
             param[DATATYPE] = addressParams[2];
-        } else if (addressParams.length == 4) {
+        }
+        else if (addressParams.length == 4) {
             param[UNITID] = addressParams[0];
             param[PRIMARYTABLE] = addressParams[1];
             param[ADDRESS] = addressParams[2];
             param[DATATYPE] = addressParams[3];
-        } else {
+        }
+        else {
             return null;
         }
         return param;
@@ -136,89 +136,96 @@ public class ModbusChannel {
     private void setFunctionCode() {
         if (accessFlag.equals(EAccess.READ)) {
             setFunctionCodeForReading();
-        } else {
+        }
+        else {
             setFunctionCodeForWriting();
         }
     }
 
     /**
      * Matches data type with function code
-     *
+     * 
      * @throws Exception
      */
     private void setFunctionCodeForReading() {
 
         switch (datatype) {
-            case BOOLEAN:
-                if (primaryTable.equals(EPrimaryTable.COILS)) {
-                    functionCode = EFunctionCode.FC_01_READ_COILS;
-                } else if (primaryTable.equals(EPrimaryTable.DISCRETE_INPUTS)) {
-                    functionCode = EFunctionCode.FC_02_READ_DISCRETE_INPUTS;
-                } else {
-                    invalidReadAddressParameterCombination();
-                }
-                break;
-            case SHORT:
-            case INT16:
-            case INT32:
-            case UINT16:
-            case UINT32:
-            case FLOAT:
-            case DOUBLE:
-            case LONG:
-            case BYTEARRAY:
-                if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-                    functionCode = EFunctionCode.FC_03_READ_HOLDING_REGISTERS;
-                } else if (primaryTable.equals(EPrimaryTable.INPUT_REGISTERS)) {
-                    functionCode = EFunctionCode.FC_04_READ_INPUT_REGISTERS;
-                } else {
-                    invalidReadAddressParameterCombination();
-                }
-                break;
-            default:
-                throw new RuntimeException("read: Datatype " + datatype.toString() + " not supported yet!");
+        case BOOLEAN:
+            if (primaryTable.equals(EPrimaryTable.COILS)) {
+                functionCode = EFunctionCode.FC_01_READ_COILS;
+            }
+            else if (primaryTable.equals(EPrimaryTable.DISCRETE_INPUTS)) {
+                functionCode = EFunctionCode.FC_02_READ_DISCRETE_INPUTS;
+            }
+            else {
+                invalidReadAddressParameterCombination();
+            }
+            break;
+        case SHORT:
+        case INT16:
+        case INT32:
+        case UINT16:
+        case UINT32:
+        case FLOAT:
+        case DOUBLE:
+        case LONG:
+        case BYTEARRAY:
+            if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+                functionCode = EFunctionCode.FC_03_READ_HOLDING_REGISTERS;
+            }
+            else if (primaryTable.equals(EPrimaryTable.INPUT_REGISTERS)) {
+                functionCode = EFunctionCode.FC_04_READ_INPUT_REGISTERS;
+            }
+            else {
+                invalidReadAddressParameterCombination();
+            }
+            break;
+        default:
+            throw new RuntimeException("read: Datatype " + datatype.toString() + " not supported yet!");
         }
     }
 
     private void setFunctionCodeForWriting() {
         switch (datatype) {
-            case BOOLEAN:
-                if (primaryTable.equals(EPrimaryTable.COILS)) {
-                    functionCode = EFunctionCode.FC_05_WRITE_SINGLE_COIL;
-                } else {
-                    invalidWriteAddressParameterCombination();
-                }
-                break;
-            // case BYTE_HIGH:
-            // case BYTE_LOW:
-            // // case SHORT:
-            // case INT8:
-            // case UINT8:
-            // if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-            // functionCode = EFunctionCode.FC_06_WRITE_SINGLE_REGISTER;
-            // }
-            // else {
-            // invalidWriteAddressParameterCombination();
-            // }
-            // break;
-            // case INT:
-            case SHORT:
-            case INT16:
-            case INT32:
-            case UINT16:
-            case UINT32:
-            case FLOAT:
-            case DOUBLE:
-            case LONG:
-            case BYTEARRAY:
-                if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
-                    functionCode = EFunctionCode.FC_16_WRITE_MULTIPLE_REGISTERS;
-                } else {
-                    invalidWriteAddressParameterCombination();
-                }
-                break;
-            default:
-                throw new RuntimeException("write: Datatype " + datatype.toString() + " not supported yet!");
+        case BOOLEAN:
+            if (primaryTable.equals(EPrimaryTable.COILS)) {
+                functionCode = EFunctionCode.FC_05_WRITE_SINGLE_COIL;
+            }
+            else {
+                invalidWriteAddressParameterCombination();
+            }
+            break;
+        // case BYTE_HIGH:
+        // case BYTE_LOW:
+        // // case SHORT:
+        // case INT8:
+        // case UINT8:
+        // if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+        // functionCode = EFunctionCode.FC_06_WRITE_SINGLE_REGISTER;
+        // }
+        // else {
+        // invalidWriteAddressParameterCombination();
+        // }
+        // break;
+        // case INT:
+        case SHORT:
+        case INT16:
+        case INT32:
+        case UINT16:
+        case UINT32:
+        case FLOAT:
+        case DOUBLE:
+        case LONG:
+        case BYTEARRAY:
+            if (primaryTable.equals(EPrimaryTable.HOLDING_REGISTERS)) {
+                functionCode = EFunctionCode.FC_16_WRITE_MULTIPLE_REGISTERS;
+            }
+            else {
+                invalidWriteAddressParameterCombination();
+            }
+            break;
+        default:
+            throw new RuntimeException("write: Datatype " + datatype.toString() + " not supported yet!");
         }
     }
 
@@ -232,24 +239,29 @@ public class ModbusChannel {
                 + datatype.toString().toUpperCase() + " PrimaryTable: " + primaryTable.toString().toUpperCase());
     }
 
-    public EPrimaryTable getPrimaryTable() {
-        return primaryTable;
+    private void setStartAddress(String startAddress) {
+        this.startAddress = Integer.parseInt(startAddress);
+    }
+
+    private void setDatatype(String datatype) {
+        this.datatype = EDatatype.getEnum(datatype);
+    }
+
+    private void setUnitId(String unitId) {
+        if (unitId.equals("")) {
+            this.unitId = IGNORE_UNIT_ID;
+        }
+        else {
+            this.unitId = Integer.parseInt(unitId);
+        }
     }
 
     private void setPrimaryTable(String primaryTable) {
         this.primaryTable = EPrimaryTable.getEnumfromString(primaryTable);
     }
 
-    public int getStartAddress() {
-        return startAddress;
-    }
-
-    private void setStartAddress(String startAddress) {
-        this.startAddress = Integer.parseInt(startAddress);
-    }
-
-    public int getCount() {
-        return count;
+    public EPrimaryTable getPrimaryTable() {
+        return primaryTable;
     }
 
     private void setCount(String addressParamDatatyp) {
@@ -261,18 +273,27 @@ public class ModbusChannel {
             if (datatypParts.length == 2) {
                 count = Integer.parseInt(datatypParts[1]);
             }
-        } else {
+        }
+        else {
             // all other datatyps
             count = datatype.getRegisterSize();
         }
     }
 
-    public EDatatype getDatatype() {
-        return datatype;
+    private void setAccessFlag(EAccess accessFlag) {
+        this.accessFlag = accessFlag;
     }
 
-    private void setDatatype(String datatype) {
-        this.datatype = EDatatype.getEnum(datatype);
+    public int getStartAddress() {
+        return startAddress;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public EDatatype getDatatype() {
+        return datatype;
     }
 
     public EFunctionCode getFunctionCode() {
@@ -283,20 +304,8 @@ public class ModbusChannel {
         return accessFlag;
     }
 
-    private void setAccessFlag(EAccess accessFlag) {
-        this.accessFlag = accessFlag;
-    }
-
     public int getUnitId() {
         return unitId;
-    }
-
-    private void setUnitId(String unitId) {
-        if (unitId.equals("")) {
-            this.unitId = IGNORE_UNIT_ID;
-        } else {
-            this.unitId = Integer.parseInt(unitId);
-        }
     }
 
     public String getChannelAddress() {
@@ -307,14 +316,6 @@ public class ModbusChannel {
     public String toString() {
         return "channeladdress: " + unitId + ":" + primaryTable.toString() + ":" + startAddress + ":"
                 + datatype.toString();
-    }
-
-    /**
-     * Contains values to define the access method of the channel
-     */
-    public static enum EAccess {
-        READ,
-        WRITE
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-17 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,6 +21,13 @@
 
 package org.openmuc.framework.driver.ehz;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
@@ -32,17 +39,11 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 public class IecConnection extends GeneralConnection {
 
-    private static Logger logger = LoggerFactory.getLogger(IecConnection.class);
     private IecReceiver receiver;
+
+    private static Logger logger = LoggerFactory.getLogger(IecConnection.class);
 
     public IecConnection(String deviceAddress, int timeout) throws ConnectionException {
         try {

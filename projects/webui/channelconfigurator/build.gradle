@@ -3,8 +3,8 @@ def projectDescription = "Channel Configurator plug-in for the WebUI of the Open
 
 
 dependencies {
-    compile project(':openmuc-core-api')
-    compile project(':openmuc-webui-spi')
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-webui-spi')
 }
 
 jar {

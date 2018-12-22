@@ -34,7 +34,7 @@ public interface ChannelValueContainer {
 
     Value getValue();
 
-    Flag getFlag();
-
     void setFlag(Flag flag);
+
+    Flag getFlag();
 }

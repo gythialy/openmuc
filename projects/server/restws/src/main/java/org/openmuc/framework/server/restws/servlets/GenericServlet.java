@@ -20,6 +20,16 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.config.ConfigChangeListener;
 import org.openmuc.framework.config.ConfigService;
@@ -28,15 +38,6 @@ import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.lib.json.ToJson;
 import org.openmuc.framework.server.restws.RestServer;
 import org.slf4j.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 public abstract class GenericServlet extends HttpServlet implements ConfigChangeListener {
 
@@ -110,7 +111,8 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, logger,
                     "Requested rest was not a json media type. Requested media type is: " + request.getContentType());
             pathAndQueryString = null;
-        } else {
+        }
+        else {
             pathAndQueryString[0] = pathInfo;
             pathAndQueryString[1] = queryStr;
         }

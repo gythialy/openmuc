@@ -1,7 +1,7 @@
 
 project.ext {
 
-  cfgVersion = "0.17.1"
+  cfgVersion = "0.17.2"
   
   cfgGroup = "org.openmuc.framework"
 
@@ -51,6 +51,7 @@ project.ext {
     it.getPath() == ":openmuc-webui-dataexporter" ||
     it.getPath() == ":openmuc-webui-dataplotter" ||
     it.getPath() == ":openmuc-webui-mediaviewer" ||
+    it.getPath() == ":openmuc-webui-simpledemovisualisation" ||
     it.getPath() == ":openmuc-webui-spi" ||
     it.getPath() == ":openmuc-webui-userconfigurator"
   }

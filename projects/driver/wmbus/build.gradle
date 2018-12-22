@@ -1,17 +1,16 @@
-def projectName = 'OpenMUC Driver - wM-Bus'
-def projectDescription = 'M-Bus wireless driver for the OpenMUC framework.'
+def projectName = "OpenMUC Driver - wM-Bus"
+def projectDescription = "M-Bus wireless driver for the OpenMUC framework."
 
 configurations.create('embed')
 
-def jmbusversion = '3.1.1'
+def jmbusversion = '3.2.0'
 def jrxtxversion = '1.0.1'
 
 dependencies {
+    implementation project(':openmuc-core-spi')
 
-    compile group: 'org.openmuc', name: 'jmbus', version: jmbusversion
+    implementation group: 'org.openmuc', name: 'jmbus', version: jmbusversion
     embed group: 'org.openmuc', name: 'jmbus', version: jmbusversion
-
-    compile project(':openmuc-core-spi')
 }
 
 jar {

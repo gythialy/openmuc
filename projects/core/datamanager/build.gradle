@@ -1,10 +1,10 @@
-def projectName = 'OpenMUC Core - Data Manager'
+def projectName = "OpenMUC Core - Data Manager"
 
 dependencies {
     testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 
-    compile project(':openmuc-core-spi')
-    compile group: 'org.apache.felix', name: 'org.apache.felix.gogo.runtime', version: '0.16.2'
+    implementation project(':openmuc-core-spi')
+    implementation group: 'org.apache.felix', name: 'org.apache.felix.gogo.runtime', version: '1.1.0'
 }
 
 jar {
@@ -19,7 +19,7 @@ uploadArchives {
         mavenDeployer {
             pom.project {
                 name projectName
-                description 'The data manager is the core bundle of the OpenMUC framework.'
+                description "The data manager is the core bundle of the OpenMUC framework."
             }
         }
     }

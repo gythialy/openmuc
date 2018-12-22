@@ -1,8 +1,8 @@
 def projectName = "OpenMUC Data Logger - ASCII"
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile project(':openmuc-core-datamanager')
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-datamanager')
 }
 
 jar {

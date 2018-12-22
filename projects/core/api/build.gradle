@@ -1,15 +1,14 @@
-def projectName = 'OpenMUC Core - API'
+def projectName = "OpenMUC Core - API"
 
 dependencies {
-    compile group: 'org.osgi', name: 'org.osgi.core', version: '6.0.0'
-    compile group: 'org.osgi', name: 'org.osgi.service.component.annotations', version: '1.3.0'
-    compile group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '2.0.10'
-    //compile group: 'org.apache.felix', name: 'org.apache.felix.http.api', version: '3.0.0'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    compile group: 'org.osgi', name: 'org.osgi.service.http', version: '1.2.1'
-    compile group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+    api group: 'org.osgi', name: 'osgi.core', version: '7.0.0'
+    api group: 'org.osgi', name: 'org.osgi.service.component.annotations', version: '1.4.0'
+    api group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '2.1.14'
+    api group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
+    api group: 'org.osgi', name: 'org.osgi.service.http', version: '1.2.1'
+    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
-    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 }
 
 jar {
@@ -24,7 +23,7 @@ uploadArchives {
         mavenDeployer {
             pom.project {
                 name projectName
-                description 'The core API of the OpenMUC framework.'
+                description "The core API of the OpenMUC framework."
             }
         }
     }

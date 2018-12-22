@@ -22,6 +22,7 @@ package org.openmuc.framework.driver.knx.value;
 
 import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.Value;
+
 import tuwien.auto.calimero.dptxlator.DPTXlator4ByteSigned;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
@@ -33,22 +34,22 @@ public class KnxValue4ByteSigned extends KnxValue {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
-     */
-    @Override
-    public Value getOpenMucValue() {
-        return new IntValue(((DPTXlator4ByteSigned) dptXlator).getValueSigned());
-    }
-
-    /*
-     * (non-Javadoc)
-     *
+     * 
      * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
      */
     @Override
     public void setOpenMucValue(Value value) throws KNXFormatException {
         ((DPTXlator4ByteSigned) dptXlator).setValue(value.asInt());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
+     */
+    @Override
+    public Value getOpenMucValue() {
+        return new IntValue(((DPTXlator4ByteSigned) dptXlator).getValueSigned());
     }
 
 }

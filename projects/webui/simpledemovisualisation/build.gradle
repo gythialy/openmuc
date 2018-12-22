@@ -1,0 +1,25 @@
+def projectName = "OpenMUC WebUI - Simple Demo Visualisation"
+def projectDescription = "Simple Demo Visualisation plug-in for the WebUI of the OpenMUC framework."
+
+dependencies {
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-webui-spi')
+}
+
+jar {
+    manifest {
+        name = projectName
+        instruction 'Export-Package', ''
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
+    }
+}

@@ -21,6 +21,11 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import org.openmuc.framework.config.DeviceConfig;
 import org.openmuc.framework.config.DriverConfig;
 import org.openmuc.framework.config.IdCollisionException;
@@ -31,18 +36,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
 public final class DriverConfigImpl implements DriverConfig {
 
-    final HashMap<String, DeviceConfigImpl> deviceConfigsById = new LinkedHashMap<>();
     String id;
     Integer samplingTimeout = null;
     Integer connectRetryInterval = null;
     Boolean disabled = null;
+
+    final HashMap<String, DeviceConfigImpl> deviceConfigsById = new LinkedHashMap<>();
+
     RootConfigImpl rootConfigParent;
 
     DriverService activeDriver = null;
@@ -50,61 +52,6 @@ public final class DriverConfigImpl implements DriverConfig {
     DriverConfigImpl(String id, RootConfigImpl rootConfigParent) {
         this.id = id;
         this.rootConfigParent = rootConfigParent;
-    }
-
-    static void addDriverFromDomNode(Node driverConfigNode, RootConfigImpl parentConfig) throws ParseException {
-
-        String id = ChannelConfigImpl.getAttributeValue(driverConfigNode, "id");
-        if (id == null) {
-            throw new ParseException("driver has no id attribute");
-        }
-
-        DriverConfigImpl config;
-        try {
-            config = parentConfig.addDriver(id);
-        } catch (IdCollisionException e) {
-            throw new ParseException(e);
-        }
-
-        parseDiverNode(driverConfigNode, config);
-    }
-
-    private static void parseDiverNode(Node driverConfigNode, DriverConfigImpl config) throws ParseException {
-        NodeList driverChildren = driverConfigNode.getChildNodes();
-
-        try {
-            for (int j = 0; j < driverChildren.getLength(); j++) {
-                Node childNode = driverChildren.item(j);
-                String childName = childNode.getNodeName();
-
-                switch (childName) {
-                    case "#text":
-                        continue;
-
-                    case "device":
-                        DeviceConfigImpl.addDeviceFromDomNode(childNode, config);
-                        break;
-
-                    case "samplingTimeout":
-                        config.setSamplingTimeout(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
-                        break;
-
-                    case "connectRetryInterval":
-                        config.setConnectRetryInterval(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
-                        break;
-
-                    case "disabled":
-                        String disabledString = childNode.getTextContent();
-                        config.disabled = Boolean.parseBoolean(disabledString);
-                        break;
-                    default:
-                        throw new ParseException("found unknown tag:" + childName);
-                }
-
-            }
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(e);
-        }
     }
 
     @Override
@@ -206,6 +153,61 @@ public final class DriverConfigImpl implements DriverConfig {
         rootConfigParent = null;
     }
 
+    static void addDriverFromDomNode(Node driverConfigNode, RootConfigImpl parentConfig) throws ParseException {
+
+        String id = ChannelConfigImpl.getAttributeValue(driverConfigNode, "id");
+        if (id == null) {
+            throw new ParseException("driver has no id attribute");
+        }
+
+        DriverConfigImpl config;
+        try {
+            config = parentConfig.addDriver(id);
+        } catch (IdCollisionException e) {
+            throw new ParseException(e);
+        }
+
+        parseDiverNode(driverConfigNode, config);
+    }
+
+    private static void parseDiverNode(Node driverConfigNode, DriverConfigImpl config) throws ParseException {
+        NodeList driverChildren = driverConfigNode.getChildNodes();
+
+        try {
+            for (int j = 0; j < driverChildren.getLength(); j++) {
+                Node childNode = driverChildren.item(j);
+                String childName = childNode.getNodeName();
+
+                switch (childName) {
+                case "#text":
+                    continue;
+
+                case "device":
+                    DeviceConfigImpl.addDeviceFromDomNode(childNode, config);
+                    break;
+
+                case "samplingTimeout":
+                    config.setSamplingTimeout(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
+                    break;
+
+                case "connectRetryInterval":
+                    config.setConnectRetryInterval(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
+                    break;
+
+                case "disabled":
+                    String disabledString = childNode.getTextContent();
+                    config.disabled = Boolean.parseBoolean(disabledString);
+                    break;
+                default:
+                    throw new ParseException("found unknown tag:" + childName);
+                }
+
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e);
+        }
+    }
+
     Element getDomElement(Document document) {
         Element parentElement = document.createElement("driver");
         parentElement.setAttribute("id", id);
@@ -255,19 +257,22 @@ public final class DriverConfigImpl implements DriverConfig {
 
         if (samplingTimeout == null) {
             configClone.samplingTimeout = SAMPLING_TIMEOUT_DEFAULT;
-        } else {
+        }
+        else {
             configClone.samplingTimeout = samplingTimeout;
         }
 
         if (connectRetryInterval == null) {
             configClone.connectRetryInterval = CONNECT_RETRY_INTERVAL_DEFAULT;
-        } else {
+        }
+        else {
             configClone.connectRetryInterval = connectRetryInterval;
         }
 
         if (disabled == null) {
             configClone.disabled = DISABLED_DEFAULT;
-        } else {
+        }
+        else {
             configClone.disabled = disabled;
         }
 

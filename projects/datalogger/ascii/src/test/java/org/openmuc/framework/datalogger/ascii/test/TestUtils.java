@@ -20,15 +20,16 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
-import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
-
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 
 public class TestUtils {
     public static final String TESTFOLDER = "test";
@@ -60,5 +61,38 @@ public class TestUtils {
             file.delete();
         }
 
+    }
+
+    public static void createTestFolder() {
+
+        File testFolder = new File(TESTFOLDER);
+        if (!testFolder.exists()) {
+            testFolder.mkdir();
+        }
+    }
+
+    public static void deleteTestFolder() {
+
+        File testFolder = new File(TESTFOLDER);
+        try {
+            deleteRecursive(testFolder);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean deleteRecursive(File path) throws FileNotFoundException {
+
+        if (!path.exists()) {
+            System.out.println("Method deleteRecursive(): Path does not exists. " + path.getAbsolutePath());
+        }
+        boolean ret = true;
+        if (path.isDirectory()) {
+            for (File f : path.listFiles()) {
+                ret = ret && deleteRecursive(f);
+            }
+        }
+        return ret && path.delete();
     }
 }

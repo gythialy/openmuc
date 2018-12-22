@@ -1,13 +1,13 @@
 def projectName = "OpenMUC App - Simple Demo"
 
 dependencies {
-    compile project(":openmuc-core-api")
+    implementation project(':openmuc-core-api')
 }
 
 jar {
     manifest {
         name = projectName
-        instruction "Export-Package", ""
+        instruction 'Export-Package', ''
     }
 }
 

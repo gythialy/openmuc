@@ -38,7 +38,7 @@ public class RestUserConfig {
     public RestUserConfig(String id) {
         this.id = id;
         this.pass = "*****";
-        this.groups = new String[]{""};
+        this.groups = new String[] { "" };
         this.description = "";
     }
 
@@ -57,8 +57,9 @@ public class RestUserConfig {
     public String[] getGroups() {
         if (groups != null) {
             return groups.clone();
-        } else {
-            return new String[]{};
+        }
+        else {
+            return new String[] {};
         }
     }
 

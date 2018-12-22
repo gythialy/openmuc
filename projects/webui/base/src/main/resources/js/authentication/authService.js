@@ -1,8 +1,8 @@
 (function () {
 
-    var injectParams = ['$rootScope', '$http', '$state', 'SETTINGS'];
+    var injectParams = ['$rootScope', '$http', '$state', '$cookies', 'SETTINGS'];
 
-    var AuthService = function ($rootScope, $http, $state, SETTINGS) {
+    var AuthService = function ($rootScope, $http, $state, $cookies, SETTINGS) {
         var userName;
         var auth;
 
@@ -10,7 +10,7 @@
             var req = {
                 method: 'POST',
                 url: SETTINGS.LOGIN_URL,
-                data: $.param({user: credentials.user, pwd: credentials.pwd}),
+                data: angular.element.param({user: credentials.user, pwd: credentials.pwd}),
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
@@ -19,6 +19,7 @@
             var p = $http(req);
             p.then(r = > {
                 auth = 'Basic ' + btoa(credentials.user + ":" + credentials.pwd);
+            $cookies.put('authentication', auth);
         })
             ;
             return p;
@@ -29,6 +30,7 @@
         };
 
         this.getRestAuth = function () {
+            auth = $cookies.get("authentication");
             return auth;
         };
 
@@ -37,11 +39,12 @@
         };
 
         this.isLoggedIn = function () {
+            auth = $cookies.get("authentication")
             return auth != null;
         };
 
         this.logout = function () {
-            auth = null;
+            $cookies.remove("authentication");
         };
 
     };

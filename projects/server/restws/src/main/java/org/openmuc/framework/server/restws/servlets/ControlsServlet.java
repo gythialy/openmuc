@@ -20,15 +20,16 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
-import org.openmuc.framework.lib.json.FromJson;
-import org.openmuc.framework.lib.json.ToJson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.openmuc.framework.lib.json.FromJson;
+import org.openmuc.framework.lib.json.ToJson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ControlsServlet extends GenericServlet {
 
@@ -41,6 +42,7 @@ public class ControlsServlet extends GenericServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -49,12 +51,14 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            } else {
+            }
+            else {
                 String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
 
                 if (pathInfoArray.length == 1) {
 
-                } else {
+                }
+                else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Path Info = ", request.getPathInfo());
                 }
@@ -68,6 +72,7 @@ public class ControlsServlet extends GenericServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -76,7 +81,8 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            } else {
+            }
+            else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
@@ -87,6 +93,7 @@ public class ControlsServlet extends GenericServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -95,7 +102,8 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            } else {
+            }
+            else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
@@ -108,6 +116,7 @@ public class ControlsServlet extends GenericServlet {
 
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -117,12 +126,14 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            } else {
+            }
+            else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
 
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
         }

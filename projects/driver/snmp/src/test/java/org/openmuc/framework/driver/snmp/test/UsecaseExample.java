@@ -20,6 +20,9 @@
  */
 package org.openmuc.framework.driver.snmp.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.snmp.SnmpDriver;
 import org.openmuc.framework.driver.snmp.SnmpDriver.SnmpDriverSettingVariableNames;
@@ -27,9 +30,6 @@ import org.openmuc.framework.driver.snmp.implementation.SnmpDevice;
 import org.openmuc.framework.driver.snmp.implementation.SnmpDevice.SNMPVersion;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UsecaseExample {
 

@@ -1,14 +1,34 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.csv.channel;
 
-import org.openmuc.framework.driver.csv.exceptions.CsvException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
-import java.util.*;
+import org.openmuc.framework.driver.csv.exceptions.CsvException;
 
 public class CsvChannelHHMMSS extends CsvTimeChannel {
-
-    private static final Logger logger = LoggerFactory.getLogger(CsvChannelHHMMSS.class);
 
     public CsvChannelHHMMSS(List<String> data, boolean rewind, long[] timestamps) {
         super(data, rewind, timestamps);
@@ -23,8 +43,8 @@ public class CsvChannelHHMMSS extends CsvTimeChannel {
     }
 
     private int convertTimestamp(long samplingTime) {
-        // TODO add local
-        GregorianCalendar cal = new GregorianCalendar(Locale.GERMANY);
+
+        GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
         cal.setTime(new Date(samplingTime));
 
         int hour = cal.get(Calendar.HOUR_OF_DAY);

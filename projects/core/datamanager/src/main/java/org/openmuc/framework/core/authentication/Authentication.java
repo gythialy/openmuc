@@ -21,16 +21,26 @@
 
 package org.openmuc.framework.core.authentication;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
 
 @Component(service = AuthenticationService.class, scope = ServiceScope.SINGLETON)
 public class Authentication implements AuthenticationService {
@@ -47,7 +57,8 @@ public class Authentication implements AuthenticationService {
 
         if (!file.exists()) {
             register("admin", "admin");
-        } else {
+        }
+        else {
             loadShadowFromFile();
         }
     }
@@ -63,27 +74,6 @@ public class Authentication implements AuthenticationService {
         }
 
         return path + "/shadow";
-    }
-
-    private static String generateHash(String pw) {
-        try {
-            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = sha256.digest(pw.getBytes());
-            return bytesToHexString(hashedBytes);
-        } catch (NoSuchAlgorithmException e) {
-            // should not occur.
-            logger.error("Failed to generate hash.", e);
-            return "";
-        }
-
-    }
-
-    private static String bytesToHexString(byte[] hashedBytes) {
-        StringBuilder hash = new StringBuilder();
-        for (byte hashedByte : hashedBytes) {
-            hash.append(String.format("%02x", hashedByte));
-        }
-        return hash.toString();
     }
 
     @Override
@@ -128,6 +118,27 @@ public class Authentication implements AuthenticationService {
         Set<String> registeredUsers = new HashSet<>();
         registeredUsers.addAll(Collections.unmodifiableSet(shadow.keySet()));
         return registeredUsers;
+    }
+
+    private static String generateHash(String pw) {
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = sha256.digest(pw.getBytes());
+            return bytesToHexString(hashedBytes);
+        } catch (NoSuchAlgorithmException e) {
+            // should not occur.
+            logger.error("Failed to generate hash.", e);
+            return "";
+        }
+
+    }
+
+    private static String bytesToHexString(byte[] hashedBytes) {
+        StringBuilder hash = new StringBuilder();
+        for (byte hashedByte : hashedBytes) {
+            hash.append(String.format("%02x", hashedByte));
+        }
+        return hash.toString();
     }
 
     private void setUserHashPair(String user, String hash) {

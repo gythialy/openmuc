@@ -20,6 +20,8 @@
  */
 package org.openmuc.framework.driver.wmbus;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -30,8 +32,6 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 import org.openmuc.jmbus.SecondaryAddress;
 import org.osgi.service.component.annotations.Component;
-
-import javax.xml.bind.DatatypeConverter;
 
 @Component
 public class Driver implements DriverService {
@@ -89,7 +89,8 @@ public class Driver implements DriverService {
                 throw new ArgumentSyntaxException("TCP port is not a number.");
             }
             secondaryAddressAsString = deviceAddressTokens[2].toLowerCase();
-        } else {
+        }
+        else {
             secondaryAddressAsString = deviceAddressTokens[1].toLowerCase();
         }
 
@@ -111,7 +112,8 @@ public class Driver implements DriverService {
                 wmBusInterface = WMBusInterface.getTCPInstance(host, port, transceiverString, modeString);
                 return wmBusInterface.connect(secondaryAddress, keyString);
             }
-        } else {
+        }
+        else {
             synchronized (this) {
                 wmBusInterface = WMBusInterface.getSerialInstance(connectionPort, transceiverString, modeString);
                 return wmBusInterface.connect(secondaryAddress, keyString);

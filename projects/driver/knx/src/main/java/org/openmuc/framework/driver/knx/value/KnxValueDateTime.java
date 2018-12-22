@@ -22,6 +22,7 @@ package org.openmuc.framework.driver.knx.value;
 
 import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.Value;
+
 import tuwien.auto.calimero.dptxlator.DPTXlatorDateTime;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
@@ -33,7 +34,18 @@ public class KnxValueDateTime extends KnxValue {
 
     /*
      * (non-Javadoc)
-     *
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+     */
+    @Override
+    public void setOpenMucValue(Value value) throws KNXFormatException {
+        ((DPTXlatorDateTime) dptXlator).setValue(value.asLong());
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
      */
     @Override
@@ -43,17 +55,6 @@ public class KnxValueDateTime extends KnxValue {
         } catch (Exception e) {
             return new LongValue(0);
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-     */
-    @Override
-    public void setOpenMucValue(Value value) throws KNXFormatException {
-        ((DPTXlatorDateTime) dptXlator).setValue(value.asLong());
-
     }
 
 }

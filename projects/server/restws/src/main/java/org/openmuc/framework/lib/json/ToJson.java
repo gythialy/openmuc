@@ -20,17 +20,42 @@
  */
 package org.openmuc.framework.lib.json;
 
-import com.google.gson.*;
-import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.Channel;
-import org.openmuc.framework.dataaccess.DeviceState;
-import org.openmuc.framework.lib.json.rest.objects.*;
+import static org.openmuc.framework.lib.json.Const.VALUE_STRING;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-import static org.openmuc.framework.lib.json.Const.VALUE_STRING;
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DriverConfig;
+import org.openmuc.framework.config.DriverInfo;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.TypeConversionException;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.lib.json.rest.objects.RestChannelConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestChannelConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestDeviceConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestDeviceConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestDriverConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestDriverConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestRecord;
+import org.openmuc.framework.lib.json.rest.objects.RestScanProgressInfo;
+import org.openmuc.framework.lib.json.rest.objects.RestUserConfig;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public class ToJson {
 
@@ -43,22 +68,6 @@ public class ToJson {
                 .registerTypeAdapter(byte[].class, new ByteArraySerializer())
                 .create();
         jsonObject = new JsonObject();
-    }
-
-    public static JsonObject getDriverConfigAsJsonObject(DriverConfig config) {
-
-        RestDriverConfig restConfig = RestDriverConfigMapper.getRestDriverConfig(config);
-        return new Gson().toJsonTree(restConfig, RestDriverConfig.class).getAsJsonObject();
-    }
-
-    public static JsonObject getDeviceConfigAsJsonObject(DeviceConfig config) {
-        RestDeviceConfig restConfig = RestDeviceConfigMapper.getRestDeviceConfig(config);
-        return new Gson().toJsonTree(restConfig, RestDeviceConfig.class).getAsJsonObject();
-    }
-
-    public static JsonObject getChannelConfigAsJsonObject(ChannelConfig config) {
-        RestChannelConfig restConfig = RestChannelConfigMapper.getRestChannelConfig(config);
-        return new Gson().toJsonTree(restConfig, RestChannelConfig.class).getAsJsonObject();
     }
 
     public JsonObject getJsonObject() {
@@ -123,37 +132,49 @@ public class ToJson {
         }
 
         switch (valueType) {
-            case BOOLEAN:
-                jsonObject.addProperty(VALUE_STRING, value.asBoolean());
-                break;
-            case BYTE:
-                jsonObject.addProperty(VALUE_STRING, value.asByte());
-                break;
-            case BYTE_ARRAY:
-                jsonObject.addProperty(VALUE_STRING, gson.toJson(value.asByteArray()));
-                break;
-            case DOUBLE:
-                jsonObject.addProperty(VALUE_STRING, value.asDouble());
-                break;
-            case FLOAT:
-                jsonObject.addProperty(VALUE_STRING, value.asFloat());
-                break;
-            case INTEGER:
-                jsonObject.addProperty(VALUE_STRING, value.asInt());
-                break;
-            case LONG:
-                jsonObject.addProperty(VALUE_STRING, value.asLong());
-                break;
-            case SHORT:
-                jsonObject.addProperty(VALUE_STRING, value.asShort());
-                break;
-            case STRING:
-                jsonObject.addProperty(VALUE_STRING, value.asString());
-                break;
-            default:
-                jsonObject.add(VALUE_STRING, JsonNull.INSTANCE);
-                break;
+        case BOOLEAN:
+            jsonObject.addProperty(VALUE_STRING, value.asBoolean());
+            break;
+        case BYTE:
+            jsonObject.addProperty(VALUE_STRING, value.asByte());
+            break;
+        case BYTE_ARRAY:
+            jsonObject.addProperty(VALUE_STRING, gson.toJson(value.asByteArray()));
+            break;
+        case DOUBLE:
+            jsonObject.addProperty(VALUE_STRING, value.asDouble());
+            break;
+        case FLOAT:
+            jsonObject.addProperty(VALUE_STRING, value.asFloat());
+            break;
+        case INTEGER:
+            jsonObject.addProperty(VALUE_STRING, value.asInt());
+            break;
+        case LONG:
+            jsonObject.addProperty(VALUE_STRING, value.asLong());
+            break;
+        case SHORT:
+            jsonObject.addProperty(VALUE_STRING, value.asShort());
+            break;
+        case STRING:
+            jsonObject.addProperty(VALUE_STRING, value.asString());
+            break;
+        default:
+            jsonObject.add(VALUE_STRING, JsonNull.INSTANCE);
+            break;
         }
+    }
+
+    private class ByteArraySerializer implements JsonSerializer<byte[]> {
+        @Override
+        public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonArray arr = new JsonArray();
+            for (byte element : src) {
+                arr.add(element & 0xff);
+            }
+            return arr;
+        }
+
     }
 
     public void addString(String propertyName, String value) {
@@ -259,6 +280,22 @@ public class ToJson {
         jsonObject.add(Const.CONFIGS, gson.toJsonTree(restUserConfig, RestUserConfig.class).getAsJsonObject());
     }
 
+    public static JsonObject getDriverConfigAsJsonObject(DriverConfig config) {
+
+        RestDriverConfig restConfig = RestDriverConfigMapper.getRestDriverConfig(config);
+        return new Gson().toJsonTree(restConfig, RestDriverConfig.class).getAsJsonObject();
+    }
+
+    public static JsonObject getDeviceConfigAsJsonObject(DeviceConfig config) {
+        RestDeviceConfig restConfig = RestDeviceConfigMapper.getRestDeviceConfig(config);
+        return new Gson().toJsonTree(restConfig, RestDeviceConfig.class).getAsJsonObject();
+    }
+
+    public static JsonObject getChannelConfigAsJsonObject(ChannelConfig config) {
+        RestChannelConfig restConfig = RestChannelConfigMapper.getRestChannelConfig(config);
+        return new Gson().toJsonTree(restConfig, RestChannelConfig.class).getAsJsonObject();
+    }
+
     private JsonObject channelRecordToJson(Channel channel) throws ClassCastException {
 
         JsonObject jso = new JsonObject();
@@ -307,36 +344,36 @@ public class ToJson {
         }
 
         switch (valueType) {
-            case FLOAT:
-                rrc.setValue(value.asFloat());
-                break;
-            case DOUBLE:
-                rrc.setValue(value.asDouble());
-                break;
-            case SHORT:
-                rrc.setValue(value.asShort());
-                break;
-            case INTEGER:
-                rrc.setValue(value.asInt());
-                break;
-            case LONG:
-                rrc.setValue(value.asLong());
-                break;
-            case BYTE:
-                rrc.setValue(value.asByte());
-                break;
-            case BOOLEAN:
-                rrc.setValue(value.asBoolean());
-                break;
-            case BYTE_ARRAY:
-                rrc.setValue(value.asByteArray());
-                break;
-            case STRING:
-                rrc.setValue(value.asString());
-                break;
-            default:
-                rrc.setValue(null);
-                break;
+        case FLOAT:
+            rrc.setValue(value.asFloat());
+            break;
+        case DOUBLE:
+            rrc.setValue(value.asDouble());
+            break;
+        case SHORT:
+            rrc.setValue(value.asShort());
+            break;
+        case INTEGER:
+            rrc.setValue(value.asInt());
+            break;
+        case LONG:
+            rrc.setValue(value.asLong());
+            break;
+        case BYTE:
+            rrc.setValue(value.asByte());
+            break;
+        case BOOLEAN:
+            rrc.setValue(value.asBoolean());
+            break;
+        case BYTE_ARRAY:
+            rrc.setValue(value.asByteArray());
+            break;
+        case STRING:
+            rrc.setValue(value.asString());
+            break;
+        default:
+            rrc.setValue(null);
+            break;
         }
     }
 
@@ -347,37 +384,27 @@ public class ToJson {
         }
 
         switch (valueType) {
-            case DOUBLE:
-                if (Double.isInfinite(value.asDouble())) {
-                    return Flag.VALUE_IS_INFINITY;
-                } else if (Double.isNaN(value.asDouble())) {
-                    return Flag.VALUE_IS_NAN;
-                }
-                break;
-            case FLOAT:
-                if (Float.isInfinite(value.asFloat())) {
-                    return Flag.VALUE_IS_INFINITY;
-                } else if (Float.isNaN(value.asFloat())) {
-                    return Flag.VALUE_IS_NAN;
-                }
-                break;
-            default:
-                // is not a floating point number
-                return flag;
+        case DOUBLE:
+            if (Double.isInfinite(value.asDouble())) {
+                return Flag.VALUE_IS_INFINITY;
+            }
+            else if (Double.isNaN(value.asDouble())) {
+                return Flag.VALUE_IS_NAN;
+            }
+            break;
+        case FLOAT:
+            if (Float.isInfinite(value.asFloat())) {
+                return Flag.VALUE_IS_INFINITY;
+            }
+            else if (Float.isNaN(value.asFloat())) {
+                return Flag.VALUE_IS_NAN;
+            }
+            break;
+        default:
+            // is not a floating point number
+            return flag;
         }
         return flag;
-    }
-
-    private class ByteArraySerializer implements JsonSerializer<byte[]> {
-        @Override
-        public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-            JsonArray arr = new JsonArray();
-            for (byte element : src) {
-                arr.add(element & 0xff);
-            }
-            return arr;
-        }
-
     }
 
 }

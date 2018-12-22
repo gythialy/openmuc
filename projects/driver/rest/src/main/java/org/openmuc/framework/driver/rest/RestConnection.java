@@ -20,16 +20,6 @@
  */
 package org.openmuc.framework.driver.rest;
 
-import org.apache.commons.codec.binary.Base64;
-import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.Channel;
-import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.driver.rest.helper.JsonWrapper;
-import org.openmuc.framework.driver.spi.*;
-import org.openmuc.framework.lib.json.Const;
-
-import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -41,22 +31,55 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.codec.binary.Base64;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.ByteValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DataAccessService;
+import org.openmuc.framework.driver.rest.helper.JsonWrapper;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.lib.json.Const;
+
 public class RestConnection implements Connection {
 
     private final JsonWrapper wrapper;
-    private final int timeout;
-    private final String authString;
-    private final DataAccessService dataAccessService;
     private URL url;
     private URLConnection con;
     private String baseAddress;
+    private final int timeout;
     private boolean isHTTPS;
+    private final String authString;
+
+    private final DataAccessService dataAccessService;
     private String connectionAddress;
 
     private boolean checkTimestamp = false;
 
     RestConnection(String deviceAddress, String credentials, int timeout, boolean checkTimestamp,
-                   DataAccessService dataAccessService) throws ConnectionException {
+            DataAccessService dataAccessService) throws ConnectionException {
 
         this.checkTimestamp = checkTimestamp;
         this.dataAccessService = dataAccessService;
@@ -67,14 +90,16 @@ public class RestConnection implements Connection {
         if (!deviceAddress.endsWith("/")) {
             this.baseAddress = deviceAddress + "/rest/channels/";
             this.connectionAddress = deviceAddress + "/rest/connect/";
-        } else {
+        }
+        else {
             this.baseAddress = deviceAddress + "rest/channels/";
             this.connectionAddress = deviceAddress + "rest/connect/";
         }
 
         if (deviceAddress.startsWith("https://")) {
             isHTTPS = true;
-        } else {
+        }
+        else {
             isHTTPS = false;
         }
 
@@ -107,7 +132,7 @@ public class RestConnection implements Connection {
     }
 
     private TrustManager[] getTrustManager() {
-        return new TrustManager[]{new X509TrustManager() {
+        return new TrustManager[] { new X509TrustManager() {
             @Override
             public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                 return null;
@@ -120,7 +145,7 @@ public class RestConnection implements Connection {
             @Override
             public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
             }
-        }};
+        } };
     }
 
     private Record readChannel(String channelAddress, ValueType valueType) throws ConnectionException {
@@ -138,7 +163,8 @@ public class RestConnection implements Connection {
         try {
             if (channelAddress.endsWith("/")) {
                 channelAddress += Const.TIMESTAMP;
-            } else {
+            }
+            else {
                 channelAddress += '/' + Const.TIMESTAMP;
             }
             timestamp = wrapper.toTimestamp(get(channelAddress));
@@ -205,7 +231,8 @@ public class RestConnection implements Connection {
             setConnectionProberties();
             if (isHTTPS) {
                 ((HttpsURLConnection) con).setRequestMethod("PUT");
-            } else {
+            }
+            else {
                 ((HttpURLConnection) con).setRequestMethod("PUT");
             }
             OutputStreamWriter out = new OutputStreamWriter(con.getOutputStream());
@@ -238,7 +265,8 @@ public class RestConnection implements Connection {
                     throw new ConnectionException(
                             "HTTPS " + respCode + ":" + ((HttpsURLConnection) con).getResponseMessage());
                 }
-            } else {
+            }
+            else {
                 respCode = ((HttpURLConnection) con).getResponseCode();
                 if (!(respCode >= 200 && respCode < 300)) {
                     throw new ConnectionException(
@@ -256,7 +284,8 @@ public class RestConnection implements Connection {
 
         if (isHTTPS) {
             ((HttpsURLConnection) con).disconnect();
-        } else {
+        }
+        else {
             ((HttpURLConnection) con).disconnect();
         }
     }
@@ -275,12 +304,14 @@ public class RestConnection implements Connection {
                         || record.getTimestamp() < readChannelTimestamp(container.getChannelAddress())) {
                     record = readChannel(container.getChannelAddress(), container.getChannel().getValueType());
                 }
-            } else {
+            }
+            else {
                 record = readChannel(container.getChannelAddress(), container.getChannel().getValueType());
             }
             if (record != null) {
                 container.setRecord(record);
-            } else {
+            }
+            else {
                 container.setRecord(new Record(Flag.DRIVER_ERROR_READ_FAILURE));
             }
         }
@@ -314,21 +345,29 @@ public class RestConnection implements Connection {
 
         if (value instanceof DoubleValue) {
             valueType = ValueType.DOUBLE;
-        } else if (value instanceof StringValue) {
+        }
+        else if (value instanceof StringValue) {
             valueType = ValueType.STRING;
-        } else if (value instanceof ByteArrayValue) {
+        }
+        else if (value instanceof ByteArrayValue) {
             valueType = ValueType.BYTE_ARRAY;
-        } else if (value instanceof LongValue) {
+        }
+        else if (value instanceof LongValue) {
             valueType = ValueType.LONG;
-        } else if (value instanceof BooleanValue) {
+        }
+        else if (value instanceof BooleanValue) {
             valueType = ValueType.BOOLEAN;
-        } else if (value instanceof FloatValue) {
+        }
+        else if (value instanceof FloatValue) {
             valueType = ValueType.FLOAT;
-        } else if (value instanceof IntValue) {
+        }
+        else if (value instanceof IntValue) {
             valueType = ValueType.INTEGER;
-        } else if (value instanceof ShortValue) {
+        }
+        else if (value instanceof ShortValue) {
             valueType = ValueType.SHORT;
-        } else if (value instanceof ByteValue) {
+        }
+        else if (value instanceof ByteValue) {
             valueType = ValueType.BYTE;
         }
         return valueType;

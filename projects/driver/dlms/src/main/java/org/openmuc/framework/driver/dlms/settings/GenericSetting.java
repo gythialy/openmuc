@@ -1,11 +1,30 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.dlms.settings;
 
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,6 +34,10 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class GenericSetting {
 
@@ -60,7 +83,8 @@ public abstract class GenericSetting {
         String range;
         if (option.range().isEmpty()) {
             range = option.value();
-        } else {
+        }
+        else {
             range = option.range();
         }
 
@@ -72,10 +96,6 @@ public abstract class GenericSetting {
 
         return sb.append(" ").toString();
 
-    }
-
-    private static Number parseNumber(String value) throws ParseException {
-        return NumberFormat.getNumberInstance().parse(value);
     }
 
     protected int parseFields(String settingsStr) throws ArgumentSyntaxException {
@@ -104,7 +124,8 @@ public abstract class GenericSetting {
                 } catch (NoSuchFieldException e) {
                     logger.error("No field found with name " + field, e);
                 }
-            } else if (option.mandatory()) {
+            }
+            else if (option.mandatory()) {
                 String message = MessageFormat.format("Mandatory parameter {0} is nor present in {1}.", option.value(),
                         this.getClass().getSimpleName());
                 throw new ArgumentSyntaxException(message);
@@ -151,25 +172,35 @@ public abstract class GenericSetting {
 
         if (type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) {
             return extractBoolean(trimmed);
-        } else if (type.isAssignableFrom(byte.class) || type.isAssignableFrom(Byte.class)) {
+        }
+        else if (type.isAssignableFrom(byte.class) || type.isAssignableFrom(Byte.class)) {
             return extractByte(trimmed);
-        } else if (type.isAssignableFrom(short.class) || type.isAssignableFrom(Short.class)) {
+        }
+        else if (type.isAssignableFrom(short.class) || type.isAssignableFrom(Short.class)) {
             return extractShort(trimmed);
-        } else if (type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) {
+        }
+        else if (type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) {
             return extractInteger(trimmed);
-        } else if (type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) {
+        }
+        else if (type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) {
             return extractLong(trimmed);
-        } else if (type.isAssignableFrom(float.class) || type.isAssignableFrom(Float.class)) {
+        }
+        else if (type.isAssignableFrom(float.class) || type.isAssignableFrom(Float.class)) {
             return extractFloat(trimmed);
-        } else if (type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) {
+        }
+        else if (type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) {
             return extractDouble(trimmed);
-        } else if (type.isAssignableFrom(String.class)) {
+        }
+        else if (type.isAssignableFrom(String.class)) {
             return value;
-        } else if (type.isAssignableFrom(byte[].class)) {
+        }
+        else if (type.isAssignableFrom(byte[].class)) {
             return extractByteArray(trimmed);
-        } else if (type.isAssignableFrom(InetAddress.class)) {
+        }
+        else if (type.isAssignableFrom(InetAddress.class)) {
             return extractInetAddress(trimmed);
-        } else {
+        }
+        else {
             throw new NoSuchFieldException(
                     type + "  Driver implementation error not supported data type. Report driver developer\n");
         }
@@ -237,11 +268,22 @@ public abstract class GenericSetting {
         }
 
         try {
-            return DatatypeConverter.parseHexBinary(value.substring(2).trim());
+            return hexToBytes(value.substring(2).trim());
         } catch (IllegalArgumentException e) {
             throw argumentSyntaxException(byte[].class.getSimpleName());
         }
 
+    }
+
+    private byte[] hexToBytes(String s) {
+        byte[] b = new byte[s.length() / 2];
+        int index;
+
+        for (int i = 0; i < b.length; i++) {
+            index = i * 2;
+            b[i] = (byte) Integer.parseInt(s.substring(index, index + 2), 16);
+        }
+        return b;
     }
 
     private InetAddress extractInetAddress(String value) throws ArgumentSyntaxException {
@@ -257,6 +299,10 @@ public abstract class GenericSetting {
                 this.getClass().getSimpleName(), returnType));
     }
 
+    private static Number parseNumber(String value) throws ParseException {
+        return NumberFormat.getNumberInstance().parse(value);
+    }
+
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
@@ -266,7 +312,7 @@ public abstract class GenericSetting {
 
         boolean mandatory()
 
-                default false;
+        default false;
 
         String range() default "";
     }

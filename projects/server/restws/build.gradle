@@ -6,9 +6,8 @@ configurations.create('embed')
 def gsonVersion = '2.8.5'
 
 dependencies {
-    compile project(':openmuc-core-api')
-    compile group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
-    compile group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+    implementation project(':openmuc-core-api')
+    implementation group: 'com.google.code.gson', name: 'gson', version: gsonVersion
     embed group: 'com.google.code.gson', name: 'gson', version: gsonVersion
 }
 

@@ -3,8 +3,8 @@ def projectDescription = "Data Exporter plug-in for the WebUI of the OpenMUC fra
 
 
 dependencies {
-    compile project(':openmuc-core-api')
-    compile project(':openmuc-webui-spi')
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-webui-spi')
 }
 
 jar {

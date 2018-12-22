@@ -1,6 +1,27 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.dlms.settings;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
@@ -8,10 +29,24 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 public class SettingsTest {
+
+    @Test
+    public void testChannelAddress() throws Exception {
+        check(ChannelAddress.class, 2);
+    }
+
+    @Test
+    public void testDeviceAddress() throws Exception {
+        check(DeviceAddress.class, 10);
+    }
+
+    @Test
+    public void testDeviceSetting() throws Exception {
+        check(DeviceSettings.class, 12);
+    }
 
     private static void check(Class<? extends GenericSetting> clazz, int numArgs) {
         Pattern p = Pattern.compile("(\\w+:) *(\\[?\\w+=.*\\]?)+$");
@@ -31,21 +66,6 @@ public class SettingsTest {
         }
 
         assertEquals(numArgs, keys.size());
-    }
-
-    @Test
-    public void testChannelAddress() throws Exception {
-        check(ChannelAddress.class, 2);
-    }
-
-    @Test
-    public void testDeviceAddress() throws Exception {
-        check(DeviceAddress.class, 10);
-    }
-
-    @Test
-    public void testDeviceSetting() throws Exception {
-        check(DeviceSettings.class, 12);
     }
 
     @Test

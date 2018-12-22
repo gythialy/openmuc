@@ -20,13 +20,14 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectServlet extends GenericServlet {
 
@@ -47,7 +48,8 @@ public class ConnectServlet extends GenericServlet {
         if (pathInfo.equals("/")) {
             // do nothing only send 200 SC_OK
             sendJson(null, response);
-        } else {
+        }
+        else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
         }
     }

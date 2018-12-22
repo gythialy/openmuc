@@ -8,7 +8,15 @@
  */
 package org.openmuc.framework.app.simpledemo;
 
-import org.openmuc.framework.data.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.dataaccess.RecordListener;
@@ -18,10 +26,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 @Component(service = {})
 public final class SimpleDemoApp extends Thread {
@@ -34,8 +38,8 @@ public final class SimpleDemoApp extends Thread {
     private static final String ID_POWER_ELECTIC_VEHICLE = "power_electric_vehicle";
     private static final String ID_POWER_GRID = "power_grid";
     private static final String ID_STATUS_ELECTRIC_VEHICLE = "status_electric_vehicle";
-    private static final String ID_ENERGY_EXPORTED = "enery_exported";
-    private static final String ID_ENERGY_IMPORTED = "enery_imported";
+    private static final String ID_ENERGY_EXPORTED = "energy_exported";
+    private static final String ID_ENERGY_IMPORTED = "energy_imported";
 
     private static final double STANDBY_POWER_CHARGING_STATION = 0.020;
 
@@ -43,24 +47,29 @@ public final class SimpleDemoApp extends Thread {
     private static final double SECONDS_PER_HOUR = 3600.0;
     private static final double SECONDS_PER_INTERVAL = 5.0;
     private static final double HOUR_BASED_INTERVAL_TIME = SECONDS_PER_INTERVAL / SECONDS_PER_HOUR;
-    int printCounter; // for slowing down the output of the console
+
     private volatile boolean deactivatedSignal;
+
     // With the dataAccessService you can access to your measured and control data of your devices.
     @Reference
     private DataAccessService dataAccessService;
+
     // Channel for accessing data of a channel.
     private Channel chPowerElecticVehicle;
     private Channel chPowerGrid;
     private Channel chEvStatus;
     private Channel chEnergyExported;
     private Channel chEnergyImported;
+
     private double energyExportedKWh = 0;
     private double energyImportedKWh = 0;
+
+    int printCounter; // for slowing down the output of the console
 
     /**
      * Every app needs one activate method. Is is called at begin. Here you can configure all you need at start of your
      * app. The Activate method can block the start of your OpenMUC, f.e. if you use Thread.sleep().
-     *
+     * 
      * @param context
      */
     @Activate
@@ -72,7 +81,7 @@ public final class SimpleDemoApp extends Thread {
 
     /**
      * Every app needs one deactivate method. It handles the shutdown of your app e.g. closing open streams.
-     *
+     * 
      * @param context
      */
     @Deactivate
@@ -138,7 +147,7 @@ public final class SimpleDemoApp extends Thread {
     /**
      * Calculate energy imported and exported from current grid power. (Demonstrates how to access the latest record of
      * a channel and how to set it.)
-     *
+     * 
      * @param gridPowerRecord
      */
     private void updateEnergyChannels(Record gridPowerRecord) {
@@ -151,7 +160,8 @@ public final class SimpleDemoApp extends Thread {
 
         if (gridPower >= 0) {
             energyImportedKWh += energyOfInterval;
-        } else {
+        }
+        else {
             energyExportedKWh += energyOfInterval;
         }
 

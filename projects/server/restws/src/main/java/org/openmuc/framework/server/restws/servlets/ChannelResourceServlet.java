@@ -20,10 +20,20 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import org.openmuc.framework.config.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.ConfigService;
+import org.openmuc.framework.config.ConfigWriteException;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.IdCollisionException;
+import org.openmuc.framework.config.RootConfig;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
@@ -39,12 +49,9 @@ import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 public class ChannelResourceServlet extends GenericServlet {
 
@@ -62,6 +69,7 @@ public class ChannelResourceServlet extends GenericServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString == null) {
             return;
@@ -78,42 +86,54 @@ public class ChannelResourceServlet extends GenericServlet {
 
         if (pathInfo.equals("/")) {
             doGetAllChannels(json);
-        } else {
+        }
+        else {
             readSpecificChannels(request, response, pathInfoArray, json);
         }
         sendJson(json, response);
     }
 
     private void readSpecificChannels(HttpServletRequest request, HttpServletResponse response, String[] pathInfoArray,
-                                      ToJson json) throws IOException {
+            ToJson json) throws IOException {
         String channelId = pathInfoArray[0].replace("/", "");
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
         if (pathInfoArray.length == 1) {
             doGetSpecificChannel(json, channelId, response);
-        } else if (pathInfoArray.length == 2) {
+        }
+        else if (pathInfoArray.length == 2) {
             if (pathInfoArray[1].equalsIgnoreCase(Const.TIMESTAMP)) {
                 doGetSpecificChannelField(json, channelId, Const.TIMESTAMP, response);
-            } else if (pathInfoArray[1].equalsIgnoreCase(Const.FLAG)) {
+            }
+            else if (pathInfoArray[1].equalsIgnoreCase(Const.FLAG)) {
                 doGetSpecificChannelField(json, channelId, Const.FLAG, response);
-            } else if (pathInfoArray[1].equalsIgnoreCase(Const.VALUE_STRING)) {
+            }
+            else if (pathInfoArray[1].equalsIgnoreCase(Const.VALUE_STRING)) {
                 doGetSpecificChannelField(json, channelId, Const.VALUE_STRING, response);
-            } else if (pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
+            }
+            else if (pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
                 doGetConfigs(json, channelId, response);
-            } else if (pathInfoArray[1].startsWith(Const.HISTORY)) {
+            }
+            else if (pathInfoArray[1].startsWith(Const.HISTORY)) {
                 String fromParameter = request.getParameter("from");
                 String untilParameter = request.getParameter("until");
                 doGetHistory(json, channelId, fromParameter, untilParameter, response);
-            } else if (pathInfoArray[1].equalsIgnoreCase(Const.DRIVER_ID)) {
+            }
+            else if (pathInfoArray[1].equalsIgnoreCase(Const.DRIVER_ID)) {
                 doGetDriverId(json, channelId, response);
-            } else if (pathInfoArray[1].equalsIgnoreCase(Const.DEVICE_ID)) {
+            }
+            else if (pathInfoArray[1].equalsIgnoreCase(Const.DEVICE_ID)) {
                 doGetDeviceId(json, channelId, response);
-            } else {
+            }
+            else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
             }
-        } else if (pathInfoArray.length == 3 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
+        }
+        else if (pathInfoArray.length == 3 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
             String configField = pathInfoArray[2];
             doGetConfigField(json, channelId, configField, response);
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
         }
@@ -123,6 +143,7 @@ public class ChannelResourceServlet extends GenericServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString == null) {
             return;
@@ -137,7 +158,8 @@ public class ChannelResourceServlet extends GenericServlet {
 
         if (pathInfoArray.length == 1) {
             setAndWriteChannelConfig(channelId, response, json, false);
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
         }
@@ -147,6 +169,7 @@ public class ChannelResourceServlet extends GenericServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -160,18 +183,22 @@ public class ChannelResourceServlet extends GenericServlet {
             if (pathInfoArray.length < 1) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
-            } else {
+            }
+            else {
                 ChannelConfig channelConfig = getChannelConfig(channelId, response);
 
                 if (channelConfig != null) {
 
                     if (pathInfoArray.length == 2 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
                         setAndWriteChannelConfig(channelId, response, json, true);
-                    } else if (pathInfoArray.length == 2 && pathInfoArray[1].equalsIgnoreCase(Const.LATESTRECORD)) {
+                    }
+                    else if (pathInfoArray.length == 2 && pathInfoArray[1].equalsIgnoreCase(Const.LATESTRECORD)) {
                         doSetRecord(channelId, response, json);
-                    } else if (pathInfoArray.length == 1) {
+                    }
+                    else if (pathInfoArray.length == 1) {
                         doWriteChannel(channelId, response, json);
-                    } else {
+                    }
+                    else {
                         ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                                 REQUESTED_REST_PATH_IS_NOT_AVAILABLE, REST_PATH, request.getPathInfo());
                     }
@@ -181,10 +208,11 @@ public class ChannelResourceServlet extends GenericServlet {
     }
 
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response)
+    public synchronized void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
+        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -205,7 +233,8 @@ public class ChannelResourceServlet extends GenericServlet {
             if (pathInfoArray.length != 1) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Path Info = ", request.getPathInfo());
-            } else {
+            }
+            else {
                 try {
                     channelConfig.delete();
                     configService.setConfig(rootConfig);
@@ -213,7 +242,8 @@ public class ChannelResourceServlet extends GenericServlet {
 
                     if (rootConfig.getDriver(channelId) == null) {
                         response.setStatus(HttpServletResponse.SC_OK);
-                    } else {
+                    }
+                    else {
                         ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                 logger, "Not able to delete channel ", channelId);
                     }
@@ -245,13 +275,15 @@ public class ChannelResourceServlet extends GenericServlet {
             if (jsoConfigAll == null) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "Could not find JSON object \"configs\"");
-            } else {
+            }
+            else {
                 JsonElement jseConfigField = jsoConfigAll.get(configField);
 
                 if (jseConfigField == null) {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             "Requested rest config field is not available.", " configField = ", configField);
-                } else {
+                }
+                else {
                     JsonObject jso = new JsonObject();
                     jso.add(configField, jseConfigField);
                     json.addJsonObject(Const.CONFIGS, jso);
@@ -288,7 +320,7 @@ public class ChannelResourceServlet extends GenericServlet {
     }
 
     private void doGetHistory(ToJson json, String channelId, String fromParameter, String untilParameter,
-                              HttpServletResponse response) {
+            HttpServletResponse response) {
         long fromTimeStamp = 0;
         long untilTimeStamp = 0;
 
@@ -319,13 +351,14 @@ public class ChannelResourceServlet extends GenericServlet {
     }
 
     private boolean setAndWriteChannelConfig(String channelId, HttpServletResponse response, FromJson json,
-                                             boolean isHTTPPut) {
+            boolean isHTTPPut) {
         boolean ok = false;
 
         try {
             if (isHTTPPut) {
                 ok = setAndWriteHttpPutChannelConfig(channelId, response, json);
-            } else {
+            }
+            else {
                 ok = setAndWriteHttpPostChannelConfig(channelId, response, json);
             }
         } catch (JsonSyntaxException e) {
@@ -349,8 +382,8 @@ public class ChannelResourceServlet extends GenericServlet {
         return ok;
     }
 
-    private boolean setAndWriteHttpPutChannelConfig(String channelId, HttpServletResponse response, FromJson json)
-            throws JsonSyntaxException, ConfigWriteException, RestConfigIsNotCorrectException,
+    private synchronized boolean setAndWriteHttpPutChannelConfig(String channelId, HttpServletResponse response,
+            FromJson json) throws JsonSyntaxException, ConfigWriteException, RestConfigIsNotCorrectException,
             MissingJsonObjectException, IllegalStateException {
         boolean ok = false;
 
@@ -370,8 +403,8 @@ public class ChannelResourceServlet extends GenericServlet {
         return ok;
     }
 
-    private boolean setAndWriteHttpPostChannelConfig(String channelId, HttpServletResponse response, FromJson json)
-            throws JsonSyntaxException, ConfigWriteException, RestConfigIsNotCorrectException, Error,
+    private synchronized boolean setAndWriteHttpPostChannelConfig(String channelId, HttpServletResponse response,
+            FromJson json) throws JsonSyntaxException, ConfigWriteException, RestConfigIsNotCorrectException, Error,
             MissingJsonObjectException, IllegalStateException {
         boolean ok = false;
         DeviceConfig deviceConfig;
@@ -389,17 +422,20 @@ public class ChannelResourceServlet extends GenericServlet {
 
         if (deviceID != null) {
             deviceConfig = rootConfig.getDevice(deviceID);
-        } else {
+        }
+        else {
             throw new Error("No device ID in JSON");
         }
 
         if (deviceConfig == null) {
             ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_CONFLICT, logger,
                     "Device does not exists: ", deviceID);
-        } else if (channelConfig != null) {
+        }
+        else if (channelConfig != null) {
             ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_CONFLICT, logger,
                     "Channel already exists: ", channelId);
-        } else {
+        }
+        else {
             try {
                 channelConfig = deviceConfig.addChannel(channelId);
                 json.setChannelConfig(channelConfig, channelId);
@@ -411,7 +447,8 @@ public class ChannelResourceServlet extends GenericServlet {
                             "Channel ", channelId, " with value type ", channelConfig.getValueType().toString(),
                             ", missing valueTypeLength.");
                     channelConfig.delete();
-                } else {
+                }
+                else {
                     configService.setConfig(rootConfig);
                     configService.writeConfigToFile();
                 }
@@ -428,7 +465,8 @@ public class ChannelResourceServlet extends GenericServlet {
         if (channel != null) {
             Record record = channel.getLatestRecord();
             json.addRecord(record, channel.getValueType());
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     "Requested rest channel is not available, ChannelID = " + chId);
         }
@@ -440,21 +478,22 @@ public class ChannelResourceServlet extends GenericServlet {
         if (channel != null) {
             Record record = channel.getLatestRecord();
             switch (field) {
-                case Const.TIMESTAMP:
-                    json.addNumber(Const.TIMESTAMP, record.getTimestamp());
-                    break;
-                case Const.FLAG:
-                    json.addString(Const.FLAG, record.getFlag().toString());
-                    break;
-                case Const.VALUE_STRING:
-                    json.addValue(record.getValue(), channel.getValueType());
-                    break;
-                default:
-                    ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                            "Requested rest channel field is not available, ChannelID = " + chId + " Field: " + field);
-                    break;
+            case Const.TIMESTAMP:
+                json.addNumber(Const.TIMESTAMP, record.getTimestamp());
+                break;
+            case Const.FLAG:
+                json.addString(Const.FLAG, record.getFlag().toString());
+                break;
+            case Const.VALUE_STRING:
+                json.addValue(record.getValue(), channel.getValueType());
+                break;
+            default:
+                ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
+                        "Requested rest channel field is not available, ChannelID = " + chId + " Field: " + field);
+                break;
             }
-        } else {
+        }
+        else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     "Requested rest channel is not available, ChannelID = " + chId);
         }
@@ -478,10 +517,12 @@ public class ChannelResourceServlet extends GenericServlet {
         if (record.getFlag() == null) {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger,
                     "No flag setted.");
-        } else if (record.getValue() == null) {
+        }
+        else if (record.getValue() == null) {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger,
                     "No value setted.");
-        } else {
+        }
+        else {
             Long timestamp = record.getTimestamp();
             if (timestamp == null) {
                 timestamp = System.currentTimeMillis();

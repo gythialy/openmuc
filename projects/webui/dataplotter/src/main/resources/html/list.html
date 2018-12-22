@@ -1,36 +1,31 @@
-<div class="row" id="dashboard-grid">
+<div class="row" id="dashboard-grid" ng-controller="TabsController">
 
-    <div ng-if="confFile">
-        <div ng-repeat="plotter in confFile">
-            <div class="item col-md-3 text-center">
-                <a class="btn btn-grid btn-block" ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})">
-	        <span aria-hidden="true" class="item-icon">
-	          <img src="dataplotter/images/icon.png"/>
-	        </span>
-                    {{plotter.name}}
-                </a>
-            </div>
-        </div>
+    <div class="item col-lg-3 text-center" ng-if="confFile" ng-repeat="plotter in confFile">
+        <a class="btn btn-grid btn-block" ng-click="setTabIndex(plotter.name)"
+           ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})">
+	    <span aria-hidden="true" class="item-icon">
+	      <img src="dataplotter/images/icon.png"/>
+	    </span>
+            {{plotter.name}}
+        </a>
     </div>
 
-    <div ng-if="!confFile">
-        <div class="item col-md-3 text-center">
-            <a class="btn btn-grid btn-block" ui-sref="dataplotter.data">
-	      <span aria-hidden="true" class="item-icon">
-	        <img src="dataplotter/images/icon.png"/>
-	      </span>
-                {{'DATA_PLOTTER' | translate}}
-            </a>
-        </div>
+    <div class="item col-lg-3 text-center" ng-if="!confFile">
+        <a class="btn btn-grid btn-block" ui-sref="dataplotter.data">
+	    <span aria-hidden="true" class="item-icon">
+	      <img src="dataplotter/images/icon.png"/>
+	    </span>
+            {{'DATA_PLOTTER' | translate}}
+        </a>
 
-        <div class="item col-md-3 text-center">
-            <a class="btn btn-grid btn-block" ui-sref="dataplotter.live">
+        <div class="item col-lg-3 text-center"></div>
+        <a class="btn btn-grid btn-block" ui-sref="dataplotter.live">
         <span aria-hidden="true" class="item-icon">
           <img src="dataplotter/images/icon.png"/>
         </span>
-                {{'LIVE_PLOTTER' | translate}}
-            </a>
-        </div>
+            {{'LIVE_PLOTTER' | translate}}
+        </a>
     </div>
+</div>
 
 </div>

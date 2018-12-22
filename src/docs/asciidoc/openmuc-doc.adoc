@@ -46,7 +46,7 @@ To start OpenMUC on Linux run:
 ./bin/openmuc start -fg
 ----
 
-To start OpenMUC on Window run:
+To start OpenMUC on Windows run:
 
 ----
 bin\openmuc.bat
@@ -59,60 +59,15 @@ all the bundles located in the "bundle" folder. Among the bundles that
 are started is the Apache Gogo shell. This shell is entered once you
 run OpenMUC.
 
-The shell can be used to start, stop, and reload bundles among other
-things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
-or "stop 0".
-
-
 Now type "lb" to list all installed bundles.
 
 You will see that among the active bundles are the Simple Demo App,
 the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
 as the CSV driver.
 
-
-=== Framework Files
-
-The folder "framework" contains a configured OpenMUC framework that
-can be used as a basis to create your own customized OpenMUC framework
-for your task. The framework folder contains the following important
-files and folders:
-
-felix::
-
-    The main Apache Felix OSGi jar which is run to start OpenMUC.
-
-bin::
-
-    Run scripts for Linux/Unix and Windows.
-
-bundle::
-
-    Contains all bundles that are started by the Felix OSGi
-    framework. Note that this folder does not contain all available
-    OpenMUC bundles but only a subset for demonstration purposes.
-
-log::
-
-    Log files produced by the running framework.
-
-conf::
-
-    Various configuration files of the framework.
-
-=== Configuration
-
-One of the most important configuration files is
-conf/channels.xml. This file tells the OpenMUC Data Manager which data
-it shall sample, listen for, and log. This is done by configuring so
-called channels. Each channel represents a single data point whose
-value can be an integer, double, string or byte array.
-
-The demo's channels.xml configures among others channels whose values
-are read by the CSV driver. The channels are sampled/read and logged
-every 5 seconds.
-
-For more information about the channels.xml see the <<anchor-configuration,configuration>> chapter.
+The shell can be used to start, stop, and reload bundles among other
+things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
+or "stop 0".
 
 === WebUI Walk Through
 
@@ -126,6 +81,10 @@ After successful login the OpenMUC Dashboard opens, which provides
 various plugins for configuration and visualization. A full
 description of the plugins can be found in the chapter
 <<anchor-web-ui,Web UI>>.
+
+
+:img-file: webui-dashboard.png
+image::{img-file}[title="WebUI Dashboard",width={width60},link="{imagesdir}/{img-file}"]
 
 Let us first look at the Channel Access Tool which provides the
 current value of each channel and also enables you to write
@@ -156,6 +115,10 @@ click _Plot Data_.
 :img-file: webui-dataplotter-live.png
 image::{img-file}[title="WebUI live plotter",width={width60},link="{imagesdir}/{img-file}"]
 
+The last WebUI plugin we want to look at is a customised visualisation for our demo application. Click on _Applications_ and select __Simple Demo Visualisation__. The purpose of this plugin is to show how OpenMUC channels can be accessed and used for individual visualisations. Detailed informations about the development of such a plugin can be found in the <<anchor-tutorial-webui-plugin,Tutorial Develop a Customised WebUI Plugin>>.
+
+:img-file: simpleDemoVisualisation.png
+image::{img-file}[title="WebUI customised visualisation",width={width60},link="{imagesdir}/{img-file}"]
 
 ==== Add a New Channel
 
@@ -188,86 +151,15 @@ The logged data can be found in
 _openmuc/framework/data/ascii/<currentdate>_5000.dat_
 
 
-== Tutorial - Simple M-Bus Data Logger
+== Tutorials
 
-*Objective:* You will learn how to create a simple data logger which reads out a M-Bus meter via serial communication. It uses OpenMUC on-board tools so no programming is required.
+include::sections/tutorials/tutorial-mbus-data-logger.txt[]
 
-*Preparation:* If not already done, your system needs to be prepared once for serial communication.
+include::sections/tutorials/tutorial-application-development.txt[]
 
-----
-sudo apt-get install librxtx-java
-sudo adduser $USER dialout
-----
+include::sections/tutorials/tutorial-webui-plugin.txt[]
 
-Now logout from your system and login again to apply system changes.
-
-*Step-by-step*
-
-. Download OpenMUC and unpack it
-
-. Open openmuc/framework/conf/bundles.conf.gradle and comment the following lines by //
-+
-----
-osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo", version: openmucVersion
-osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
-----
-
-. Add following lines to make the M-Bus driver and serial communication available
-+
-----
-osgibundles group: "org.openmuc.framework" name: "openmuc-driver-mbus", version: openmucVersion
-osgibundles group: "org.openmuc", name: "jrxtx", version: "1.0.1"
-----
-
-. To apply changes navigate to openmuc/framework/bin and run
-+
-----
-./openmuc update-bundles
-----
-
-. Start OpenMUC
-+
-----
-./openmuc start -fg
-----
-
-. Open a browser and point it to localhost:8888 to view the WebUI of OpenMUC. Login with user _admin_ and password _admin_.
-
-. Click on _Channel Configurator_ > _Tab Drivers_ > _Add new driver to configuration_
-
-. Enter _mbus_ as ID and click Submit
-
-. Now the M-Bus driver appears under _Channel Configurator_ > _Tab Drivers_. Click on the search icon
-
-. Enter the serial port the meter is connected to and provide the baud rate if needed (e.g. /dev/ttyS0 or /dev/ttyS0:2400). See M-Bus driver section for more information.
-
-. Click on _Scan for devices_. Now OpenMUC scans all M-Bus addresses, which may take a while
-
-. Select the desired device from the list and click _Add devices_
-+
-:img-file: tutorial_mbus_logger_driver_scan.png
-image::{img-file}[title="WebUI M-Bus device scan",width=400,link="{imagesdir}/{img-file}"]
-
-. Now the device is added. If you do not see the search icon next to the device, press F5 to reload the page and navigate to _Channel Configurator_ > _Tab Devices_
-
-. Click on the search icon and OpenMUC automatically scans all available channels. Select the desired channels and click _Add channels_
-+
-:img-file: tutorial_mbus_logger_channel_scan.png
-image::{img-file}[title="WebUI M-Bus channel scan",width=400,link="{imagesdir}/{img-file}"]
-
-. Now we need to define a sampling and logging interval for the channels. Click on _Channel Configurator_ > _Tab Channels_ and click on _Edit Icon_ of the desired channel. Write _2000_ in the _Sampling Interval_ and _Logging Interval_ field and click Submit
-
-. To show actual values of the channel, navigate to _Applications_ > _Channel Access Tool_, select your device and click _Access selected_
-+
-:img-file: tutorial_mbus_logger_channel_access_tool.png
-image::{img-file}[title="WebUI channel access tool",width=400,link="{imagesdir}/{img-file}"]
-
-*Tips*
-
-* All logged data are stored in /openmuc/framework/data/ascii/
-* You can also change the configuration by editing /openmuc/framework/conf/channels.xml
-
-
+[[anchor-architecture]]
 == Architecture
 
 The following image depicts the software layers of an OpenMUC
@@ -372,7 +264,7 @@ mostly for configuration and testing purposes. Most companies will
 want to create their own individual UI.
 
 
-== Distribution
+=== File Structure of the Distribution
 
 The distribution contains the following important files and folders:
 
@@ -396,175 +288,36 @@ framework::
 
     A ready to use OpenMUC demo framework that is introduced next.
 
+=== Framework Files
 
-[[anchor-start-script]]
-== OpenMUC start script
+The folder "framework" contains a configured OpenMUC framework that
+can be used as a basis to create your own customized OpenMUC framework
+for your task. The framework folder contains the following important
+files and folders:
 
-To start OpenMUC on Linux run:
+felix::
 
-----
-./bin/openmuc start
-----
+    The main Apache Felix OSGi jar which is run to start OpenMUC.
 
-This runs OpenMUC as a background process. If you want to run OpenMUC
-in the foreground run:
+bin::
 
-----
-./bin/openmuc start -fg
-----
+    Run scripts for Linux/Unix and Windows.
 
-To start OpenMUC under Window run:
+bundle::
 
-----
-bin\openmuc.bat
-----
+    Contains all bundles that are started by the Felix OSGi
+    framework. Note that this folder does not contain all available
+    OpenMUC bundles but only a subset for demonstration purposes.
 
-The Linux start script is a sophisticated bash script that can be used
-to start, stop, restart OpenMUC. The Windows run script is a simple
-bat file that starts OpenMUC. The following explanations will focus on
-using OpenMUC in a Linux environment as it is the more common
-scenario.
+log::
 
-Starting OpenMUC really means running the Felix OSGi Framework by
-executing
+    Log files produced by the running framework.
 
-java -jar felix/felix.jar
+conf::
 
-The Felix OSGi Framework will then start all bundles located in the
-"bundle" folder.
+    Various configuration files of the framework.
 
-When you start OpenMUC in the foreground you will enter the Felix Gogo
-shell. From the shell you can start, stop and reload bundles among
-many other things. To quit the shell and stop the framework press
-ctrl+d or enter "stop 0".
-
-If OpenMUC was started as a background process you can access the Gogo
-shell using telnet:
-
-----
-netcat 127.0.0.1 6666
-----
-
-or using the openmuc run script
-
-----
-./bin/openmuc remote-shell
-----
-
-Pressing ctrl+d will exit the remote shell but not stop the openmuc framework.
-
-To stop OpenMUC run:
-
-----
-./bin/openmuc stop
-----
-
-To reload a new configuration without restarting:
-
-----
-./bin/openmuc reload
-----
-
-To restart a running OpenMUC (stop/start):
-
-----
-./bin/openmuc restart
-----
-
-To update the bundles in the bundle folder after e.g. changing bundles.conf.gradle
-Before using this the first time see the next point.
-
-----
-./bin/openmuc update-bundles
-----
-
-For building and installing the sources of OpenMUC with updating the bundles:
-----
-./bin/openmuc update-bundles -i
-----
-
-=== Auto-start at Boot Time
-
-On Debian based Linux distributions it is easy to configure automatic
-start of OpenMUC at boot time. As root execute the following commands:
-
-----
-ln -s /path/to/openmuc/bin/openmuc /etc/init.d/openmuc
-update-rc.d openmuc defaults
-----
-
-The above solution will not work if the openmuc start script is
-located on a partion that is not yet mounted at the time the boot
-process attempts to open it. In this case you need copy the start
-script to /etc/init.d/ and edit it to set the OPENMUC_HOME variable.
-
-== Install a Driver
-
-For installing a new driver you have two possible ways.
-
-=== Copy driver
-Copy the corresponding driver jar file from the folder "build/libs-all/" to the
-"bundle" folder of the framework. Many drivers are "fat jars" which include their
-dependencies. An exception is the RXTX library which cannot be packed
-with the jars.
-
-=== Editing bundles configuration
-In /openmuc/framework/conf/bundles.conf.gradle you can find the list of all used
-bundles e.g.:
-
-----
-osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
-
-osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",  version: openmucVersion
-osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base", version: openmucVersion
-----
-
-If you want to add a new driver to the list, e.g. M-Bus, you can do this:
-
-----
-osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv",  version: openmucVersion
-osgibundles group: "org.openmuc.framework", name: "openmuc-driver-mbus", version: openmucVersion
-osgibundles group: "org.openmuc",           name: "jrxtx",               version: "1.0.1"
-
-osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",   version: openmucVersion
-osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base",  version: openmucVersion
-----
-
-Afterwards you have to execute in /openmuc/framework/bin/
-----
-./openmuc update-bundles
-----
-If this is the first time using ./openmuc update-bundles you have to add the parameter -i
-----
-./openmuc update-bundles -i
-----
-
-=== Use a Driver with Serial Communication
-
-When you need to use a driver that uses serial communication you have
-to copy the RXTX bundle to the frameworks "bundle" folder.
-
-----
-cp ../dependencies/rxtx/jrxtx-1.0.1.jar ./bundle/
-----
-
-Additionally you need to install librxtx-java:
-
-----
-sudo apt-get install librxtx-java
-----
-
-The serial ports /dev/tty* are only accessible to members belonging to
-the group dialout. We therefore have to add our user to that
-group. E.g. using:
-
-----
-sudo adduser <yourUserName> dialout
-----
-
-
-
-== Devices and Channels
+=== Devices and Channels
 
 OpenMUC works on the basis of channels. A channel basically represents
 a single data point. Some examples for a channel are the metered
@@ -578,7 +331,7 @@ image:openmuc_concept.png[width={width60}, alt="OpenMUC channel concept", link="
 
 
 [[anchor-configuration]]
-=== Configuration
+=== Configuration via channels.xml
 
 The *conf/channels.xml* file is the main configuration file for
 OpenMUC. It tells the OpenMUC framework which channels it should log
@@ -781,11 +534,109 @@ Example 4 extends example 3 by an additional logging.
 IMPORTANT: When listening is true and additional a sampling interval is defined then the sampling is ignored.
 
 
+[[anchor-start-script]]
+== OpenMUC start script
+
+To start OpenMUC on Linux run:
+
+----
+./bin/openmuc start
+----
+
+This runs OpenMUC as a background process. If you want to run OpenMUC
+in the foreground run:
+
+----
+./bin/openmuc start -fg
+----
+
+To start OpenMUC under Window run:
+
+----
+bin\openmuc.bat
+----
+
+The Linux start script is a sophisticated bash script that can be used
+to start, stop, restart OpenMUC. The Windows run script is a simple
+bat file that starts OpenMUC. The following explanations will focus on
+using OpenMUC in a Linux environment as it is the more common
+scenario.
+
+Starting OpenMUC really means running the Felix OSGi Framework by
+executing
+
+java -jar felix/felix.jar
+
+The Felix OSGi Framework will then start all bundles located in the
+"bundle" folder.
+
+When you start OpenMUC in the foreground you will enter the Felix Gogo
+shell. From the shell you can start, stop and reload bundles among
+many other things. To quit the shell and stop the framework press
+ctrl+d or enter "stop 0".
+
+If OpenMUC was started as a background process you can access the Gogo
+shell using telnet:
+
+----
+netcat 127.0.0.1 6666
+----
+
+or using the openmuc run script
+
+----
+./bin/openmuc remote-shell
+----
+
+Pressing ctrl+d will exit the remote shell but not stop the openmuc framework.
+
+To stop OpenMUC run:
+
+----
+./bin/openmuc stop
+----
+
+To reload a new configuration without restarting:
+
+----
+./bin/openmuc reload
+----
+
+To restart a running OpenMUC (stop/start):
+
+----
+./bin/openmuc restart
+----
+
+To update the bundles in the bundle folder after e.g. changing bundles.conf.gradle
+Before using this the first time see the next point.
+
+----
+./bin/openmuc update-bundles
+----
+
+For building and installing the sources of OpenMUC with updating the bundles:
+----
+./bin/openmuc update-bundles -i
+----
+
+=== Auto-start at Boot Time
+
+On Debian based Linux distributions it is easy to configure automatic
+start of OpenMUC at boot time. As root execute the following commands:
+
+----
+ln -s /path/to/openmuc/bin/openmuc /etc/init.d/openmuc
+update-rc.d openmuc defaults
+----
+
+The above solution will not work if the openmuc start script is
+located on a partion that is not yet mounted at the time the boot
+process attempts to open it. In this case you need copy the start
+script to /etc/init.d/ and edit it to set the OPENMUC_HOME variable.
+
 
 include::sections/drivers.txt[]
-
-
-
 
 
 [[anchor-web-ui]]
@@ -833,6 +684,55 @@ https://localhost:8889. To make the framework more secure you could
 disable http by setting org.apache.felix.http.enable in the
 conf/system.properties file to false.
 
+
+=== Custom Plugins
+
+You can include your own Plugins in the OpenMUC WebUI by creating a java class that extends the WebUiPluginService. This class also has to be annotated as a component. The two functions getAlias and getName have to be overridden. The alias is used to identify the plugin while the name will be displayed in the WebUI.
+
+[source, java]
+----
+@Component(service = WebUiPluginService.class)
+public final class SamplePlugin extends WebUiPluginService {
+
+    @Override
+    public String getAlias() {
+        return "sampleplugin";
+    }
+
+    @Override
+    public String getName() {
+        return "Sample Plugin";
+    }
+
+}
+----
+
+In order to display an icon above the plugins name, the file needs to be called icon and saved under `samplePlugin/src/main/resources/images`.
+
+
+=== Visualisation
+
+First you need a svg and assign all the svg Elements a unique id. You can include an external svg as an Object Element or you can create the svg directly in html. Either way the Element containing the svg needs an id which you can then use to access the svg in javascript.
+
+[source, javascript]
+----
+svg_document = document.getElementById('samplePluginGraphic').contentDocument;
+----
+
+Now you can manipulate the Elements of the svg, the easiest way to do this is through getElementById for a single Element or getElementsByClass for multiple Elements.
+
+[source, javascript]
+----
+sampleText = svg_document.getElementById("sampleTextField");
+sampleText.textContent = channel.record.value;
+----
+
+Aside from changing what is displayed you can also manipulate the css in this way. The following example would change the displayed texts color to blue.
+
+[source, javascript]
+----
+sampleText.style.fill = "blue";
+----
 
 [[id_restful_web_services]]
 == REST Server
@@ -983,13 +883,14 @@ org.openmuc.framework.server.modbus.master=false
 
 Developers:
 
-* Stefan Feuerhahn
-* Marco Mittelsdorf
 * Dirk Zimmermann
-* Albrecht Schall
+* Marco Mittelsdorf
+* Chris Dieter Medam
 
 Former developers:
 
+* Stefan Feuerhahn
+* Albrecht Schall
 * Michael Zillgith
 * Karsten Müller-Bier
 * Simon Fey

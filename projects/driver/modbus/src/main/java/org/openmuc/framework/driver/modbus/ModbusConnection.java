@@ -20,17 +20,10 @@
  */
 package org.openmuc.framework.driver.modbus;
 
-import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.ModbusIOException;
-import com.ghgande.j2mod.modbus.ModbusSlaveException;
-import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
-import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
-import com.ghgande.j2mod.modbus.io.ModbusTransaction;
-import com.ghgande.j2mod.modbus.msg.*;
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
-import com.ghgande.j2mod.modbus.util.BitVector;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
@@ -41,30 +34,53 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.ModbusIOException;
+import com.ghgande.j2mod.modbus.ModbusSlaveException;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.ReadCoilsRequest;
+import com.ghgande.j2mod.modbus.msg.ReadCoilsResponse;
+import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesRequest;
+import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesResponse;
+import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleCoilsRequest;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
+import com.ghgande.j2mod.modbus.util.BitVector;
 
 public abstract class ModbusConnection implements Connection {
 
     private static final Logger logger = LoggerFactory.getLogger(ModbusConnection.class);
+
+    private ModbusTransaction transaction;
     // List do manage Channel Objects to avoid to check the syntax of each channel address for every read or write
     private final Hashtable<String, ModbusChannel> modbusChannels;
+
+    private int requestTransactionId;
     private final int MAX_RETRIES_FOR_JAMOD = 0;
     private final int MAX_RETRIES_FOR_DRIVER = 3;
-    private ModbusTransaction transaction;
-    private int requestTransactionId;
+
+    public abstract void connect() throws ConnectionException;
+
+    @Override
+    public abstract void disconnect();
 
     public ModbusConnection() {
 
         transaction = null;
         modbusChannels = new Hashtable<>();
     }
-
-    public abstract void connect() throws ConnectionException;
-
-    @Override
-    public abstract void disconnect();
 
     public synchronized void setTransaction(ModbusTransaction transaction) {
         this.transaction = transaction;
@@ -90,27 +106,27 @@ public abstract class ModbusConnection implements Connection {
         Value value = null;
 
         switch (channel.getFunctionCode()) {
-            case FC_01_READ_COILS:
-                value = ModbusDriverUtil.getBitVectorsValue(readCoils(channel));
-                break;
-            case FC_02_READ_DISCRETE_INPUTS:
-                value = ModbusDriverUtil.getBitVectorsValue(readDiscreteInputs(channel));
-                break;
-            case FC_03_READ_HOLDING_REGISTERS:
-                value = ModbusDriverUtil.getRegistersValue(readHoldingRegisters(channel), channel.getDatatype());
-                break;
-            case FC_04_READ_INPUT_REGISTERS:
-                value = ModbusDriverUtil.getRegistersValue(readInputRegisters(channel), channel.getDatatype());
-                break;
-            default:
-                throw new RuntimeException("FunctionCode " + channel.getFunctionCode() + " not supported yet");
+        case FC_01_READ_COILS:
+            value = ModbusDriverUtil.getBitVectorsValue(readCoils(channel));
+            break;
+        case FC_02_READ_DISCRETE_INPUTS:
+            value = ModbusDriverUtil.getBitVectorsValue(readDiscreteInputs(channel));
+            break;
+        case FC_03_READ_HOLDING_REGISTERS:
+            value = ModbusDriverUtil.getRegistersValue(readHoldingRegisters(channel), channel.getDatatype());
+            break;
+        case FC_04_READ_INPUT_REGISTERS:
+            value = ModbusDriverUtil.getRegistersValue(readInputRegisters(channel), channel.getDatatype());
+            break;
+        default:
+            throw new RuntimeException("FunctionCode " + channel.getFunctionCode() + " not supported yet");
         }
 
         return value;
     }
 
     public Object readChannelGroupHighLevel(List<ChannelRecordContainer> containers, Object containerListHandle,
-                                            String samplingGroup) throws ConnectionException {
+            String samplingGroup) throws ConnectionException {
 
         // NOTE: containerListHandle is null if something changed in configuration!!!
 
@@ -154,24 +170,24 @@ public abstract class ModbusConnection implements Connection {
             throws ModbusException {
 
         switch (channelGroup.getFunctionCode()) {
-            case FC_01_READ_COILS:
-                BitVector coils = readCoils(channelGroup);
-                channelGroup.setChannelValues(coils, containers);
-                break;
-            case FC_02_READ_DISCRETE_INPUTS:
-                BitVector discretInput = readDiscreteInputs(channelGroup);
-                channelGroup.setChannelValues(discretInput, containers);
-                break;
-            case FC_03_READ_HOLDING_REGISTERS:
-                Register[] registers = readHoldingRegisters(channelGroup);
-                channelGroup.setChannelValues(registers, containers);
-                break;
-            case FC_04_READ_INPUT_REGISTERS:
-                InputRegister[] inputRegisters = readInputRegisters(channelGroup);
-                channelGroup.setChannelValues(inputRegisters, containers);
-                break;
-            default:
-                throw new RuntimeException("FunctionCode " + channelGroup.getFunctionCode() + " not supported yet");
+        case FC_01_READ_COILS:
+            BitVector coils = readCoils(channelGroup);
+            channelGroup.setChannelValues(coils, containers);
+            break;
+        case FC_02_READ_DISCRETE_INPUTS:
+            BitVector discretInput = readDiscreteInputs(channelGroup);
+            channelGroup.setChannelValues(discretInput, containers);
+            break;
+        case FC_03_READ_HOLDING_REGISTERS:
+            Register[] registers = readHoldingRegisters(channelGroup);
+            channelGroup.setChannelValues(registers, containers);
+            break;
+        case FC_04_READ_INPUT_REGISTERS:
+            InputRegister[] inputRegisters = readInputRegisters(channelGroup);
+            channelGroup.setChannelValues(inputRegisters, containers);
+            break;
+        default:
+            throw new RuntimeException("FunctionCode " + channelGroup.getFunctionCode() + " not supported yet");
         }
     }
 
@@ -182,20 +198,20 @@ public abstract class ModbusConnection implements Connection {
         }
 
         switch (channel.getFunctionCode()) {
-            case FC_05_WRITE_SINGLE_COIL:
-                writeSingleCoil(channel, value.asBoolean());
-                break;
-            case FC_15_WRITE_MULITPLE_COILS:
-                writeMultipleCoils(channel, ModbusDriverUtil.getBitVectorFromByteArray(value));
-                break;
-            case FC_06_WRITE_SINGLE_REGISTER:
-                writeSingleRegister(channel, new SimpleRegister(value.asShort()));
-                break;
-            case FC_16_WRITE_MULTIPLE_REGISTERS:
-                writeMultipleRegisters(channel, ModbusDriverUtil.valueToRegisters(value, channel.getDatatype()));
-                break;
-            default:
-                throw new RuntimeException("FunctionCode " + channel.getFunctionCode().toString() + " not supported yet");
+        case FC_05_WRITE_SINGLE_COIL:
+            writeSingleCoil(channel, value.asBoolean());
+            break;
+        case FC_15_WRITE_MULITPLE_COILS:
+            writeMultipleCoils(channel, ModbusDriverUtil.getBitVectorFromByteArray(value));
+            break;
+        case FC_06_WRITE_SINGLE_REGISTER:
+            writeSingleRegister(channel, new SimpleRegister(value.asShort()));
+            break;
+        case FC_16_WRITE_MULTIPLE_REGISTERS:
+            writeMultipleRegisters(channel, ModbusDriverUtil.valueToRegisters(value, channel.getDatatype()));
+            break;
+        default:
+            throw new RuntimeException("FunctionCode " + channel.getFunctionCode().toString() + " not supported yet");
         }
     }
 
@@ -240,7 +256,8 @@ public abstract class ModbusConnection implements Connection {
 
         if (response == null) {
             throw new ModbusException("received response object is null");
-        } else {
+        }
+        else {
             printResponseTraceMsg(response);
         }
 
@@ -285,7 +302,8 @@ public abstract class ModbusConnection implements Connection {
             if (isTransactionIdMatching()) {
                 response = transaction.getResponse();
                 break;
-            } else {
+            }
+            else {
                 retries++;
                 checkRetryCondition(retries);
             }
@@ -296,14 +314,17 @@ public abstract class ModbusConnection implements Connection {
     }
 
     /**
+     * 
      * @param retries
-     * @throws ModbusIOException if max number of retries is reached, which indicates an IO problem.
+     * @throws ModbusIOException
+     *             if max number of retries is reached, which indicates an IO problem.
      */
     private void checkRetryCondition(int retries) throws ModbusIOException {
         if (retries == MAX_RETRIES_FOR_DRIVER) {
             logger.trace("Failed to get response. Retry " + retries + "/" + MAX_RETRIES_FOR_DRIVER);
             throw new ModbusIOException("Unable to get response. Max number of retries reached");
-        } else {
+        }
+        else {
             logger.trace("Failed to get response. Retry " + retries + "/" + MAX_RETRIES_FOR_DRIVER);
         }
     }
@@ -317,7 +338,8 @@ public abstract class ModbusConnection implements Connection {
 
         if (requestId == responseId) {
             isMatching = true;
-        } else {
+        }
+        else {
             logger.warn("Mismatching transaction IDs: request (" + requestId + ") / response (" + responseId
                     + "). Retrying transaction...");
         }
@@ -409,6 +431,7 @@ public abstract class ModbusConnection implements Connection {
 
     /**
      * Read InputRegisters
+     * 
      */
     private synchronized InputRegister[] readInputRegisters(int startAddress, int count, int unitID)
             throws ModbusIOException, ModbusSlaveException, ModbusException {
@@ -429,10 +452,12 @@ public abstract class ModbusConnection implements Connection {
 
     /**
      * Read InputRegisters for a channel
-     *
-     * @param channel Modbus channel
+     * 
+     * @param channel
+     *            Modbus channel
      * @return input register array
-     * @throws ModbusException if an modbus error occurs
+     * @throws ModbusException
+     *             if an modbus error occurs
      */
     public InputRegister[] readInputRegisters(ModbusChannel channel) throws ModbusException {
         return readInputRegisters(channel.getStartAddress(), channel.getCount(), channel.getUnitId());
@@ -440,10 +465,12 @@ public abstract class ModbusConnection implements Connection {
 
     /**
      * Read InputRegisters for a channelGroup
-     *
-     * @param channelGroup modbus channel group
+     * 
+     * @param channelGroup
+     *            modbus channel group
      * @return the input register array
-     * @throws ModbusException if an modbus error occurs
+     * @throws ModbusException
+     *             if an modbus error occurs
      */
     public InputRegister[] readInputRegisters(ModbusChannelGroup channelGroup) throws ModbusException {
         return readInputRegisters(channelGroup.getStartAddress(), channelGroup.getCount(), channelGroup.getUnitId());
@@ -509,14 +536,14 @@ public abstract class ModbusConnection implements Connection {
 
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("REQUEST: " + request.getHexMessage() + "\n");
-            sb.append("- transaction ID: " + requestTransactionId + "\n");
-            sb.append("- protocol ID   : " + request.getProtocolID() + "\n");
-            sb.append("- data length   : " + request.getDataLength() + "\n");
-            sb.append("- unit ID       : " + request.getUnitID() + "\n");
-            sb.append("- function code : " + request.getFunctionCode() + "\n");
-            sb.append("- is headless   : " + request.isHeadless() + "\n");
-            sb.append("- max retries   : " + transaction.getRetries());
+            sb.append("REQUEST: ").append(request.getHexMessage()).append('\n');
+            sb.append("- transaction ID: ").append(requestTransactionId).append('\n');
+            sb.append("- protocol ID   : ").append(request.getProtocolID()).append('\n');
+            sb.append("- data length   : ").append(request.getDataLength()).append('\n');
+            sb.append("- unit ID       : ").append(request.getUnitID()).append('\n');
+            sb.append("- function code : ").append(request.getFunctionCode()).append('\n');
+            sb.append("- is headless   : ").append(request.isHeadless()).append('\n');
+            sb.append("- max retries   : ").append(transaction.getRetries());
 
             if (transaction instanceof ModbusTCPTransaction) {
                 sb.append("\n   (NOTE: incorrect transaction Id displayed in hex message due to issue with jamod)");
@@ -525,7 +552,7 @@ public abstract class ModbusConnection implements Connection {
             traceMsg = sb.toString();
         } catch (
 
-                Exception e) {
+        Exception e) {
             logger.trace("Unable to create debug message from request", e);
         }
 

@@ -20,6 +20,11 @@
  */
 package org.openmuc.framework.driver.iec60870;
 
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -29,27 +34,29 @@ import org.openmuc.framework.data.TypeConversionException;
 import org.openmuc.framework.driver.iec60870.settings.ChannelAddress;
 import org.openmuc.framework.driver.iec60870.settings.DeviceAddress;
 import org.openmuc.framework.driver.iec60870.settings.DeviceSettings;
-import org.openmuc.framework.driver.spi.*;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.openmuc.j60870.CauseOfTransmission;
 import org.openmuc.j60870.ClientConnectionBuilder;
 import org.openmuc.j60870.IeQualifierOfInterrogation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
-
 public final class Iec60870Connection implements Connection {
 
+    private org.openmuc.j60870.Connection clientConnection;
+
     private static final Logger logger = LoggerFactory.getLogger(Iec60870Connection.class);
+
     private final DeviceAddress deviceAddress;
     private final DeviceSettings deviceSettings;
     private final String driverId;
+
     private final Iec60870ListenerList iec60870listener = new Iec60870ListenerList();
     private final Iec60870ReadListener readListener = new Iec60870ReadListener();
-    private org.openmuc.j60870.Connection clientConnection;
 
     public Iec60870Connection(DeviceAddress deviceAddress, DeviceSettings deviceSettings, String driverId)
             throws ConnectionException {
@@ -164,17 +171,23 @@ public final class Iec60870Connection implements Connection {
 
         if (deviceSettings.commonAddressFieldLength() > 0) {
             clientSap.setCommonAddressFieldLength(deviceSettings.commonAddressFieldLength());
-        } else if (deviceSettings.cotFieldLength() > 0) {
+        }
+        else if (deviceSettings.cotFieldLength() > 0) {
             clientSap.setCotFieldLength(deviceSettings.cotFieldLength());
-        } else if (deviceSettings.ioaFieldLength() > 0) {
+        }
+        else if (deviceSettings.ioaFieldLength() > 0) {
             clientSap.setIoaFieldLength(deviceSettings.ioaFieldLength());
-        } else if (deviceSettings.maxIdleTime() > 0) {
+        }
+        else if (deviceSettings.maxIdleTime() > 0) {
             clientSap.setMaxIdleTime(deviceSettings.maxIdleTime());
-        } else if (deviceSettings.maxTimeNoAckReceived() > 0) {
+        }
+        else if (deviceSettings.maxTimeNoAckReceived() > 0) {
             clientSap.setMaxTimeNoAckReceived(deviceSettings.maxTimeNoAckReceived());
-        } else if (deviceSettings.maxTimeNoAckSent() > 0) {
+        }
+        else if (deviceSettings.maxTimeNoAckSent() > 0) {
             clientSap.setMaxTimeNoAckSent(deviceSettings.maxTimeNoAckSent());
-        } else if (deviceSettings.maxUnconfirmedIPdusReceived() > 0) {
+        }
+        else if (deviceSettings.maxUnconfirmedIPdusReceived() > 0) {
             clientSap.setMaxUnconfirmedIPdusReceived(deviceSettings.maxUnconfirmedIPdusReceived());
         }
     }

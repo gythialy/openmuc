@@ -4,6 +4,7 @@
     <samplingTimeout>10s</samplingTimeout>
     <connectRetryInterval>1m</connectRetryInterval>
     <device id="home1">
+      <description/>
       <deviceAddress>./csv-driver/home1.csv</deviceAddress>
       <settings>samplingmode=hhmmss;rewind=true</settings>
       <channel id="hhmmss">
@@ -48,12 +49,12 @@
         <valueType length="20">STRING</valueType>
         <loggingInterval>5s</loggingInterval>
       </channel>
-      <channel id="enery_exported">
+      <channel id="energy_exported">
         <description>(calculated by demo app)</description>
         <unit>kWh</unit>
         <loggingInterval>5s</loggingInterval>
       </channel>
-      <channel id="enery_imported">
+      <channel id="energy_imported">
         <description>(calculated by demo app)</description>
         <unit>kWh</unit>
         <loggingInterval>5s</loggingInterval>

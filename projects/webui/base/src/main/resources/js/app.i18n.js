@@ -29,7 +29,9 @@
             CONFIGURATION: 'Configuration',
             NEW: 'New',
             EDIT: 'Edit',
+            EDIT_SELECTED: 'Edit selected',
             DELETE: 'Delete',
+            DELETE_SELECTED: 'Delete selected',
             SEARCH: 'Search',
             OPEN: 'Open',
             INFOS: 'Infos',
@@ -188,7 +190,9 @@
             DEVICE_UPDATED_SUCCESSFULLY: 'The device was successfully updated.',
             DEVICE_UPDATED_ERROR: 'The device was not updated. Something went wrong.',
             DEVICE_SCAN_CHANNEL_CREATED_SUCCESSFULLY: 'The channel was successfully created.',
+            DEVICE_SCAN_CHANNELS_CREATED_SUCCESSFULLY: 'The channels were successfully created.',
             DEVICE_SCAN_CHANNEL_CREATED_ERROR: 'The channel was not created. Something went wrong.',
+            DEVICE_SCAN_CHANNELS_CREATED_ERROR: 'The channels were not created. Something went wrong.',
             DEVICE_SCAN_NOT_SUPPORTED: 'The device does not support scanning.',
             DEVICE_DELETED_SUCCESSFULLY: 'The device was successfully deleted.',
             CHANNEL_CREATED_SUCCESSFULLY: 'The channel was successfully created.',
@@ -196,6 +200,7 @@
             CHANNEL_UPDATED_SUCCESSFULLY: 'The channel was successfully updated.',
             CHANNEL_UPDATED_ERROR: 'The channel was not successfully updated. Something went wrong.',
             CHANNEL_DELETED_SUCCESSFULLY: 'The channel was successfully deleted.',
+            CHANNELS_DELETED_SUCCESSFULLY: 'The channels were successfully deleted.',
             SELECT_AT_LEAST_ONE_DEVICE: 'Please select at least one device.',
             USER_UPDATED_SUCCESSFULLY: 'The username was successfully updated.',
             USER_UPDATED_ERROR: 'The username was not updated. Something went wrong.',
@@ -256,7 +261,15 @@
             NO_MEDIA: 'No media files found',
             CHANNEL_VALUE_UPDATED_SUCCESSFULLY: 'The new value was written to the channel',
             CHANNEL_VALUE_UPDATED_ERROR: 'The new value was not written to the channel. Something went wrong.',
-            CHANNEL_NO_VALUE_TO_WRITE: 'There is no value to write.'
+            CHANNEL_NO_VALUE_TO_WRITE: 'There is no value to write.',
+            NO_GRAPH_CREATED_YET: 'No graph created yet',
+            MINUTE_STEPS: 'Minute steps',
+            USE_SCROLLWHEEL_OR_CLICK_AND_USE_ARROW_KEYS: 'Use the scrollwheel or click into the field and use the arrow keys to change the time.',
+            SHOW_DESCRIPTION: 'Show',
+            DELETE_SELECTED_CONFIRM_MESSAGE: 'Are you sure you want to delete selected channels?',
+            EDIT_DELETE_SELECTED: 'Edit/delete selected channels',
+            VALUE_TYPE_LENGTH_BYTE_ARRAY: 'You need to set a value length higher than 0 for value type BYTE ARRAY',
+            VALUE_TYPE_LENGTH_STRING: 'You need to set a value length higher than 0 for value type STRING'
         });
 
         $translateProvider.translations('de', {
@@ -274,11 +287,13 @@
             MINUTES: 'Minuten',
             HOURS: 'Stunden',
             SAVE: 'Speichern',
-            CHANNEL_NOT_HISTORIC: 'Kanal hat keine historischen Werte.'
+            CHANNEL_NOT_HISTORIC: 'Kanal hat keine historischen Werte.',
+            MINUTE_STEPS: 'Minutenschritte'
         });
 
         $translateProvider.useCookieStorage();
         $translateProvider.preferredLanguage('en');
+        $translateProvider.useSanitizeValueStrategy('sceParameters');
     });
 
 })();

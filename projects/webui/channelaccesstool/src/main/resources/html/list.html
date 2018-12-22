@@ -1,6 +1,6 @@
 <form ng-submit="accessChannels()" novalidate>
 
-    <table class="table table-hover" id="access-tool-table">
+    <table id="accesssListTable" class="table table-hover">
         <thead>
         <tr>
             <th>&nbsp;</th>
@@ -8,24 +8,24 @@
             <th>{{'DESCRIPTION' | translate}}</th>
         </tr>
         </thead>
-        <tr ng-click="checkedDevices[device.id] = !checkedDevices[device.id]" ng-repeat="device in devices">
+        <tr ng-repeat="device in devices" ng-click="checkedDevices[device.id] = !checkedDevices[device.id]">
             <td>
-                <input name="checkedDevices"
-                       ng-click="$event.stopPropagation()"
+                <input type="checkbox"
+                       name="checkedDevices"
                        ng-model="checkedDevices[device.id]"
-                       type="checkbox"/>
+                       ng-click="$event.stopPropagation()" />
             </td>
             <td>{{device.id}}</td>
-            <td>{{device.description}}</td>
+            <td>{{device.configs.description}}</td>
         </tr>
         <tr>
-            <td><input ng-model="check" ng-model-options="{getterSetter: true}" type="checkbox"/></td>
+            <td><input type="checkbox" ng-model="check" ng-model-options="{getterSetter: true}" /></td>
             <td colspan="2"><b>{{'SELECT_ALL' | translate}}</b></td>
         </tr>
     </table>
 
     <div class="text-right">
-        <input class="btn btn-primary" type="submit" value="{{'ACCESS_SELECTED' | translate}}...">
+        <input type="submit" class="btn btn-primary" value="{{'ACCESS_SELECTED' | translate}}...">
     </div>
 
 </form>

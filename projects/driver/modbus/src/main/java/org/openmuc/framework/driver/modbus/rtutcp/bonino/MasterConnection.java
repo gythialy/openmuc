@@ -2,10 +2,10 @@ package org.openmuc.framework.driver.modbus.rtutcp.bonino;
 
 /**
  * A common interface for master connections (not strictly covering serial connections)
- *
+ * 
  * @author bonino
- * <p>
- * https://github.com/dog-gateway/jamod-rtu-over-tcp
+ * 
+ *         https://github.com/dog-gateway/jamod-rtu-over-tcp
  */
 
 public interface MasterConnection {

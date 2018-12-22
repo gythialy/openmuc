@@ -33,10 +33,12 @@ public class ModbusTCPDeviceAddress {
         if (address.length == 1) {
             ip = address[0];
             port = Modbus.DEFAULT_PORT;
-        } else if (address.length == 2) {
+        }
+        else if (address.length == 2) {
             ip = address[0];
             port = Integer.parseInt(address[1]);
-        } else {
+        }
+        else {
             throw new RuntimeException("Invalid device address: '" + deviceAddress
                     + "'! Use following format: [ip:port] like localhost:1502 or 127.0.0.1:1502");
         }

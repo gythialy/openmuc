@@ -1,4 +1,30 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.csv.test;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -7,14 +33,8 @@ import org.openmuc.framework.driver.csv.channel.CsvChannelHHMMSS;
 import org.openmuc.framework.driver.csv.exceptions.CsvException;
 import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class CsvTimeChannelHourTest {
-
-    private static final Logger logger = LoggerFactory.getLogger(CsvTimeChannelHourTest.class);
 
     static List<String> data;
     static long[] timestamps;
@@ -22,6 +42,8 @@ public class CsvTimeChannelHourTest {
 
     @BeforeClass
     public static void initTestClass() {
+
+        // create test data. first data entry corresponds to first timestamps entry
         data = new ArrayList<>();
         data.add("0.0");
         data.add("5.0");
@@ -29,31 +51,7 @@ public class CsvTimeChannelHourTest {
         data.add("15.0");
         data.add("20.0");
 
-        timestamps = new long[]{100000, 100005, 100010, 100015, 100020};
-
-    }
-
-    // openmuc calls read with timestamp (ms)
-    private long createTimestamp(long hhmmss) {
-        GregorianCalendar cal = new GregorianCalendar(Locale.GERMANY);
-
-        cal.setTimeInMillis(System.currentTimeMillis());
-
-        // add leading zeros e.g. 90000 (9 o'clock) will be converted to 090000
-        String time = String.format("%06d", hhmmss);
-
-        String hourStr = time.substring(0, 2);
-        String minuteStr = time.substring(2, 4);
-        String secondStr = time.substring(4, 6);
-
-        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourStr));
-        cal.set(Calendar.MINUTE, Integer.parseInt(minuteStr));
-        cal.set(Calendar.SECOND, Integer.parseInt(secondStr));
-        cal.set(Calendar.MILLISECOND, 0);
-
-        long ms = cal.getTimeInMillis();
-
-        return ms;
+        timestamps = new long[] { 100000, 100005, 100010, 100015, 100020 };
 
     }
 
@@ -165,6 +163,27 @@ public class CsvTimeChannelHourTest {
         } catch (TimeTravelException e) {
             Assert.assertTrue(true);
         }
+
+    }
+
+    private long createTimestamp(long hhmmss) {
+        GregorianCalendar cal = new GregorianCalendar(Locale.GERMANY);
+
+        cal.setTimeInMillis(System.currentTimeMillis());
+
+        // add leading zeros e.g. 90000 (9 o'clock) will be converted to 090000
+        String time = String.format("%06d", hhmmss);
+
+        String hourStr = time.substring(0, 2);
+        String minuteStr = time.substring(2, 4);
+        String secondStr = time.substring(4, 6);
+
+        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourStr));
+        cal.set(Calendar.MINUTE, Integer.parseInt(minuteStr));
+        cal.set(Calendar.SECOND, Integer.parseInt(secondStr));
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTimeInMillis();
 
     }
 

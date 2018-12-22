@@ -1,21 +1,41 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.csv.test;
 
+import java.util.List;
+
 import org.junit.Test;
-import org.openmuc.framework.config.*;
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
 import org.openmuc.framework.driver.csv.CsvDeviceConnection;
 import org.openmuc.framework.driver.csv.CsvDriver;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class CsvScanDeviceTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(CsvScanDeviceTest.class);
-
-    String dir = System.getProperty("user.dir");
+    private String dir = System.getProperty("user.dir");
 
     @Test
     public void testDeviceScan()
@@ -28,12 +48,12 @@ public class CsvScanDeviceTest {
 
             @Override
             public void scanProgressUpdate(int progress) {
-                logger.info("Scan progress: " + progress + " %");
+                System.out.println("Scan progress: " + progress + " %");
             }
 
             @Override
             public void deviceFound(DeviceScanInfo scanInfo) {
-                logger.info(scanInfo.toString());
+                System.out.println(scanInfo.toString());
             }
         });
     }
@@ -42,7 +62,7 @@ public class CsvScanDeviceTest {
     public void testChannelScan() {
         CsvDriver csvDriver = new CsvDriver();
 
-        String deviceAddress = dir + "/src/test/resources/SmartHomeTest.csv";
+        String deviceAddress = dir + "/src/test/resources/test_data.csv";
 
         try {
 
@@ -52,7 +72,7 @@ public class CsvScanDeviceTest {
             List<ChannelScanInfo> channelsScanInfos = csvConnection.scanForChannels("");
 
             for (ChannelScanInfo info : channelsScanInfos) {
-                logger.info("Channel: " + info.getChannelAddress());
+                System.out.println("Channel: " + info.getChannelAddress());
             }
 
         } catch (ArgumentSyntaxException e) {

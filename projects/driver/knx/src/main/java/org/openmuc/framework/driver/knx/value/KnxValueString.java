@@ -22,6 +22,7 @@ package org.openmuc.framework.driver.knx.value;
 
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.Value;
+
 import tuwien.auto.calimero.dptxlator.DPTXlatorString;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
@@ -33,23 +34,23 @@ public class KnxValueString extends KnxValue {
 
     /*
      * (non-Javadoc)
-     *
+     * 
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+     */
+    @Override
+    public void setOpenMucValue(Value value) throws KNXFormatException {
+        ((DPTXlatorString) dptXlator).setValue(new String(value.asByteArray()));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
      */
     @Override
     public Value getOpenMucValue() {
         // TODO Auto-generated method stub
         return new ByteArrayValue(((DPTXlatorString) dptXlator).getValue().getBytes());
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-     */
-    @Override
-    public void setOpenMucValue(Value value) throws KNXFormatException {
-        ((DPTXlatorString) dptXlator).setValue(new String(value.asByteArray()));
     }
 
 }

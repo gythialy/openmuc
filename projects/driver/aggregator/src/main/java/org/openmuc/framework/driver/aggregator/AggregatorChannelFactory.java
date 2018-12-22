@@ -1,4 +1,31 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.aggregator;
+
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.ADDRESS_QUALITY_INDEX;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.ADDRESS_SEPARATOR;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.AGGREGATION_TYPE_AVG;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.DEFAULT_QUALITY;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.MAX_ADDRESS_PARTS_LENGTH;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.MIN_ADDRESS_PARTS_LENGTH;
 
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.driver.aggregator.types.AverageAggregation;
@@ -7,15 +34,13 @@ import org.openmuc.framework.driver.aggregator.types.LastAggregation;
 import org.openmuc.framework.driver.aggregator.types.PulseEnergyAggregation;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
-import static org.openmuc.framework.driver.aggregator.AggregatorConstants.*;
-
 /**
  * Creates a AggregatorChannel instance according to the aggregationType
  */
 public class AggregatorChannelFactory {
 
     public static AggregatorChannel createAggregatorChannel(ChannelRecordContainer container,
-                                                            DataAccessService dataAccessService) throws AggregationException {
+            DataAccessService dataAccessService) throws AggregationException {
 
         AggregatorChannel aggregatorChannel = null;
         ChannelAddress simpleAddress = createAddressFrom(container);
@@ -25,9 +50,9 @@ public class AggregatorChannelFactory {
 
     /**
      * Creates a AggregatorChannel instance according to the aggregationType
-     * <p>
+     * 
      * Note: Add new types here if necessary
-     *
+     * 
      * @throws AggregationException
      */
     private static AggregatorChannel createByAddress(ChannelAddress channelAddress, DataAccessService dataAccessService)
@@ -36,23 +61,23 @@ public class AggregatorChannelFactory {
         String aggregationType = channelAddress.getAggregationType();
 
         switch (aggregationType) {
-            case AGGREGATION_TYPE_AVG:
-                return new AverageAggregation(channelAddress, dataAccessService);
-            case AggregatorConstants.AGGREGATION_TYPE_LAST:
-                return new LastAggregation(channelAddress, dataAccessService);
-            case AggregatorConstants.AGGREGATION_TYPE_DIFF:
-                return new DiffAggregation(channelAddress, dataAccessService);
-            case AggregatorConstants.AGGREGATION_TYPE_PULS_ENERGY:
-                return new PulseEnergyAggregation(channelAddress, dataAccessService);
-            default:
-                throw new AggregationException("Unsupported aggregationType: " + aggregationType + " in channel "
-                        + channelAddress.getContainer().getChannelAddress());
+        case AGGREGATION_TYPE_AVG:
+            return new AverageAggregation(channelAddress, dataAccessService);
+        case AggregatorConstants.AGGREGATION_TYPE_LAST:
+            return new LastAggregation(channelAddress, dataAccessService);
+        case AggregatorConstants.AGGREGATION_TYPE_DIFF:
+            return new DiffAggregation(channelAddress, dataAccessService);
+        case AggregatorConstants.AGGREGATION_TYPE_PULS_ENERGY:
+            return new PulseEnergyAggregation(channelAddress, dataAccessService);
+        default:
+            throw new AggregationException("Unsupported aggregationType: " + aggregationType + " in channel "
+                    + channelAddress.getContainer().getChannelAddress());
         }
     }
 
     /**
      * Returns the "type" parameter from address
-     *
+     * 
      * @throws WrongChannelAddressFormatException
      */
     private static ChannelAddress createAddressFrom(ChannelRecordContainer container) throws AggregationException {

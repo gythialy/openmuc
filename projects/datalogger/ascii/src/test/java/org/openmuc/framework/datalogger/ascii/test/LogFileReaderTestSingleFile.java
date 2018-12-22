@@ -20,6 +20,12 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,12 +41,6 @@ import org.openmuc.framework.datalogger.ascii.LogIntervalContainerGroup;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
-
 public class LogFileReaderTestSingleFile {
 
     // t1 = start timestamp of requested interval
@@ -53,7 +53,7 @@ public class LogFileReaderTestSingleFile {
     static long startTimestampFile;
     static long endTimestampFile;
     static String Channel0Name = "power";
-    static String[] channelIds = {Channel0Name};
+    static String[] channelIds = { Channel0Name };
     static String dateFormat = "yyyyMMdd HH:mm:ss";
 
     LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "Comment", "W", ValueType.DOUBLE,
@@ -64,7 +64,7 @@ public class LogFileReaderTestSingleFile {
 
         System.out.println("### Setup() LogFileReaderTestSingleFile");
 
-        TestSuite.createTestFolder();
+        TestUtils.createTestFolder();
 
         // File file = new File(TestUtils.TESTFOLDERPATH + fileDate0 + "_" + loggingInterval + ext);
 
@@ -73,7 +73,7 @@ public class LogFileReaderTestSingleFile {
         // }
         // else {
         // eine Datei
-        channelIds = new String[]{"power"};
+        channelIds = new String[] { "power" };
 
         // Logs 1 channel in second interval from 1 to 3 o'clock
 
@@ -107,7 +107,7 @@ public class LogFileReaderTestSingleFile {
     public static void tearDown() {
 
         System.out.println("tearing down");
-        TestSuite.deleteTestFolder();
+        TestUtils.deleteTestFolder();
     }
 
     @Test
@@ -125,7 +125,8 @@ public class LogFileReaderTestSingleFile {
         boolean result;
         if (records.size() == expectedRecords) {
             result = true;
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -149,7 +150,8 @@ public class LogFileReaderTestSingleFile {
 
         if (records.size() == expectedRecords) {
             result = true;
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -173,7 +175,8 @@ public class LogFileReaderTestSingleFile {
         boolean result;
         if (records.size() == expectedRecords) {
             result = true;
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -202,7 +205,8 @@ public class LogFileReaderTestSingleFile {
         for (int i = 0; records.size() > i; i++) {
             if (records.get(i).getFlag().equals(Flag.NO_VALUE_RECEIVED_YET)) {
                 ++ok;
-            } else {
+            }
+            else {
                 ++wrong;
                 result = false;
             }
@@ -229,7 +233,8 @@ public class LogFileReaderTestSingleFile {
         boolean result;
         if (records.size() == expectedRecords) {
             result = true;
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -251,7 +256,8 @@ public class LogFileReaderTestSingleFile {
         if (record != null) {
             result = true;
 
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -272,7 +278,8 @@ public class LogFileReaderTestSingleFile {
         System.out.println("record: " + record);
         if (record == null) {
             result = true;
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -294,7 +301,8 @@ public class LogFileReaderTestSingleFile {
 
         if (record != null) {
             result = true;
-        } else {
+        }
+        else {
             result = false;
         }
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());

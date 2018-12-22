@@ -3,12 +3,12 @@ def projectDescription = "IEC 62056-21 driver for the OpenMUC framework."
 
 configurations.create('embed')
 
-def j62056version = "2.1.0"
+def j62056version = '2.1.0'
 
 dependencies {
-    compile project(':openmuc-core-spi')
+    implementation project(':openmuc-core-spi')
 
-    compile group: 'org.openmuc', name: 'j62056', version: j62056version
+    implementation group: 'org.openmuc', name: 'j62056', version: j62056version
     embed group: 'org.openmuc', name: 'j62056', version: j62056version
 }
 

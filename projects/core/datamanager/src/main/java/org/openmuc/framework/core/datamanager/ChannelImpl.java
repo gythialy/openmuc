@@ -21,32 +21,62 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+
 import org.openmuc.framework.config.ChannelConfig;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.*;
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.ByteValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.FutureValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.TypeConversionException;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.ChannelState;
+import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.dataaccess.ReadRecordContainer;
+import org.openmuc.framework.dataaccess.RecordListener;
+import org.openmuc.framework.dataaccess.WriteValueContainer;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-
 public final class ChannelImpl implements Channel {
 
     private static final Logger logger = LoggerFactory.getLogger(ChannelImpl.class);
-    private final Set<RecordListener> listeners = new LinkedHashSet<>();
-    private final DataManager dataManager;
+
+    private volatile Record latestRecord;
     volatile ChannelConfigImpl config;
     ChannelCollection samplingCollection;
     ChannelCollection loggingCollection;
+    private final Set<RecordListener> listeners = new LinkedHashSet<>();
+    private final DataManager dataManager;
     volatile Object handle;
-    private volatile Record latestRecord;
     private Timer timer = null;
     private List<FutureValue> futureValues;
 
     public ChannelImpl(DataManager dataManager, ChannelConfigImpl config, ChannelState initState, Flag initFlag,
-                       long currentTime, List<LogChannel> logChannels) {
+            long currentTime, List<LogChannel> logChannels) {
         this.dataManager = dataManager;
         this.config = config;
         this.futureValues = new ArrayList<>();
@@ -54,10 +84,12 @@ public final class ChannelImpl implements Channel {
         if (config.isDisabled()) {
             config.state = ChannelState.DISABLED;
             latestRecord = new Record(Flag.DISABLED);
-        } else if (!config.isListening() && config.getSamplingInterval() < 0) {
+        }
+        else if (!config.isListening() && config.getSamplingInterval() < 0) {
             config.state = initState;
             latestRecord = new Record(Flag.SAMPLING_AND_LISTENING_DISABLED);
-        } else {
+        }
+        else {
             config.state = initState;
             latestRecord = new Record(null, null, initFlag);
         }
@@ -180,7 +212,8 @@ public final class ChannelImpl implements Channel {
         List<Record> records = dataManager.getDataLogger().getRecords(config.getId(), timestamp, timestamp);
         if (!records.isEmpty()) {
             return records.get(0);
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -202,7 +235,8 @@ public final class ChannelImpl implements Channel {
                 if (futureValue.getWriteTime() <= endTime) {
                     Record futureValAsRec = new Record(futureValue.getValue(), futureValue.getWriteTime());
                     toReturn.add(futureValAsRec);
-                } else {
+                }
+                else {
                     break;
                 }
             }
@@ -216,7 +250,8 @@ public final class ChannelImpl implements Channel {
 
         if (record.getFlag() == Flag.VALID) {
             convertedRecord = convertValidRecord(record);
-        } else {
+        }
+        else {
             convertedRecord = new Record(latestRecord.getValue(), latestRecord.getTimestamp(), record.getFlag());
         }
 
@@ -253,29 +288,29 @@ public final class ChannelImpl implements Channel {
 
         try {
             switch (config.getValueType()) {
-                case BOOLEAN:
-                    return new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(),
-                            record.getFlag());
-                case BYTE:
-                    return new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(), record.getFlag());
-                case SHORT:
-                    return new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(), record.getFlag());
-                case INTEGER:
-                    return new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(), record.getFlag());
-                case LONG:
-                    return new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(), record.getFlag());
-                case FLOAT:
-                    return new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(), record.getFlag());
-                case DOUBLE:
-                    return new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(),
-                            record.getFlag());
-                case BYTE_ARRAY:
-                    return new Record(new ByteArrayValue(record.getValue().asByteArray()), record.getTimestamp(),
-                            record.getFlag());
-                case STRING:
-                default:
-                    return new Record(new StringValue(record.getValue().toString()), record.getTimestamp(),
-                            record.getFlag());
+            case BOOLEAN:
+                return new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(),
+                        record.getFlag());
+            case BYTE:
+                return new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(), record.getFlag());
+            case SHORT:
+                return new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(), record.getFlag());
+            case INTEGER:
+                return new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(), record.getFlag());
+            case LONG:
+                return new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(), record.getFlag());
+            case FLOAT:
+                return new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(), record.getFlag());
+            case DOUBLE:
+                return new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(),
+                        record.getFlag());
+            case BYTE_ARRAY:
+                return new Record(new ByteArrayValue(record.getValue().asByteArray()), record.getTimestamp(),
+                        record.getFlag());
+            case STRING:
+            default:
+                return new Record(new StringValue(record.getValue().toString()), record.getTimestamp(),
+                        record.getFlag());
             }
         } catch (TypeConversionException e) {
             logger.error("Unable to convert value to configured value type because a TypeConversionError occured.", e);
@@ -311,10 +346,12 @@ public final class ChannelImpl implements Channel {
         if (config.isDisabled()) {
             config.state = ChannelState.DISABLED;
             setFlag(Flag.DISABLED);
-        } else if (!config.isListening() && config.getSamplingInterval() < 0) {
+        }
+        else if (!config.isListening() && config.getSamplingInterval() < 0) {
             config.state = state;
             setFlag(Flag.SAMPLING_AND_LISTENING_DISABLED);
-        } else {
+        }
+        else {
             config.state = state;
             setFlag(flag);
         }

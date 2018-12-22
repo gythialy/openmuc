@@ -20,24 +20,26 @@
  */
 package org.openmuc.framework.datalogger.ascii.utils;
 
-import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-public class IESDataFormatUtils {
+import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 
-    private IESDataFormatUtils() {
-    }
+public class IESDataFormatUtils {
 
     /**
      * Convert a double value into a string with the maximal allowed length of maxLength.
-     *
-     * @param value     the value to convert
-     * @param maxLength The maximal allowed length with all signs.
-     * @param sbValue   StringBuffer for the return value
-     * @throws WrongScalingException will thrown if converted value is bigger then maxLength
+     * 
+     * @param value
+     *            the value to convert
+     * @param maxLength
+     *            The maximal allowed length with all signs.
+     * @param sbValue
+     *            StringBuffer for the return value
+     * 
+     * @throws WrongScalingException
+     *             will thrown if converted value is bigger then maxLength
      */
     public static void convertDoubleToStringWithMaxLength(StringBuilder sbValue, double value, int maxLength)
             throws WrongScalingException {
@@ -52,17 +54,19 @@ public class IESDataFormatUtils {
                 valueWork *= -1l;
             }
             format = '+' + getFormat(valueWork);
-        } else {
+        }
+        else {
             format = getFormat(valueWork);
         }
 
         DecimalFormat df = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
-        sbValue.append(df.format(valueWork));
+        String doubleString = df.format(valueWork);
 
-        if (sbValue.length() > maxLength) {
+        if (doubleString.length() > maxLength) {
             throw new WrongScalingException("Double value (" + value + ") too large for conversion into max length "
                     + maxLength + "! Try to scale value.");
         }
+        sbValue.append(doubleString);
     }
 
     private static String getFormat(double value) {
@@ -72,14 +76,20 @@ public class IESDataFormatUtils {
 
         if (lValue > 999999 || lValue < -999999) {
             format = "#######0";
-        } else if (lValue > 99999 || lValue < -99999) {
+        }
+        else if (lValue > 99999 || lValue < -99999) {
             format = "#####0.0";
-        } else if (lValue > 9999 || lValue < -9999) {
+        }
+        else if (lValue > 9999 || lValue < -9999) {
             format = "####0.00";
-        } else {
+        }
+        else {
             format = "###0.000";
         }
 
         return format;
+    }
+
+    private IESDataFormatUtils() {
     }
 }

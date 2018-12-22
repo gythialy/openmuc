@@ -21,21 +21,27 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
-import org.openmuc.framework.data.DoubleValue;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Record;
-
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+
 public final class FileObject {
 
-    private final File dataFile;
     private long startTimeStamp; // byte 0-7 in file (cached)
     private long storagePeriod; // byte 8-15 in file (cached)
+    private final File dataFile;
     private DataOutputStream dos;
     private BufferedOutputStream bos;
     private FileOutputStream fos;
@@ -173,7 +179,7 @@ public final class FileObject {
 
     /**
      * Return the Timestamp of the first stored Value in this File.
-     *
+     * 
      * @return timestamp as long
      */
     public long getStartTimeStamp() {
@@ -182,7 +188,7 @@ public final class FileObject {
 
     /**
      * Returns the step frequency in seconds.
-     *
+     * 
      * @return step frequency in seconds
      */
     public long getStoringPeriod() {
@@ -191,10 +197,13 @@ public final class FileObject {
 
     /**
      * creates the file, if it doesn't exist.
-     *
-     * @param startTimeStamp for file header
-     * @param stepIntervall  for file header
-     * @throws IOException if an I/O error occurs.
+     * 
+     * @param startTimeStamp
+     *            for file header
+     * @param stepIntervall
+     *            for file header
+     * @throws IOException
+     *             if an I/O error occurs.
      */
     public void createFileAndHeader(long startTimeStamp, long stepIntervall) throws IOException {
         if (!dataFile.exists() || length < 16) {
@@ -235,12 +244,14 @@ public final class FileObject {
             dos.writeDouble(value);
             dos.writeByte(flag);
             length += 9;
-        } else {
+        }
+        else {
             if (length > writePosition) {
                 /*
                  * value has already been stored for this timeslot -> handle? AVERAGE, MIN, MAX, LAST speichern?!
                  */
-            } else {
+            }
+            else {
                 /*
                  * there are missing some values missing -> fill up with NaN!
                  */
@@ -248,14 +259,14 @@ public final class FileObject {
                     enableOutput();
                 }
                 long rowsToFillWithNan = (writePosition - length) / 9;// TODO:
-                // stimmt
-                // Berechnung?
+                                                                      // stimmt
+                                                                      // Berechnung?
                 for (int i = 0; i < rowsToFillWithNan; i++) {
                     dos.writeDouble(Double.NaN); // TODO: festlegen welcher Wert
-                    // undefined sein soll NaN
-                    // ok?
+                                                 // undefined sein soll NaN
+                                                 // ok?
                     dos.writeByte(Flag.NO_VALUE_RECEIVED_YET.getCode()); // TODO:
-                    // festlegen
+                                                                         // festlegen
                     // welcher Wert
                     // undefined sein
                     // soll 00 ok?
@@ -278,8 +289,9 @@ public final class FileObject {
 
     /**
      * calculates the position in a file for a certain timestamp
-     *
-     * @param timestamp the searched timestamp
+     * 
+     * @param timestamp
+     *            the searched timestamp
      * @return position the position of the timestamp
      */
     private long getBytePosition(long timestamp) {
@@ -297,7 +309,8 @@ public final class FileObject {
                 pos = Math.round(pos);
             }
             return (long) (pos * 9 + 16);
-        } else {
+        }
+        else {
             // not in file! should never happen...
             return -1;
         }
@@ -337,17 +350,20 @@ public final class FileObject {
 
     /**
      * Returns a List of Value Objects containing the measured Values between provided start and end timestamp
-     *
-     * @param start start timestamp
-     * @param end   end timestamp
+     * 
+     * @param start
+     *            start timestamp
+     * @param end
+     *            end timestamp
      * @return a list of records
-     * @throws IOException if an I/O error occurs.
+     * @throws IOException
+     *             if an I/O error occurs.
      */
     public List<Record> read(long start, long end) throws IOException {
         start = getClosestTimestamp(start); // round to: startTimestamp +
-        // n*stepIntervall
+                                            // n*stepIntervall
         end = getClosestTimestamp(end); // round to: startTimestamp +
-        // n*stepIntervall
+                                        // n*stepIntervall
 
         List<Record> toReturn = new Vector<>();
 
@@ -384,12 +400,13 @@ public final class FileObject {
                 timestampcounter += storagePeriod;
             }
 
-        } else if (start == end) {
+        }
+        else if (start == end) {
             toReturn.add(read(start));
             toReturn.removeAll(Collections.singleton(null));
         }
         return toReturn; // Always return a list -> might be empty -> never is
-        // null, to avoid NP's
+                         // null, to avoid NP's
     }
 
     public List<Record> readFully() throws IOException {
@@ -398,8 +415,9 @@ public final class FileObject {
 
     /**
      * Closes and Flushes underlying Input- and OutputStreams
-     *
-     * @throws IOException if an I/O error occurs.
+     * 
+     * @throws IOException
+     *             if an I/O error occurs.
      */
     public void close() throws IOException {
         canRead = false;
@@ -425,8 +443,9 @@ public final class FileObject {
 
     /**
      * Flushes the underlying Data Streams.
-     *
-     * @throws IOException if an I/O error occurs.
+     * 
+     * @throws IOException
+     *             if an I/O error occurs.
      */
     public void flush() throws IOException {
         if (dos != null) {

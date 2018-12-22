@@ -1,16 +1,16 @@
-(function () {
+(function(){
 
-    var injectParams = [];
+	var injectParams = [];
 
-    var ChannelsFormDirective = function () {
-        return {
-            restrict: 'E',
-            templateUrl: 'channelconfigurator/html/channels/form.html'
-        };
-    };
+	var ChannelsFormDirective = function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'channelconfigurator/html/channels/form.html'
+		};
+	};
 
-    ChannelsFormDirective.$inject = injectParams;
+	ChannelsFormDirective.$inject = injectParams;
 
-    angular.module('openmuc.channels').directive('channelsForm', ChannelsFormDirective);
+	angular.module('openmuc.channels').directive('channelsForm', ChannelsFormDirective);
 
 })();

@@ -20,7 +20,13 @@
  */
 package org.openmuc.framework.driver.rest.helper;
 
-import com.google.gson.JsonElement;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
@@ -29,12 +35,7 @@ import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
 import org.openmuc.framework.lib.json.rest.objects.RestChannel;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonElement;
 
 public class JsonWrapper {
 

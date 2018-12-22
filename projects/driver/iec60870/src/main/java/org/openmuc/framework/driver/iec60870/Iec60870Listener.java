@@ -1,4 +1,29 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.iec60870;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.data.Record;
@@ -13,22 +38,18 @@ import org.openmuc.j60870.InformationObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 public class Iec60870Listener implements ConnectionEventListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Iec60870Listener.class);
     private RecordsReceivedListener listener;
     private List<ChannelRecordContainer> containers;
     private List<ChannelAddress> channelAddresses = new ArrayList<>();
+
+    private static final Logger logger = LoggerFactory.getLogger(Iec60870Listener.class);
     private String driverId;
     private Connection connection;
 
     public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-                                                     RecordsReceivedListener listener, String driverId, Connection connection) throws ConnectionException {
+            RecordsReceivedListener listener, String driverId, Connection connection) throws ConnectionException {
 
         this.containers = containers;
         this.listener = listener;
@@ -77,7 +98,8 @@ public class Iec60870Listener implements ConnectionEventListener {
                     ++i;
                 }
             }
-        } else {
+        }
+        else {
             logger.warn("Listener object is null.");
         }
     }
@@ -100,7 +122,7 @@ public class Iec60870Listener implements ConnectionEventListener {
     }
 
     private List<ChannelRecordContainer> creatNewChannelRecordContainer(ChannelRecordContainer container,
-                                                                        Record record) {
+            Record record) {
         List<ChannelRecordContainer> channelRecordContainerList = new ArrayList<>();
         container.setRecord(record);
         channelRecordContainerList.add(container);

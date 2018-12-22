@@ -64,7 +64,8 @@ public class RestDriverImpl implements DriverService {
                 || !deviceAddress.contains(":")) {
             throw new ArgumentSyntaxException("Invalid address or port: " + deviceAddress
                     + ". Expected Format: https://adress:port or http://adress:port");
-        } else if (deviceAddress.startsWith(HTTP) || deviceAddress.startsWith(HTTPS)) {
+        }
+        else if (deviceAddress.startsWith(HTTP) || deviceAddress.startsWith(HTTPS)) {
             boolean checkTimestamp = false;
             if (settings.startsWith("ct;")) {
                 settings = settings.replaceFirst("ct;", "");
@@ -74,7 +75,8 @@ public class RestDriverImpl implements DriverService {
             connection = new RestConnection(deviceAddress, settings, timeout, checkTimestamp, dataAccessService);
             connection.connect();
             return connection;
-        } else {
+        }
+        else {
             throw new ConnectionException("Invalid address or port: " + deviceAddress
                     + ". Expected Format: https://adress:port or http://adress:port");
         }

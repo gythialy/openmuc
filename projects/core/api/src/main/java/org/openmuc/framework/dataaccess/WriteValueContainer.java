@@ -26,37 +26,38 @@ import org.openmuc.framework.data.Value;
 
 /**
  * A container to write a to channel.
- *
+ * 
  * @see Channel#getWriteContainer()
  * @see DataAccessService#write(java.util.List)
  */
 public interface WriteValueContainer {
 
     /**
-     * Get the value of the container.
-     *
-     * @return the value which has been set via {@link #setValue(Value)}.
-     */
-    Value getValue();
-
-    /**
      * Set the value of the container.
-     *
-     * @param value the value to set on the channel.
+     * 
+     * @param value
+     *            the value to set on the channel.
      * @see #getChannel()
      */
     void setValue(Value value);
 
     /**
+     * Get the value of the container.
+     * 
+     * @return the value which has been set via {@link #setValue(Value)}.
+     */
+    Value getValue();
+
+    /**
      * Get the resulting of the write action.
-     *
+     * 
      * @return the result of the write. Only available if the value has been written.
      */
     Flag getFlag();
 
     /**
      * Get the corresponding channel.
-     *
+     * 
      * @return the channel.
      */
     Channel getChannel();

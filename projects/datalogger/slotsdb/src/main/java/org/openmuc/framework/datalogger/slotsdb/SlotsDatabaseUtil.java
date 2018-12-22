@@ -21,13 +21,13 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SlotsDatabaseUtil {
 
@@ -37,7 +37,8 @@ public final class SlotsDatabaseUtil {
         if (!file.getName().contains(SlotsDb.FILE_EXTENSION)) {
             System.err.println(file.getName() + " is not a \"" + SlotsDb.FILE_EXTENSION + "\" file.");
             return;
-        } else {
+        }
+        else {
             DataInputStream dis = new DataInputStream(new FileInputStream(file));
             try {
                 if (file.length() >= 16) {

@@ -35,8 +35,9 @@ public class ByteArrayValue implements Value {
      * this constructor. That means the passed byte array is not copied. Therefore you should not change the contents of
      * value after calling this constructor. If you want ByteArrayValue to internally store a copy of the passed value
      * then you should use the other constructor of this class instead.
-     *
-     * @param value the byte array value.
+     * 
+     * @param value
+     *            the byte array value.
      */
     public ByteArrayValue(byte[] value) {
         this.value = value;
@@ -44,14 +45,17 @@ public class ByteArrayValue implements Value {
 
     /**
      * Creates a new ByteArrayValue copying the byte array passed if <code>copy</code> is true.
-     *
-     * @param value the byte array value.
-     * @param copy  if true it will internally store a copy of value, else it will store a reference to value.
+     * 
+     * @param value
+     *            the byte array value.
+     * @param copy
+     *            if true it will internally store a copy of value, else it will store a reference to value.
      */
     public ByteArrayValue(byte[] value, boolean copy) {
         if (copy) {
             this.value = value.clone();
-        } else {
+        }
+        else {
             this.value = value;
         }
     }

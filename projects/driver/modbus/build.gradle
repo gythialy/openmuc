@@ -6,9 +6,9 @@ configurations.create('embed')
 def jrxtxversion = '1.0.1'
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
-    compile files('../../../dependencies/j2mod/j2mod-r100.jar')
+    implementation project(':openmuc-core-spi')
+    implementation group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
+    implementation files('../../../dependencies/j2mod/j2mod-r100.jar')
     embed files('../../../dependencies/j2mod/j2mod-r100.jar')
 }
 

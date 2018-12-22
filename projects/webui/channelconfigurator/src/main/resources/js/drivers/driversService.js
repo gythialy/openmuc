@@ -15,19 +15,14 @@
 
             return $http(req).then(function (response) {
                 // add basic data
-                var drivers = response.data.drivers.map(value = > {
+                var drivers = response.data.drivers.map(value => {
                     var driver = {id: value};
 
-                // add additional data
-                DriverDataService.getDriverData(driver).then(d = > driver.data = d
-            )
-                ;
-                DriverDataService.getDriverConfigs(driver).then(c = > driver.configs = c
-            )
-                ;
-                return driver;
-            })
-                ;
+                    // add additional data
+                    DriverDataService.getDriverData(driver).then(d => driver.data = d);
+                    DriverDataService.getDriverConfigs(driver).then(c => driver.configs = c);
+                    return driver;
+                });
 
                 return drivers;
             });
@@ -38,9 +33,7 @@
                 id: id,
                 configs: []
             };
-            DriverDataService.getDriverConfigs(driver).then(configs = > driver.configs = configs
-        )
-            ;
+            DriverDataService.getDriverConfigs(driver).then(configs => driver.configs = configs);
 
             return driver;
         };
@@ -54,9 +47,7 @@
                 }
             };
 
-            return $http(req).then(r = > r.data.infos
-        )
-            ;
+            return $http(req).then(r => r.data.infos);
         };
 
         this.scan = function (driver, settings) {
@@ -74,9 +65,7 @@
                 }
             };
 
-            return $http(req).then(r = > r.data
-        )
-            ;
+            return $http(req).then(r => r.data);
         };
 
         this.scanInterrupt = function (driver) {
@@ -102,9 +91,7 @@
                 }
             };
 
-            return $http(req).then(r = > r.data
-        )
-            ;
+            return $http(req).then(r => r.data);
         };
 
         this.destroy = function (id) {
@@ -118,9 +105,7 @@
                     'Authorization': RestServerAuthService.getAuthHash()
                 }
             };
-            return $http(req).then(r = > r.data
-        )
-            ;
+            return $http(req).then(r => r.data);
         };
 
         this.update = function (driver) {
@@ -135,9 +120,7 @@
                 }
             };
 
-            return $http(req).then(r = > r.data
-        )
-            ;
+            return $http(req).then(r => r.data);
         };
 
         this.create = function (driver) {
@@ -151,9 +134,7 @@
                     'Authorization': RestServerAuthService.getAuthHash()
                 }
             };
-            return $http(req).then(r = > r.data
-        )
-            ;
+            return $http(req).then(r => r.data);
         };
 
     };

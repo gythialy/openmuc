@@ -21,9 +21,9 @@
 
 package org.openmuc.framework.dataaccess;
 
-import org.openmuc.framework.data.Record;
-
 import java.util.EventListener;
+
+import org.openmuc.framework.data.Record;
 
 public interface RecordListener extends EventListener {
     void newRecord(Record record);

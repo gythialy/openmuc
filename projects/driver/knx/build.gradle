@@ -7,10 +7,10 @@ def calimerovers = '2.3'
 def jrxtxversion = '1.0.1'
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
+    implementation project(':openmuc-core-spi')
+    implementation group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
 
-    compile group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
+    implementation group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
     embed group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
 }
 

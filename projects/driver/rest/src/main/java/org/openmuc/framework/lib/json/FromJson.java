@@ -20,17 +20,49 @@
  */
 package org.openmuc.framework.lib.json;
 
-import com.google.gson.*;
-import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.*;
-import org.openmuc.framework.dataaccess.DeviceState;
-import org.openmuc.framework.lib.json.exceptions.MissingJsonObjectException;
-import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException;
-import org.openmuc.framework.lib.json.rest.objects.*;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DriverConfig;
+import org.openmuc.framework.config.IdCollisionException;
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.ByteValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.DeviceState;
+import org.openmuc.framework.lib.json.exceptions.MissingJsonObjectException;
+import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException;
+import org.openmuc.framework.lib.json.rest.objects.RestChannel;
+import org.openmuc.framework.lib.json.rest.objects.RestChannelConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestChannelConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestDeviceConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestDeviceConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestDriverConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestDriverConfigMapper;
+import org.openmuc.framework.lib.json.rest.objects.RestRecord;
+import org.openmuc.framework.lib.json.rest.objects.RestUserConfig;
+import org.openmuc.framework.lib.json.rest.objects.RestValue;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 public class FromJson {
 
@@ -130,7 +162,8 @@ public class FromJson {
 
         if (!jse.isJsonNull()) {
             RestDeviceConfigMapper.setDeviceConfig(deviceConfig, gson.fromJson(jse, RestDeviceConfig.class), id);
-        } else {
+        }
+        else {
             throw new MissingJsonObjectException();
         }
     }
@@ -142,7 +175,8 @@ public class FromJson {
 
         if (!jse.isJsonNull()) {
             RestDriverConfigMapper.setDriverConfig(driverConfig, gson.fromJson(jse, RestDriverConfig.class), id);
-        } else {
+        }
+        else {
             throw new MissingJsonObjectException();
         }
     }
@@ -224,7 +258,8 @@ public class FromJson {
                 String description = getString(jso.get(Const.DESCRIPTION));
                 returnValue.add(new DeviceScanInfo(id, deviceAddress, settings, description));
             }
-        } else {
+        }
+        else {
             returnValue = null;
         }
         return returnValue;
@@ -253,7 +288,8 @@ public class FromJson {
                 returnValue.add(new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength, readable,
                         writeable, metadata));
             }
-        } else {
+        }
+        else {
             returnValue = null;
         }
         return returnValue;
@@ -262,7 +298,8 @@ public class FromJson {
     private String getString(JsonElement jse) {
         if (jse != null) {
             return jse.getAsString();
-        } else {
+        }
+        else {
             return "";
         }
     }
@@ -270,7 +307,8 @@ public class FromJson {
     private int getInt(JsonElement jse) {
         if (jse != null) {
             return jse.getAsInt();
-        } else {
+        }
+        else {
             return 0;
         }
     }
@@ -278,7 +316,8 @@ public class FromJson {
     private boolean getBoolean(JsonElement jse) {
         if (jse != null) {
             return jse.getAsBoolean();
-        } else {
+        }
+        else {
             return true;
         }
     }
@@ -293,7 +332,8 @@ public class FromJson {
         }
         if (flag == null) {
             return new Record(retValue, rrc.getTimestamp());
-        } else {
+        }
+        else {
             return new Record(retValue, rrc.getTimestamp(), rrc.getFlag());
         }
     }
@@ -306,33 +346,33 @@ public class FromJson {
         }
 
         switch (type) {
-            case FLOAT:
-                return new FloatValue(((Double) value).floatValue());
-            case DOUBLE:
-                return new DoubleValue((Double) value);
-            case SHORT:
-                return new ShortValue(((Double) value).shortValue());
-            case INTEGER:
-                return new IntValue(((Double) value).intValue());
-            case LONG:
-                return new LongValue(((Double) value).longValue());
-            case BYTE:
-                return new ByteValue(((Double) value).byteValue());
-            case BOOLEAN:
-                return new BooleanValue((Boolean) value);
-            case BYTE_ARRAY:
-                @SuppressWarnings("unchecked")
-                List<Double> arrayList = ((ArrayList<Double>) value);
-                byte[] byteArray = new byte[arrayList.size()];
-                for (int i = 0; i < arrayList.size(); ++i) {
-                    byteArray[i] = arrayList.get(i).byteValue();
-                }
-                return new ByteArrayValue(byteArray);
-            case STRING:
-                return new StringValue((String) value);
-            default:
-                // should not occur
-                return new StringValue(value.toString());
+        case FLOAT:
+            return new FloatValue(((Double) value).floatValue());
+        case DOUBLE:
+            return new DoubleValue((Double) value);
+        case SHORT:
+            return new ShortValue(((Double) value).shortValue());
+        case INTEGER:
+            return new IntValue(((Double) value).intValue());
+        case LONG:
+            return new LongValue(((Double) value).longValue());
+        case BYTE:
+            return new ByteValue(((Double) value).byteValue());
+        case BOOLEAN:
+            return new BooleanValue((Boolean) value);
+        case BYTE_ARRAY:
+            @SuppressWarnings("unchecked")
+            List<Double> arrayList = ((ArrayList<Double>) value);
+            byte[] byteArray = new byte[arrayList.size()];
+            for (int i = 0; i < arrayList.size(); ++i) {
+                byteArray[i] = arrayList.get(i).byteValue();
+            }
+            return new ByteArrayValue(byteArray);
+        case STRING:
+            return new StringValue((String) value);
+        default:
+            // should not occur
+            return new StringValue(value.toString());
         }
     }
 

@@ -1,24 +1,28 @@
 package org.openmuc.framework.driver.modbus.rtutcp.bonino;
 
-import com.ghgande.j2mod.modbus.Modbus;
-import com.ghgande.j2mod.modbus.io.ModbusTransport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.io.ModbusTransport;
+
 /**
  * @author bonino
- * <p>
- * https://github.com/dog-gateway/jamod-rtu-over-tcp
+ * 
+ *         https://github.com/dog-gateway/jamod-rtu-over-tcp
+ * 
  */
 public class RTUTCPMasterConnection implements MasterConnection {
 
+    private static final Logger logger = LoggerFactory.getLogger(RTUTCPMasterConnection.class);
+
     // the log identifier
     public static final String logId = "[RTUTCPMasterConnection]: ";
-    private static final Logger logger = LoggerFactory.getLogger(RTUTCPMasterConnection.class);
+
     // the socket upon which sending/receiveing Modbus RTU data
     private Socket socket;
 
@@ -42,9 +46,11 @@ public class RTUTCPMasterConnection implements MasterConnection {
     /**
      * Constructs an {@link RTUTCPMasterConnection} instance with a given destination address and port. It permits to
      * handle Modbus RTU over TCP connections in a way similar to standard Modbus/TCP connections
-     *
-     * @param adr  the destination IP addres as an {@link InetAddress} instance.
-     * @param port the port to which connect on the destination address.
+     * 
+     * @param adr
+     *            the destination IP addres as an {@link InetAddress} instance.
+     * @param port
+     *            the port to which connect on the destination address.
      */
     public RTUTCPMasterConnection(InetAddress adr, int port) {
         // store the IP address of the destination
@@ -56,8 +62,9 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Opens the RTU over TCP connection represented by this object.
-     *
-     * @throws Exception if the connection cannot be open (e.g., due to a network failure).
+     * 
+     * @throws Exception
+     *             if the connection cannot be open (e.g., due to a network failure).
      */
     @Override
     public synchronized void connect() throws Exception {
@@ -104,7 +111,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Returns the ModbusTransport associated with this TCPMasterConnection.
-     *
+     * 
      * @return the connection's ModbusTransport.
      */
     public ModbusTransport getModbusTransport() {
@@ -113,15 +120,17 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Prepares the associated {@link ModbusTransport} of this {@link RTUTCPMasterConnection} for use.
-     *
-     * @throws IOException if an I/O related error occurs.
+     * 
+     * @throws IOException
+     *             if an I/O related error occurs.
      */
     private void prepareTransport() throws IOException {
         // if the modbus transport is not available, create it
         if (this.modbusRTUTCPTransport == null) {
             // create the transport
             this.modbusRTUTCPTransport = new ModbusRTUTCPTransport(socket);
-        } else {
+        }
+        else {
             // just update the transport socket
             this.modbusRTUTCPTransport.setSocket(socket);
         }
@@ -129,7 +138,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Returns the timeout for this {@link RTUTCPMasterConnection}.
-     *
+     * 
      * @return the timeout as an <tt>int</tt> value.
      */
     public int getTimeout() {
@@ -138,8 +147,9 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Sets the timeout for this {@link RTUTCPMasterConnection}.
-     *
-     * @param timeout the timeout as an <tt>int</tt>.
+     * 
+     * @param timeout
+     *            the timeout as an <tt>int</tt>.
      */
     public void setTimeout(int timeout) {
         // store the current socket timeout
@@ -157,7 +167,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Returns the destination port of this {@link RTUTCPMasterConnection}.
-     *
+     * 
      * @return the port number as an <tt>int</tt>.
      */
     public int getPort() {
@@ -166,8 +176,9 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Sets the destination port of this {@link RTUTCPMasterConnection}.
-     *
-     * @param port the port number as <tt>int</tt>.
+     * 
+     * @param port
+     *            the port number as <tt>int</tt>.
      */
     public void setPort(int port) {
         this.slaveIPPort = port;
@@ -175,7 +186,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Returns the destination {@link InetAddress} of this {@link RTUTCPMasterConnection}.
-     *
+     * 
      * @return the destination address as InetAddress.
      */
     public InetAddress getAddress() {
@@ -184,8 +195,9 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Sets the destination {@link InetAddress} of this {@link RTUTCPMasterConnection}.
-     *
-     * @param adr the destination address as {@link InetAddress}.
+     * 
+     * @param adr
+     *            the destination address as {@link InetAddress}.
      */
     public void setAddress(InetAddress adr) {
         this.slaveIPAddress = adr;
@@ -193,7 +205,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
 
     /**
      * Tests if this {@link RTUTCPMasterConnection} is active or not.
-     *
+     * 
      * @return <tt>true</tt> if connected, <tt>false</tt> otherwise.
      */
     @Override

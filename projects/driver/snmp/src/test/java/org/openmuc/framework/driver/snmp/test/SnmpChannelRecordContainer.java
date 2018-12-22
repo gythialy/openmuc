@@ -47,11 +47,6 @@ public class SnmpChannelRecordContainer implements ChannelRecordContainer {
     }
 
     @Override
-    public void setRecord(Record record) {
-        snmpRecord = new Record(record.getValue(), record.getTimestamp(), record.getFlag());
-    }
-
-    @Override
     public Channel getChannel() {
         return snmpChannel;
     }
@@ -70,6 +65,11 @@ public class SnmpChannelRecordContainer implements ChannelRecordContainer {
     @Override
     public void setChannelHandle(Object handle) {
         snmpChannel = (SnmpChannel) handle;
+    }
+
+    @Override
+    public void setRecord(Record record) {
+        snmpRecord = new Record(record.getValue(), record.getTimestamp(), record.getFlag());
     }
 
     @Override

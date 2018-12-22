@@ -1,77 +1,122 @@
+v0.17.2 20-Dec-2018
+-------------------
+- WebUI:
+   * ChannelAccessTool: 
+      + new compact design
+   * Data Plotter:
+      + new zoom function
+      + new time picker with 12/24H switch
+   * Data Exporter:
+      + fixed exporter
+      + added new export formats
+      + new time picker with 12/24H switch
+   * ChannelConfigurator:
+      + added option for edit and delete several channels at once
+      + fixed bug adding several channels after scan
+   * fixed session timeout
+   * fixed several smaller bugs
+   * removed jQuery dependencies
+   * updated AngualarJS
+   * added SimpleDemoVisualisation as simple example for user apps
+- datamanager:
+   * fixed no error log message bug
+- datalogger Ascii:
+   * fixed err3 bug, when value is to long
+- driver M-Bus:
+   * added M-Bus over TCP
+   * updated jmbus to v3.2.0
+   * link reset only used if configured
+- driver wireless M-Bus:
+   * updated jmbus to v3.2.0
+- driver IEC 61850:
+   * updated openIEC61850 to v1.7.0
+   * fixed some data maping bugs
+- driver CSV:
+   * fixed empty channel bug
+- driver EHZ:
+   * updated jsml to 1.1.2
+- demo framework:
+   * updated osgi bundles
+- documentation:
+   * added CSV driver chapter
+   * added tutorial for application development
+   * added tutorial for WebUI application development
+   * reorgenized structure
+
 v0.17.1 16-Jul-2018
 -------------------
 - driver M-Bus:
-  * fixed NullPointerException when scan for channels
-  * fixed bug when scan device with secondary address
-  * fixed wrong ValueType after channel scan
-  * updated jmbus to v3.1.1
-  * added more channel/device scan description
+   * fixed NullPointerException when scan for channels
+   * fixed bug when scan device with secondary address
+   * fixed wrong ValueType after channel scan
+   * updated jmbus to v3.1.1
+   * added more channel/device scan description
 - driver wireless M-Bus:
-  * added wireless M-Bus over TCP
-  * updated jmbus to v3.1.1
-  * added more device/channel information after scan
+   * added wireless M-Bus over TCP
+   * updated jmbus to v3.1.1
+   * added more device/channel information after scan
 - driver dlms:
-  * updated jdlms to v1.6.0
-  * fixed bug when serial communication is used
+   * updated jdlms to v1.6.0
+   * fixed bug when serial communication is used
 - driver rest:
-  * fixed some bugs
-  * reduced configuration overhead
+   * fixed some bugs
+   * reduced configuration overhead
 - updated jrxtx to v1.0.1
 - WebUI
-  * enable config of contextpath 
-  * added unit to channel scan
-  * fixed changing user PW. Thanks to B. Kruger
-  * minor fixes
+   * enable config of contextpath 
+   * added unit to channel scan
+   * fixed changing user PW. Thanks to B. Kruger
+   * minor fixes
 
 v0.17.0 27-Feb-2018
 -------------------
 - OpenMUC now requires Java 1.8 instead of Java 1.7
 - driver Modbus:
-  * changed to j2mod
-  * added Modbus RTU over TCP
-  * fixed bugs
-  * new debug messages
-  * supports more data types
-  * replaced int and short with int16, int32, uint16 and uint32
+   * changed to j2mod
+   * added Modbus RTU over TCP
+   * fixed bugs
+   * new debug messages
+   * supports more data types
+   * replaced int and short with int16, int32, uint16 and uint32
 - driver IEC 60870:
-  * added writing
-  * more supported data types 
-  * in sampling/read mode only general interrogation command is possible, yet
+   * added writing
+   * more supported data types 
+   * in sampling/read mode only general interrogation command is possible, yet
 - driver EHZ:
-  * can read FNN Basiszaehler "INFO" interface
-  * updated libraries
-  * added scan progress
-  * added listening
+   * can read FNN Basiszaehler "INFO" interface
+   * updated libraries
+   * added scan progress
+   * added listening
 - driver DLMS:
-  * updated to new jDLMS
-  * complete refactoring
-  * supports:
-    + more data types
-    + read, write and channel scanning
-    + HLS5 authentication
-    + AES encryption
-    + TCP wrapper
-    + HDLC with serial and TCP communication
-    + LN and SN referencing
+   * updated to new jDLMS
+   * complete refactoring
+   * supports:
+      + more data types
+      + read, write and channel scanning
+      + HLS5 authentication
+      + AES encryption
+      + TCP wrapper
+      + HDLC with serial and TCP communication
+      + LN and SN referencing
 - driver M-Bus / wireless M-Bus:
-  * changed OpenMUC value type to DoubleValue by M-Bus date value type
+   * changed OpenMUC value type to DoubleValue by M-Bus date value type
 - driver IEC 62056:
-  * custom request message possible
-  * added option for reading standard and manufacture specific at "once"
-  * added read retries 
+   * custom request message possible
+   * added option for reading standard and manufacture specific at "once"
+   * added read retries 
 - REST API:
-  * authentication is mandatory also in HTTP
-  * added get single record field
-  * added get driverId and deviceId from channel
+   * authentication is mandatory also in HTTP
+   * added get single record field
+   * added get driverId and deviceId from channel
 - WebUI:
-  * plotter: can plot timeseries
-  * channel configurator:
-    + added channel address information in "edit" and "new channel"
-    + fixed "only integer is possible" in set scaling factor
-  * base:
-    + fixed bugs in authentication if username changed
-  * channel access tool:
-    + adds set record button
+   * plotter: can plot timeseries
+   * channel configurator:
+      + added channel address information in "edit" and "new channel"
+      + fixed "only integer is possible" in set scaling factor
+   * base:
+      + fixed bugs in authentication if username changed
+   * channel access tool:
+      + adds set record button
 - updated OSGi bundles
 - updated libraries of mostly all driver
 - added Modbus server
@@ -80,11 +125,11 @@ v0.17.0 27-Feb-2018
 v0.16.0 10-Oct-2016
 -------------------
 - Demo Framework:
-  * Added sophisticated run script for Linux/Unix that enables start,
-    stop, reload etc.
-  * moved all configuration files to "conf" folder
-  * Sample app moved to main projects folder
-  * Dummy driver replaced by general CSV driver
+   * Added sophisticated run script for Linux/Unix that enables start,
+     stop, reload etc.
+   * moved all configuration files to "conf" folder
+   * Sample app moved to main projects folder
+   * Dummy driver replaced by general CSV driver
 - Several smaller improvements to WebUI and REST server for more
   convenience and better performance
 - M-Bus driver now support secondary address reading

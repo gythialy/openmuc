@@ -1,36 +1,55 @@
+/*
+ * Copyright 2011-18 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.openmuc.framework.driver.csv.channel;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.driver.csv.settings.DeviceSettings;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.driver.csv.settings.DeviceSettings;
+
 public class ChannelFactory {
 
     public static HashMap<String, CsvChannel> createChannelMap(Map<String, List<String>> csvMap,
-                                                               DeviceSettings settings) throws ArgumentSyntaxException {
+            DeviceSettings settings) throws ArgumentSyntaxException {
 
         HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
         switch (settings.samplingMode()) {
-            case UNIXTIMESTAMP:
+        case UNIXTIMESTAMP:
+            channelMap = ChannelFactory.createMapUnixtimestamp(csvMap);
+            break;
 
-                channelMap = ChannelFactory.createMapUnixtimestamp(csvMap);
-                break;
+        case HHMMSS:
+            channelMap = ChannelFactory.createMapHHMMSS(csvMap, settings.rewind());
+            break;
 
-            case HHMMSS:
-                channelMap = ChannelFactory.createMapHHMMSS(csvMap, settings.rewind());
-                break;
+        case LINE:
+            channelMap = ChannelFactory.createMapLine(csvMap, settings.rewind());
+            break;
 
-            case LINE:
-                channelMap = ChannelFactory.createMapLine(csvMap, settings.rewind());
-                break;
-
-            default:
-                break;
+        default:
+            break;
         }
 
         return channelMap;
@@ -41,15 +60,15 @@ public class ChannelFactory {
 
         HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
-        String channelId;
+        String channelAddress;
         Iterator<String> keys = csvMap.keySet().iterator();
         boolean rewind = false;
 
         while (keys.hasNext()) {
-            channelId = keys.next();
-            List<String> data = csvMap.get(channelId);
+            channelAddress = keys.next();
+            List<String> data = csvMap.get(channelAddress);
             long[] timestamps = getTimestamps(csvMap);
-            channelMap.put(channelId, new CsvChannelUnixtimestamp(data, rewind, timestamps));
+            channelMap.put(channelAddress, new CsvChannelUnixtimestamp(data, rewind, timestamps));
         }
 
         return channelMap;
@@ -59,14 +78,14 @@ public class ChannelFactory {
             throws ArgumentSyntaxException {
         HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
-        String channelId;
+        String channelAddress;
         Iterator<String> keys = csvMap.keySet().iterator();
 
         while (keys.hasNext()) {
-            channelId = keys.next();
-            List<String> data = csvMap.get(channelId);
+            channelAddress = keys.next();
+            List<String> data = csvMap.get(channelAddress);
             long[] timestamps = getHours(csvMap);
-            channelMap.put(channelId, new CsvChannelHHMMSS(data, rewind, timestamps));
+            channelMap.put(channelAddress, new CsvChannelHHMMSS(data, rewind, timestamps));
         }
 
         return channelMap;
@@ -74,13 +93,13 @@ public class ChannelFactory {
 
     public static HashMap<String, CsvChannel> createMapLine(Map<String, List<String>> csvMap, boolean rewind) {
         HashMap<String, CsvChannel> channelMap = new HashMap<>();
-        String channelId;
+        String channelAddress;
         Iterator<String> keys = csvMap.keySet().iterator();
 
         while (keys.hasNext()) {
-            channelId = keys.next();
-            List<String> data = csvMap.get(channelId);
-            channelMap.put(channelId, new CsvChannelLine(channelId, data, rewind));
+            channelAddress = keys.next();
+            List<String> data = csvMap.get(channelAddress);
+            channelMap.put(channelAddress, new CsvChannelLine(channelAddress, data, rewind));
         }
 
         return channelMap;
@@ -88,7 +107,7 @@ public class ChannelFactory {
 
     /**
      * Convert timestamps from List String to long[]
-     *
+     * 
      * @throws ArgumentSyntaxException
      */
     private static long[] getTimestamps(Map<String, List<String>> csvMap) throws ArgumentSyntaxException {

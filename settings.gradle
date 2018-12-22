@@ -1,4 +1,4 @@
-include "openmuc-app-simpledemo", "openmuc-core-api", "openmuc-core-datamanager", "openmuc-core-spi", "openmuc-datalogger-ascii", "openmuc-datalogger-slotsdb", "openmuc-driver-aggregator", "openmuc-driver-csv", "openmuc-driver-dlms", "openmuc-driver-ehz", "openmuc-driver-iec60870", "openmuc-driver-iec61850", "openmuc-driver-iec62056p21", "openmuc-driver-knx", "openmuc-driver-mbus", "openmuc-driver-modbus", "openmuc-driver-rest", "openmuc-driver-snmp", "openmuc-driver-wmbus", "openmuc-server-modbus", "openmuc-server-restws", "openmuc-webui-base", "openmuc-webui-channelaccesstool", "openmuc-webui-channelconfigurator", "openmuc-webui-dataexporter", "openmuc-webui-dataplotter", "openmuc-webui-mediaviewer", "openmuc-webui-spi", "openmuc-webui-userconfigurator"
+include "openmuc-app-simpledemo", "openmuc-core-api", "openmuc-core-datamanager", "openmuc-core-spi", "openmuc-datalogger-ascii", "openmuc-datalogger-slotsdb", "openmuc-driver-aggregator", "openmuc-driver-csv", "openmuc-driver-dlms", "openmuc-driver-ehz", "openmuc-driver-iec60870", "openmuc-driver-iec61850", "openmuc-driver-iec62056p21", "openmuc-driver-knx", "openmuc-driver-mbus", "openmuc-driver-modbus", "openmuc-driver-rest", "openmuc-driver-snmp", "openmuc-driver-wmbus", "openmuc-server-modbus", "openmuc-server-restws", "openmuc-webui-base", "openmuc-webui-channelaccesstool", "openmuc-webui-channelconfigurator", "openmuc-webui-dataexporter", "openmuc-webui-dataplotter", "openmuc-webui-mediaviewer", "openmuc-webui-simpledemovisualisation", "openmuc-webui-spi", "openmuc-webui-userconfigurator"
 
 project(":openmuc-app-simpledemo").projectDir = file("projects/app/simpledemo")
 project(":openmuc-core-api").projectDir = file("projects/core/api")
@@ -27,5 +27,6 @@ project(":openmuc-webui-channelconfigurator").projectDir = file("projects/webui/
 project(":openmuc-webui-dataexporter").projectDir = file("projects/webui/dataexporter")
 project(":openmuc-webui-dataplotter").projectDir = file("projects/webui/dataplotter")
 project(":openmuc-webui-mediaviewer").projectDir = file("projects/webui/mediaviewer")
+project(":openmuc-webui-simpledemovisualisation").projectDir = file("projects/webui/simpledemovisualisation")
 project(":openmuc-webui-spi").projectDir = file("projects/webui/spi")
 project(":openmuc-webui-userconfigurator").projectDir = file("projects/webui/userconfigurator")

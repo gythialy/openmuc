@@ -2,7 +2,7 @@ def projectName = "OpenMUC WebUI - SPI"
 def projectDescription = "WebUI SPI of the OpenMUC framework."
 
 dependencies {
-    compile project(':openmuc-core-api')
+    implementation project(':openmuc-core-api')
 }
 
 jar {

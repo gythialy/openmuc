@@ -21,80 +21,41 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import org.openmuc.framework.config.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.DriverConfig;
+import org.openmuc.framework.config.IdCollisionException;
+import org.openmuc.framework.config.ParseException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 public final class DeviceConfigImpl implements DeviceConfig {
 
-    final HashMap<String, ChannelConfigImpl> channelConfigsById = new LinkedHashMap<>();
-    Device device;
-    DriverConfigImpl driverParent;
     private String id;
     private String description;
     private String deviceAddress;
     private String settings;
+
     private Integer samplingTimeout;
     private Integer connectRetryInterval;
     private Boolean disabled;
 
+    Device device;
+
+    final HashMap<String, ChannelConfigImpl> channelConfigsById = new LinkedHashMap<>();
+
+    DriverConfigImpl driverParent;
+
     public DeviceConfigImpl(String id, DriverConfigImpl driverParent) {
         this.id = id;
         this.driverParent = driverParent;
-    }
-
-    static void addDeviceFromDomNode(Node deviceConfigNode, DriverConfig parentConfig) throws ParseException {
-
-        String id = ChannelConfigImpl.getAttributeValue(deviceConfigNode, "id");
-        if (id == null) {
-            throw new ParseException("device has no id attribute");
-        }
-
-        DeviceConfigImpl config;
-        try {
-            config = (DeviceConfigImpl) parentConfig.addDevice(id);
-        } catch (Exception e) {
-            throw new ParseException(e);
-        }
-
-        NodeList deviceChildren = deviceConfigNode.getChildNodes();
-
-        try {
-            for (int i = 0; i < deviceChildren.getLength(); i++) {
-                Node childNode = deviceChildren.item(i);
-                String childName = childNode.getNodeName();
-
-                if (childName.equals("#text")) {
-                    continue;
-                } else if (childName.equals("channel")) {
-                    ChannelConfigImpl.addChannelFromDomNode(childNode, config);
-                } else if (childName.equals("description")) {
-                    config.setDescription(childNode.getTextContent());
-                } else if (childName.equals("deviceAddress")) {
-                    config.setDeviceAddress(childNode.getTextContent());
-                } else if (childName.equals("settings")) {
-                    config.setSettings(childNode.getTextContent());
-                } else if (childName.equals("samplingTimeout")) {
-                    config.setSamplingTimeout(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
-                } else if (childName.equals("connectRetryInterval")) {
-                    config.setConnectRetryInterval(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
-                } else if (childName.equals("disabled")) {
-                    config.disabled = Boolean.parseBoolean(childNode.getTextContent());
-                } else {
-                    throw new ParseException("found unknown tag:" + childName);
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(e);
-        }
-
     }
 
     DeviceConfigImpl clone(DriverConfigImpl clonedParentConfig) {
@@ -254,6 +215,61 @@ public final class DeviceConfigImpl implements DeviceConfig {
         return driverParent;
     }
 
+    static void addDeviceFromDomNode(Node deviceConfigNode, DriverConfig parentConfig) throws ParseException {
+
+        String id = ChannelConfigImpl.getAttributeValue(deviceConfigNode, "id");
+        if (id == null) {
+            throw new ParseException("device has no id attribute");
+        }
+
+        DeviceConfigImpl config;
+        try {
+            config = (DeviceConfigImpl) parentConfig.addDevice(id);
+        } catch (Exception e) {
+            throw new ParseException(e);
+        }
+
+        NodeList deviceChildren = deviceConfigNode.getChildNodes();
+
+        try {
+            for (int i = 0; i < deviceChildren.getLength(); i++) {
+                Node childNode = deviceChildren.item(i);
+                String childName = childNode.getNodeName();
+
+                if (childName.equals("#text")) {
+                    continue;
+                }
+                else if (childName.equals("channel")) {
+                    ChannelConfigImpl.addChannelFromDomNode(childNode, config);
+                }
+                else if (childName.equals("description")) {
+                    config.setDescription(childNode.getTextContent());
+                }
+                else if (childName.equals("deviceAddress")) {
+                    config.setDeviceAddress(childNode.getTextContent());
+                }
+                else if (childName.equals("settings")) {
+                    config.setSettings(childNode.getTextContent());
+                }
+                else if (childName.equals("samplingTimeout")) {
+                    config.setSamplingTimeout(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
+                }
+                else if (childName.equals("connectRetryInterval")) {
+                    config.setConnectRetryInterval(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
+                }
+                else if (childName.equals("disabled")) {
+                    config.disabled = Boolean.parseBoolean(childNode.getTextContent());
+                }
+                else {
+                    throw new ParseException("found unknown tag:" + childName);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e);
+        }
+
+    }
+
     Element getDomElement(Document document) {
         Element parentElement = document.createElement("device");
         parentElement.setAttribute("id", id);
@@ -294,7 +310,8 @@ public final class DeviceConfigImpl implements DeviceConfig {
             childElement = document.createElement("disabled");
             if (disabled) {
                 childElement.setTextContent("true");
-            } else {
+            }
+            else {
                 childElement.setTextContent("false");
             }
             parentElement.appendChild(childElement);
@@ -313,37 +330,43 @@ public final class DeviceConfigImpl implements DeviceConfig {
 
         if (description == null) {
             configClone.description = DESCRIPTION_DEFAULT;
-        } else {
+        }
+        else {
             configClone.description = description;
         }
 
         if (deviceAddress == null) {
             configClone.deviceAddress = DEVICE_ADDRESS_DEFAULT;
-        } else {
+        }
+        else {
             configClone.deviceAddress = deviceAddress;
         }
 
         if (settings == null) {
             configClone.settings = SETTINGS_DEFAULT;
-        } else {
+        }
+        else {
             configClone.settings = settings;
         }
 
         if (samplingTimeout == null) {
             configClone.samplingTimeout = clonedParentConfig.samplingTimeout;
-        } else {
+        }
+        else {
             configClone.samplingTimeout = samplingTimeout;
         }
 
         if (connectRetryInterval == null) {
             configClone.connectRetryInterval = clonedParentConfig.connectRetryInterval;
-        } else {
+        }
+        else {
             configClone.connectRetryInterval = connectRetryInterval;
         }
 
         if (disabled == null || clonedParentConfig.disabled) {
             configClone.disabled = clonedParentConfig.disabled;
-        } else {
+        }
+        else {
             configClone.disabled = disabled;
         }
 

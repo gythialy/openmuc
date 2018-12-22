@@ -3,8 +3,8 @@ def projectDescription = "User Configurator plug-in for the WebUI of the OpenMUC
 
 
 dependencies {
-    compile project(':openmuc-core-api')
-    compile project(':openmuc-webui-spi')
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-webui-spi')
 }
 
 jar {

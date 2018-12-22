@@ -8,8 +8,8 @@ def jasn1version = "1.9.0"
 def jrxtxversion = "1.0.1"
 
 dependencies {
-    compile project(':openmuc-core-spi')
-    compile group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
+    implementation project(':openmuc-core-spi')
+    implementation group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
 
     embed group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
     embed group: 'org.openmuc', name: 'jasn1', version: jasn1version

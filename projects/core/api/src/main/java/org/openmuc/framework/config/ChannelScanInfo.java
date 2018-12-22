@@ -39,17 +39,17 @@ public class ChannelScanInfo {
     }
 
     public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength,
-                           Boolean readable, Boolean writable) {
+            Boolean readable, Boolean writable) {
         this(channelAddress, description, valueType, valueTypeLength, readable, writable, "");
     }
 
     public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength,
-                           Boolean readable, Boolean writable, String metaData) {
+            Boolean readable, Boolean writable, String metaData) {
         this(channelAddress, description, valueType, valueTypeLength, readable, writable, metaData, "");
     }
 
     public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength,
-                           Boolean readable, Boolean writable, String metaData, String unit) {
+            Boolean readable, Boolean writable, String metaData, String unit) {
         if (channelAddress == null || channelAddress.isEmpty()) {
             throw new IllegalArgumentException("Channel Address may not be empty.");
         }

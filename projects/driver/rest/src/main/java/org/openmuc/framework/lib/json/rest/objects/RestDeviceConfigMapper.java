@@ -44,7 +44,8 @@ public class RestDeviceConfigMapper {
 
         if (dc == null) {
             throw new RestConfigIsNotCorrectException("DriverConfig is null!");
-        } else {
+        }
+        else {
 
             if (rdc != null) {
                 if (rdc.getId() != null && !rdc.getId().equals("") && !idFromUrl.equals(rdc.getId())) {
@@ -56,7 +57,8 @@ public class RestDeviceConfigMapper {
                 dc.setDisabled(rdc.getDisabled());
                 dc.setSamplingTimeout(rdc.getSamplingTimeout());
                 dc.setSettings(rdc.getSettings());
-            } else {
+            }
+            else {
                 throw new RestConfigIsNotCorrectException();
             }
         }

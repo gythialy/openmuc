@@ -93,7 +93,8 @@ public final class ModbusDriver implements DriverService {
 
         if (settings.equals("")) {
             throw new ConnectionException("no device settings found in config. Please specify settings.");
-        } else {
+        }
+        else {
             String[] settingsArray = settings.split(":");
             String mode = settingsArray[0];
 
@@ -106,12 +107,15 @@ public final class ModbusDriver implements DriverService {
                     logger.error("Unable to create ModbusRTUConnection", e);
                     throw new ConnectionException();
                 }
-            } else if (mode.equalsIgnoreCase("TCP")) {
+            }
+            else if (mode.equalsIgnoreCase("TCP")) {
 
                 connection = new ModbusTCPConnection(deviceAddress, timeoutMs);
-            } else if (mode.equalsIgnoreCase("RTUTCP")) {
+            }
+            else if (mode.equalsIgnoreCase("RTUTCP")) {
                 connection = new ModbusRTUTCPConnection(deviceAddress, timeoutMs);
-            } else {
+            }
+            else {
                 throw new ConnectionException("Unknown Mode. Use RTU, TCP or RTUTCP.");
             }
         }

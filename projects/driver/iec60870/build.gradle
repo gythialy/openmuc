@@ -3,12 +3,12 @@ def projectDescription = "IEC 60870-104 driver for the OpenMUC framework."
 
 configurations.create('embed')
 
-def j60870version = "1.2.1"
+def j60870version = '1.2.1'
 
 dependencies {
-    compile project(':openmuc-core-spi')
+    implementation project(':openmuc-core-spi')
 
-    compile group: 'org.openmuc', name: 'j60870', version: j60870version
+    implementation group: 'org.openmuc', name: 'j60870', version: j60870version
     embed group: 'org.openmuc', name: 'j60870', version: j60870version
 }
 
