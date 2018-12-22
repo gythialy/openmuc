@@ -31,7 +31,7 @@
         <samplingInterval>5s</samplingInterval>
         <loggingInterval>5s</loggingInterval>
       </channel>
-      <channel id="power_electic_vehicle">
+      <channel id="power_electric_vehicle">
         <description>ev_power_consumption</description>
         <channelAddress>ev_power_consumption</channelAddress>
         <unit>W</unit>

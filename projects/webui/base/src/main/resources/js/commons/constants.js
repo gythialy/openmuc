@@ -1,7 +1,7 @@
 (function(){
-	
+
 	var app = angular.module('openmuc.constants');
-	
+
 	app.constant('SETTINGS', {
 		API_URL: 				'/rest/',
 		DRIVERS_URL:			'drivers/',
@@ -17,7 +17,9 @@
 		LOGIN_URL:				'/login',
 		USERS_URL: 				'users/',
 		MEDIA_CONFIG_URL:		'/conf/webui/mediaviewer',
-		DATAPLOTTER_CONFIG_URL:	'/conf/webui/dataplotter'
+		DATAPLOTTER_CONFIG_URL:	'/conf/webui/dataplotter',
+		DRIVER_ID:				'/driverId',
+		DEVICE_ID:				'/deviceId'
 	});
 
 })();

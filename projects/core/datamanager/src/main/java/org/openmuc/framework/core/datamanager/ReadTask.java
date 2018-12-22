@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class ReadTask extends DeviceTask implements ConnectedTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(ReadTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReadTask.class);
 
     private final CountDownLatch readTaskFinishedSignal;
     List<ChannelRecordContainerImpl> channelRecordContainers;
@@ -59,7 +59,7 @@ public class ReadTask extends DeviceTask implements ConnectedTask {
             methodNotExceptedExceptionThrown = true;
         } catch (ConnectionException e) {
             // Connection to device lost. Signal to device instance and end task without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.getId(),
                     e.getMessage());
 
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
@@ -84,6 +84,7 @@ public class ReadTask extends DeviceTask implements ConnectedTask {
         return DeviceTaskType.READ;
     }
 
+    @Override
     public final void deviceNotConnected() {
         for (ChannelRecordContainer recordContainer : channelRecordContainers) {
             recordContainer.setRecord(new Record(Flag.COMM_DEVICE_NOT_CONNECTED));

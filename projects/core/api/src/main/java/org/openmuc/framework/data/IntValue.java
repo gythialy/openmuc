@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,63 +23,17 @@ package org.openmuc.framework.data;
 
 import java.nio.ByteBuffer;
 
-public class IntValue implements Value {
-
-    private final int value;
+public class IntValue extends NumberValue {
 
     public IntValue(int value) {
-        this.value = value;
-    }
-
-    @Override
-    public double asDouble() {
-        return value;
-    }
-
-    @Override
-    public float asFloat() {
-        return value;
-    }
-
-    @Override
-    public long asLong() {
-        return value;
-    }
-
-    @Override
-    public int asInt() {
-        return value;
-    }
-
-    @Override
-    public short asShort() {
-        return (short) value;
-    }
-
-    @Override
-    public byte asByte() {
-        return (byte) value;
-    }
-
-    @Override
-    public boolean asBoolean() {
-        return (value != 0);
+        super(value);
     }
 
     @Override
     public byte[] asByteArray() {
         byte[] bytes = new byte[4];
-        ByteBuffer.wrap(bytes).putInt(value);
+        ByteBuffer.wrap(bytes).putInt(super.asInt());
         return bytes;
     }
 
-    @Override
-    public String toString() {
-        return Integer.toString(value);
-    }
-
-    @Override
-    public String asString() {
-        return toString();
-    }
 }

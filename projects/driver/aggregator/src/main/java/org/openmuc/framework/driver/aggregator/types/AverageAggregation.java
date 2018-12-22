@@ -17,34 +17,34 @@ public class AverageAggregation extends AggregatorChannel {
 
     @Override
     public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
-
-        double value = 0;
-
-        List<Record> recordList;
         try {
-            recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-            value = getAverage(recordList);
+            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
+            return calcAvgOf(recordList);
+
+        } catch (AggregationException e) {
+            throw e;
         } catch (Exception e) {
             throw new AggregationException(e.getMessage());
         }
 
-        return value;
     }
 
     /**
      * Calculates the average of the all records
      */
-    private double getAverage(List<Record> recordList) throws AggregationException {
+    private static double calcAvgOf(List<Record> recordList) throws AggregationException {
+        double sum = calcSumOf(recordList);
 
+        return sum / recordList.size();
+    }
+
+    private static double calcSumOf(List<Record> recordList) {
         double sum = 0;
 
         for (Record record : recordList) {
-            sum = sum + record.getValue().asDouble();
+            sum += record.getValue().asDouble();
         }
-
-        double average = sum / recordList.size();
-
-        return average;
+        return sum;
     }
 
 }

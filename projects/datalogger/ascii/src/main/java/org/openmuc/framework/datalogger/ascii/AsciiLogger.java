@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
 @Component
 public class AsciiLogger implements DataLoggerService {
 
-    private final static Logger logger = LoggerFactory.getLogger(AsciiLogger.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsciiLogger.class);
 
     private final String loggerDirectory;
     private final HashMap<String, LogChannel> logChannelList = new HashMap<>();
     private static HashMap<String, Long> lastLoggedLineList = new HashMap<>();
-    private boolean isFillUpFiles = false;
+    private boolean isFillUpFiles = true;
 
-    private final static String DIRECTORY = System
+    private static final String DIRECTORY = System
             .getProperty(AsciiLogger.class.getPackage().getName().toLowerCase() + ".directory");
 
     protected void activate(ComponentContext context) {
@@ -88,13 +88,11 @@ public class AsciiLogger implements DataLoggerService {
 
     private void createDirectory(String loggerDirectory) {
 
-        logger.trace("using directory: " + loggerDirectory);
+        logger.trace("using directory: {}", loggerDirectory);
         File asciidata = new File(loggerDirectory);
-        if (!asciidata.exists()) {
-            if (!asciidata.mkdirs()) {
-                logger.error("Could not create logger directory: " + asciidata.getAbsolutePath());
-                // TODO: weitere Behandlung,
-            }
+        if (!asciidata.exists() && !asciidata.mkdirs()) {
+            logger.error("Could not create logger directory: " + asciidata.getAbsolutePath());
+            // TODO: weitere Behandlung,
         }
     }
 
@@ -107,23 +105,23 @@ public class AsciiLogger implements DataLoggerService {
      * Will called if OpenMUC starts the logger
      */
     @Override
-    public void setChannelsToLog(List<LogChannel> channels) {
+    public void setChannelsToLog(List<LogChannel> logChannels) {
 
         Calendar calendar = new GregorianCalendar(Locale.getDefault());
         logChannelList.clear();
 
         logger.trace("channels to log:");
-        for (LogChannel channel : channels) {
+        for (LogChannel logChannel : logChannels) {
 
             if (logger.isTraceEnabled()) {
-                logger.trace("channel.getId() " + channel.getId());
-                logger.trace("channel.getLoggingInterval() " + channel.getLoggingInterval());
+                logger.trace("channel.getId() " + logChannel.getId());
+                logger.trace("channel.getLoggingInterval() " + logChannel.getLoggingInterval());
             }
-            logChannelList.put(channel.getId(), channel);
+            logChannelList.put(logChannel.getId(), logChannel);
         }
 
         if (isFillUpFiles) {
-            Map<String, Boolean> areHeaderIdentical = LoggerUtils.areHeadersIdentical(loggerDirectory, channels,
+            Map<String, Boolean> areHeaderIdentical = LoggerUtils.areHeadersIdentical(loggerDirectory, logChannels,
                     calendar);
 
             for (Entry<String, Boolean> entry : areHeaderIdentical.entrySet()) {
@@ -216,7 +214,7 @@ public class AsciiLogger implements DataLoggerService {
 
         if (logChannel != null) {
             reader = new LogFileReader(loggerDirectory, logChannel);
-            return reader.getValues(startTime, endTime);
+            return reader.getValues(startTime, endTime).get(channelId);
         } // TODO: hier einfügen das nach Loggdateien gesucht werden sollen die vorhanden sind aber nicht geloggt
           // werden,
           // z.B für server only ohne Logging. Das suchen sollte nur beim ersten mal passieren (start).
@@ -227,7 +225,8 @@ public class AsciiLogger implements DataLoggerService {
 
     private void setSystemProperties() {
 
-        String fillUpProperty = System.getProperty("org.openmuc.framework.datalogger.ascii.fillUpFiles");
+        String fillUpProperty = System
+                .getProperty(AsciiLogger.class.getPackage().getName().toLowerCase() + ".fillUpFiles");
 
         if (fillUpProperty != null) {
             isFillUpFiles = Boolean.parseBoolean(fillUpProperty);
@@ -335,7 +334,7 @@ public class AsciiLogger implements DataLoggerService {
                     while (numberOfFillUpLines > 0) {
 
                         lastLogLineTimeStamp = LoggerUtils.fillUp(out, lastLogLineTimeStamp, loggingInterval,
-                                lastLogLineLength, numberOfFillUpLines, errorValues);
+                                numberOfFillUpLines, errorValues);
                         numberOfFillUpLines = LoggerUtils.getNumberOfFillUpLines(lastLogLineTimeStamp, loggingInterval);
                     }
                     out.close();

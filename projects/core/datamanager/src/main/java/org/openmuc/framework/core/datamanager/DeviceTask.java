@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,4 +30,7 @@ abstract class DeviceTask extends Thread {
     protected DataManager dataManager;
 
     public abstract DeviceTaskType getType();
+
+    @Override
+    public abstract void run();
 }

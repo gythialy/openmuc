@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,6 +23,7 @@ package org.openmuc.framework.server.restws.servlets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -37,13 +38,11 @@ import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.lib.json.ToJson;
 import org.openmuc.framework.server.restws.RestServer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class GenericServlet extends HttpServlet implements ConfigChangeListener {
 
-    private final static Logger logger = LoggerFactory.getLogger(GenericServlet.class);
     private static final long serialVersionUID = 4041357804530863512L;
-    private static final Charset CHARSET = Charset.forName("UTF-8");
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
 
     private static DataAccessService dataAccess;
     private static ConfigService configService;
@@ -61,28 +60,23 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
     }
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
     }
 
     @Override
     public void destroy() {
-
     }
 
     @Override
@@ -91,16 +85,16 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
     }
 
     void sendJson(ToJson json, HttpServletResponse response) throws ServletException, IOException {
-
         OutputStream outStream = response.getOutputStream();
-        String jsonString = json.toString();
-        outStream.write(jsonString.getBytes(CHARSET));
+        if (json != null) {
+            String jsonString = json.toString();
+            outStream.write(jsonString.getBytes(CHARSET));
+        }
         outStream.flush();
         outStream.close();
     }
 
     String[] checkIfItIsACorrectRest(HttpServletRequest request, HttpServletResponse response, Logger logger) {
-
         String pathAndQueryString[] = new String[2];
 
         String pathInfo = request.getPathInfo();
@@ -127,7 +121,6 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
     }
 
     synchronized DataAccessService handleDataAccessService(DataAccessService dataAccessService) {
-
         if (dataAccessService != null) {
             dataAccess = dataAccessService;
         }
@@ -135,7 +128,6 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
     }
 
     synchronized ConfigService handleConfigService(ConfigService configServ) {
-
         if (configServ != null) {
             configService = configServ;
         }
@@ -143,7 +135,6 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
     }
 
     synchronized AuthenticationService handleAuthenticationService(AuthenticationService authServ) {
-
         if (authServ != null) {
             authenticationService = authServ;
         }
@@ -151,7 +142,6 @@ public abstract class GenericServlet extends HttpServlet implements ConfigChange
     }
 
     synchronized RootConfig handleRootConfig(RootConfig rootConf) {
-
         if (rootConf != null) {
             rootConfig = rootConf;
         }

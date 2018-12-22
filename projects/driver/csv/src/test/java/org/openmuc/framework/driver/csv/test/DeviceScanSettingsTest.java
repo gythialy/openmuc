@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class DeviceScanSettingsTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceScanSettingsTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeviceScanSettingsTest.class);
 
     // Tests expected to be OK
 

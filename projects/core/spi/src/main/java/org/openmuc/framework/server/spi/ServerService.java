@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,9 +24,6 @@ import java.util.List;
 
 /**
  * This interface is to be implemented by bundles that provide server functionality.
- * 
- * @author sfey
- *
  */
 public interface ServerService {
 

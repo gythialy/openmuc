@@ -14,7 +14,7 @@
 
   <div class="col-sm-6 text-right">
     <button name="scanInterruptButton" class="btn btn-primary" ng-disabled="!scanDriverForm.submitted" ng-click="interruptScan()">{{'SCAN_INTERRUPT' | translate}}</button>
-    <button name="scanDrivertButton" class="btn btn-primary" ng-disabled="scanDriverForm.submitted" ng-click="scanDriver(); progressClear(); progress()">
+    <button name="scanDrivertButton" class="btn btn-primary" ng-disabled="scanDriverForm.submitted" ng-click="scanDriver()">
       <span ng-show="scanDriverForm.submitted">{{'SCANNING' | translate}} <i class="fa fa-spinner fa-pulse"></i></span>
       <span ng-show="!scanDriverForm.submitted">{{'SCAN_FOR_DEVICES' | translate}}</span>
     </button>
@@ -25,7 +25,7 @@
 <br />
 <br />
 
-<div id="progressBarBackground" ng-show="scanDriverForm.submitted && scanProgress > 0">
+<div id="progressBarBackground" ng-show="scanDriverForm.submitted && scanProgress >= 0">
     <div id="progressBarForeground">
         <div id="progressBarLabel">0%</div>
     </div>

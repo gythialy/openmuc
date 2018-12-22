@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,10 +23,10 @@ package org.openmuc.framework.dataaccess;
 
 public interface LogicalDeviceChangeListener {
 
-    public void logicalDeviceModified(LogicalDevice logicalDevice);
+    void logicalDeviceModified(LogicalDevice logicalDevice);
 
-    public void logicalDeviceDeleted(LogicalDevice logicalDevice);
+    void logicalDeviceDeleted(LogicalDevice logicalDevice);
 
-    public void logicalDeviceAdded(LogicalDevice logicalDevice);
+    void logicalDeviceAdded(LogicalDevice logicalDevice);
 
 }

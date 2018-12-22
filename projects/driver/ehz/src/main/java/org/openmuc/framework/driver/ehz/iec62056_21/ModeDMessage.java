@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,29 +27,29 @@ import java.util.List;
 
 public class ModeDMessage {
 
-    private final byte[] frame;
+    private final String vendorId;
+    private final String identifier;
+    private final List<String> dataSets;
 
-    private String vendorID;
-    private String identifier;
-    private List<String> dataSets;
+    private ModeDMessage(String vendorId, String identifier, List<String> dataSets) {
+        this.vendorId = vendorId;
+        this.identifier = identifier;
+        this.dataSets = dataSets;
+    }
 
     public List<String> getDataSets() {
         return dataSets;
     }
 
-    public ModeDMessage(byte[] frame) {
-        this.frame = frame;
-    }
-
-    public String getVendorID() {
-        return vendorID;
+    public String getVendorId() {
+        return vendorId;
     }
 
     public String getIdentifier() {
         return identifier;
     }
 
-    public void parse() throws ParseException {
+    public static ModeDMessage parse(byte[] frame) throws ParseException {
         int position = 0;
         try {
             /* Check for start sign */
@@ -64,7 +64,7 @@ public class ModeDMessage {
                 }
             }
 
-            vendorID = new String(frame, 1, 3);
+            String vendorId = new String(frame, 1, 3);
 
             /* Baud rate sign needs to be '0' .. '6' */
             if (frame[4] <= '0' || frame[4] >= '6') {
@@ -81,7 +81,7 @@ public class ModeDMessage {
                 i++;
             }
 
-            identifier = new String(frame, 5, i - 1);
+            String identifier = new String(frame, 5, i - 1);
 
             position += i;
 
@@ -89,7 +89,7 @@ public class ModeDMessage {
             position += 4;
 
             /* Get data sets */
-            dataSets = new ArrayList<>();
+            List<String> dataSets = new ArrayList<>();
 
             while (frame[position] != '!') {
 
@@ -107,6 +107,7 @@ public class ModeDMessage {
 
             }
 
+            return new ModeDMessage(vendorId, identifier, dataSets);
         } catch (IndexOutOfBoundsException e) {
             throw new ParseException("Unexpected end of message", position);
         }

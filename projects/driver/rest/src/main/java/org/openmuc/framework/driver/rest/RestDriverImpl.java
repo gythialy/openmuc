@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,28 +23,32 @@ package org.openmuc.framework.driver.rest;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-@Component
+@Component(service = DriverService.class)
 public class RestDriverImpl implements DriverService {
 
-    // private final static Logger logger = LoggerFactory.getLogger(RestDriverImpl.class);
+    // private static final Logger logger = LoggerFactory.getLogger(RestDriverImpl.class);
 
-    private final static int timeout = 10000;
+    private static final int timeout = 10000;
 
-    private final static String ID = "rest";
-    private final static String DESCRIPTION = "Driver to connect this OpenMUC instance with another, remote OpenMUC instance with rest.";
-    private final static String DEVICE_ADDRESS = "https://adress:port or http://adress:port";
-    private final static String SETTINGS = "username:password";
-    private final static String CHANNEL_ADDRESS = "/rest/channels/channelid";
-    private final static String DEVICE_SCAN_SETTINGS = "N.A.";
+    private static final String ID = "rest";
+    private static final String DESCRIPTION = "Driver to connect this OpenMUC instance with another, remote OpenMUC instance with rest.";
+    private static final String DEVICE_ADDRESS = "https://adress:port or http://adress:port";
+    private static final String SETTINGS = "username:password or ct;username:password  ct means check timestamp, only load record if timestamp changed";
+    private static final String CHANNEL_ADDRESS = "/rest/channels/channelid";
+    private static final String DEVICE_SCAN_SETTINGS = "N.A.";
 
-    private final static DriverInfo info = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, SETTINGS, CHANNEL_ADDRESS,
+    private static final DriverInfo info = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, SETTINGS, CHANNEL_ADDRESS,
             DEVICE_SCAN_SETTINGS);
+
+    private DataAccessService dataAccessService;
 
     public RestDriverImpl() {
     }
@@ -68,7 +72,13 @@ public class RestDriverImpl implements DriverService {
                     + ". Expected Format: https://adress:port or http://adress:port");
         }
         else if (deviceAddress.startsWith(HTTP) || deviceAddress.startsWith(HTTPS)) {
-            connection = new RestConnection(deviceAddress, settings, timeout);
+            boolean checkTimestamp = false;
+            if (settings.startsWith("ct;")) {
+                settings = settings.replaceFirst("ct;", "");
+                checkTimestamp = true;
+            }
+
+            connection = new RestConnection(deviceAddress, settings, timeout, checkTimestamp, dataAccessService);
             connection.connect();
             return connection;
         }
@@ -96,6 +106,15 @@ public class RestDriverImpl implements DriverService {
     public void interruptDeviceScan() throws UnsupportedOperationException {
 
         throw new UnsupportedOperationException();
+    }
+
+    @Reference
+    protected void setDataAccessService(DataAccessService dataAccessService) {
+        this.dataAccessService = dataAccessService;
+    }
+
+    protected void unsetDataAccessService(DataAccessService dataAccessService) {
+        this.dataAccessService = null;
     }
 
 }

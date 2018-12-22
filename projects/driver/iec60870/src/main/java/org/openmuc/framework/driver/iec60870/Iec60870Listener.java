@@ -9,6 +9,7 @@ import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.iec60870.settings.ChannelAddress;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.openmuc.j60870.ASdu;
@@ -19,22 +20,25 @@ import org.slf4j.LoggerFactory;
 
 public class Iec60870Listener implements ConnectionEventListener {
 
-    private static List<ChannelRecordContainer> containers;
-    private static RecordsReceivedListener listener;
-    private static List<ChannelAddress> channelAddresses;
+    private RecordsReceivedListener listener;
+    private List<ChannelRecordContainer> containers;
+    private List<ChannelAddress> channelAddresses = new ArrayList<>();
 
-    private final static Logger logger = LoggerFactory.getLogger(Iec60870Listener.class);
+    private static final Logger logger = LoggerFactory.getLogger(Iec60870Listener.class);
+    private String driverId;
+    private Connection connection;
 
     public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-            RecordsReceivedListener listener) throws ConnectionException {
-        Iec60870Listener.containers = containers;
-        Iec60870Listener.listener = listener;
-        Iec60870Listener.channelAddresses = new ArrayList<>();
+            RecordsReceivedListener listener, String driverId, Connection connection) throws ConnectionException {
+
+        this.containers = containers;
+        this.listener = listener;
+        this.driverId = driverId;
+        this.connection = connection;
         Iterator<ChannelRecordContainer> containerIterator = containers.iterator();
 
         while (containerIterator.hasNext()) {
             ChannelRecordContainer channelRecordContainer = containerIterator.next();
-
             try {
                 ChannelAddress channelAddress = new ChannelAddress(channelRecordContainer.getChannelAddress());
                 channelAddresses.add(channelAddress);
@@ -42,7 +46,6 @@ public class Iec60870Listener implements ConnectionEventListener {
                 logger.error(
                         "ChannelId: " + channelRecordContainer.getChannel().getId() + "; Message: " + e.getMessage());
             }
-
         }
     }
 
@@ -55,8 +58,9 @@ public class Iec60870Listener implements ConnectionEventListener {
     @Override
     public synchronized void newASdu(ASdu aSdu) {
         logger.debug("Got new ASdu");
-        logger.trace(aSdu.toString());
-
+        if (logger.isTraceEnabled()) {
+            logger.trace(aSdu.toString());
+        }
         if (listener != null) {
             long timestamp = System.currentTimeMillis();
 
@@ -93,9 +97,13 @@ public class Iec60870Listener implements ConnectionEventListener {
     @Override
     public void connectionClosed(IOException e) {
         logger.info("Connection was closed by server.");
+        listener.connectionInterrupted(driverId, connection);
     }
 
     private void newRecords(int i, Record record) {
+        if (logger.isTraceEnabled()) {
+            logger.trace("Set new Record: " + record.toString());
+        }
         listener.newRecords(creatNewChannelRecordContainer(containers.get(i), record));
     }
 

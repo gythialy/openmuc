@@ -1,25 +1,40 @@
+
+def projectName = "OpenMUC Server - RESTful Web Service"
+def projectDescription = "REST server for the OpenMUC framework."
+
 configurations.create('embed')
 
-def gsonVersion = '2.7'
+def gsonVersion = '2.8.1'
 
 dependencies {
   compile project(':openmuc-core-api')
-  compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
+  compile group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
   compile group: 'com.google.code.gson', name: 'gson', version: gsonVersion
   embed group: 'com.google.code.gson', name: 'gson', version: gsonVersion
 }
 
 jar {
   manifest {
-    name = "OpenMUC Server - RESTful Web Service"
+    name = projectName
     instruction 'Bundle-ClassPath', '.,lib/gson-' + gsonVersion + '.jar'
-    instruction 'Import-Package', '!com.google.gson.*,*'
-    instruction 'Export-Package', 'com.google.gson.*' + jarDefaultImportPackageVersion
+    instruction 'Import-Package', '!com.google.gson.*,*' + jarDefaultImportPackageVersion
+    instruction 'Export-Package', 'com.google.gson.*'
   }
 }
 
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,9 +30,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
 public class LoggerUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggerUtils.class);
+    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     /**
      * Returns all filenames of the given time span defined by the two dates
@@ -137,18 +140,18 @@ public class LoggerUtils {
     /**
      * Builds the Logfile name from string interval_timeOffset and the date of the calendar
      * 
-     * @param interval_timeOffset
+     * @param intervalTimeOffset
      *            the IntervallTimeOffset
      * @param calendar
      *            Calendar for the time of the file name
      * @return logfile name
      */
-    public static String buildFilename(String interval_timeOffset, Calendar calendar) {
+    public static String buildFilename(String intervalTimeOffset, Calendar calendar) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(Const.DATE_FORMAT, calendar));
         sb.append(Const.TIME_SEPERATOR);
-        sb.append(interval_timeOffset);
+        sb.append(intervalTimeOffset);
 
         sb.append(Const.EXTENSION);
         return sb.toString();
@@ -193,8 +196,10 @@ public class LoggerUtils {
                 String currentName = file.getName();
                 if (currentName.startsWith(date) && currentName.endsWith(Const.EXTENSION)) {
 
-                    String newName = currentName.substring(0, currentName.length() - Const.EXTENSION.length());
-                    newName += Const.EXTENSION_OLD;
+                    String newName = new StringBuilder()
+                            .append(currentName.substring(0, currentName.length() - Const.EXTENSION.length()))
+                            .append(Const.EXTENSION_OLD)
+                            .toString();
                     int j = 0;
 
                     File fileWithNewName = new File(directoryPath + newName + j);
@@ -204,7 +209,7 @@ public class LoggerUtils {
                         fileWithNewName = new File(directoryPath + newName + j);
                     }
                     if (!file.renameTo(fileWithNewName)) {
-                        logger.error("Could not rename file to " + newName);
+                        logger.error("Could not rename file to ", newName);
                     }
                 }
             }
@@ -212,7 +217,6 @@ public class LoggerUtils {
         else {
             logger.error("No file found in " + directoryPath);
         }
-
     }
 
     /**
@@ -221,15 +225,14 @@ public class LoggerUtils {
      * 
      * @param directoryPath
      *            directory path
-     * @param loggerInterval_loggerTimeOffset
+     * @param loggerIntervalLoggerTimeOffset
      *            logger interval with logger time offset as String separated with underline
      * @param calendar
      *            calendar of the day
      */
-    public static void renameFileToOld(String directoryPath, String loggerInterval_loggerTimeOffset,
-            Calendar calendar) {
+    public static void renameFileToOld(String directoryPath, String loggerIntervalLoggerTimeOffset, Calendar calendar) {
 
-        File file = new File(directoryPath + buildFilename(loggerInterval_loggerTimeOffset, calendar));
+        File file = new File(directoryPath + buildFilename(loggerIntervalLoggerTimeOffset, calendar));
 
         if (file.exists()) {
             String currentName = file.getName();
@@ -269,16 +272,16 @@ public class LoggerUtils {
     /**
      * This method adds a blank spaces to a StringBuilder object.
      * 
-     * @param value
-     *            String value to fill up
+     * @param length
+     *            length of the value to add the spaces
      * @param size
      *            maximal allowed size
      * @param sb
      *            StringBuilder object to add the spaces
      */
-    public static void addSpaces(String value, int size, StringBuilder sb) {
+    public static void addSpaces(int length, int size, StringBuilder sb) {
 
-        int i = value.length();
+        int i = length;
         while (i < size) {
             sb.append(' ');
             ++i;
@@ -301,15 +304,15 @@ public class LoggerUtils {
     }
 
     /**
-     * Construct a error value with the flag.
+     * Construct a error value with standard error prefix and the flag as number.
      * 
      * @param flag
      *            the wished error flag
-     * @return a string with the flag and the standard error prefix.
+     * @param sbValue
+     *            string buffer to add the error flag
      */
-    public static String buildError(Flag flag) {
-
-        return Const.ERROR + flag.getCode();
+    public static void buildError(StringBuilder sbValue, Flag flag) {
+        sbValue.append(Const.ERROR).append(flag.getCode());
     }
 
     /**
@@ -325,18 +328,45 @@ public class LoggerUtils {
 
         int channelColumn = -1;
 
-        // erste Zeile ohne Kommentar finden dann den Spaltennamen suchen und dessen Possitionsnummer zurückgeben.
+        // erst Zeile ohne Kommentar finden, dann den Spaltennamen suchen und dessen Possitionsnummer zurückgeben.
         if (!line.startsWith(Const.COMMENT_SIGN)) {
-            String columns[] = line.split(Const.SEPARATOR);
-            int i = 0;
-            while (i < columns.length) {
+            String[] columns = line.split(Const.SEPARATOR);
+            for (int i = 0; i < columns.length; i++) {
                 if (name.equals(columns[i])) {
                     return i;
                 }
-                i++;
             }
         }
+
         return channelColumn;
+    }
+
+    /**
+     * Get the columns number by names.
+     * 
+     * @param line
+     *            the line to search
+     * @param names
+     *            the name to search in line
+     * @return the column numbers mapped with the name.
+     */
+    public static Map<String, Integer> getColumnNumbersByNames(String line, String[] names) {
+
+        if (line.startsWith(Const.COMMENT_SIGN)) {
+            return null;
+        }
+
+        Map<String, Integer> channelColumnsMap = new HashMap<>();
+        String[] columns = line.split(Const.SEPARATOR);
+
+        for (int i = 0; i < columns.length; ++i) {
+            for (String name : names) {
+                if (columns[i].equals(name)) {
+                    channelColumnsMap.put(name, i);
+                }
+            }
+        }
+        return channelColumnsMap;
     }
 
     /**
@@ -351,14 +381,13 @@ public class LoggerUtils {
      * @throws IOException
      *             throws IOException If an I/O error occurs
      */
-    public static int getCommentColumnNumberByName(String name, BufferedReader br)
-            throws IOException, NullPointerException {
+    public static int getCommentColumnNumberByName(String name, BufferedReader br) throws IOException {
 
         String line = br.readLine();
 
         while (line != null && line.startsWith(Const.COMMENT_SIGN)) {
             if (line.contains(name)) {
-                String columns[] = line.split(Const.SEPARATOR);
+                String[] columns = line.split(Const.SEPARATOR);
                 for (int i = 0; i < columns.length; i++) {
                     if (name.equals(columns[i])) {
                         return i;
@@ -377,7 +406,7 @@ public class LoggerUtils {
     /**
      * Get the value which is coded in the comment
      * 
-     * @param col_no
+     * @param colNumber
      *            the number of the channel
      * @param column
      *            the column
@@ -387,19 +416,19 @@ public class LoggerUtils {
      * @throws IOException
      *             If an I/O error occurs
      */
-    public static String getCommentValue(int col_no, int column, BufferedReader br) throws IOException {
+    public static String getCommentValue(int colNumber, int column, BufferedReader br) throws IOException {
+
+        final String columnName = String.format("%03d", colNumber);
 
         String line = br.readLine();
-        String columnName = String.format("%03d", col_no);
-
-        while (line != null && line.startsWith(Const.COMMENT_SIGN)) {
-            if (line.startsWith(Const.COMMENT_SIGN + columnName)) {
-                String columns[] = line.split(Const.SEPARATOR);
-                return columns[column];
+        for (; line != null && line.startsWith(Const.COMMENT_SIGN); line = br.readLine()) {
+            if (!line.startsWith(Const.COMMENT_SIGN + columnName)) {
+                continue;
             }
-            line = br.readLine();
+
+            return line.split(Const.SEPARATOR)[column];
         }
-        return null;
+        return "";
     }
 
     /**
@@ -414,7 +443,7 @@ public class LoggerUtils {
     public static ValueType identifyValueType(int columnNumber, File dataFile) {
 
         String valueTypeWithSize = getValueTypeAsString(columnNumber, dataFile);
-        String valueTypeWithSizeArray[] = valueTypeWithSize.split(Const.VALUETYPE_ENDSIGN);
+        String[] valueTypeWithSizeArray = valueTypeWithSize.split(Const.VALUETYPE_ENDSIGN);
         String valueType = valueTypeWithSizeArray[0].split(Const.VALUETYPE_SIZE_SEPARATOR)[0];
         return ValueType.valueOf(valueType);
     }
@@ -427,30 +456,22 @@ public class LoggerUtils {
 
     private static String getValueTypeAsString(int columnNumber, File dataFile) {
 
-        BufferedReader br = null;
-        String value = "";
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(dataFile), Const.CHAR_SET));) {
 
-        try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(dataFile), Const.CHAR_SET));
             int column = LoggerUtils.getCommentColumnNumberByName(Const.COMMENT_NAME, br);
 
-            if (column != -1) {
-                value = LoggerUtils.getCommentValue(columnNumber, column, br);
-                value = value.split(Const.VALUETYPE_ENDSIGN)[0];
+            if (column == -1) {
+                String msg = MessageFormat.format("No element with name \"{0}\" found.", Const.COMMENT_NAME);
+                throw new NoSuchElementException(msg);
             }
-            else {
-                throw new NoSuchElementException("No element with name \"" + Const.COMMENT_NAME + "\" found.");
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
+            return LoggerUtils.getCommentValue(columnNumber, column, br).split(Const.VALUETYPE_ENDSIGN)[0];
+
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-        } finally {
-            closeBufferdReader(br);
+            logger.error("Failed to get Value type as string.", e);
         }
-        return value;
+        return "";
     }
 
     /**
@@ -462,56 +483,44 @@ public class LoggerUtils {
      */
     public static int getLengthOfValueType(ValueType valueType) {
 
-        int size;
-
         switch (valueType) {
         case DOUBLE:
-            size = Const.VALUE_SIZE_DOUBLE;
-            break;
+            return Const.VALUE_SIZE_DOUBLE;
         case FLOAT:
-            size = Const.VALUE_SIZE_DOUBLE;
-            break;
+            return Const.VALUE_SIZE_DOUBLE;
         case INTEGER:
-            size = Const.VALUE_SIZE_INTEGER;
-            break;
+            return Const.VALUE_SIZE_INTEGER;
         case LONG:
-            size = Const.VALUE_SIZE_LONG;
-            break;
+            return Const.VALUE_SIZE_LONG;
         case SHORT:
-            size = Const.VALUE_SIZE_SHORT;
-            break;
+            return Const.VALUE_SIZE_SHORT;
         case BYTE_ARRAY:
-            size = Const.VALUE_SIZE_MINIMAL;
-            break;
+            return Const.VALUE_SIZE_MINIMAL;
         case STRING:
-            size = Const.VALUE_SIZE_MINIMAL;
-            break;
+            return Const.VALUE_SIZE_MINIMAL;
         case BOOLEAN:
         case BYTE:
         default:
-            size = Const.VALUE_SIZE_MINIMAL;
-            break;
+            return Const.VALUE_SIZE_MINIMAL;
         }
-        return size;
     }
 
     /**
      * Converts a byte array to an hexadecimal string
      * 
+     * @param sb
+     *            to add hex string
      * @param byteArray
      *            the byte array to convert
-     * @return hexadecimal string
      */
-    public static String byteArrayToHexString(byte[] byteArray) {
-
-        char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static void byteArrayToHexString(StringBuilder sb, byte[] byteArray) {
         char[] hexChars = new char[byteArray.length * 2];
         for (int j = 0; j < byteArray.length; j++) {
             int v = byteArray[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
-        return new String(hexChars);
+        sb.append(hexChars);
     }
 
     /**
@@ -524,13 +533,13 @@ public class LoggerUtils {
      */
     public static void setLoggerTimestamps(StringBuilder sb, Calendar calendar) {
 
-        double unixtimestamp_sec = calendar.getTimeInMillis() / 1000.0; // double for milliseconds, nanoseconds
+        double unixtimestampSeconds = calendar.getTimeInMillis() / 1000.0; // double for milliseconds, nanoseconds
 
         sb.append(String.format(Const.DATE_FORMAT, calendar));
         sb.append(Const.SEPARATOR);
         sb.append(String.format(Const.TIME_FORMAT, calendar));
         sb.append(Const.SEPARATOR);
-        sb.append(String.format(Locale.ENGLISH, "%10.3f", unixtimestamp_sec));
+        sb.append(String.format(Locale.ENGLISH, "%10.3f", unixtimestampSeconds));
         sb.append(Const.SEPARATOR);
     }
 
@@ -546,17 +555,17 @@ public class LoggerUtils {
 
         Calendar calendar = new GregorianCalendar(Locale.getDefault());
         calendar.setTimeInMillis(unixTimeStamp);
-        double unixtimestamp_sec = unixTimeStamp / 1000.0; // double for milliseconds, nanoseconds
+        double unixtimestampSeconds = unixTimeStamp / 1000.0; // double for milliseconds, nanoseconds
 
         sb.append(String.format(Const.DATE_FORMAT, calendar));
         sb.append(Const.SEPARATOR);
         sb.append(String.format(Const.TIME_FORMAT, calendar));
         sb.append(Const.SEPARATOR);
-        sb.append(String.format(Locale.ENGLISH, "%10.3f", unixtimestamp_sec));
+        sb.append(String.format(Locale.ENGLISH, "%10.3f", unixtimestampSeconds));
         sb.append(Const.SEPARATOR);
     }
 
-    public static String getHeaderFromFile(String filePath, String logInterval_logTimeOffset) {
+    public static String getHeaderFromFile(String filePath) {
 
         BufferedReader br;
         try {
@@ -565,35 +574,30 @@ public class LoggerUtils {
             return "";
         }
 
-        if (br != null) {
-            StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-            try {
-                String line = br.readLine();
+        try {
+            String line = br.readLine();
 
-                if (line != null) {
+            if (line != null) {
+                sb.append(line);
+                while (line != null && line.startsWith(Const.COMMENT_SIGN)) {
+                    sb.append(Const.LINESEPARATOR);
+                    line = br.readLine();
                     sb.append(line);
-                    while (line != null && line.startsWith(Const.COMMENT_SIGN)) {
-                        sb.append(Const.LINESEPARATOR);
-                        line = br.readLine();
-                        sb.append(line);
-                    }
-                }
-            } catch (IOException e) {
-                logger.error("Problems to handle file: " + filePath, e);
-            } finally {
-
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    logger.error("Cannot close file: " + filePath, e);
                 }
             }
-            return sb.toString();
+        } catch (IOException e) {
+            logger.error("Problems to handle file: " + filePath, e);
+        } finally {
+
+            try {
+                br.close();
+            } catch (IOException e) {
+                logger.error("Cannot close file: " + filePath, e);
+            }
         }
-        else {
-            return "";
-        }
+        return sb.toString();
     }
 
     /**
@@ -603,19 +607,16 @@ public class LoggerUtils {
      *            file get the RandomAccessFile
      * @param accesMode
      *            access mode
-     * @return the RandomAccessFile of the specified file
+     * @return the RandomAccessFile of the specified file, {@code null} if an error occured.
      */
     public static RandomAccessFile getRandomAccessFile(File file, String accesMode) {
-
-        RandomAccessFile raf = null;
         try {
-            raf = new RandomAccessFile(file, accesMode);
+            return new RandomAccessFile(file, accesMode);
         } catch (FileNotFoundException e) {
-
-            logger.warn("Requested logfile: '" + file.getAbsolutePath() + "' not found.");
-            // e.printStackTrace();
+            logger.warn("Requested logfile: '{}' not found.", file.getAbsolutePath());
         }
-        return raf;
+
+        return null;
     }
 
     public static PrintWriter getPrintWriter(File file, boolean append) throws IOException {
@@ -666,7 +667,7 @@ public class LoggerUtils {
             String fileName = LoggerUtils.buildFilename(key, calendar);
 
             String headerGenerated = LogFileHeader.getIESDataFormatHeaderString(fileName, logChannels);
-            String oldHeader = LoggerUtils.getHeaderFromFile(loggerDirectory + fileName, key) + Const.LINESEPARATOR;
+            String oldHeader = LoggerUtils.getHeaderFromFile(loggerDirectory + fileName) + Const.LINESEPARATOR;
             boolean isHeaderIdentical = headerGenerated.equals(oldHeader);
             areHeadersIdentical.put(key, isHeaderIdentical);
         }
@@ -683,18 +684,14 @@ public class LoggerUtils {
      *            unix time stamp
      * @param loggingInterval
      *            logging interval
-     * @param lastLogLineLength
-     *            the length of the last logging line of the file
      * @param numberOfFillUpLines
      *            the number to fill up lines
      * @param errorValues
      *            the error value set in the line
      * @return returns the unix time stamp of the last filled up line
-     * @throws IOException
-     *             If an I/O error occurs
      */
-    public static long fillUp(PrintWriter out, long unixTimeStamp, long loggingInterval, int lastLogLineLength,
-            long numberOfFillUpLines, StringBuilder errorValues) throws IOException {
+    public static long fillUp(PrintWriter out, long unixTimeStamp, long loggingInterval, long numberOfFillUpLines,
+            StringBuilder errorValues) {
 
         StringBuilder line = new StringBuilder();
         for (int i = 0; i < numberOfFillUpLines; ++i) {
@@ -705,7 +702,7 @@ public class LoggerUtils {
             line.append(errorValues);
             line.append(Const.LINESEPARATOR);
 
-            out.append(line.toString());
+            out.append(line);
         }
 
         return unixTimeStamp;
@@ -728,7 +725,7 @@ public class LoggerUtils {
      *            a ascii line as a array with error code
      * @return StringBuilder with appended error
      */
-    public static StringBuilder getErrorValues(String lineArray[]) {
+    public static StringBuilder getErrorValues(String[] lineArray) {
 
         StringBuilder errorValues = new StringBuilder();
         int arrayLength = lineArray.length;
@@ -754,17 +751,6 @@ public class LoggerUtils {
         return errorValues;
     }
 
-    // private static String completeLastLine(String firstLogLine, String lastLogLine) {
-    //
-    // // TODO different size of logging lines, probably the last one is corrupted we have to fill it up
-    // // TODO: wenn letzte Zeile zu defekt ist also ohne Timestamp, löschen und vorletzte Zeile nehmen und
-    // // dessen Zeit.
-    // int firstLogLineLength = firstLogLine.length();
-    // int lastLogLineLength = lastLogLine.length();
-    //
-    // return "";
-    // }
-
     /**
      * Get the length from a type+length tuple. Example: "Byte_String,95"
      * 
@@ -772,30 +758,21 @@ public class LoggerUtils {
      *            has to be a string with ByteType and length.
      * @param dataFile
      *            the logger data file
-     * @return the length of a ByteString in int.
+     * @return the length of a ByteString.
      */
     private static int getByteStringLength(String string) {
 
-        String stringArray[];
-        int size;
-
-        stringArray = string.split(Const.VALUETYPE_SIZE_SEPARATOR);
+        String[] stringArray = string.split(Const.VALUETYPE_SIZE_SEPARATOR);
         try {
-            size = Integer.parseInt(stringArray[1]);
+            return Integer.parseInt(stringArray[1]);
         } catch (NumberFormatException e) {
             logger.warn("Not able to get ValueType length from String. Set length to minimal lenght "
                     + Const.VALUE_SIZE_MINIMAL + ".");
-            size = Const.VALUE_SIZE_MINIMAL;
         }
-        return size;
+        return Const.VALUE_SIZE_MINIMAL;
     }
 
-    private static void closeBufferdReader(BufferedReader br) {
-
-        try {
-            br.close();
-        } catch (Exception e1) {
-        }
+    private LoggerUtils() {
     }
 
 }

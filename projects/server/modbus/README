@@ -1,0 +1,39 @@
+If you run ModbusTCP Server without root-privileges you have to allow
+Felix to bind Port 502 with setcap.
+
+setcap 'cap_net_bind_service=+ep' /path/to/program
+
+
+
+channels.xml example:
+#####################
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+
+  <driver id="virtual">
+    <device id="LK_TWS_v_SP">
+      <deviceAddress></deviceAddress>
+
+      <channel id="mod_holding_1000">
+        <serverMapping id="modbus">HOLDING_REGISTERS:1000:INTEGER</serverMapping>
+      </channel>
+      
+      <channel id="mod_coil_1000">
+        <serverMapping id="modbus">COIL_REGISTERS:1000:BOOLEAN</serverMapping>
+      </channel>
+
+    </device>
+  </driver>
+
+</configuration>
+
+
+
+system.properties example:
+##########################
+
+org.openmuc.framework.server.modbus.address=127.0.0.1
+org.openmuc.framework.server.modbus.port=5502
+org.openmuc.framework.server.modbus.unitId=1
+org.openmuc.framework.server.modbus.master=false

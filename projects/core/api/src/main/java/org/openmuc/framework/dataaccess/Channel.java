@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FutureValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
@@ -253,11 +254,27 @@ public interface Channel {
      * This function will schedule single write tasks to the provided timestamps.<br>
      * Once this function is called, previously scheduled write tasks will be erased.<br>
      * 
-     * @param records
+     * @param values
+     *            a list of future write values.
+     */
+    void writeFuture(List<FutureValue> values);
+
+    /**
+     * Schedules a List&lt;records&gt; with future timestamps as write tasks This function will schedule single write
+     * tasks to the provided timestamps. Once this function is called, previously scheduled write tasks will be erased.
+     * 
+     * <p>
+     * NOTE: use write future instead, this function may not be available in future versions.
+     * </p>
+     * 
+     * @param values
      *            each record contains the value that is to be written and the timestamp indicating when it should be
      *            written. The flag of the record is ignored.
+     * 
+     * @see #writeFuture(List)
      */
-    void write(List<Record> records);
+    @Deprecated
+    void write(List<Record> values);
 
     /**
      * Returns a <code>WriteValueContainer</code> that corresponds to this channel. This container can be passed to the

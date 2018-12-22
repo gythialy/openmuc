@@ -1,5 +1,12 @@
 package org.openmuc.framework.driver.aggregator;
 
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.ADDRESS_QUALITY_INDEX;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.ADDRESS_SEPARATOR;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.AGGREGATION_TYPE_AVG;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.DEFAULT_QUALITY;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.MAX_ADDRESS_PARTS_LENGTH;
+import static org.openmuc.framework.driver.aggregator.AggregatorConstants.MIN_ADDRESS_PARTS_LENGTH;
+
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.driver.aggregator.types.AverageAggregation;
 import org.openmuc.framework.driver.aggregator.types.DiffAggregation;
@@ -16,7 +23,7 @@ public class AggregatorChannelFactory {
             DataAccessService dataAccessService) throws AggregationException {
 
         AggregatorChannel aggregatorChannel = null;
-        ChannelAddress simpleAddress = getAddress(container);
+        ChannelAddress simpleAddress = createAddressFrom(container);
         aggregatorChannel = createByAddress(simpleAddress, dataAccessService);
         return aggregatorChannel;
     }
@@ -31,28 +38,21 @@ public class AggregatorChannelFactory {
     private static AggregatorChannel createByAddress(ChannelAddress channelAddress, DataAccessService dataAccessService)
             throws AggregationException {
 
-        AggregatorChannel aggregatorChannel = null;
-
         String aggregationType = channelAddress.getAggregationType();
 
-        if (aggregationType.equals(AggregatorConstants.AGGREGATION_TYPE_AVG)) {
-            aggregatorChannel = new AverageAggregation(channelAddress, dataAccessService);
-        }
-        else if (aggregationType.equals(AggregatorConstants.AGGREGATION_TYPE_LAST)) {
-            aggregatorChannel = new LastAggregation(channelAddress, dataAccessService);
-        }
-        else if (aggregationType.equals(AggregatorConstants.AGGREGATION_TYPE_DIFF)) {
-            aggregatorChannel = new DiffAggregation(channelAddress, dataAccessService);
-        }
-        else if (aggregationType.startsWith(AggregatorConstants.AGGREGATION_TYPE_PULS_ENERGY)) {
-            aggregatorChannel = new PulseEnergyAggregation(channelAddress, dataAccessService);
-        }
-        else {
+        switch (aggregationType) {
+        case AGGREGATION_TYPE_AVG:
+            return new AverageAggregation(channelAddress, dataAccessService);
+        case AggregatorConstants.AGGREGATION_TYPE_LAST:
+            return new LastAggregation(channelAddress, dataAccessService);
+        case AggregatorConstants.AGGREGATION_TYPE_DIFF:
+            return new DiffAggregation(channelAddress, dataAccessService);
+        case AggregatorConstants.AGGREGATION_TYPE_PULS_ENERGY:
+            return new PulseEnergyAggregation(channelAddress, dataAccessService);
+        default:
             throw new AggregationException("Unsupported aggregationType: " + aggregationType + " in channel "
                     + channelAddress.getContainer().getChannelAddress());
         }
-
-        return aggregatorChannel;
     }
 
     /**
@@ -60,39 +60,34 @@ public class AggregatorChannelFactory {
      * 
      * @throws WrongChannelAddressFormatException
      */
-    private static ChannelAddress getAddress(ChannelRecordContainer container) throws AggregationException {
+    private static ChannelAddress createAddressFrom(ChannelRecordContainer container) throws AggregationException {
 
         String address = container.getChannelAddress();
-        String[] addressParts = address.split(AggregatorConstants.ADDRESS_SEPARATOR);
+        String[] addressParts = address.split(ADDRESS_SEPARATOR);
         int addressPartsLength = addressParts.length;
 
-        ChannelAddress simpleAddress = null;
-
-        if (addressPartsLength <= AggregatorConstants.MAX_ADDRESS_PARTS_LENGTH
-                && addressPartsLength >= AggregatorConstants.MIN_ADDRESS_PARTS_LENGTH) {
-
-            String sourceChannelId = addressParts[AggregatorConstants.ADDRESS_SOURCE_CHANNEL_ID_INDEX];
-            String aggregationType = addressParts[AggregatorConstants.ADDRESS_AGGREGATION_TYPE_INDEX].toUpperCase();
-            double quality = getQuality(addressPartsLength, addressParts);
-            simpleAddress = new ChannelAddress(container, sourceChannelId, aggregationType, quality);
-        }
-        else {
+        if (addressPartsLength > MAX_ADDRESS_PARTS_LENGTH || addressPartsLength < MIN_ADDRESS_PARTS_LENGTH) {
             throw new AggregationException("Invalid number of channel address parameters.");
         }
 
-        return simpleAddress;
+        String sourceChannelId = addressParts[AggregatorConstants.ADDRESS_SOURCE_CHANNEL_ID_INDEX];
+        String aggregationType = addressParts[AggregatorConstants.ADDRESS_AGGREGATION_TYPE_INDEX].toUpperCase();
+        double quality = extractQuality(addressPartsLength, addressParts);
+
+        return new ChannelAddress(container, sourceChannelId, aggregationType, quality);
+
     }
 
-    private static double getQuality(int addressPartsLength, String[] addressParts) {
+    private static double extractQuality(int addressPartsLength, String[] addressParts) {
         double quality = -1;
 
-        if (addressPartsLength == AggregatorConstants.MAX_ADDRESS_PARTS_LENGTH) {
-            quality = Double.valueOf(addressParts[AggregatorConstants.ADDRESS_QUALITY_INDEX]);
+        if (addressPartsLength == MAX_ADDRESS_PARTS_LENGTH) {
+            quality = Double.valueOf(addressParts[ADDRESS_QUALITY_INDEX]);
         }
 
         // use the default value if the previous parsing failed or the parsed quality value is invalid
         if (quality < 0.0 || quality > 1.0) {
-            quality = AggregatorConstants.DEFAULT_QUALITY;
+            quality = DEFAULT_QUALITY;
         }
 
         return quality;

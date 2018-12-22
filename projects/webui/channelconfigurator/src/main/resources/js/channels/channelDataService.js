@@ -9,8 +9,8 @@
     			url: SETTINGS.API_URL + SETTINGS.CHANNELS_URL + channel.id + SETTINGS.CONFIGS_URL,
     			headers: {
     				'Content-Type': 'application/json', 
-    				'Authorization': RestServerAuthService.getAuthHash(),
-    			},
+    				'Authorization': RestServerAuthService.getAuthHash()
+    			}
     		};
     		
     		return $http(req).then(function(response){    		
@@ -24,8 +24,8 @@
     			url: SETTINGS.API_URL + SETTINGS.CHANNELS_URL + channel.id,
     			headers: {
     				'Content-Type': 'application/json', 
-    				'Authorization': RestServerAuthService.getAuthHash(),
-    			},
+    				'Authorization': RestServerAuthService.getAuthHash()
+    			}
     		};
     		
     		return $http(req).then(function(response){

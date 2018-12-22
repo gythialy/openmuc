@@ -25,6 +25,6 @@
   </root>
 
 
-  <logger name="org.eclipse.jetty" level="INFO" />
+  <logger name="org.eclipse.jetty" level="WARN" />
 
 </configuration>

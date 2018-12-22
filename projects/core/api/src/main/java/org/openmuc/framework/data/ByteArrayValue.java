@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,9 +21,10 @@
 
 package org.openmuc.framework.data;
 
+import java.util.Arrays;
+
 /**
  * ByteArrayValue is not immutable.
- * 
  */
 public class ByteArrayValue implements Value {
 
@@ -52,8 +53,7 @@ public class ByteArrayValue implements Value {
      */
     public ByteArrayValue(byte[] value, boolean copy) {
         if (copy) {
-            this.value = new byte[value.length];
-            System.arraycopy(value, 0, this.value, 0, value.length);
+            this.value = value.clone();
         }
         else {
             this.value = value;
@@ -102,7 +102,7 @@ public class ByteArrayValue implements Value {
 
     @Override
     public String toString() {
-        return new String(value);
+        return Arrays.toString(this.value);
     }
 
     @Override

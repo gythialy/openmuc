@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,23 +28,21 @@ import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 
 public class IESDataFormatUtils {
 
-    // private final static Logger logger = LoggerFactory.getLogger(IESDataFormatUtils.class);
-
     /**
-     * Convert a double value into a string with the maximal allowed length of maxlength.
+     * Convert a double value into a string with the maximal allowed length of maxLength.
      * 
      * @param value
      *            the value to convert
      * @param maxLength
      *            The maximal allowed length with all signs.
-     * @return a double as string with max length.
+     * @param sbValue
+     *            StringBuffer for the return value
+     * 
      * @throws WrongScalingException
      *             will thrown if converted value is bigger then maxLength
      */
-    public static String convertDoubleToStringWithMaxLength(double value, int maxLength) throws WrongScalingException {
-
-        String ret;
-
+    public static void convertDoubleToStringWithMaxLength(StringBuilder sbValue, double value, int maxLength)
+            throws WrongScalingException {
         String format;
         double valueWork = value;
         long lValue = (long) (valueWork * 10000.0);
@@ -62,13 +60,12 @@ public class IESDataFormatUtils {
         }
 
         DecimalFormat df = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
-        ret = df.format(valueWork);
+        sbValue.append(df.format(valueWork));
 
-        if (ret.length() > maxLength) {
-            throw new WrongScalingException("Double value (" + value + ") too large for convertion into max length "
+        if (sbValue.length() > maxLength) {
+            throw new WrongScalingException("Double value (" + value + ") too large for conversion into max length "
                     + maxLength + "! Try to scale value.");
         }
-        return ret;
     }
 
     private static String getFormat(double value) {
@@ -90,5 +87,8 @@ public class IESDataFormatUtils {
         }
 
         return format;
+    }
+
+    private IESDataFormatUtils() {
     }
 }

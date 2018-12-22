@@ -1,7 +1,5 @@
 package org.openmuc.framework.driver.csv.exceptions;
 
-import org.openmuc.framework.driver.csv.CsvException;
-
 public class NoValueReceivedYetException extends CsvException {
 
     private static final long serialVersionUID = 8609753792624311525L;

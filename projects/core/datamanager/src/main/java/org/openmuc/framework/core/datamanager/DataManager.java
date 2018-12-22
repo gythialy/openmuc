@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,13 +27,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -63,6 +63,7 @@ import org.openmuc.framework.config.ScanException;
 import org.openmuc.framework.config.ScanInterruptedException;
 import org.openmuc.framework.config.ServerMapping;
 import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.ChannelChangeListener;
 import org.openmuc.framework.dataaccess.ChannelState;
@@ -84,17 +85,25 @@ import org.openmuc.framework.driver.spi.DriverService;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.openmuc.framework.server.spi.ServerMappingContainer;
 import org.openmuc.framework.server.spi.ServerService;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import aQute.bnd.annotation.component.Component;
-
-@Component(properties = { CommandProcessor.COMMAND_SCOPE + ":String=openmuc",
-        CommandProcessor.COMMAND_FUNCTION + ":String=reload" }, provide = Object.class)
+//
+//@Component(properties = { CommandProcessor.COMMAND_SCOPE + ":String=openmuc",
+//        CommandProcessor.COMMAND_FUNCTION + ":String=reload" }, provide =ssh  Object.class)
+@Component(service = { DataAccessService.class, ConfigService.class }, immediate = true, property = {
+        CommandProcessor.COMMAND_SCOPE + ":String=openmuc", CommandProcessor.COMMAND_FUNCTION + ":String=reload" })
 public final class DataManager extends Thread implements DataAccessService, ConfigService, RecordsReceivedListener {
 
-    private final static Logger logger = LoggerFactory.getLogger(DataManager.class);
+    private static final String DEFAULT_CONF_FILE = "conf/channels.xml";
+
+    private static final Logger logger = LoggerFactory.getLogger(DataManager.class);
 
     private volatile boolean stopFlag = false;
 
@@ -105,24 +114,24 @@ public final class DataManager extends Thread implements DataAccessService, Conf
     private volatile String driverToBeRemovedId = null;
     private volatile DataLoggerService dataLoggerToBeRemoved = null;
 
-    final List<Device> connectedDevices = new LinkedList<>();
-    final List<Device> disconnectedDevices = new LinkedList<>();
-    final List<Device> connectionFailures = new LinkedList<>();
-    final List<SamplingTask> samplingTaskFinished = new LinkedList<>();
-    final List<WriteTask> newWriteTasks = new LinkedList<>();
-    final List<ReadTask> newReadTasks = new LinkedList<>();
-    final List<DeviceTask> tasksFinished = new LinkedList<>();
+    final LinkedList<Device> connectedDevices = new LinkedList<>();
+    final LinkedList<Device> disconnectedDevices = new LinkedList<>();
+    final LinkedList<Device> connectionFailures = new LinkedList<>();
+    final LinkedList<SamplingTask> samplingTaskFinished = new LinkedList<>();
+    final LinkedList<WriteTask> newWriteTasks = new LinkedList<>();
+    final LinkedList<ReadTask> newReadTasks = new LinkedList<>();
+    final LinkedList<DeviceTask> tasksFinished = new LinkedList<>();
     private volatile RootConfigImpl newRootConfigWithoutDefaults = null;
-    private final HashMap<String, DriverService> activeDrivers = new LinkedHashMap<>();
+    private final Map<String, DriverService> activeDrivers = new LinkedHashMap<>();
 
-    private final List<Action> actions = new LinkedList<>();
+    private final LinkedList<Action> actions = new LinkedList<>();
     private final List<ConfigChangeListener> configChangeListeners = new LinkedList<>();
 
     CountDownLatch dataLoggerRemovedSignal;
     private final List<DataLoggerService> newDataLoggers = new LinkedList<>();
     private final Deque<DataLoggerService> activeDataLoggers = new LinkedBlockingDeque<>();
 
-    private final List<List<ChannelRecordContainer>> receivedRecordContainers = new LinkedList<>();
+    private final LinkedList<List<ChannelRecordContainer>> receivedRecordContainers = new LinkedList<>();
 
     volatile int activeDeviceCountDown;
 
@@ -141,8 +150,9 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
     private final ReentrantLock configLock = new ReentrantLock();
 
-    protected void activate(ComponentContext context) throws TransformerFactoryConfigurationError, IOException,
-            ParserConfigurationException, TransformerException, ParseException {
+    @Activate
+    protected void activate() throws TransformerFactoryConfigurationError, IOException, ParserConfigurationException,
+            TransformerException, ParseException {
         logger.info("Activating Data Manager");
 
         NamedThreadFactory namedThreadFactory = new NamedThreadFactory("OpenMUC Data Manager Pool - thread-");
@@ -150,7 +160,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
         String configFileName = System.getProperty("org.openmuc.framework.channelconfig");
         if (configFileName == null) {
-            configFileName = "conf/channels.xml";
+            configFileName = DEFAULT_CONF_FILE;
         }
         configFile = new File(configFileName);
 
@@ -163,7 +173,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
             logger.info("No configuration file found. Created an empty config file at: {}",
                     configFile.getAbsolutePath());
         } catch (ParseException e) {
-            throw new ParseException("Error parsing openMUC config file: " + e.getMessage());
+            throw new ParseException("Error parsing openMUC config file: " + e.getMessage(), e);
         }
 
         rootConfig = new RootConfigImpl();
@@ -184,7 +194,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         }
     }
 
-    protected void deactivate(ComponentContext context) {
+    @Deactivate
+    private void deactivate() {
         logger.info("Deactivating Data Manager");
 
         stopFlag = true;
@@ -221,38 +232,14 @@ public final class DataManager extends Thread implements DataAccessService, Conf
                 }
             }
 
-            Action currentAction = actions.get(0);
+            Action currentAction = actions.getFirst();
 
             long currentTime = System.currentTimeMillis();
 
-            if ((currentTime - currentAction.startTime) > 1000l) {
-                actions.remove(0);
-                logger.error("Action was scheduled for UNIX time " + currentAction.startTime
-                        + ". But current time is already " + currentTime
-                        + ". Will calculate new action time because the action has timed out. Has the system clock jumped?");
-                if (currentAction.timeouts != null && !currentAction.timeouts.isEmpty()) {
-                    for (SamplingTask samplingTask : currentAction.timeouts) {
-                        samplingTask.timeout();
-                    }
-                }
-                if (currentAction.loggingCollections != null) {
-                    for (ChannelCollection loggingCollection : currentAction.loggingCollections) {
-                        addLoggingCollectionToActions(loggingCollection,
-                                loggingCollection.calculateNextActionTime(currentTime));
-                    }
-                }
-                if (currentAction.samplingCollections != null) {
-                    for (ChannelCollection samplingCollection : currentAction.samplingCollections) {
-                        addSamplingCollectionToActions(samplingCollection,
-                                samplingCollection.calculateNextActionTime(currentTime));
-                    }
-                }
-                if (currentAction.connectionRetryDevices != null) {
-                    for (Device device : currentAction.connectionRetryDevices) {
-                        addReconnectDeviceToActions(device,
-                                currentTime + device.deviceConfig.getConnectRetryInterval());
-                    }
-                }
+            long elapsedTime = currentTime - currentAction.startTime;
+
+            if (elapsedTime > 1000l) {
+                elapsedTimeTooBig(currentAction, currentTime);
                 continue;
             }
 
@@ -260,32 +247,31 @@ public final class DataManager extends Thread implements DataAccessService, Conf
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException e1) {
+                } catch (InterruptedException e) {
                     handleInterruptEvent();
                     continue;
                 }
             }
-            actions.remove(0);
+            actions.removeFirst();
 
-            if (currentAction.timeouts != null && !currentAction.timeouts.isEmpty()) {
-                for (SamplingTask samplingTask : currentAction.timeouts) {
-                    samplingTask.timeout();
-                }
+            if (currentAction.timeouts != null) {
+                triggerTimeouts(currentAction.timeouts);
             }
 
             if (currentAction.loggingCollections != null && !currentAction.loggingCollections.isEmpty()) {
 
                 List<LogRecordContainer> logContainers = new LinkedList<>();
-                List<ChannelImpl> toRemove = new LinkedList<>();
 
                 for (ChannelCollection loggingCollection : currentAction.loggingCollections) {
-                    toRemove.clear();
+                    List<ChannelImpl> toRemove = new LinkedList<>();
                     for (ChannelImpl channel : loggingCollection.channels) {
-                        if (channel.config.state == ChannelState.DELETED) {
+                        if (channel.getChannelState() == ChannelState.DELETED) {
                             toRemove.add(channel);
                         }
                         else if (!channel.config.isDisabled()) {
-                            logContainers.add(new LogRecordContainerImpl(channel.config.id, channel.latestRecord));
+                            String channelId = channel.getId();
+                            Record latestRecord = channel.getLatestRecord();
+                            logContainers.add(new LogRecordContainerImpl(channelId, latestRecord));
                         }
                     }
 
@@ -294,8 +280,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
                     }
 
                     if (!loggingCollection.channels.isEmpty()) {
-                        addLoggingCollectionToActions(loggingCollection,
-                                currentAction.startTime + loggingCollection.interval);
+                        long startTimestamp = currentAction.startTime + loggingCollection.interval;
+                        addLoggingCollectionToActions(loggingCollection, startTimestamp);
                     }
                 }
                 for (DataLoggerService dataLogger : activeDataLoggers) {
@@ -320,18 +306,53 @@ public final class DataManager extends Thread implements DataAccessService, Conf
                     SamplingTask samplingTask = new SamplingTask(this, samplingCollection.device, selectedChannels,
                             samplingCollection.samplingGroup);
 
-                    int timeout = samplingCollection.device.deviceConfig.samplingTimeout;
+                    int timeout = samplingCollection.device.deviceConfig.getSamplingTimeout();
 
-                    if (samplingCollection.device.addSamplingTask(samplingTask, samplingCollection.interval)
-                            && timeout > 0) {
-                        addSamplingWorkerTimeoutToActions(samplingTask,
-                                currentAction.startTime + samplingCollection.device.deviceConfig.samplingTimeout);
+                    boolean taskAddSuccessful = samplingCollection.device.addSamplingTask(samplingTask,
+                            samplingCollection.interval);
+                    if (taskAddSuccessful && timeout > 0) {
+                        addSamplingWorkerTimeoutToActions(samplingTask, currentAction.startTime + timeout);
                     }
 
                     addSamplingCollectionToActions(samplingCollection,
                             currentAction.startTime + samplingCollection.interval);
                 }
 
+            }
+        }
+    }
+
+    private void triggerTimeouts(List<SamplingTask> timeouts) {
+        for (SamplingTask samplingTask : timeouts) {
+            samplingTask.timeout();
+        }
+    }
+
+    private void elapsedTimeTooBig(Action currentAction, long currentTime) {
+        actions.removeFirst();
+        logger.error(
+                "Action was scheduled for UNIX time {}. But current time is already {}. Will calculate new action time because the action has timed out. Has the system clock jumped?",
+                currentAction.startTime, currentTime);
+
+        if (currentAction.timeouts != null) {
+            triggerTimeouts(currentAction.timeouts);
+        }
+        if (currentAction.loggingCollections != null) {
+            for (ChannelCollection loggingCollection : currentAction.loggingCollections) {
+                long startTimestamp = loggingCollection.calculateNextActionTime(currentTime);
+                addLoggingCollectionToActions(loggingCollection, startTimestamp);
+            }
+        }
+        if (currentAction.samplingCollections != null) {
+            for (ChannelCollection samplingCollection : currentAction.samplingCollections) {
+                long startTimestamp = samplingCollection.calculateNextActionTime(currentTime);
+                addSamplingCollectionToActions(samplingCollection, startTimestamp);
+            }
+        }
+        if (currentAction.connectionRetryDevices != null) {
+            for (Device device : currentAction.connectionRetryDevices) {
+                long startTimestamp = currentTime + device.deviceConfig.getConnectRetryInterval();
+                addReconnectDeviceToActions(device, startTimestamp);
             }
         }
     }
@@ -416,7 +437,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
                 }
                 break;
             }
-            else if (currentAction.startTime > startTimestamp) {
+
+            if (currentAction.startTime > startTimestamp) {
                 fittingAction = new Action(startTimestamp);
                 fittingAction.connectionRetryDevices = new LinkedList<>();
                 actionIterator.previous();
@@ -483,60 +505,59 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         }
 
         synchronized (receivedRecordContainers) {
-            if (receivedRecordContainers.size() != 0) {
-                for (List<ChannelRecordContainer> recordContainers : receivedRecordContainers) {
-                    for (ChannelRecordContainer container : recordContainers) {
-                        ChannelRecordContainerImpl containerImpl = (ChannelRecordContainerImpl) container;
-                        if (containerImpl.channel.config.state == ChannelState.LISTENING) {
-                            containerImpl.channel.setNewRecord(containerImpl.record);
-                        }
+            List<ChannelRecordContainer> recordContainers;
+            while ((recordContainers = receivedRecordContainers.poll()) != null) {
+                for (ChannelRecordContainer container : recordContainers) {
+                    ChannelRecordContainerImpl containerImpl = (ChannelRecordContainerImpl) container;
+                    if (containerImpl.getChannel().getChannelState() == ChannelState.LISTENING) {
+                        containerImpl.getChannel().setNewRecord(containerImpl.getRecord());
                     }
                 }
             }
-            receivedRecordContainers.clear();
         }
 
         synchronized (samplingTaskFinished) {
-            if (!samplingTaskFinished.isEmpty()) {
-                for (SamplingTask samplingTask : samplingTaskFinished) {
-                    samplingTask.storeValues();
-                    samplingTask.device.taskFinished();
-                }
-                samplingTaskFinished.clear();
+            SamplingTask samplingTask;
+            while ((samplingTask = samplingTaskFinished.poll()) != null) {
+                samplingTask.storeValues();
+                samplingTask.device.taskFinished();
             }
         }
 
         synchronized (tasksFinished) {
-            if (tasksFinished.size() != 0) {
-                for (DeviceTask deviceTask : tasksFinished) {
-                    deviceTask.device.taskFinished();
-                }
-                tasksFinished.clear();
+            DeviceTask deviceTask;
+            while ((deviceTask = tasksFinished.poll()) != null) {
+                deviceTask.device.taskFinished();
+
             }
         }
 
         synchronized (newDrivers) {
-            if (newDrivers.size() != 0) {
-                // needed to synchronize with getRunningDrivers
-                synchronized (activeDrivers) {
-                    activeDrivers.putAll(newDrivers);
-                }
-                for (Entry<String, DriverService> newDriverEntry : newDrivers.entrySet()) {
-                    logger.info("Driver registered: " + newDriverEntry.getKey());
-                    DriverConfigImpl driverConfig = rootConfig.driverConfigsById.get(newDriverEntry.getKey());
-                    if (driverConfig != null) {
-                        driverConfig.activeDriver = newDriverEntry.getValue();
-                        for (DeviceConfigImpl deviceConfig : driverConfig.deviceConfigsById.values()) {
-                            deviceConfig.device.driverRegisteredSignal();
-                        }
-                    }
-                }
-                newDrivers.clear();
+            // needed to synchronize with getRunningDrivers
+            synchronized (activeDrivers) {
+                activeDrivers.putAll(newDrivers);
             }
+
+            for (Entry<String, DriverService> newDriverEntry : newDrivers.entrySet()) {
+                String driverId = newDriverEntry.getKey();
+                logger.info("Driver registered: " + driverId);
+
+                DriverConfigImpl driverConfig = rootConfig.driverConfigsById.get(driverId);
+
+                if (driverConfig == null) {
+                    continue;
+                }
+
+                driverConfig.activeDriver = newDriverEntry.getValue();
+                for (DeviceConfigImpl deviceConfig : driverConfig.deviceConfigsById.values()) {
+                    deviceConfig.device.driverRegisteredSignal();
+                }
+            }
+            newDrivers.clear();
         }
 
         synchronized (newDataLoggers) {
-            if (newDataLoggers.size() != 0) {
+            if (!newDataLoggers.isEmpty()) {
                 activeDataLoggers.addAll(newDataLoggers);
                 for (DataLoggerService dataLogger : newDataLoggers) {
                     logger.info("Data logger registered: " + dataLogger.getId());
@@ -587,7 +608,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         }
 
         if (dataLoggerToBeRemoved != null) {
-            if (activeDataLoggers.remove(dataLoggerToBeRemoved) == false) {
+            if (!activeDataLoggers.remove(dataLoggerToBeRemoved)) {
                 newDataLoggers.remove(dataLoggerToBeRemoved);
             }
             dataLoggerToBeRemoved = null;
@@ -595,56 +616,47 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         }
 
         synchronized (connectionFailures) {
-            if (connectionFailures.size() != 0) {
-                if (currentTime == 0) {
-                    currentTime = System.currentTimeMillis();
-                }
-                for (Device connectionFailureDevice : connectionFailures) {
-                    connectionFailureDevice.connectFailureSignal(currentTime);
-                }
-                connectionFailures.clear();
+            if (currentTime == 0) {
+                currentTime = System.currentTimeMillis();
+            }
+            Device connectionFailureDevice;
+            while ((connectionFailureDevice = connectionFailures.poll()) != null) {
+                connectionFailureDevice.connectFailureSignal(currentTime);
             }
         }
 
         synchronized (connectedDevices) {
-            if (!connectedDevices.isEmpty()) {
-                if (currentTime == 0) {
-                    currentTime = System.currentTimeMillis();
-                }
-                for (Device connectedDevice : connectedDevices) {
-                    connectedDevice.connectedSignal(currentTime);
-                }
-                connectedDevices.clear();
+            if (currentTime == 0) {
+                currentTime = System.currentTimeMillis();
+            }
+            Device connectedDevice;
+            while ((connectedDevice = connectedDevices.poll()) != null) {
+                connectedDevice.connectedSignal(currentTime);
             }
         }
 
         synchronized (newWriteTasks) {
-            Iterator<WriteTask> writeTaskIter = newWriteTasks.iterator();
-            while (writeTaskIter.hasNext()) {
-                WriteTask writeTask = writeTaskIter.next();
-                writeTask.device.addWriteTask(writeTask);
-                writeTaskIter.remove();
-            }
+            addTasksAndClear(newWriteTasks);
         }
 
         synchronized (newReadTasks) {
-            if (newReadTasks.size() != 0) {
-                for (ReadTask newReadTask : newReadTasks) {
-                    newReadTask.device.addReadTask(newReadTask);
-                }
-                newReadTasks.clear();
-            }
+            addTasksAndClear(newReadTasks);
         }
 
         synchronized (disconnectedDevices) {
-            if (!disconnectedDevices.isEmpty()) {
-                for (Device connectedDevice : disconnectedDevices) {
-                    connectedDevice.disconnectedSignal();
-                }
-                disconnectedDevices.clear();
+            Device connectedDevice;
+            while ((connectedDevice = disconnectedDevices.poll()) != null) {
+                connectedDevice.disconnectedSignal();
             }
         }
 
+    }
+
+    private <T extends DeviceTask & ConnectedTask> void addTasksAndClear(Queue<T> newTasksList) {
+        T nextTask;
+        while ((nextTask = newTasksList.poll()) != null) {
+            nextTask.device.addTask(nextTask);
+        }
     }
 
     private void applyConfiguration(RootConfigImpl configWithoutDefaults, long currentTime) {
@@ -661,7 +673,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
             for (DeviceConfigImpl oldDeviceConfig : oldDriverConfig.deviceConfigsById.values()) {
                 DeviceConfigImpl newDeviceConfig = null;
                 if (newDriverConfig != null) {
-                    newDeviceConfig = newDriverConfig.deviceConfigsById.get(oldDeviceConfig.id);
+                    newDeviceConfig = newDriverConfig.deviceConfigsById.get(oldDeviceConfig.getId());
                 }
                 if (newDeviceConfig == null) {
                     // Device was deleted in new config
@@ -683,7 +695,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
                 DeviceConfigImpl oldDeviceConfig = null;
                 if (oldDriverConfig != null) {
-                    oldDeviceConfig = oldDriverConfig.deviceConfigsById.get(newDeviceConfig.id);
+                    oldDeviceConfig = oldDriverConfig.deviceConfigsById.get(newDeviceConfig.getId());
                 }
 
                 if (oldDeviceConfig == null) {
@@ -745,9 +757,9 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         for (Action action : actions) {
             if (action.samplingCollections != null) {
                 for (ChannelCollection samplingCollection : action.samplingCollections) {
-                    if (samplingCollection.interval == channel.config.samplingInterval
-                            && samplingCollection.timeOffset == channel.config.samplingTimeOffset
-                            && samplingCollection.samplingGroup.equals(channel.config.samplingGroup)
+                    if (samplingCollection.interval == channel.getSamplingInterval()
+                            && samplingCollection.timeOffset == channel.getSamplingTimeOffset()
+                            && samplingCollection.samplingGroup.equals(channel.config.getSamplingGroup())
                             && samplingCollection.device == channel.config.deviceParent.device) {
                         fittingSamplingCollection = samplingCollection;
                         break;
@@ -757,8 +769,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         }
 
         if (fittingSamplingCollection == null) {
-            fittingSamplingCollection = new ChannelCollection(channel.config.samplingInterval,
-                    channel.config.samplingTimeOffset, channel.config.samplingGroup,
+            fittingSamplingCollection = new ChannelCollection(channel.getSamplingInterval(),
+                    channel.getSamplingTimeOffset(), channel.config.getSamplingGroup(),
                     channel.config.deviceParent.device);
             addSamplingCollectionToActions(fittingSamplingCollection,
                     fittingSamplingCollection.calculateNextActionTime(time));
@@ -781,8 +793,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         for (Action action : actions) {
             if (action.loggingCollections != null) {
                 for (ChannelCollection loggingCollection : action.loggingCollections) {
-                    if (loggingCollection.interval == channel.config.loggingInterval
-                            && loggingCollection.timeOffset == channel.config.loggingTimeOffset) {
+                    if (loggingCollection.interval == channel.getLoggingInterval()
+                            && loggingCollection.timeOffset == channel.getLoggingTimeOffset()) {
                         fittingLoggingCollection = loggingCollection;
                         break;
                     }
@@ -790,8 +802,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
             }
         }
         if (fittingLoggingCollection == null) {
-            fittingLoggingCollection = new ChannelCollection(channel.config.loggingInterval,
-                    channel.config.loggingTimeOffset, null, null);
+            fittingLoggingCollection = new ChannelCollection(channel.getLoggingInterval(),
+                    channel.getLoggingTimeOffset(), null, null);
             addLoggingCollectionToActions(fittingLoggingCollection,
                     fittingLoggingCollection.calculateNextActionTime(time));
         }
@@ -811,7 +823,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
     void removeFromLoggingCollections(ChannelImpl channel) {
         channel.loggingCollection.channels.remove(channel);
-        if (channel.loggingCollection.channels.size() == 0) {
+        if (channel.loggingCollection.channels.isEmpty()) {
             channel.loggingCollection.action.loggingCollections.remove(channel.loggingCollection);
         }
         channel.loggingCollection = null;
@@ -819,9 +831,10 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
     void removeFromSamplingCollections(ChannelImpl channel) {
         channel.samplingCollection.channels.remove(channel);
-        if (channel.samplingCollection.channels.size() == 0) {
+        if (channel.samplingCollection.channels.isEmpty()) {
             channel.samplingCollection.action.samplingCollections.remove(channel.samplingCollection);
         }
+
         channel.samplingCollection = null;
     }
 
@@ -833,7 +846,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         }
     }
 
-    protected void setDriverService(DriverService driver) {
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private void bindDriverService(DriverService driver) {
 
         String driverId = driver.getInfo().getId();
 
@@ -853,7 +867,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
      * @param serverService
      *            ServerService object to register
      */
-    protected void setServerService(ServerService serverService) {
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private void bindServerService(ServerService serverService) {
         String serverId = serverService.getId();
         serverServices.put(serverId, serverService);
 
@@ -861,7 +876,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
             notifyServer(serverService);
         }
 
-        logger.info("Registered Server: " + serverId);
+        logger.info("Registered Server: {}.", serverId);
     }
 
     /**
@@ -870,7 +885,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
      * @param serverService
      *            ServerService object to unset
      */
-    protected void unsetServerService(ServerService serverService) {
+    @SuppressWarnings("unused")
+    private void unbindServerService(ServerService serverService) {
         serverServices.remove(serverService.getId());
     }
 
@@ -878,10 +894,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
      * Updates all ServerServices with mapped channels.
      */
     protected void notifyServers() {
-        if (serverServices != null) {
-            for (ServerService serverService : serverServices.values()) {
-                notifyServer(serverService);
-            }
+        for (ServerService serverService : serverServices.values()) {
+            notifyServer(serverService);
         }
     }
 
@@ -905,10 +919,11 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         serverService.serverMappings(relatedServerMappings);
     }
 
-    protected void unsetDriverService(DriverService driver) {
+    @SuppressWarnings("unused")
+    private void unbindDriverService(DriverService driver) {
 
         String driverId = driver.getInfo().getId();
-        logger.info("Deregistering driver: " + driverId);
+        logger.info("Unregistering driver: {}.", driverId);
 
         // note: no synchronization needed here because this function and the
         // deactivate function are always called sequentially:
@@ -926,20 +941,22 @@ public final class DataManager extends Thread implements DataAccessService, Conf
                 newDrivers.remove(driverId);
             }
         }
-        logger.info("Driver deregistered: " + driverId);
+        logger.info("Driver unregistered: {}", driverId);
     }
 
-    protected void setDataLoggerService(DataLoggerService dataLogger) {
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private void bindDataLoggerService(DataLoggerService dataLogger) {
         synchronized (newDataLoggers) {
             newDataLoggers.add(dataLogger);
             interrupt();
         }
     }
 
-    protected void unsetDataLoggerService(DataLoggerService dataLogger) {
+    @SuppressWarnings("unused")
+    private void unbindDataLoggerService(DataLoggerService dataLogger) {
 
         String dataLoggerId = dataLogger.getId();
-        logger.info("Deregistering data logger: " + dataLoggerId);
+        logger.info("Unregistering data logger: {}.", dataLoggerId);
 
         if (dataManagerActivated) {
             dataLoggerRemovedSignal = new CountDownLatch(1);
@@ -1015,12 +1032,15 @@ public final class DataManager extends Thread implements DataAccessService, Conf
             return;
         }
         for (DeviceConfig deviceConfig : driverConfig.getDevices()) {
-            if (((DeviceConfigImpl) deviceConfig).device.connection == connection) {
-                Device device = ((DeviceConfigImpl) deviceConfig).device;
-                logger.info("Connection to device " + device.deviceConfig.id + " was interrupted.");
-                device.disconnectedSignal();
-                return;
+            DeviceConfigImpl deviceConfigImpl = (DeviceConfigImpl) deviceConfig;
+            if (deviceConfigImpl.device.connection != connection) {
+                continue;
             }
+
+            Device device = deviceConfigImpl.device;
+            logger.info("Connection to device {} was interrupted.", device.deviceConfig.getId());
+            device.disconnectedSignal();
+            return;
         }
     }
 
@@ -1041,7 +1061,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
 
     @Override
     public RootConfig getConfig() {
-        return rootConfigWithoutDefaults.clone();
+        return new RootConfigImpl(this.rootConfigWithoutDefaults);
     }
 
     @Override
@@ -1060,11 +1080,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
     @Override
     public void stopListeningForConfigChange(ConfigChangeListener listener) {
         synchronized (configChangeListeners) {
-            for (ConfigChangeListener configChangeListener : configChangeListeners) {
-                if (configChangeListener == listener) {
-                    configChangeListeners.remove(configChangeListener);
-                }
-            }
+            this.configChangeListeners.remove(listener);
         }
     }
 
@@ -1072,7 +1088,7 @@ public final class DataManager extends Thread implements DataAccessService, Conf
     public void setConfig(RootConfig config) {
         configLock.lock();
         try {
-            RootConfigImpl newConfigCopy = ((RootConfigImpl) config).clone();
+            RootConfigImpl newConfigCopy = new RootConfigImpl((RootConfigImpl) config);
             setNewConfig(newConfigCopy);
         } finally {
             configLock.unlock();
@@ -1139,8 +1155,8 @@ public final class DataManager extends Thread implements DataAccessService, Conf
     }
 
     @Override
-    public List<DeviceScanInfo> scanForDevices(String driverId, String settings) throws DriverNotAvailableException,
-            UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+    public List<DeviceScanInfo> scanForDevices(String driverId, String settings)
+            throws DriverNotAvailableException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
         DriverService driver = activeDrivers.get(driverId);
         if (driver == null) {
@@ -1237,17 +1253,21 @@ public final class DataManager extends Thread implements DataAccessService, Conf
         HashMap<Device, List<WriteValueContainerImpl>> containersByDevice = new LinkedHashMap<>();
 
         for (WriteValueContainer value : values) {
-            if (value.getValue() == null) {
-                ((WriteValueContainerImpl) value).setFlag(Flag.CANNOT_WRITE_NULL_VALUE);
+            WriteValueContainerImpl valueContainerImpl = (WriteValueContainerImpl) value;
+
+            if (valueContainerImpl.getValue() == null) {
+                valueContainerImpl.setFlag(Flag.CANNOT_WRITE_NULL_VALUE);
                 continue;
             }
-            WriteValueContainerImpl valueContainerImpl = (WriteValueContainerImpl) value;
-            Device device = valueContainerImpl.channel.config.deviceParent.device;
+
+            Device device = valueContainerImpl.getChannel().config.deviceParent.device;
             List<WriteValueContainerImpl> writeValueContainers = containersByDevice.get(device);
+
             if (writeValueContainers == null) {
                 writeValueContainers = new LinkedList<>();
                 containersByDevice.put(device, writeValueContainers);
             }
+
             writeValueContainers.add(valueContainerImpl);
         }
         CountDownLatch writeTasksFinishedSignal = new CountDownLatch(containersByDevice.size());

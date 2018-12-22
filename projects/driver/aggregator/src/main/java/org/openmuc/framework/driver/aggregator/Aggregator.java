@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -137,7 +137,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = DriverService.class)
 public class Aggregator implements DriverService, Connection {
 
-    private final static Logger logger = LoggerFactory.getLogger(Aggregator.class);
+    private static final Logger logger = LoggerFactory.getLogger(Aggregator.class);
 
     private DataAccessService dataAccessService;
 
@@ -167,34 +167,38 @@ public class Aggregator implements DriverService, Connection {
     public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
             throws UnsupportedOperationException, ConnectionException {
 
-        long currentTimestamp = getCurrentTimestamp();
-        long endTimestamp = getEndTimestamp(currentTimestamp);
+        long currentTimestamp = currentTimestamp();
+        long endTimestamp = endTimestampFrom(currentTimestamp);
 
         for (ChannelRecordContainer container : containers) {
-
-            AggregatorChannel aggregatorChannel;
-            try {
-                aggregatorChannel = AggregatorChannelFactory.createAggregatorChannel(container, dataAccessService);
-                double aggregatedValue = aggregatorChannel.aggregate(currentTimestamp, endTimestamp);
-                container.setRecord(new Record(new DoubleValue(aggregatedValue), currentTimestamp, Flag.VALID));
-            } catch (AggregationException e) {
-                logger.debug("Unable to perform aggregation for channel " + container.getChannel().getId() + ". "
-                        + e.getMessage());
-                setRecordWithErrorFlag(container, currentTimestamp);
-            } catch (Exception e) {
-                setRecordWithErrorFlag(container, currentTimestamp);
-                logger.error("Unexpected Exception: Unable to perform aggregation for channel "
-                        + container.getChannel().getId(), e);
-            }
-
+            Record record = aggrgateRecordFor(currentTimestamp, endTimestamp, container);
+            container.setRecord(record);
         }
         return null;
+    }
+
+    private Record aggrgateRecordFor(long currentTimestamp, long endTimestamp, ChannelRecordContainer container) {
+        try {
+            AggregatorChannel aggregatorChannel = AggregatorChannelFactory.createAggregatorChannel(container,
+                    dataAccessService);
+            double aggregatedValue = aggregatorChannel.aggregate(currentTimestamp, endTimestamp);
+            return new Record(new DoubleValue(aggregatedValue), currentTimestamp);
+        } catch (AggregationException e) {
+            logger.debug("Unable to perform aggregation for channel {}. {}", container.getChannel().getId(),
+                    e.getMessage());
+            return newRecordWithErrorFlag(currentTimestamp);
+        } catch (Exception e) {
+            logger.error(
+                    "Unexpected Exception: Unable to perform aggregation for channel " + container.getChannel().getId(),
+                    e);
+            return newRecordWithErrorFlag(currentTimestamp);
+        }
     }
 
     /**
      * @return the current timestamp where milliseconds are set to 000: e.g. 10:45:00.015 --> 10:45:00.000
      */
-    private long getCurrentTimestamp() {
+    private static long currentTimestamp() {
         return (System.currentTimeMillis() / 1000) * 1000;
     }
 
@@ -204,48 +208,15 @@ public class Aggregator implements DriverService, Connection {
      * logged values from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
      * 
      * @param currentTimestamp
-     * @return current timestamp
+     * @return endTimestamp
      */
-    private long getEndTimestamp(long currentTimestamp) {
+    private static long endTimestampFrom(long currentTimestamp) {
         return currentTimestamp - 1;
     }
 
-    private void setRecordWithErrorFlag(ChannelRecordContainer container, long endTimestamp) {
-        container.setRecord(new Record(null, endTimestamp, Flag.DRIVER_ERROR_READ_FAILURE));
-    }
+    private static Record newRecordWithErrorFlag(long endTimestamp) {
+        return new Record(null, endTimestamp, Flag.DRIVER_ERROR_READ_FAILURE);
 
-    @Override
-    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
-            throws UnsupportedOperationException, ConnectionException {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
-            throws UnsupportedOperationException, ConnectionException {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void scanForDevices(String settings, DriverDeviceScanListener listener)
-            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void interruptDeviceScan() throws UnsupportedOperationException {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<ChannelScanInfo> scanForChannels(String settings)
-            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
-
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -270,4 +241,34 @@ public class Aggregator implements DriverService, Connection {
     protected void unsetDataAccessService(DataAccessService dataAccessService) {
         this.dataAccessService = null;
     }
+
+    @Override
+    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
+            throws UnsupportedOperationException, ConnectionException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
+            throws UnsupportedOperationException, ConnectionException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void scanForDevices(String settings, DriverDeviceScanListener listener)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void interruptDeviceScan() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<ChannelScanInfo> scanForChannels(String settings)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
+        throw new UnsupportedOperationException();
+    }
+
 }

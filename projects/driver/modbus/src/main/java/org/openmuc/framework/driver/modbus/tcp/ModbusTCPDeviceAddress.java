@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,7 +20,7 @@
  */
 package org.openmuc.framework.driver.modbus.tcp;
 
-import net.wimpi.modbus.Modbus;
+import com.ghgande.j2mod.modbus.Modbus;
 
 public class ModbusTCPDeviceAddress {
 

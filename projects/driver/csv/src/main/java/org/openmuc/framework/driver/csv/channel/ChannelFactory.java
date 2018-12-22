@@ -13,7 +13,7 @@ public class ChannelFactory {
     public static HashMap<String, CsvChannel> createChannelMap(Map<String, List<String>> csvMap,
             DeviceSettings settings) throws ArgumentSyntaxException {
 
-        HashMap<String, CsvChannel> channelMap = new HashMap<String, CsvChannel>();
+        HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
         switch (settings.samplingMode()) {
         case UNIXTIMESTAMP:
@@ -39,17 +39,17 @@ public class ChannelFactory {
     public static HashMap<String, CsvChannel> createMapUnixtimestamp(Map<String, List<String>> csvMap)
             throws ArgumentSyntaxException {
 
-        HashMap<String, CsvChannel> channelMap = new HashMap<String, CsvChannel>();
+        HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
         String channelId;
         Iterator<String> keys = csvMap.keySet().iterator();
         boolean rewind = false;
 
         while (keys.hasNext()) {
-            channelId = (String) keys.next();
+            channelId = keys.next();
             List<String> data = csvMap.get(channelId);
             long[] timestamps = getTimestamps(csvMap);
-            channelMap.put(channelId, new CsvChannelImplUnixtimestamp(data, rewind, timestamps));
+            channelMap.put(channelId, new CsvChannelUnixtimestamp(data, rewind, timestamps));
         }
 
         return channelMap;
@@ -57,30 +57,30 @@ public class ChannelFactory {
 
     public static HashMap<String, CsvChannel> createMapHHMMSS(Map<String, List<String>> csvMap, boolean rewind)
             throws ArgumentSyntaxException {
-        HashMap<String, CsvChannel> channelMap = new HashMap<String, CsvChannel>();
+        HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
         String channelId;
         Iterator<String> keys = csvMap.keySet().iterator();
 
         while (keys.hasNext()) {
-            channelId = (String) keys.next();
+            channelId = keys.next();
             List<String> data = csvMap.get(channelId);
             long[] timestamps = getHours(csvMap);
-            channelMap.put(channelId, new CsvChannelImplHour(data, rewind, timestamps));
+            channelMap.put(channelId, new CsvChannelHHMMSS(data, rewind, timestamps));
         }
 
         return channelMap;
     }
 
     public static HashMap<String, CsvChannel> createMapLine(Map<String, List<String>> csvMap, boolean rewind) {
-        HashMap<String, CsvChannel> channelMap = new HashMap<String, CsvChannel>();
+        HashMap<String, CsvChannel> channelMap = new HashMap<>();
         String channelId;
         Iterator<String> keys = csvMap.keySet().iterator();
 
         while (keys.hasNext()) {
-            channelId = (String) keys.next();
+            channelId = keys.next();
             List<String> data = csvMap.get(channelId);
-            channelMap.put(channelId, new CsvChannelImplLine(channelId, data, rewind));
+            channelMap.put(channelId, new CsvChannelLine(channelId, data, rewind));
         }
 
         return channelMap;

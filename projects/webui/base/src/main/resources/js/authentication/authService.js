@@ -27,10 +27,18 @@
 				return false;
 			}
 		};
-		
+
+		this.currentPwd = function() {
+			return $cookieStore.get('pwd').pwd;
+		};
+
+        this.setCurrentPwd = function (pwd) {
+            $cookieStore.put('pwd', pwd);
+        };
+
 		this.currentUsername = function() {
 			return $cookieStore.get('user').user;
-		}
+		};
 		
 		this.setCurrentUser = function (user) {
 			$cookieStore.put('user', user);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,9 +22,6 @@ package org.openmuc.framework.datalogger.ascii.exceptions;
 
 public class WrongCharacterException extends Exception {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -5561675714266963968L;
     private final String message;
 

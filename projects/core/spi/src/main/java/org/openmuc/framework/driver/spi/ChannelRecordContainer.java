@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,14 +26,14 @@ import org.openmuc.framework.dataaccess.ReadRecordContainer;
 
 public interface ChannelRecordContainer extends ReadRecordContainer {
 
-    public String getChannelAddress();
+    String getChannelAddress();
 
-    public Object getChannelHandle();
+    Object getChannelHandle();
 
-    public void setChannelHandle(Object handle);
+    void setChannelHandle(Object handle);
 
-    public void setRecord(Record record);
+    void setRecord(Record record);
 
-    public ChannelRecordContainer copy();
+    ChannelRecordContainer copy();
 
 }

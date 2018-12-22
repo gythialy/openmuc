@@ -18,9 +18,9 @@
 	                                files: ['channelconfigurator/js/channels/channelsService.js',
 	                                        'channelconfigurator/js/channels/channelDataService.js',
 	                                        'dataexporter/js/dataexporter/dataExporterController.js',
-	                                        'openmuc/js/libs/checklistmodel/checklist-model.js', 
-	                                        'openmuc/js/libs/angularjs/angular-sanitize.js',
-	                                        'dataexporter/js/libs/angularjs/ng-csv.js']
+	                                        'openmuc/js/libs/checklistmodel/checklist-model.min.js',
+	                                        'openmuc/js/libs/angularjs/angular-sanitize.min.js',
+	                                        'dataexporter/js/libs/angularjs/ng-csv.min.js']
 	                            }
 	                        )
 	                    }

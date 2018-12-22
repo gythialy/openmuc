@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -37,15 +37,15 @@ import org.slf4j.LoggerFactory;
 
 public final class Device {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Device.class);
+    private static final Logger logger = LoggerFactory.getLogger(Device.class);
 
     DeviceConfigImpl deviceConfig;
     DataManager dataManager;
     private DeviceState state = null;
     Connection connection;
 
-    private final List<DeviceEvent> eventList;
-    private final List<DeviceTask> taskList;
+    private final LinkedList<DeviceEvent> eventList;
+    private final LinkedList<DeviceTask> taskList;
 
     DeviceState getState() {
         return state;
@@ -68,6 +68,7 @@ public final class Device {
         }
         else if (deviceConfig.driverParent.activeDriver == null) {
             state = DeviceState.DRIVER_UNAVAILABLE;
+            logger.warn("No driver bundle available for configured driver: '{}'.", deviceConfig.getDriver().getId());
             for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
                 channelConfig.channel = new ChannelImpl(dataManager, channelConfig, ChannelState.DRIVER_UNAVAILABLE,
                         Flag.DRIVER_UNAVAILABLE, currentTime, logChannels);
@@ -196,12 +197,12 @@ public final class Device {
         newChannelConfig.channel = oldChannelConfig.channel;
         newChannelConfig.channel.config = newChannelConfig;
         newChannelConfig.channel.setNewDeviceState(oldChannelConfig.state,
-                newChannelConfig.channel.latestRecord.getFlag());
-        if (!newChannelConfig.isDisabled() && (newChannelConfig.loggingInterval > 0)) {
+                newChannelConfig.channel.getLatestRecord().getFlag());
+        if (!newChannelConfig.isDisabled() && (newChannelConfig.getLoggingInterval() > 0)) {
             dataManager.addToLoggingCollections(newChannelConfig.channel, currentTime);
             logChannels.add(newChannelConfig);
         }
-        else if (!oldChannelConfig.disabled && oldChannelConfig.loggingInterval > 0) {
+        else if (!oldChannelConfig.isDisabled() && oldChannelConfig.getLoggingInterval() > 0) {
             dataManager.removeFromLoggingCollections(newChannelConfig.channel);
         }
         if (newChannelConfig.isSampling()) {
@@ -210,7 +211,7 @@ public final class Device {
         else if (oldChannelConfig.isSampling()) {
             dataManager.removeFromSamplingCollections(newChannelConfig.channel);
         }
-        if (!newChannelConfig.channelAddress.equals(oldChannelConfig.channelAddress)) {
+        if (!newChannelConfig.getChannelAddress().equals(oldChannelConfig.getChannelAddress())) {
             newChannelConfig.channel.handle = null;
         }
     }
@@ -220,7 +221,7 @@ public final class Device {
             ChannelConfigImpl newChannelConfig) {
         if (newChannelConfig.state != ChannelState.DISABLED) {
 
-            if (newChannelConfig.listening) {
+            if (newChannelConfig.isListening()) {
                 if (listeningChannels == null) {
                     listeningChannels = new LinkedList<>();
                 }
@@ -228,7 +229,7 @@ public final class Device {
                         Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                 listeningChannels.add(newChannelConfig.channel.createChannelRecordContainer());
             }
-            else if (newChannelConfig.samplingInterval != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
+            else if (newChannelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
                 newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.SAMPLING,
                         Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                 dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
@@ -269,7 +270,7 @@ public final class Device {
                 newChannelConfigEntry.getValue().channel.config = newChannelConfigEntry.getValue();
                 newChannelConfigEntry.getValue().channel.setNewDeviceState(channelState, flag);
                 if (!newChannelConfigEntry.getValue().isDisabled()
-                        && (newChannelConfigEntry.getValue().loggingInterval > 0)) {
+                        && (newChannelConfigEntry.getValue().getLoggingInterval() > 0)) {
                     dataManager.addToLoggingCollections(newChannelConfigEntry.getValue().channel, currentTime);
                     logChannels.add(newChannelConfigEntry.getValue());
                 }
@@ -286,7 +287,7 @@ public final class Device {
             ChannelConfigImpl newChannelConfig = newChannelConfigEntry.getValue();
             if (oldChannelConfig == null) {
                 if (newChannelConfig.state != ChannelState.DISABLED) {
-                    if (newChannelConfig.listening == true) {
+                    if (newChannelConfig.isListening()) {
                         if (listeningChannels == null) {
                             listeningChannels = new LinkedList<>();
                         }
@@ -294,7 +295,7 @@ public final class Device {
                         newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig,
                                 ChannelState.LISTENING, Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                     }
-                    else if (newChannelConfig.samplingInterval != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
+                    else if (newChannelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
                         newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.SAMPLING,
                                 Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                         dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
@@ -314,7 +315,7 @@ public final class Device {
                 newChannelConfig.channel.config = newChannelConfig;
                 newChannelConfig.channel.setNewDeviceState(channelState, flag);
                 if (!newChannelConfigEntry.getValue().isDisabled()
-                        && (newChannelConfigEntry.getValue().loggingInterval > 0)) {
+                        && (newChannelConfigEntry.getValue().getLoggingInterval() > 0)) {
                     dataManager.addToLoggingCollections(newChannelConfig.channel, currentTime);
                     logChannels.add(newChannelConfigEntry.getValue());
                 }
@@ -328,7 +329,7 @@ public final class Device {
         for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
             if (channelConfig.state != ChannelState.DISABLED) {
                 channelConfig.state = channelState;
-                if (channelConfig.channel.latestRecord.getFlag() != Flag.SAMPLING_AND_LISTENING_DISABLED) {
+                if (channelConfig.channel.getLatestRecord().getFlag() != Flag.SAMPLING_AND_LISTENING_DISABLED) {
                     channelConfig.channel.setFlag(flag);
                 }
             }
@@ -349,14 +350,13 @@ public final class Device {
     void driverDeregisteredSignal() {
 
         if (state == DeviceState.DISABLED) {
-            dataManager.activeDeviceCountDown--;
-            if (dataManager.activeDeviceCountDown == 0) {
+            if (dataManager.activeDeviceCountDown-- == 0) {
                 dataManager.driverRemovedSignal.countDown();
             }
         }
         else if (state == DeviceState.CONNECTED) {
 
-            eventList.add(0, DeviceEvent.DRIVER_DEREGISTERED);
+            eventList.addFirst(DeviceEvent.DRIVER_DEREGISTERED);
 
             disableSampling();
             removeAllTasksOfThisDevice();
@@ -373,7 +373,7 @@ public final class Device {
         }
         else {
             // add driver deregistered event always to the front of the queue
-            eventList.add(0, DeviceEvent.DRIVER_DEREGISTERED);
+            eventList.addFirst(DeviceEvent.DRIVER_DEREGISTERED);
         }
     }
 
@@ -397,9 +397,9 @@ public final class Device {
 
     void connectedSignal(long currentTime) {
 
-        taskList.remove(0);
+        taskList.removeFirst();
 
-        if (eventList.size() == 0) {
+        if (eventList.isEmpty()) {
             setConnected(currentTime);
             executeNextTask();
         }
@@ -409,8 +409,8 @@ public final class Device {
     }
 
     void connectFailureSignal(long currentTime) {
-        taskList.remove(0);
-        if (eventList.size() == 0) {
+        taskList.removeFirst();
+        if (eventList.isEmpty()) {
             setStates(DeviceState.WAITING_FOR_CONNECTION_RETRY, ChannelState.WAITING_FOR_CONNECTION_RETRY,
                     Flag.WAITING_FOR_CONNECTION_RETRY);
             dataManager.addReconnectDeviceToActions(this, currentTime + deviceConfig.getConnectRetryInterval());
@@ -422,18 +422,16 @@ public final class Device {
     }
 
     // TODO is this function thread save?
-    public void disconnectedSignal() {
+    public synchronized void disconnectedSignal() {
         // TODO in rare cases where the RecordsReceivedListener causes the disconnectSignal while a SamplingTask is
         // still sampling this could cause problems
-        synchronized (this) {
-            removeAllTasksOfThisDevice();
-            if (eventList.isEmpty()) {
-                setStates(DeviceState.CONNECTING, ChannelState.CONNECTING, Flag.CONNECTING);
-                connect();
-            }
-            else {
-                handleEventQueueWhenDisconnected();
-            }
+        removeAllTasksOfThisDevice();
+        if (eventList.isEmpty()) {
+            setStates(DeviceState.CONNECTING, ChannelState.CONNECTING, Flag.CONNECTING);
+            connect();
+        }
+        else {
+            handleEventQueueWhenDisconnected();
         }
     }
 
@@ -475,6 +473,7 @@ public final class Device {
 
     private void removeAllTasksOfThisDevice() {
         Iterator<DeviceTask> devTaskIter = taskList.iterator();
+
         while (devTaskIter.hasNext()) {
             DeviceTask deviceTask = devTaskIter.next();
             if (deviceTask.device == this) {
@@ -483,8 +482,9 @@ public final class Device {
         }
 
         if (!taskList.isEmpty()) {
-            if (!taskList.get(0).isAlive()) {
-                taskList.get(0).device.executeNextTask();
+            DeviceTask firstDevice = taskList.getFirst();
+            if (!firstDevice.isAlive()) {
+                firstDevice.device.executeNextTask();
             }
         }
     }
@@ -524,7 +524,7 @@ public final class Device {
         List<ChannelRecordContainerImpl> listeningChannels = null;
         for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
             if (channelConfig.state != ChannelState.DISABLED) {
-                if (channelConfig.listening == true) {
+                if (channelConfig.isListening()) {
                     if (listeningChannels == null) {
                         listeningChannels = new LinkedList<>();
                     }
@@ -532,7 +532,7 @@ public final class Device {
                     channelConfig.state = ChannelState.LISTENING;
                     channelConfig.channel.setFlag(Flag.NO_VALUE_RECEIVED_YET);
                 }
-                else if (channelConfig.samplingInterval != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
+                else if (channelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
                     dataManager.addToSamplingCollections(channelConfig.channel, currentTime);
                     channelConfig.state = ChannelState.SAMPLING;
                     channelConfig.channel.setFlag(Flag.NO_VALUE_RECEIVED_YET);
@@ -558,16 +558,20 @@ public final class Device {
         ConnectTask connectTask = new ConnectTask(deviceConfig.driverParent.activeDriver, deviceConfig.device,
                 dataManager);
         taskList.add(connectTask);
-        if (taskList.size() == 1) {
+        if (containsOneTask()) {
             dataManager.executor.execute(connectTask);
         }
+    }
+
+    private boolean containsOneTask() {
+        return taskList.size() == 1;
     }
 
     private void disconnect() {
         DisconnectTask disconnectTask = new DisconnectTask(deviceConfig.driverParent.activeDriver, deviceConfig.device,
                 dataManager);
         taskList.add(disconnectTask);
-        if (taskList.size() == 1) {
+        if (containsOneTask()) {
             dataManager.executor.execute(disconnectTask);
         }
     }
@@ -587,7 +591,7 @@ public final class Device {
             // new
 
             taskList.add(samplingTask);
-            if (taskList.size() == 1) {
+            if (containsOneTask()) {
                 samplingTask.running = true;
                 state = DeviceState.READING;
                 dataManager.executor.execute(samplingTask);
@@ -601,14 +605,10 @@ public final class Device {
         }
     }
 
-    public void addReadTask(ReadTask readTask) {
-        addTask(readTask);
-    }
-
-    private <T extends DeviceTask & ConnectedTask> void addTask(T deviceTask) {
+    public <T extends DeviceTask & ConnectedTask> void addTask(T deviceTask) {
         if (isConnected()) {
             taskList.add(deviceTask);
-            if (taskList.size() == 1) {
+            if (containsOneTask()) {
                 state = deviceTask.getType().getResultingState();
                 dataManager.executor.execute(deviceTask);
             }
@@ -619,7 +619,7 @@ public final class Device {
     }
 
     public void taskFinished() {
-        taskList.remove(0);
+        taskList.removeFirst();
         if (eventList.isEmpty()) {
             executeNextTask();
         }
@@ -631,11 +631,12 @@ public final class Device {
 
     private void executeNextTask() {
         if (!taskList.isEmpty()) {
-            if (taskList.get(0).getType() == DeviceTaskType.SAMPLE) {
-                ((SamplingTask) taskList.get(0)).startedLate = true;
+            DeviceTask firstTask = taskList.getFirst();
+            if (firstTask.getType() == DeviceTaskType.SAMPLE) {
+                ((SamplingTask) firstTask).startedLate = true;
             }
-            state = taskList.get(0).getType().getResultingState();
-            dataManager.executor.execute(taskList.get(0));
+            state = firstTask.getType().getResultingState();
+            dataManager.executor.execute(firstTask);
         }
         else {
             state = DeviceState.CONNECTED;
@@ -646,14 +647,10 @@ public final class Device {
         taskList.remove(samplingTask);
     }
 
-    public void addWriteTask(WriteTask writeTask) {
-        addTask(writeTask);
-    }
-
     public void addStartListeningTask(StartListeningTask startListenTask) {
         if (isConnected()) {
             taskList.add(startListenTask);
-            if (taskList.size() == 1) {
+            if (containsOneTask()) {
                 state = DeviceState.STARTING_TO_LISTEN;
                 dataManager.executor.execute(startListenTask);
             }

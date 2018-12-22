@@ -5,7 +5,7 @@
 	var PlottingTabsDirective = function() {
 		return {
 			restrict: 'E',
-			templateUrl: 'dataplotter/html/plottingTabs.html',
+			templateUrl: 'dataplotter/html/plottingTabs.html'
 		};
 	};
 

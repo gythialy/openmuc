@@ -5,15 +5,13 @@ buildscript {
     }
   }
   dependencies {
-    classpath "net.saliman:gradle-cobertura-plugin:2.2.8"
-    classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.11"
-    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.0.0"
+    classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.16"
+    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.5.0"
   }
 }
 
 plugins {
-  id "org.sonarqube" version "1.0"
-  id "org.asciidoctor.convert" version "1.5.3"
+  id "org.asciidoctor.convert" version "1.5.6"
 }
 
 apply plugin: "org.asciidoctor.convert"
@@ -21,7 +19,7 @@ apply from: "configuration.gradle"
 
 asciidoctor {
   backends = ["pdf", "html5"]
-  attributes	"stylesheet": "openmuc-asciidoc.css",
+  attributes    "stylesheet": "openmuc-asciidoc.css",
   "toc2": "left",
   "sampleSrc": file("src/sample/java"),
   "source-highlighter" : "coderay",
@@ -31,7 +29,7 @@ asciidoctor {
   resources {
     from("$sourceDir") {
       include "images/**"
-    }	
+    }
   }
 }
 
@@ -46,23 +44,25 @@ configure(javaProjects) {
   apply plugin: "osgi"
   apply plugin: "maven"
   apply plugin: "signing"
-  apply plugin: "net.saliman.cobertura"
   apply plugin: "biz.aQute.bnd.builder"
 
   uploadArchives.enabled = false
   
   group = cfgGroup
 
-  if (!project.properties.containsKey("cfgJavaVersion")) {
+  if (!project.properties.containsKey('cfgJavaVersion')) {
     project.ext {
-      cfgJavaVersion = "1.7"
+      cfgJavaVersion = '1.8'
     }
   }
 
   sourceCompatibility = cfgJavaVersion
   targetCompatibility = cfgJavaVersion
 
-  repositories { mavenCentral() }
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
 
   sourceSets {
     sample
@@ -71,46 +71,94 @@ configure(javaProjects) {
     }
   }
 
+  configurations {
+    jacoco
+    jacocoRuntime
+  }
+
   dependencies {
     testCompile group: "junit", name: "junit", version: "4.12"
     itestCompile group: "junit", name: "junit", version: "4.12"
-  }
 
+    jacoco group: 'org.jacoco', name: 'org.jacoco.ant', version: '0.7.9', classifier: 'nodeps'
+    jacocoRuntime group: 'org.jacoco', name: 'org.jacoco.agent', version: '0.7.9', classifier: 'runtime'
+  }
+  
   jar {
     manifest {
       version = project.version.replace("-",".");
     }
   }
 
-  cobertura {
-  
-    dependencies {
-      testCompile "org.slf4j:slf4j-simple:1.6.1"
-    }
-    coverageFormats = ["html", "xml"]				
-    coverageIgnoreTrivial = true					
-    coverageIgnores = ["org.slf4j.Logger.*"]			
-    coverageReportDir = new File("$buildDir/reports/cobertura")
-    coverageTestTasks {
-      project.tasks.withType(Test).matching {it.name == "test"}
-    }
- 	  
-  }
+  task instrument {
+    ext.outputDir = buildDir.path + '/classes-instrumented'
+    doLast {
+      ant.taskdef(name: 'instrument',
+                  classname: 'org.jacoco.ant.InstrumentTask',
+                  classpath: configurations.jacoco.asPath)
+      
 
-  sonarqube {
-    properties {
-      property "sonar.exclusions", "src/main/java-gen/**/*,**/app/**/*"
-      property "sonar.java.coveragePlugin", "cobertura"
-      property "sonar.cobertura.reportPath", "build/reports/cobertura/coverage.xml"
+      sourceSets.main.output.classesDirs.each{ f ->
+        // Copy directories from main source to instrumented path
+	    copy {
+		  from f
+		  into buildDir.path + '/instrumented_classes'
+	    }
+      }
+
+      ant.instrument(destdir: outputDir) {
+        fileset(dir: buildDir.path + '/instrumented_classes')
+      }
     }
   }
   
+  instrument.dependsOn classes
+  
+  gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(instrument)) {
+      tasks.withType(Test) {
+        doFirst {
+          systemProperty 'jacoco-agent.destfile', buildDir.path + '/jacoco/tests.exec'
+          classpath = files(instrument.outputDir) + classpath + configurations.jacocoRuntime
+        }
+      }
+    }
+  }
+  
+  
+  task report {
+    doLast {
+      if (!file(buildDir.path + '/jacoco/tests.exec').exists()) {
+        return;
+      }
+      ant.taskdef(name: 'report',
+                  classname: 'org.jacoco.ant.ReportTask',
+                  classpath: configurations.jacoco.asPath)
+      ant.report() {
+        executiondata {
+          ant.file(file: buildDir.path + '/jacoco/tests.exec')
+        }
+        structure(name: 'Example') {
+           classfiles {
+             fileset(dir: buildDir.path + '/instrumented_classes')
+           }
+           sourcefiles {
+             fileset(dir: 'src/main/java')
+           }
+        }
+        html(destdir: buildDir.path + '/reports/jacoco')
+    }
+    }
+  }
+  
+  report.dependsOn instrument
+  report.dependsOn test
+
   task jarAll(type: Copy) {
     dependsOn(configurations.default.getAllArtifacts().getBuildDependencies())
 
     //only the jar file created:
     from configurations.default.getAllArtifacts().getFiles()
-
     if (cfgCopyDependencies) {
       if (cfgCopyToRoot) {
         into rootDir.getPath() + "/build/libs-all"
@@ -156,9 +204,7 @@ configure(javaProjects) {
   javadoc {
     exclude "**/internal/**"
     exclude "**/java-gen/**"
-    exclude "**/app/**"
   }
-
 }
 
 
@@ -239,13 +285,16 @@ task javadocAll(type: Javadoc) {
 }
 
 
-task writeSettings << {
-  Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
-  out.write("include ");
-  boolean first = true;
-  for (Project myproject: distributionProjects) {
-    if (!myproject.getProjectDir().equals(getProjectDir())) {
-      if (first == true) {
+task writeSettings {
+  doLast {
+    Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
+    out.write("include ");
+    boolean first = true;
+    for (Project myproject: distributionProjects) {
+      if (myproject.getProjectDir().equals(getProjectDir())) {
+        continue;  
+      }
+      if (first) {
         first = false;
       }
       else {
@@ -253,17 +302,18 @@ task writeSettings << {
       }
       out.write '"' + myproject.name + '"'
     }
-  }
-  out .write "\n\n";
+    out .write "\n\n";
 
-  for (Project myproject: distributionProjects) {
-    if (!myproject.getProjectDir().equals(getProjectDir())) {
+    for (Project myproject: distributionProjects) {
+      if (myproject.getProjectDir().equals(getProjectDir())) {
+        continue;
+      }
       println myproject.name
       out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
     }
-  }
 
-  out.close();
+    out.close();
+  }
 }
 
 task buildDistProjects {

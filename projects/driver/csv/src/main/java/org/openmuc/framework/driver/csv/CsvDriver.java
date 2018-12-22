@@ -10,6 +10,7 @@ import org.openmuc.framework.config.ScanException;
 import org.openmuc.framework.config.ScanInterruptedException;
 import org.openmuc.framework.driver.csv.settings.DeviceScanSettings;
 import org.openmuc.framework.driver.csv.settings.DeviceSettings;
+import org.openmuc.framework.driver.csv.settings.GenericSetting;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
@@ -18,41 +19,44 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//TODO wo legen wir die csv dateien ab damit sie im release zugänglich sind?
-//a) in treiber integrieren (die wären dann fix) (settings leer lassen?)
-//b) nutzer könnten über settings anderes verzeichnis angeben
-
-// datei mit chronologisch aufsteigenden zeitstempeln oder ohne zeitstempel
+/**
+ * Driver to read data from CSV file.
+ * <p>
+ * Three sampling modes are available:
+ * <ul>
+ * <li>LINE: starts from begin of file. With every sampling it reads the next line. Timestamps ignored</li>
+ * <li>UNIXTIMESTAMP: With every sampling it reads the line with the closest unix timestamp regarding to sampling
+ * timestamp</li>
+ * <li>HHMMSS: With every sampling it reads the line with the closest time HHMMSS regarding to sampling timestamp</li>
+ * </ul>
+ */
 @Component
 public class CsvDriver implements DriverService {
 
-    private final static Logger logger = LoggerFactory.getLogger(CsvDriver.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvDriver.class);
 
-    // Settings mode realtime, nextline-rewind, nextline
-    // Settings seperator = ;
-    // Settings comment = #
-
-    private final static String DEFAULT_SETTINGS = DeviceSettings.Option.SAMPLINGMODE.name() + "="
-            + ESampleMode.LINE.toString();
-
-    private final static String ID = "csv";
-    private final static String DESCRIPTION = "Driver to read out csv files.";
-    private final static String DEVICE_ADDRESS = "csv file path e.g. /home/usr/bin/openmuc/csv/meter.csv";
-    private final static String DEVICE_SETTINGS = DeviceSettings.syntax(DeviceSettings.class) + "\n samplingmode: "
-            + Arrays.toString(ESampleMode.values()).toLowerCase() + " Example: samplingmode=line;rewind=true Default: "
-            + DEFAULT_SETTINGS.toLowerCase();
-    private final static String CHANNEL_ADDRESS = "column header of csv file";
-    private final static String DEVICE_SCAN_SETTINGS = DeviceScanSettings.syntax(DeviceScanSettings.class)
-            + " path of directory containing csv files e.g: path=/home/usr/bin/openmuc/csv/.";
-
-    private final static DriverInfo DRIVER_INFO = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, DEVICE_SETTINGS,
-            CHANNEL_ADDRESS, DEVICE_SCAN_SETTINGS);
+    private static final String DEFAULT_DEVICE_SETTINGS = DeviceSettings.Option.SAMPLINGMODE.name() + "="
+            + ESamplingMode.LINE.toString();
 
     private boolean isDeviceScanInterrupted = false;
 
     @Override
     public DriverInfo getInfo() {
-        return DRIVER_INFO;
+
+        final String ID = "csv";
+        final String DESCRIPTION = "Driver to read out csv files.";
+        final String DEVICE_ADDRESS = "csv file path e.g. /home/usr/bin/openmuc/csv/meter.csv";
+        final String DEVICE_SETTINGS = GenericSetting.syntax(DeviceSettings.class) + "\n samplingmode: "
+                + Arrays.toString(ESamplingMode.values()).toLowerCase()
+                + " Example: samplingmode=line;rewind=true Default: " + DEFAULT_DEVICE_SETTINGS.toLowerCase();
+        final String CHANNEL_ADDRESS = "column header";
+        final String DEVICE_SCAN_SETTINGS = GenericSetting.syntax(DeviceScanSettings.class)
+                + " path of directory containing csv files e.g: path=/home/usr/bin/openmuc/csv/.";
+
+        final DriverInfo driverInfo = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, DEVICE_SETTINGS, CHANNEL_ADDRESS,
+                DEVICE_SCAN_SETTINGS);
+
+        return driverInfo;
     }
 
     @Override
@@ -61,20 +65,20 @@ public class CsvDriver implements DriverService {
 
         logger.info("Scan for CSV files. Settings: " + settings);
 
-        // reset interrupted flag on start of scan
-        isDeviceScanInterrupted = false;
+        resetDeviceScanInterrupted();
 
-        DeviceScanSettings deviceScanSettings = new DeviceScanSettings(settings);
-        File[] listOfFiles = deviceScanSettings.path().listFiles();
+        final DeviceScanSettings deviceScanSettings = new DeviceScanSettings(settings);
+        final File[] listOfFiles = deviceScanSettings.path().listFiles();
 
         if (listOfFiles != null) {
 
-            double numberOfFiles = listOfFiles.length;
+            final double numberOfFiles = listOfFiles.length;
             double fileCounter = 0;
-
             int idCounter = 0;
 
             for (File file : listOfFiles) {
+
+                // check if device scan was interrupted
                 if (isDeviceScanInterrupted) {
                     break;
                 }
@@ -85,7 +89,7 @@ public class CsvDriver implements DriverService {
                         String deviceId = "csv_device_" + idCounter;
 
                         listener.deviceFound(new DeviceScanInfo(deviceId, file.getAbsolutePath(),
-                                DEFAULT_SETTINGS.toLowerCase(), file.getName()));
+                                DEFAULT_DEVICE_SETTINGS.toLowerCase(), file.getName()));
                     } // else: do nothing, non csv files are ignored
                 } // else: do nothing, folders are ignored
 
@@ -94,6 +98,10 @@ public class CsvDriver implements DriverService {
                 idCounter++;
             }
         }
+    }
+
+    private void resetDeviceScanInterrupted() {
+        isDeviceScanInterrupted = false;
     }
 
     @Override
@@ -106,7 +114,7 @@ public class CsvDriver implements DriverService {
             throws ArgumentSyntaxException, ConnectionException {
 
         CsvDeviceConnection csvConnection = new CsvDeviceConnection(deviceAddress, settings);
-        logger.debug("csv driver connected");
+        logger.debug("CSV driver connected");
         return csvConnection;
     }
 

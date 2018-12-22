@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-15 Fraunhofer ISE
+ * Copyright 2012-17 Fraunhofer ISE
  *
  * This file is part of jDLMS.
  * For more information visit http://www.openmuc.org
@@ -18,3 +18,25 @@
  * along with jDLMS.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+
+Dependencies
+------------
+
+Information about the licenses of open source dependencies packaged
+with jDLMS can be found in the folder named "dependencies" inside the
+distribution.
+
+You may request the source code of the dependencies by sending a mail
+through our website at openmuc.org.
+
+AXDR-Compiler
+-------------
+
+Besides the jDLMS library this distribution contains the
+AXDR-Compiler, an application developed to automatically compile the
+DLMS/COSEM ASN.1 data structures and generate classes that can be used
+to encode/decode A-XDR messages. The generated classes are part of
+jDLMS. You will not need this application if you simply want to use
+the jDLMS library. For the AXDR-Compiler's license information check
+the folder "asn1/axdr-compiler/license".

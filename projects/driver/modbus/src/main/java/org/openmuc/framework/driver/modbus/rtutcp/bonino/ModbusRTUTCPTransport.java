@@ -7,15 +7,19 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusIOException;
-import net.wimpi.modbus.io.BytesInputStream;
-import net.wimpi.modbus.io.BytesOutputStream;
-import net.wimpi.modbus.io.ModbusTransport;
-import net.wimpi.modbus.msg.ModbusMessage;
-import net.wimpi.modbus.msg.ModbusRequest;
-import net.wimpi.modbus.msg.ModbusResponse;
-import net.wimpi.modbus.util.ModbusUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.ModbusIOException;
+import com.ghgande.j2mod.modbus.io.BytesInputStream;
+import com.ghgande.j2mod.modbus.io.BytesOutputStream;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTransport;
+import com.ghgande.j2mod.modbus.msg.ModbusMessage;
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.util.ModbusUtil;
 
 /**
  * @author bonino
@@ -24,6 +28,8 @@ import net.wimpi.modbus.util.ModbusUtil;
  * 
  */
 public class ModbusRTUTCPTransport implements ModbusTransport {
+
+    private static final Logger logger = LoggerFactory.getLogger(ModbusRTUTCPTransport.class);
 
     public static final String logId = "[ModbusRTUTCPTransport]: ";
 
@@ -53,6 +59,9 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
 
     // the timeou flag
     private boolean isTimedOut;
+
+    private RTUTCPMasterConnection m_Master = null;
+    private final Socket m_Socket = null;
 
     /**
      * @param socket
@@ -141,9 +150,9 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
                                                                      // CRC
                 this.outputStream.flush();
 
-                // debug
-                // if (Modbus.debug)
-                System.out.println("Sent: " + ModbusUtil.toHex(rawBuffer, 0, bufferLength));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Sent: " + ModbusUtil.toHex(rawBuffer, 0, bufferLength));
+                }
 
                 // store the written buffer as the last request
                 this.lastRequest = new byte[bufferLength];
@@ -151,7 +160,7 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
 
                 // sleep for the time needed to receive the request at the other
                 // point of the connection
-                Thread.sleep(bufferLength);
+                this.outputBuffer.wait(bufferLength);
             }
 
         } catch (Exception ex) {
@@ -200,9 +209,10 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
                     Thread.yield(); // 1ms * #bytes (4bytes in the worst case)
                     available = this.inputStream.available();
 
-                    if (Modbus.debug) {
-                        System.out.println("Available bytes: " + available);
-                    }
+                    // if (logger.isTraceEnabled()) {
+                    // logger.trace("Available bytes: " + available);
+                    // }
+
                 }
 
                 // check if timedOut
@@ -220,14 +230,16 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
                 // read the progressive id
                 int packetId = inputBuffer.readUnsignedByte();
 
-                // debug
-                System.out.println(ModbusRTUTCPTransport.logId + "Read packet with progressive id: " + packetId);
+                if (logger.isTraceEnabled()) {
+                    logger.trace(ModbusRTUTCPTransport.logId + "Read packet with progressive id: " + packetId);
+                }
 
                 // read the function code
                 int functionCode = inputBuffer.readUnsignedByte();
 
-                // debug
-                System.out.println(" uid: " + packetId + ", function code: " + functionCode);
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" uid: " + packetId + ", function code: " + functionCode);
+                }
 
                 // compute the number of bytes composing the message (including
                 // the CRC = 2bytes)
@@ -237,7 +249,7 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
                 // response
                 while ((this.inputStream.available() < (packetLength - 3)) && (!this.isTimedOut)) {
                     try {
-                        Thread.sleep(10);
+                        inputBuffer.wait(10);
                     } catch (InterruptedException ie) {
                         // do nothing
                         System.err.println("Sleep interrupted while waiting for response body...\n" + ie);
@@ -252,9 +264,10 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
                 // read the remaining bytes
                 this.inputStream.read(inBuffer, 3, packetLength);
 
-                // debug
-                System.out.println(
-                        " bytes: " + ModbusUtil.toHex(inBuffer, 0, packetLength) + ", desired length: " + packetLength);
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" bytes: " + ModbusUtil.toHex(inBuffer, 0, packetLength) + ", desired length: "
+                            + packetLength);
+                }
 
                 // compute the CRC
                 int crc[] = ModbusUtil.calculateCRC(inBuffer, 0, packetLength - 2);
@@ -457,6 +470,15 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
         inputStream.close();
         outputStream.close();
     }// close
+
+    @Override
+    public ModbusTransaction createTransaction() {
+        if (m_Master == null) {
+            m_Master = new RTUTCPMasterConnection(m_Socket.getInetAddress(), m_Socket.getPort());
+        }
+        ModbusRTUTCPTransaction trans = new ModbusRTUTCPTransaction(m_Master);
+        return trans;
+    }
 
     /*
      * private void getResponse(int fn, BytesOutputStream out) throws IOException { int bc = -1, bc2 = -1, bcw = -1; int

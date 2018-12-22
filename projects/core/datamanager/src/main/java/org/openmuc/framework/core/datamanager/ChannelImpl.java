@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,6 +23,7 @@ package org.openmuc.framework.core.datamanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,6 +41,7 @@ import org.openmuc.framework.data.ByteValue;
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.FutureValue;
 import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.Record;
@@ -61,10 +63,9 @@ import org.slf4j.LoggerFactory;
 
 public final class ChannelImpl implements Channel {
 
-    private final static Logger logger = LoggerFactory.getLogger(ChannelImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChannelImpl.class);
 
-    volatile Record latestRecord;
-    ChannelRecordContainerImpl driverChannel;
+    private volatile Record latestRecord;
     volatile ChannelConfigImpl config;
     ChannelCollection samplingCollection;
     ChannelCollection loggingCollection;
@@ -72,7 +73,7 @@ public final class ChannelImpl implements Channel {
     private final DataManager dataManager;
     volatile Object handle;
     private Timer timer = null;
-    private List<Record> futureValues;
+    private List<FutureValue> futureValues;
 
     public ChannelImpl(DataManager dataManager, ChannelConfigImpl config, ChannelState initState, Flag initFlag,
             long currentTime, List<LogChannel> logChannels) {
@@ -80,11 +81,11 @@ public final class ChannelImpl implements Channel {
         this.config = config;
         this.futureValues = new ArrayList<>();
 
-        if (config.disabled) {
+        if (config.isDisabled()) {
             config.state = ChannelState.DISABLED;
             latestRecord = new Record(Flag.DISABLED);
         }
-        else if (!config.isListening() && config.samplingInterval < 0) {
+        else if (!config.isListening() && config.getSamplingInterval() < 0) {
             config.state = initState;
             latestRecord = new Record(Flag.SAMPLING_AND_LISTENING_DISABLED);
         }
@@ -93,7 +94,7 @@ public final class ChannelImpl implements Channel {
             latestRecord = new Record(null, null, initFlag);
         }
 
-        if (config.loggingInterval != ChannelConfig.LOGGING_INTERVAL_DEFAULT) {
+        if (config.getLoggingInterval() != ChannelConfig.LOGGING_INTERVAL_DEFAULT) {
             dataManager.addToLoggingCollections(this, currentTime);
             logChannels.add(config);
         }
@@ -101,55 +102,55 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public String getId() {
-        return config.id;
+        return config.getId();
     }
 
     @Override
     public String getChannelAddress() {
-        return config.channelAddress;
+        return config.getChannelAddress();
     }
 
     @Override
     public String getDescription() {
-        return config.description;
+        return config.getDescription();
     }
 
     @Override
     public String getUnit() {
-        return config.unit;
+        return config.getUnit();
     }
 
     @Override
     public ValueType getValueType() {
-        return config.valueType;
+        return config.getValueType();
     }
 
     @Override
     public double getScalingFactor() {
-        if (config.scalingFactor == null) {
-            return 1;
+        if (config.getScalingFactor() == null) {
+            return 1d;
         }
-        return config.scalingFactor;
+        return config.getScalingFactor();
     }
 
     @Override
     public int getSamplingInterval() {
-        return config.samplingInterval;
+        return config.getSamplingInterval();
     }
 
     @Override
     public int getSamplingTimeOffset() {
-        return config.samplingTimeOffset;
+        return config.getSamplingTimeOffset();
     }
 
     @Override
     public int getLoggingInterval() {
-        return config.loggingInterval;
+        return config.getLoggingInterval();
     }
 
     @Override
     public int getLoggingTimeOffset() {
-        return config.loggingTimeOffset;
+        return config.getLoggingTimeOffset();
     }
 
     @Override
@@ -159,17 +160,17 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public String getDeviceAddress() {
-        return config.deviceParent.deviceAddress;
+        return config.deviceParent.getDeviceAddress();
     }
 
     @Override
     public String getDeviceName() {
-        return config.deviceParent.id;
+        return config.deviceParent.getId();
     }
 
     @Override
     public String getDeviceDescription() {
-        return config.deviceParent.description;
+        return config.deviceParent.getDescription();
     }
 
     @Override
@@ -208,8 +209,8 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public Record getLoggedRecord(long timestamp) throws DataLoggerNotAvailableException, IOException {
-        List<Record> records = dataManager.getDataLogger().getRecords(config.id, timestamp, timestamp);
-        if (records.size() > 0) {
+        List<Record> records = dataManager.getDataLogger().getRecords(config.getId(), timestamp, timestamp);
+        if (!records.isEmpty()) {
             return records.get(0);
         }
         else {
@@ -219,18 +220,21 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException {
-        return dataManager.getDataLogger().getRecords(config.id, startTime, System.currentTimeMillis());
+        return dataManager.getDataLogger().getRecords(config.getId(), startTime, System.currentTimeMillis());
     }
 
     @Override
     public List<Record> getLoggedRecords(long startTime, long endTime)
             throws DataLoggerNotAvailableException, IOException {
+        List<Record> toReturn = dataManager.getDataLogger().getRecords(config.getId(), startTime, endTime);
+
+        // values in the future values list are sorted.
         Long currentTime = System.currentTimeMillis();
-        List<Record> toReturn = dataManager.getDataLogger().getRecords(config.id, startTime, endTime);
-        for (Record record : futureValues) {
-            if (record.getTimestamp() >= currentTime) {
-                if (record.getTimestamp() <= endTime) {
-                    toReturn.add(record);
+        for (FutureValue futureValue : futureValues) {
+            if (futureValue.getWriteTime() >= currentTime) {
+                if (futureValue.getWriteTime() <= endTime) {
+                    Record futureValAsRec = new Record(futureValue.getValue(), futureValue.getWriteTime());
+                    toReturn.add(futureValAsRec);
                 }
                 else {
                     break;
@@ -242,76 +246,10 @@ public final class ChannelImpl implements Channel {
 
     Record setNewRecord(Record record) {
 
-        Record convertedRecord = null;
+        Record convertedRecord;
 
         if (record.getFlag() == Flag.VALID) {
-            Double scalingFactor = config.scalingFactor;
-            Double scalingOffset = config.valueOffset;
-
-            if (scalingFactor != null) {
-                try {
-                    record = new Record(new DoubleValue(record.getValue().asDouble() * scalingFactor),
-                            record.getTimestamp(), record.getFlag());
-                } catch (TypeConversionException e) {
-                    logger.error("Unable to apply scaling factor to channel " + config.id
-                            + " because a TypeConversionError occured.", e);
-                }
-            }
-            if (scalingOffset != null) {
-                try {
-                    record = new Record(new DoubleValue(record.getValue().asDouble() + scalingOffset),
-                            record.getTimestamp(), record.getFlag());
-                } catch (TypeConversionException e) {
-                    logger.error("Unable to apply scaling offset to channel " + config.id
-                            + " because a TypeConversionError occured.", e);
-                }
-            }
-
-            try {
-                switch (config.valueType) {
-                case BOOLEAN:
-                    convertedRecord = new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case BYTE:
-                    convertedRecord = new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case SHORT:
-                    convertedRecord = new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case INTEGER:
-                    convertedRecord = new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case LONG:
-                    convertedRecord = new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case FLOAT:
-                    convertedRecord = new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case DOUBLE:
-                    convertedRecord = new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                case BYTE_ARRAY:
-                    convertedRecord = new Record(new ByteArrayValue(record.getValue().asByteArray()),
-                            record.getTimestamp(), record.getFlag());
-                    break;
-                case STRING:
-                    convertedRecord = new Record(new StringValue(record.getValue().toString()), record.getTimestamp(),
-                            record.getFlag());
-                    break;
-                }
-            } catch (TypeConversionException e) {
-                logger.error("Unable to convert value to configured value type because a TypeConversionError occured.",
-                        e);
-                convertedRecord = record;
-            }
-
+            convertedRecord = convertValidRecord(record);
         }
         else {
             convertedRecord = new Record(latestRecord.getValue(), latestRecord.getTimestamp(), record.getFlag());
@@ -323,15 +261,74 @@ public final class ChannelImpl implements Channel {
         return convertedRecord;
     }
 
-    private void notifyListeners() {
-        if (listeners.size() != 0) {
-            synchronized (listeners) {
-                for (RecordListener listener : listeners) {
-                    config.deviceParent.device.dataManager.executor
-                            .execute(new ListenerNotifier(listener, latestRecord));
-                }
+    private Record convertValidRecord(Record record) {
+        Double scalingFactor = config.getScalingFactor();
+        Double scalingOffset = config.getValueOffset();
+
+        if (scalingFactor != null) {
+            try {
+                record = new Record(new DoubleValue(record.getValue().asDouble() * scalingFactor),
+                        record.getTimestamp(), record.getFlag());
+            } catch (TypeConversionException e) {
+                String msg = "Unable to apply scaling factor to channel " + config.getId()
+                        + " because a TypeConversionError occurred.";
+                logger.error(msg, e);
             }
         }
+        if (scalingOffset != null) {
+            try {
+                record = new Record(new DoubleValue(record.getValue().asDouble() + scalingOffset),
+                        record.getTimestamp(), record.getFlag());
+            } catch (TypeConversionException e) {
+                String msg = "Unable to apply scaling offset to channel " + config.getId()
+                        + " because a TypeConversionError occurred.";
+                logger.error(msg, e);
+            }
+        }
+
+        try {
+            switch (config.getValueType()) {
+            case BOOLEAN:
+                return new Record(new BooleanValue(record.getValue().asBoolean()), record.getTimestamp(),
+                        record.getFlag());
+            case BYTE:
+                return new Record(new ByteValue(record.getValue().asByte()), record.getTimestamp(), record.getFlag());
+            case SHORT:
+                return new Record(new ShortValue(record.getValue().asShort()), record.getTimestamp(), record.getFlag());
+            case INTEGER:
+                return new Record(new IntValue(record.getValue().asInt()), record.getTimestamp(), record.getFlag());
+            case LONG:
+                return new Record(new LongValue(record.getValue().asLong()), record.getTimestamp(), record.getFlag());
+            case FLOAT:
+                return new Record(new FloatValue(record.getValue().asFloat()), record.getTimestamp(), record.getFlag());
+            case DOUBLE:
+                return new Record(new DoubleValue(record.getValue().asDouble()), record.getTimestamp(),
+                        record.getFlag());
+            case BYTE_ARRAY:
+                return new Record(new ByteArrayValue(record.getValue().asByteArray()), record.getTimestamp(),
+                        record.getFlag());
+            case STRING:
+            default:
+                return new Record(new StringValue(record.getValue().toString()), record.getTimestamp(),
+                        record.getFlag());
+            }
+        } catch (TypeConversionException e) {
+            logger.error("Unable to convert value to configured value type because a TypeConversionError occured.", e);
+            return new Record(Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION);
+        }
+    }
+
+    private void notifyListeners() {
+        if (listeners.isEmpty()) {
+            return;
+        }
+
+        synchronized (listeners) {
+            for (RecordListener listener : listeners) {
+                config.deviceParent.device.dataManager.executor.execute(new ListenerNotifier(listener, latestRecord));
+            }
+        }
+
     }
 
     ChannelRecordContainerImpl createChannelRecordContainer() {
@@ -346,11 +343,11 @@ public final class ChannelImpl implements Channel {
     }
 
     public void setNewDeviceState(ChannelState state, Flag flag) {
-        if (config.disabled) {
+        if (config.isDisabled()) {
             config.state = ChannelState.DISABLED;
             setFlag(Flag.DISABLED);
         }
-        else if (!config.isListening() && config.samplingInterval < 0) {
+        else if (!config.isListening() && config.getSamplingInterval() < 0) {
             config.state = state;
             setFlag(Flag.SAMPLING_AND_LISTENING_DISABLED);
         }
@@ -373,8 +370,8 @@ public final class ChannelImpl implements Channel {
 
         Value adjustedValue = value;
 
-        Double valueOffset = config.valueOffset;
-        Double scalingFactor = config.scalingFactor;
+        Double valueOffset = config.getValueOffset();
+        Double scalingFactor = config.getScalingFactor();
 
         if (valueOffset != null) {
             adjustedValue = new DoubleValue(adjustedValue.asDouble() - valueOffset);
@@ -384,33 +381,40 @@ public final class ChannelImpl implements Channel {
         }
         writeValueContainer.setValue(adjustedValue);
 
-        List<WriteValueContainerImpl> writeValueContainerList = new ArrayList<>(1);
-        writeValueContainerList.add(writeValueContainer);
+        List<WriteValueContainerImpl> writeValueContainerList = Arrays.asList(writeValueContainer);
         WriteTask writeTask = new WriteTask(dataManager, config.deviceParent.device, writeValueContainerList,
                 writeTaskFinishedSignal);
+
         synchronized (dataManager.newWriteTasks) {
             dataManager.newWriteTasks.add(writeTask);
         }
+
         dataManager.interrupt();
         try {
             writeTaskFinishedSignal.await();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
-        latestRecord = new Record(value, System.currentTimeMillis(), writeValueContainer.getFlag());
+        long timestamp = System.currentTimeMillis();
+        latestRecord = new Record(value, timestamp, writeValueContainer.getFlag());
         notifyListeners();
 
         return writeValueContainer.getFlag();
     }
 
     @Override
-    public synchronized void write(List<Record> values) {
+    public void writeFuture(List<FutureValue> values) {
+        if (values == null) {
+            throw new NullPointerException("Argument is not allowed to be null.");
+        }
+
         this.futureValues = values;
 
-        Collections.sort(values, new Comparator<Record>() {
+        Collections.sort(values, new Comparator<FutureValue>() {
             @Override
-            public int compare(Record o1, Record o2) {
-                return o1.getTimestamp().compareTo(o2.getTimestamp());
+            public int compare(FutureValue o1, FutureValue o2) {
+                return o1.getWriteTime().compareTo(o2.getWriteTime());
             }
         });
 
@@ -422,18 +426,33 @@ public final class ChannelImpl implements Channel {
 
         long currentTimestamp = System.currentTimeMillis();
 
-        for (final Record value : futureValues) {
+        for (final FutureValue value : futureValues) {
 
-            if ((currentTimestamp - value.getTimestamp()) < 1000l) {
-
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        write(value.getValue());
-                    }
-                }, new Date(value.getTimestamp()));
+            if ((currentTimestamp - value.getWriteTime()) >= 1000l) {
+                continue;
             }
+
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    write(value.getValue());
+                }
+            };
+
+            Date scheduleTime = new Date(value.getWriteTime());
+            timer.schedule(timerTask, scheduleTime);
         }
+
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void write(List<Record> values) {
+        ArrayList<FutureValue> fValues = new ArrayList<>(values.size());
+        for (Record record : values) {
+            fValues.add(new FutureValue(record.getValue(), record.getTimestamp()));
+        }
+        writeFuture(fValues);
     }
 
     @Override
@@ -441,8 +460,7 @@ public final class ChannelImpl implements Channel {
         CountDownLatch readTaskFinishedSignal = new CountDownLatch(1);
 
         ChannelRecordContainerImpl readValueContainer = new ChannelRecordContainerImpl(this);
-        List<ChannelRecordContainerImpl> readValueContainerList = new ArrayList<>(1);
-        readValueContainerList.add(readValueContainer);
+        List<ChannelRecordContainerImpl> readValueContainerList = Arrays.asList(readValueContainer);
 
         ReadTask readTask = new ReadTask(dataManager, config.deviceParent.device, readValueContainerList,
                 readTaskFinishedSignal);
@@ -454,18 +472,16 @@ public final class ChannelImpl implements Channel {
         try {
             readTaskFinishedSignal.await();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
-        return setNewRecord(readValueContainer.record);
+        return setNewRecord(readValueContainer.getRecord());
     }
 
     @Override
     public boolean isConnected() {
-        if (config.state == ChannelState.CONNECTED || config.state == ChannelState.SAMPLING
-                || config.state == ChannelState.LISTENING) {
-            return true;
-        }
-        return false;
+        return config.state == ChannelState.CONNECTED || config.state == ChannelState.SAMPLING
+                || config.state == ChannelState.LISTENING;
     }
 
     @Override

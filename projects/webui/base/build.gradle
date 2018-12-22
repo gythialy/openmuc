@@ -1,3 +1,7 @@
+
+def projectName = "OpenMUC WebUI - Base"
+def projectDescription = "WebUI base for the OpenMUC framework."
+
 configurations.create('embed')
 
 dependencies {
@@ -9,16 +13,26 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC WebUI - Base"
+    name = projectName
     instruction 'Bundle-ClassPath', '.,lib/gson-2.3.1.jar'
     instruction 'Import-Package', '!com.google.gson.*,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
   }
 }
 
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

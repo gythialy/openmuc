@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 public final class FileObjectProxy {
 
-    private final static Logger logger = LoggerFactory.getLogger(FileObjectProxy.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileObjectProxy.class);
 
     private final File rootNode;
     private HashMap<String, FileObjectList> openFilesHM;

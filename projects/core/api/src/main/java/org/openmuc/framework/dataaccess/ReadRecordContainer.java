@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,8 +25,8 @@ import org.openmuc.framework.data.Record;
 
 public interface ReadRecordContainer {
 
-    public Record getRecord();
+    Record getRecord();
 
-    public Channel getChannel();
+    Channel getChannel();
 
 }

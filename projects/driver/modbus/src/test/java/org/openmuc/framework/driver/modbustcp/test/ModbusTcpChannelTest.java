@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -48,29 +48,23 @@ public class ModbusTcpChannelTest {
         validAddressCombinations.add("READ:DISCRETE_INPUTS:BOOLEAN");
 
         validAddressCombinations.add("READ:HOLDING_REGISTERS:SHORT");
-        validAddressCombinations.add("READ:HOLDING_REGISTERS:INT");
+        validAddressCombinations.add("READ:HOLDING_REGISTERS:INT16");
         validAddressCombinations.add("READ:HOLDING_REGISTERS:FLOAT");
         validAddressCombinations.add("READ:HOLDING_REGISTERS:DOUBLE");
         validAddressCombinations.add("READ:HOLDING_REGISTERS:LONG");
 
-        // TODO read holding register bytearray
-
         validAddressCombinations.add("READ:INPUT_REGISTERS:SHORT");
-        validAddressCombinations.add("READ:INPUT_REGISTERS:INT");
+        validAddressCombinations.add("READ:INPUT_REGISTERS:INT16");
         validAddressCombinations.add("READ:INPUT_REGISTERS:FLOAT");
         validAddressCombinations.add("READ:INPUT_REGISTERS:DOUBLE");
         validAddressCombinations.add("READ:INPUT_REGISTERS:LONG");
 
-        // TODO read input register bytearray
-
         validAddressCombinations.add("WRITE:COILS:BOOLEAN");
         validAddressCombinations.add("WRITE:HOLDING_REGISTERS:SHORT");
-        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:INT");
+        validAddressCombinations.add("WRITE:HOLDING_REGISTERS:INT16");
         validAddressCombinations.add("WRITE:HOLDING_REGISTERS:FLOAT");
         validAddressCombinations.add("WRITE:HOLDING_REGISTERS:DOUBLE");
         validAddressCombinations.add("WRITE:HOLDING_REGISTERS:LONG");
-
-        // TODO write holding register bytearray
 
     }
 
@@ -83,13 +77,13 @@ public class ModbusTcpChannelTest {
         validAddresses.add("0:COILS:0:BOOLEAN");
 
         validAddresses.add("0:INPUT_REGISTERS:0:SHORT");
-        validAddresses.add("0:INPUT_REGISTERS:0:INT");
+        validAddresses.add("0:INPUT_REGISTERS:0:INT16");
         validAddresses.add("0:INPUT_REGISTERS:0:FLOAT");
         validAddresses.add("0:INPUT_REGISTERS:0:DOUBLE");
         validAddresses.add("0:INPUT_REGISTERS:0:LONG");
 
         validAddresses.add("0:HOLDING_REGISTERS:0:SHORT");
-        validAddresses.add("0:HOLDING_REGISTERS:0:INT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:INT16");
         validAddresses.add("0:HOLDING_REGISTERS:0:FLOAT");
         validAddresses.add("0:HOLDING_REGISTERS:0:DOUBLE");
         validAddresses.add("0:HOLDING_REGISTERS:0:LONG");
@@ -121,7 +115,7 @@ public class ModbusTcpChannelTest {
         validAddresses.add("0:COILS:0:BOOLEAN");
 
         validAddresses.add("0:HOLDING_REGISTERS:0:SHORT");
-        validAddresses.add("0:HOLDING_REGISTERS:0:INT");
+        validAddresses.add("0:HOLDING_REGISTERS:0:INT16");
         validAddresses.add("0:HOLDING_REGISTERS:0:FLOAT");
         validAddresses.add("0:HOLDING_REGISTERS:0:DOUBLE");
         validAddresses.add("0:HOLDING_REGISTERS:0:LONG");

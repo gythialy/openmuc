@@ -1,20 +1,13 @@
-/*
- * Copyright 2010-15 Fraunhofer ISE
- *
- * This file is part of jMBus.
- * For more information visit http://www.openmuc.org
- *
- * jMBus is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * jMBus is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with jMBus.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+jMBus Copyright 2010-17 Fraunhofer ISE
+
+jMBus is licensed under the Mozilla Public License v2.0
+
+Dependencies
+------------
+
+Information about the licenses of open source dependencies packaged
+with jMBus can be found in the folder named "dependencies" inside the
+distribution.
+
+You may request the source code of the dependencies by sending a mail
+through our website at openmuc.org.

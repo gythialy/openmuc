@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,9 +30,12 @@ import java.util.List;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.lib.json.Const;
 import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
-import org.openmuc.framework.lib.json.restObjects.RestChannel;
+import org.openmuc.framework.lib.json.rest.objects.RestChannel;
+
+import com.google.gson.JsonElement;
 
 public class JsonWrapper {
 
@@ -48,7 +51,7 @@ public class JsonWrapper {
 
         String jsonString = getStringFromInputStream(stream);
         FromJson fromJson = new FromJson(jsonString);
-        ArrayList<RestChannel> channelList = fromJson.getRestChannelArrayList();
+        List<RestChannel> channelList = fromJson.getRestChannelList();
         ArrayList<ChannelScanInfo> channelScanInfos = new ArrayList<>();
 
         for (RestChannel restChannel : channelList) {
@@ -65,6 +68,17 @@ public class JsonWrapper {
         FromJson fromJson = new FromJson(jsonString);
 
         return fromJson.getRecord(valueType);
+    }
+
+    public long toTimestamp(InputStream stream) throws IOException {
+
+        String jsonString = getStringFromInputStream(stream);
+        FromJson fromJson = new FromJson(jsonString);
+        JsonElement timestamp = fromJson.getJsonObject().get(Const.TIMESTAMP);
+        if (timestamp == null) {
+            return -1;
+        }
+        return timestamp.getAsNumber().longValue();
     }
 
     private String getStringFromInputStream(InputStream stream) throws IOException {

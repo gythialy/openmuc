@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 #Scriptname: openmuc
-#Description: Script to start, stop, restart and reload OpenMUC
+#Description: script to start, stop, restart and reload OpenMUC
 
 # Add JVM options here.
 JVM_OPTS=""
 
-find_app_home()
+# Optionally set the location of the openmuc framework. If the
+# variable is not set, it is assumed that this script is located
+# within the "bin" folder of the openmuc framework folder.
+# OPENMUC_HOME="/path/to/openmuc/"
+
+find_openmuc_home()
 {
-    # Attempt to set APP_HOME
+    # Attempt to set OPENMUC_HOME
     # Resolve links: $0 may be a link
     PRG="$0"
     # Need this for relative symlinks.
@@ -22,19 +27,22 @@ find_app_home()
     done
     SAVED="`pwd`"
     cd "`dirname \"$PRG\"`/.." >/dev/null
-    APP_HOME="`pwd -P`"
+    OPENMUC_HOME="`pwd -P`"
     cd "$SAVED" >/dev/null
 }
 
-find_app_home
-cd "$APP_HOME"
+
+if [ -z ${OPENMUC_HOME+x} ]; then
+    find_openmuc_home
+fi
+cd "$OPENMUC_HOME"
 
 # If root change user to owner of this script
 if [ $UID -eq 0 ] ; then
     SCRIPT_OWNER=`stat -c "%U" bin/openmuc`
     echo "Executed as root, will run as owner of this script: $SCRIPT_OWNER"
     if [ "$SCRIPT_OWNER" != "root" ] ; then
-        exec su $SCRIPT_OWNER  bin/openmuc "$@"
+        exec su $SCRIPT_OWNER  -- bin/openmuc "$@"
     fi
 fi
 
@@ -71,8 +79,9 @@ do_stop()
 {
         # Return
         #   0 if daemon has been stopped
-        #   1 if daemon was already stopped
-        #   2 if daemon could not be stopped
+        #   1 if daemon was not running
+        #   2 if daemon could not be stopped (likely because kill level was too low)
+        #   3 if user has no right to stop the daemon
 
     if [ ! -e $PID_FILE ]; then
         return 1
@@ -82,6 +91,17 @@ do_stop()
 
     TMP_PID=`cat $PID_FILE`
 
+    if ! ps -p "${TMP_PID}" >/dev/null 2>&1;
+    then
+        rm -f $PID_FILE
+        return 1
+    fi
+    
+    if ! kill -0 "${TMP_PID}" >/dev/null 2>&1;
+    then
+        return 3
+    fi
+    
     if [ "$2" = "-f" ]
     then
         kill -9 $TMP_PID >/dev/null 2>&1
@@ -92,7 +112,7 @@ do_stop()
     fi
 
     if [ $RET_STATUS -ne 0 ]; then
-        return 1
+        return 2
     fi
 
 
@@ -122,13 +142,18 @@ stop_openmuc() {
                         exit 0
                 ;;
                 1)
-            echo "no OpenMUC process is running"
+            echo "No OpenMUC process is running"
                         exit 1
                 ;;
-        2)
+                2)
             echo "Unable to stop OpenMUC, try -f flag to kill by brute force"
                         exit 2
+                ;;
+                3)
+            echo "Unable to stop OpenMUC, user has no permission to stop process."
+                        exit 3
                 ;;                        
+
     esac
 }
 
@@ -143,15 +168,15 @@ start_openmuc() {
         fi
     fi
 
-    echo "Starting OpenMUC"
+    echo -e "\e[96m\e[1m$(cat $OPENMUC_HOME/bin/welcome.txt)\e[0m"
 
     if [ "$2" != "-fg" ]
     then
         echo "Starting in background. To start OpenMUC in foreground run this script with the -fg flag."
         # Option: -Dgosh.args=--nointeractive is necessary for running openmuc in background
-        exec "$JAVACMD" $JVM_OPTS -Dgosh.args=--nointeractive -jar "$APP_HOME"/felix/felix.jar >"$APP_HOME"/log/openmuc.out 2>&1 &
+        exec "$JAVACMD" $JVM_OPTS -Dgosh.args=--nointeractive -jar "$OPENMUC_HOME"/felix/felix.jar >"$OPENMUC_HOME"/log/openmuc.out 2>&1 &
     else
-        exec "$JAVACMD" $JVM_OPTS -jar "$APP_HOME"/felix/felix.jar
+        exec "$JAVACMD" $JVM_OPTS -jar "$OPENMUC_HOME"/felix/felix.jar
     fi
 
     if [ $? = 0 ]; then
@@ -165,7 +190,7 @@ start_openmuc() {
 }
 
 
-PID_FILE=$APP_HOME/log/openmuc.pid
+PID_FILE=$OPENMUC_HOME/log/openmuc.pid
 
 case "$1" in
     start)

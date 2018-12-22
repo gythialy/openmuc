@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,64 +33,79 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.openmuc.framework.authentication.AuthenticationService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ServiceScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class Authentication implements AuthenticationService {
+@Component(service = AuthenticationService.class, scope = ServiceScope.SINGLETON)
+public class Authentication implements AuthenticationService {
+    private static final String DEFAULT_SHADOW_FILE_LOCATION = "conf/shadow";
 
-    public String path;
-    HashMap<String, String> shadow = new HashMap<>();;
+    private static final Logger logger = LoggerFactory.getLogger(Authentication.class);
+
+    private final String path;
+    private final Map<String, String> shadow = new HashMap<>();
 
     public Authentication() {
-        path = System.getProperty("bundles.configuration.location");
-        if (path == null) {
-            path = "conf/shadow";
-        }
-        else {
-            if (path.endsWith("/")) {
-                path = path.substring(0, path.length() - 1);
-            }
-            path += "/shadow";
-        }
-        File file = new File(path);
+        this.path = initPath();
+        File file = new File(this.path);
+
         if (!file.exists()) {
             register("admin", "admin");
         }
         else {
-            getShadow();
+            loadShadowFromFile();
         }
     }
 
-    @Override
-    public void register(String user, String pwd) {
-        pwd += generateHash(user); // use the hash of the username as salt
+    private static String initPath() {
+        String path = System.getProperty("bundles.configuration.location");
+        if (path == null) {
+            return DEFAULT_SHADOW_FILE_LOCATION;
+        }
 
-        String hash = generateHash(pwd);
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
 
-        setUser(user, hash);
+        return path + "/shadow";
     }
 
     @Override
-    public boolean login(String user, String pwd) {
+    public void register(String user, String pw) {
+        pw += generateHash(user); // use the hash of the username as salt
 
-        pwd += generateHash(user); // use the hash of the username as salt
-        String hash = generateHash(pwd);
-        if (shadow.containsKey(user)) {
-            String storedHash = shadow.get(user);
-            if (hash.equals(storedHash)) {
-                return true;
-            }
+        String hash = generateHash(pw);
+
+        setUserHashPair(user, hash);
+    }
+
+    @Override
+    public boolean login(String user, String pw) {
+        if (!shadow.containsKey(user)) {
+            return false;
         }
 
-        return false;
+        // use the hash of the username as salt
+        String pwToCheck = pw + generateHash(user);
+
+        String hash = generateHash(pwToCheck);
+
+        String storedHash = shadow.get(user);
+
+        return hash.equals(storedHash);
     }
 
     @Override
     public void delete(String user) {
         shadow.remove(user);
 
-        writeShadow(shadow);
+        writeShadowToFile();
     }
 
     @Override
@@ -102,70 +117,61 @@ public final class Authentication implements AuthenticationService {
     public Set<String> getAllUsers() {
         Set<String> registeredUsers = new HashSet<>();
         registeredUsers.addAll(Collections.unmodifiableSet(shadow.keySet()));
-
         return registeredUsers;
     }
 
-    private String generateHash(String pwd) {
-        StringBuilder hash = new StringBuilder();
-
-        MessageDigest sha;
+    private static String generateHash(String pw) {
         try {
-            sha = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = sha.digest(pwd.getBytes());
-            char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-            for (byte hashedByte : hashedBytes) {
-                hash.append(digits[(hashedByte & 0xf0) >> 4]);
-                hash.append(digits[(hashedByte & 0x0f)]);
-            }
-
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = sha256.digest(pw.getBytes());
+            return bytesToHexString(hashedBytes);
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // should not occur.
+            logger.error("Failed to generate hash.", e);
+            return "";
         }
 
+    }
+
+    private static String bytesToHexString(byte[] hashedBytes) {
+        StringBuilder hash = new StringBuilder();
+        for (byte hashedByte : hashedBytes) {
+            hash.append(String.format("%02x", hashedByte));
+        }
         return hash.toString();
     }
 
-    private void setUser(String user, String hash) {
+    private void setUserHashPair(String user, String hash) {
         shadow.put(user, hash);
 
-        writeShadow(shadow);
+        writeShadowToFile();
     }
 
-    private void writeShadow(HashMap<String, String> shadow) {
-        String text = "";
+    private void writeShadowToFile() {
+        StringBuilder textSb = new StringBuilder();
 
         for (String key : shadow.keySet()) {
-            text += key + ":" + shadow.get(key) + "\n";
+            textSb.append(key + ":" + shadow.get(key) + "\n");
         }
-        try {
-            Writer output = new BufferedWriter(new FileWriter(new File(path)));
-            output.write(text);
+        try (Writer output = new BufferedWriter(new FileWriter(new File(path)));) {
+            output.write(textSb.toString());
             output.flush();
-            output.close();
         } catch (IOException e) {
+            logger.warn("Failed to write shadow.", e);
         }
 
     }
 
-    private void getShadow() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            try {
-                String line = "";
+    private void loadShadowFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] temp = line.split(":");
 
-                while ((line = reader.readLine()) != null) {
-                    String[] temp = line.split(":");
-
-                    shadow.put(temp[0], temp[1]);
-                }
-            } finally {
-                reader.close();
+                shadow.put(temp[0], temp[1]);
             }
-
-        } catch (Exception e) {
+        } catch (IOException e) {
+            logger.warn("Failed to load shadow.", e);
         }
     }
 }

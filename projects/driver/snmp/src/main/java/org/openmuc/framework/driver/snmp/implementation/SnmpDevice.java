@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -59,13 +59,10 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 /**
  * 
  * Super class for defining SNMP enabled devices.
- * 
- * @author Mehran Shakeri
- * 
  */
 public abstract class SnmpDevice implements Connection {
 
-    private final static Logger logger = LoggerFactory.getLogger(SnmpDevice.class);
+    private static final Logger logger = LoggerFactory.getLogger(SnmpDevice.class);
 
     public enum SNMPVersion {
         V1,

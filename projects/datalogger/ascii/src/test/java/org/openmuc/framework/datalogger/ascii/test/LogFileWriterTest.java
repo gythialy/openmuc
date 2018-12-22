@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -228,8 +228,9 @@ public class LogFileWriterTest {
                 loggingInterval, loggingTimeOffset);
         LogFileReader lfr = new LogFileReader(TestUtils.TESTFOLDERPATH, ch1);
 
-        List<Record> recordList = lfr.getValues(calendar.getTimeInMillis() - loggingInterval * 5,
-                calendar.getTimeInMillis());
+        List<Record> recordList = lfr
+                .getValues(calendar.getTimeInMillis() - loggingInterval * 5, calendar.getTimeInMillis())
+                .get(ch01);
         int receivedRecords = recordList.size();
 
         int numErrorFlags = 0;

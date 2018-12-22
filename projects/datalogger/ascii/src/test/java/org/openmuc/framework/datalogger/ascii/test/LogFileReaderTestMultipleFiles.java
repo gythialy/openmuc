@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -51,8 +51,8 @@ public class LogFileReaderTestMultipleFiles {
     private static String fileDate2 = "20770709";
     private static int loggingInterval = 60000; // ms;
     static int loggingTimeOffset = 0; // ms
-    private final static String Channel0Name = "power";
-    private final static String EXT = ".dat";
+    private static final String Channel0Name = "power";
+    private static final String EXT = ".dat";
     // private static String[] channelIds = new String[] { Channel0Name };
     private static String dateFormat = "yyyyMMdd HH:mm:ss";
     // private static String ext = ".dat";
@@ -138,7 +138,7 @@ public class LogFileReaderTestMultipleFiles {
                 .getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         int hour = 3600;
         long expectedRecords = (hour * 24 + hour * 2) / (loggingInterval / 1000);

@@ -59,7 +59,6 @@
 		    DRIVER_DISABLED: 'Disabled',	
 		    DRIVER_CONNECT_RETRY_INTERVAL: 'Connect Retry Interval',
 		    DRIVER_SAMPLING_TIMEOUT: 'Sampling Timeout',
-		    DRIVER_ID: 'ID',
             DRIVER_DESCRIPTION: 'Description',
 		    REQUIRED_FIELDS: 'Required fields',
 		    DEFAULT_LEFT_BLANK: 'Default (if left blank)',
@@ -98,7 +97,6 @@
 		    DESCRIPTION: 'Description',
 		    DEVICE: 'Device',
 		    ADD_CHANNEL_TO: 'Add new channel to device',
-		    EDIT_CHANNEL: 'Edit channel',
 		    CHANNEL_CONFIGURATION: 'Channel configuration',
 		    CHANNEL_DESCRIPTION: 'Description',
 		    CHANNEL_ADDRESS: 'Channel Address',
@@ -120,7 +118,7 @@
 		    CHANNEL_ID_HINT: 'The ID of the channel.',
 		    CHANNEL_DESCRIPTION_HINT: 'The description of the channel. Exists for informational purposes only.',
 		    CHANNEL_VALUE_TYPE_HINT: 'Data type of the channel. Used on data logger. Driver implementation do NOT receive this settings.',
-		    CHANNEL_VALUE_LENGTH_HINT: 'Only used if valueType == BYTE_ARRAY. Determines the maximum length of the byte array.',
+		    CHANNEL_VALUE_LENGTH_HINT: 'Determines the maximum length of the byte array. Only used if valueType == BYTE_ARRAY.',
 		    CHANNEL_SCALING_FACTOR_HINT: 'Is used to scale a value read by a driver or set by an application. The value read by an driver is multiplied with the scalingFactor and a value set by an application is divided by the scalingFactor.',
 		    CHANNEL_VALUE_OFFSET_HINT: 'Is used to offset a value read by a driver or set by an application. The offset is added to a value read by a driver and subtracted from a value set by an application.',
 		    CHANNEL_UNIT_HINT: 'Physical unit of this channel. For information only (info can be accessed by an app or driver)',
@@ -164,7 +162,8 @@
 		    SECONDS: 'Seconds',
 		    MINUTES: 'Minutes',
 		    HOURS: 'Hours',
-		    SHOULD_BE_INTEGER: 'Should be a number',
+		    SHOULD_BE_INTEGER: 'Should be an integer',
+		    SHOULD_BE_DOUBLE: 'Should be a floating point number',
 		    DRIVER_ID_PATTERN_INCORRECT: 'Should contain only letters, numbers, underscores and dashes.',
 		    DEVICE_ID_PATTERN_INCORRECT: 'Should contain only letters, numbers, underscores and dashes.',
 		    CHANNEL_ID_PATTERN_INCORRECT: 'Should contain only letters, numbers, underscores and dashes.',
@@ -172,8 +171,6 @@
 		    NOW: 'Now',
 		    DRIVER_CREATED_SUCCESSFULLY: 'The driver was successfully created.',
 		    DRIVER_CREATED_ERROR: 'The driver was not created. Something went wrong.',
-		    DRIVER_UPDATED_SUCCESSFULLY: 'The driver was successfully updated.',
-		    DRIVER_UPDATED_ERROR: 'The driver was not successfully updated. Something went wrong.',
 		    DRIVER_SCAN_DEVICE_CREATED_SUCCESSFULLY: 'The device was successfully created.',
 		    DRIVER_SCAN_DEVICE_CREATED_ERROR: 'The device was not created. Something went wrong.',
 		    DRIVER_SCAN_NOT_SUPPORTED: 'The driver does not support scanning.',
@@ -215,6 +212,9 @@
 		    ACCESS_SELECTED: 'Access selected',
 		    CHANNEL_ACCESS_TOOL_DEVICE_ID: 'Device ID',
 		    WRITE_VALUE: 'Write value',
+		    WRITE_VALUE_DESCRIPTION: 'Write value to channel of connected device.',
+			SET_RECORD: 'Set record',
+			SET_RECORD_DESCRIPTION: 'Add value to log history.',
 		    OPENMUC_CONFIG_FILES: 'OpenMUC config files',
 		    FILE: 'File',
 		    EXPORT_DATA_AS_CSV: 'Export data as CSV',
@@ -248,6 +248,7 @@
 		    NO_MEDIA: 'No media files found',
 		    CHANNEL_VALUE_UPDATED_SUCCESSFULLY: 'The new value was written to the channel',
 		    CHANNEL_VALUE_UPDATED_ERROR: 'The new value was not written to the channel. Something went wrong.',
+            CHANNEL_NO_VALUE_TO_WRITE: 'There is no value to write.'
 		});
 		
 		$translateProvider.translations('de', {
@@ -264,6 +265,7 @@
 		    SECONDS: 'Sekunden',
 		    MINUTES: 'Minuten',
 		    HOURS: 'Stunden',
+			SAVE: 'Speichern'
 		  });
 		
         $translateProvider.useCookieStorage();

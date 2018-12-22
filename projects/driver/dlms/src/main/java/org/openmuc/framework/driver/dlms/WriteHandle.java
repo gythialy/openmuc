@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,175 +20,248 @@
  */
 package org.openmuc.framework.driver.dlms;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.driver.dlms.settings.ChannelAddress;
 import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.jdlms.client.AccessResultCode;
-import org.openmuc.jdlms.client.Data;
-import org.openmuc.jdlms.client.GetRequest;
-import org.openmuc.jdlms.client.GetResult;
-import org.openmuc.jdlms.client.SetRequest;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.jdlms.AccessResultCode;
+import org.openmuc.jdlms.AttributeAddress;
+import org.openmuc.jdlms.DlmsConnection;
+import org.openmuc.jdlms.SetParameter;
+import org.openmuc.jdlms.datatypes.CosemDate;
+import org.openmuc.jdlms.datatypes.CosemDateTime;
+import org.openmuc.jdlms.datatypes.CosemDateTime.ClockStatus;
+import org.openmuc.jdlms.datatypes.CosemTime;
+import org.openmuc.jdlms.datatypes.DataObject;
+import org.openmuc.jdlms.datatypes.DataObject.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class WriteHandle {
-    private final ChannelValueContainer container;
-    private GetResult getResult;
-    private AccessResultCode setResult;
+class WriteHandle {
 
-    private int getIndex = -1;
-    private int setIndex = -1;
-    private Flag flag;
+    private static final Logger logger = LoggerFactory.getLogger(WriteHandle.class);
 
-    public WriteHandle(ChannelValueContainer container) {
-        this.container = container;
+    private final DlmsConnection dlmsConnection;
+
+    public WriteHandle(DlmsConnection dlmsConnection) {
+        this.dlmsConnection = dlmsConnection;
     }
 
-    public GetRequest createGetRequest() {
-        GetRequest channelHandle = null;
-        if (container.getChannelHandle() == null) {
+    public void write(List<ChannelValueContainer> containers)
+            throws ConnectionException, UnsupportedOperationException {
+        multiSet(new ArrayList<>(containers));
+    }
+
+    private void multiSet(List<ChannelValueContainer> writeList) throws ConnectionException {
+        List<AccessResultCode> resultCodes = callSet(writeList);
+
+        Iterator<AccessResultCode> iterResult = resultCodes.iterator();
+        Iterator<ChannelValueContainer> iterWriteList = writeList.iterator();
+        while (iterResult.hasNext() && iterWriteList.hasNext()) {
+            ChannelValueContainer valueContainer = iterWriteList.next();
+            AccessResultCode resCode = iterResult.next();
+
+            Flag flag = convertToFlag(resCode);
+            valueContainer.setFlag(flag);
+        }
+    }
+
+    private List<AccessResultCode> callSet(List<ChannelValueContainer> writeList) throws ConnectionException {
+
+        List<SetParameter> setParams = createSetParamsFor(writeList);
+
+        List<AccessResultCode> resultCodes = null;
+        try {
+            resultCodes = this.dlmsConnection.set(setParams);
+        } catch (IOException ex) {
+            handleIoException(writeList, ex);
+        }
+
+        if (resultCodes == null) {
+            throw new ConnectionException("Did not get any result after xDLMS SET was called.");
+        }
+        return resultCodes;
+    }
+
+    private static List<SetParameter> createSetParamsFor(List<ChannelValueContainer> writeList)
+            throws ConnectionException {
+        List<SetParameter> setParams = new ArrayList<>(writeList.size());
+
+        for (ChannelValueContainer channelContainer : writeList) {
             try {
-                channelHandle = ChannelAddress.parse(container.getChannelAddress()).createGetRequest();
-                container.setChannelHandle(channelHandle);
-            } catch (IllegalArgumentException e) {
-                flag = Flag.DRIVER_ERROR_CHANNEL_ADDRESS_SYNTAX_INVALID;
+                ChannelAddress channelAddress = new ChannelAddress(channelContainer.getChannelAddress());
+                Type type = channelAddress.getType();
+
+                if (type == null) {
+                    String msg = MessageFormat.format(
+                            "Can not set attribute with address {0} where the type is unknown.", channelAddress);
+                    throw new ConnectionException(msg);
+                }
+                DataObject newValue = createDoFor(channelContainer, type);
+                AttributeAddress address = channelAddress.getAttributeAddress();
+                SetParameter setParameter = new SetParameter(address, newValue);
+
+                setParams.add(setParameter);
+            } catch (ArgumentSyntaxException e) {
+                throw new ConnectionException(e);
             }
         }
-        else {
-            channelHandle = (GetRequest) container.getChannelHandle();
-        }
-        return channelHandle;
+        return setParams;
     }
 
-    public void setGetResult(GetResult result) {
-        getResult = result;
-        if (getResult == null) {
-            flag = Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
+    private static Flag convertToFlag(AccessResultCode setResult) {
+
+        // should not occur
+        if (setResult == null) {
+            return Flag.UNKNOWN_ERROR;
         }
-        else {
-            if (!getResult.isSuccess()) {
-                flag = Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
-            }
+
+        switch (setResult) {
+        case HARDWARE_FAULT:
+            return Flag.UNKNOWN_ERROR;
+
+        case OBJECT_UNDEFINED:
+            return Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND;
+
+        case OBJECT_UNAVAILABLE:
+        case READ_WRITE_DENIED:
+        case SCOPE_OF_ACCESS_VIOLATED:
+            return Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
+
+        case SUCCESS:
+            return Flag.VALID;
+
+        case TEMPORARY_FAILURE:
+            return Flag.DRIVER_ERROR_CHANNEL_TEMPORARILY_NOT_ACCESSIBLE;
+
+        case OBJECT_CLASS_INCONSISTENT:
+        case TYPE_UNMATCHED:
+            return Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION;
+
+        case DATA_BLOCK_NUMBER_INVALID:
+        case DATA_BLOCK_UNAVAILABLE:
+        case LONG_GET_ABORTED:
+        case LONG_SET_ABORTED:
+        case NO_LONG_GET_IN_PROGRESS:
+        case NO_LONG_SET_IN_PROGRESS:
+        case OTHER_REASON:
+        default:
+            return Flag.DRIVER_THREW_UNKNOWN_EXCEPTION;
         }
     }
 
-    public SetRequest createSetRequest() {
-        if (flag != null) {
+    private static void handleIoException(List<ChannelValueContainer> containers, IOException ex)
+            throws ConnectionException {
+        logger.error("Faild to write to device.", ex);
+        for (ChannelValueContainer c : containers) {
+            c.setFlag(Flag.COMM_DEVICE_NOT_CONNECTED);
+        }
+        throw new ConnectionException(ex.getMessage());
+    }
+
+    private static DataObject createDoFor(ChannelValueContainer channelValueContainer, Type type)
+            throws UnsupportedOperationException {
+        Flag flag = channelValueContainer.getFlag();
+
+        if (flag != Flag.VALID) {
             return null;
         }
-        SetRequest result = ((GetRequest) container.getChannelHandle()).toSetRequest();
-        Data originData = getResult.getResultData();
-        Data param = result.data();
 
-        switch (originData.getChoiceIndex()) {
-        case NULL_DATA:
-            param.setNull();
-            break;
-        case ARRAY:
-        case STRUCTURE:
-        case COMPACT_ARRAY:
-        case DATE_TIME:
-        case DATE:
-        case TIME:
-        case DONT_CARE:
-            flag = Flag.DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION;
-            result = null;
-            break;
-        case BOOL:
-            param.setbool(container.getValue().asBoolean());
-            break;
-        case BIT_STRING:
-            param.setBitString(container.getValue().asByteArray(), container.getValue().asByteArray().length * 8);
-            break;
-        case DOUBLE_LONG:
-            param.setInteger32(container.getValue().asInt());
-            break;
-        case DOUBLE_LONG_UNSIGNED:
-            param.setUnsigned32(container.getValue().asLong());
-            break;
-        case OCTET_STRING:
-            param.setOctetString(container.getValue().asByteArray());
-            break;
-        case VISIBLE_STRING:
-            param.setVisibleString(container.getValue().asByteArray());
-            break;
+        Value value = channelValueContainer.getValue();
+        switch (type) {
         case BCD:
-            param.setBcd(container.getValue().asByte());
-            break;
-        case INTEGER:
-            param.setInteger8(container.getValue().asByte());
-            break;
-        case LONG_INTEGER:
-            param.setInteger16(container.getValue().asShort());
-            break;
-        case UNSIGNED:
-            param.setUnsigned8(container.getValue().asShort());
-            break;
-        case LONG_UNSIGNED:
-            param.setUnsigned16(container.getValue().asInt());
-            break;
-        case LONG64:
-            param.setInteger64(container.getValue().asLong());
-            break;
-        case LONG64_UNSIGNED:
-            param.setUnsigned64(container.getValue().asLong());
-            break;
+            return DataObject.newBcdData(value.asByte());
+        case BOOLEAN:
+            return DataObject.newBoolData(value.asBoolean());
+        case DOUBLE_LONG:
+            return DataObject.newInteger32Data(value.asInt());
+        case DOUBLE_LONG_UNSIGNED:
+            return DataObject.newUInteger32Data(value.asLong()); // TODO: not safe!
         case ENUMERATE:
-            param.setEnumerate(container.getValue().asByte());
-            break;
+            return DataObject.newEnumerateData(value.asInt());
         case FLOAT32:
-            param.setFloat32(container.getValue().asFloat());
-            break;
+            return DataObject.newFloat32Data(value.asFloat());
         case FLOAT64:
-            param.setFloat64(container.getValue().asDouble());
-            break;
+            return DataObject.newFloat64Data(value.asDouble());
+        case INTEGER:
+            return DataObject.newInteger8Data(value.asByte());
+        case LONG64:
+            return DataObject.newInteger64Data(value.asLong());
+        case LONG64_UNSIGNED:
+            return DataObject.newUInteger64Data(value.asLong()); // TODO: is not unsigned
+        case LONG_INTEGER:
+            return DataObject.newInteger16Data(value.asShort());
+        case LONG_UNSIGNED:
+            return DataObject.newUInteger16Data(value.asInt()); // TODO: not safe!
+        case NULL_DATA:
+            return DataObject.newNullData();
+        case OCTET_STRING:
+            return DataObject.newOctetStringData(value.asByteArray());
+        case UNSIGNED:
+            return DataObject.newUInteger8Data(value.asShort()); // TODO: not safe!
+        case UTF8_STRING:
+            byte[] byteArrayValue = byteArrayValueOf(value);
+            return DataObject.newUtf8StringData(byteArrayValue);
+        case VISIBLE_STRING:
+            byteArrayValue = byteArrayValueOf(value);
+            return DataObject.newVisibleStringData(byteArrayValue);
+        case DATE:
+            Calendar calendar = getCalendar(value.asLong());
+            return DataObject.newDateData(new CosemDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)));
+        case DATE_TIME:
+            calendar = getCalendar(value.asLong());
+            return DataObject.newDateTimeData(new CosemDateTime(calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
+                    calendar.get(Calendar.DAY_OF_WEEK), calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND),
+                    calendar.get(Calendar.MILLISECOND) / 10, 0x8000, ClockStatus.INVALID_CLOCK_STATUS));
+        case TIME:
+            calendar = getCalendar(value.asLong());
+            return DataObject.newTimeData(new CosemTime(calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND)));
+        case ARRAY:
+        case BIT_STRING:
+        case COMPACT_ARRAY:
+        case DONT_CARE:
+        case STRUCTURE:
+        default:
+            String message = MessageFormat.format("DateType {0} not supported, yet.", type.toString());
+            throw new UnsupportedOperationException(message);
+
         }
-        return result;
+
     }
 
-    public void setSetResult(AccessResultCode result) {
-        setResult = result;
-    }
-
-    public void writeFlag() {
-        if (setResult == null) {
-            container.setFlag(flag);
+    private static byte[] byteArrayValueOf(Value value) {
+        if (value instanceof StringValue) {
+            return value.asString().getBytes(StandardCharsets.UTF_8);
+        }
+        else if (value instanceof ByteArrayValue) {
+            return value.asByteArray();
         }
         else {
-            if (setResult == AccessResultCode.SUCCESS) {
-                container.setFlag(Flag.VALID);
-            }
-            else if (setResult == AccessResultCode.HARDWARE_FAULT) {
-                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
-            }
-            else if (setResult == AccessResultCode.TEMPORARY_FAILURE) {
-                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_TEMPORARILY_NOT_ACCESSIBLE);
-            }
-            else if (setResult == AccessResultCode.READ_WRITE_DENIED) {
-                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
-            }
-            else if (setResult == AccessResultCode.OBJECT_UNDEFINED) {
-                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND);
-            }
-            else if (setResult == AccessResultCode.OBJECT_UNAVAILABLE) {
-                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
-            }
-            else {
-                container.setFlag(Flag.UNKNOWN_ERROR);
-            }
+            return new byte[0];
         }
     }
 
-    public void setReadIndex(int index) {
-        getIndex = index;
+    private static Calendar getCalendar(long timestampInMilisec) {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(timestampInMilisec);
+        return calendar;
     }
 
-    public int getReadIndex() {
-        return getIndex;
-    }
-
-    public void setWriteIndex(int index) {
-        setIndex = index;
-    }
-
-    public int getWriteIndex() {
-        return setIndex;
-    }
 }

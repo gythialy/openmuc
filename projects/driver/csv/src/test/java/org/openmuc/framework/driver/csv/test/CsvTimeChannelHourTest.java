@@ -9,8 +9,8 @@ import java.util.Locale;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openmuc.framework.driver.csv.CsvException;
-import org.openmuc.framework.driver.csv.channel.CsvChannelImplHour;
+import org.openmuc.framework.driver.csv.channel.CsvChannelHHMMSS;
+import org.openmuc.framework.driver.csv.exceptions.CsvException;
 import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class CsvTimeChannelHourTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(CsvTimeChannelHourTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvTimeChannelHourTest.class);
 
     static List<String> data;
     static long[] timestamps;
@@ -64,7 +64,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadNextValueInbetween() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, false, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, false, timestamps);
 
         value = channel.readValue(createTimestamp(100006));
         Assert.assertTrue(String.valueOf(value).equals("5.0"));
@@ -76,7 +76,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadNextValueStart() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, false, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, false, timestamps);
 
         value = channel.readValue(createTimestamp(100000));
         Assert.assertTrue(String.valueOf(value).equals("0.0"));
@@ -88,7 +88,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadNextValueEndNoRewind() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, false, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, false, timestamps);
 
         value = channel.readValue(createTimestamp(100020));
         Assert.assertTrue(String.valueOf(value).equals("20.0"));
@@ -108,7 +108,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadNextValueEndWithRewind() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, true, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, true, timestamps);
 
         value = channel.readValue(createTimestamp(100020));
         Assert.assertTrue(String.valueOf(value).equals("20.0"));
@@ -123,7 +123,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadT1BeforeT2Valid() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, false, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, false, timestamps);
 
         try {
             value = channel.readValue(createTimestamp(90000));
@@ -140,7 +140,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadT1ValidT2BeforeDisabledRewind() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, false, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, false, timestamps);
 
         value = channel.readValue(createTimestamp(100000));
         Assert.assertTrue(String.valueOf(value).equals("0.0"));
@@ -157,7 +157,7 @@ public class CsvTimeChannelHourTest {
     @Test
     public void testReadT1ValidT2BeforeEnabledRewind() throws CsvException {
 
-        CsvChannelImplHour channel = new CsvChannelImplHour(data, true, timestamps);
+        CsvChannelHHMMSS channel = new CsvChannelHHMMSS(data, true, timestamps);
 
         value = channel.readValue(createTimestamp(100000));
         Assert.assertTrue(String.valueOf(value).equals("0.0"));

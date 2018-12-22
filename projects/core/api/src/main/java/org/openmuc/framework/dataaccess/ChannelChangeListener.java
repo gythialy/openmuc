@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,8 +23,8 @@ package org.openmuc.framework.dataaccess;
 
 public interface ChannelChangeListener {
 
-    public void channelModified(Channel channel);
+    void channelModified(Channel channel);
 
-    public void channelDeleted(Channel channel);
+    void channelDeleted(Channel channel);
 
 }

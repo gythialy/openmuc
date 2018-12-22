@@ -6,8 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Thread Factory which enables to name threads in a thread pool
  */
-
-public class NamedThreadFactory implements ThreadFactory {
+class NamedThreadFactory implements ThreadFactory {
 
     private final String name;
     private final AtomicInteger counter = new AtomicInteger(0);

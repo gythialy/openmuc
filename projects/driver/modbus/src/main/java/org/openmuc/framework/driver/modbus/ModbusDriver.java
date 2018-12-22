@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -43,37 +43,53 @@ import org.slf4j.LoggerFactory;
 @Component
 public final class ModbusDriver implements DriverService {
 
-    private final static Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
-
-    private final static DriverInfo info = new DriverInfo(
-            // id
-            "modbus",
-            // description
-            "Driver to communicate with devices via Modbus protocol. The driver supports TCP, RTU and RTU over TCP.",
-            // device address
-            "The device address dependes on the selected type\n RTU: <serial port> e.g. /dev/ttyS0\n "
-                    + "TCP: <ip>[:<port>]\n RTUTCP: <ip>[:<port>]",
-            // settings
-            "Synopsis: <type> \nThe type of connection: RTU (serial), TCP (ethernet) or RTUTCP (serial over ethernet)",
-            // channel address
-            "Synopsis: <UnitId>:<PrimaryTable>:<Address>:<Datatyp>",
-            // device scan settings
-            "");
-
-    // TODO get it from channel.xml
-    private final static int timeoutInMillisecons = 10000;
+    private static final Logger logger = LoggerFactory.getLogger(ModbusDriver.class);
+    private static final int DEFAULT_TIMEOUT_MS = 3000;
 
     @Override
     public DriverInfo getInfo() {
-        return info;
+
+        final String ID = "modbus";
+
+        final String DESCRIPTION = "Driver to communicate with devices via Modbus protocol. The driver supports TCP, RTU and RTU over TCP.";
+
+        final String TCP_ADDRESS = "  TCP: <ip>[:<port>] (e.g. 192.168.30.103:502)";
+        final String RTUTCP_ADDRESS = "  RTUTCP: <ip>[:<port>] (e.g. 192.168.30.103:502)";
+        final String RTU_ADDRESS = "  RTU: <serial port> (e.g. /dev/ttyS0)";
+        final String DEVICE_ADDRESS = "The device address dependes on the selected type: \n" + TCP_ADDRESS + "\n"
+                + RTUTCP_ADDRESS + "\n" + RTU_ADDRESS;
+
+        // FIXME auto generate settings string from class to avoid inconsistency
+
+        // FIXME OpenMUC passes only the connection settings to the driver. Driver is unable to access the
+        // samplingTimeout specified in channels.xml. As workaround the timeout is added to the device settings for the
+        // modbus driver. timeoutInMs used for:
+        // TCP: m_Socket.setSoTimeout(m_Timeout);
+        // RTU: m_SerialPort.enableReceiveTimeout(ms);
+
+        final String TCP_SETTINGS = "  TCP[:timeout=<timoutInMs>] (e.g. TCP or TCP:timeout=3000)";
+        final String RTUTCP_SETTINGS = "  RTUTCP[:timeout=<timoutInMs>] ";
+        final String RTU_SETTINGS = "  RTU:<ENCODING>:<BAUDRATE>:<DATABITS>:<PARITY>:<STOPBITS>:<ECHO>:<FLOWCONTROL_IN>:<FLOWCONTEOL_OUT>[:timeout=<timoutInMs>]";
+        final String DEVICE_SETTINGS = "Device settings depend on selected type: \n" + TCP_SETTINGS + "\n"
+                + RTUTCP_SETTINGS + "\n" + RTU_SETTINGS;
+
+        final String CHANNEL_ADDRESS = "<UnitId>:<PrimaryTable>:<Address>:<Datatyp>";
+
+        final String DEVICE_SCAN_SETTINGS = "Device scan is not supported.";
+
+        final DriverInfo driverInfo = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, DEVICE_SETTINGS, CHANNEL_ADDRESS,
+                DEVICE_SCAN_SETTINGS);
+
+        return driverInfo;
     }
 
     @Override
     public Connection connect(String deviceAddress, String settings) throws ConnectionException {
 
-        // TODO refactor exception handling in this method
-
         ModbusConnection connection;
+
+        // TODO consider retries in sampling timeout (e.g. one time 12000 ms or three times 4000 ms)
+        // FIXME quite inconvenient/complex to get the timeout from config, since the driver doesn't know the device id!
 
         if (settings.equals("")) {
             throw new ConnectionException("no device settings found in config. Please specify settings.");
@@ -81,24 +97,23 @@ public final class ModbusDriver implements DriverService {
         else {
             String[] settingsArray = settings.split(":");
             String mode = settingsArray[0];
+
+            int timeoutMs = getTimeoutFromSettings(settingsArray);
+
             if (mode.equalsIgnoreCase("RTU")) {
                 try {
-                    connection = new ModbusRTUConnection(deviceAddress, settingsArray, timeoutInMillisecons);
+                    connection = new ModbusRTUConnection(deviceAddress, settingsArray, timeoutMs);
                 } catch (ModbusConfigurationException e) {
                     logger.error("Unable to create ModbusRTUConnection", e);
                     throw new ConnectionException();
                 }
             }
             else if (mode.equalsIgnoreCase("TCP")) {
-                connection = new ModbusTCPConnection(deviceAddress, timeoutInMillisecons);
+
+                connection = new ModbusTCPConnection(deviceAddress, timeoutMs);
             }
             else if (mode.equalsIgnoreCase("RTUTCP")) {
-                // try {
-                connection = new ModbusRTUTCPConnection(deviceAddress, timeoutInMillisecons);
-                // } catch (ModbusConfigurationException e) {
-                // logger.error("Unable to create ModbusRTUTCPConnection", e);
-                // throw new ConnectionException();
-                // }
+                connection = new ModbusRTUTCPConnection(deviceAddress, timeoutMs);
             }
             else {
                 throw new ConnectionException("Unknown Mode. Use RTU, TCP or RTUTCP.");
@@ -106,6 +121,42 @@ public final class ModbusDriver implements DriverService {
         }
         return connection;
 
+    }
+
+    // FIXME 1: better timeout handling and general settings parsing for drivers
+    // FIXME 2: this should be the max timeout. the duration of each read channel should be subtracted from the max
+    // timeout
+    private int getTimeoutFromSettings(String[] settingsArray) {
+
+        int timeoutMs = DEFAULT_TIMEOUT_MS;
+
+        try {
+            for (String setting : settingsArray) {
+                if (setting.startsWith("timeout")) {
+                    String[] timeoutParam = setting.split("=");
+                    timeoutMs = validateTimeout(timeoutParam);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.warn(
+                    "Unable to parse timeout from settings. Using default timeout of " + DEFAULT_TIMEOUT_MS + " ms.");
+        }
+
+        logger.info("Set sampling timeout to " + timeoutMs + " ms.");
+
+        return timeoutMs;
+    }
+
+    private int validateTimeout(String[] timeoutParam) {
+
+        int timeoutMs = Integer.valueOf(timeoutParam[1]).intValue();
+
+        if (timeoutMs <= 0) {
+            throw new IllegalArgumentException("Invalid SamplingTimeout is smaller or equal 0.");
+        }
+
+        return timeoutMs;
     }
 
     @Override

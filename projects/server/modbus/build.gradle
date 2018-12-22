@@ -1,0 +1,42 @@
+
+def projectName = "OpenMUC Server - Modbus"
+def projectDescription = "Modbus server for the OpenMUC framework."
+
+configurations.create('embed')
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile project(':openmuc-core-api')
+  compile project(':openmuc-core-spi')
+  compile files('../../../dependencies/j2mod/j2mod-r100.jar')
+  embed files('../../../dependencies/j2mod/j2mod-r100.jar')
+}
+
+jar {
+  manifest {
+    name = projectName
+    instruction 'Bundle-ClassPath', '.,lib/j2mod-r100.jar'
+    instruction 'Import-Package', '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
+    instruction 'Export-Package', ''
+  }
+}
+
+jar {
+  into('lib') {
+    from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,28 +21,50 @@
 
 package org.openmuc.framework.webui.spi;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 
-public interface WebUiPluginService {
+public abstract class WebUiPluginService {
+
+    private Bundle contextBundle;
+
+    @Activate
+    protected void activate(ComponentContext context) {
+        contextBundle = context.getBundleContext().getBundle();
+    }
+
+    public Bundle getContextBundle() {
+        return contextBundle;
+    }
 
     /**
      * @return Name of WebUI-Plugin, displayed in OpenMUC main menu on top
      */
-    public String getName();
+    public abstract String getName();
 
     /**
      * @return Alias of the WebUI-Plugin. The Alias is the identifier in the URL.
      */
-    public String getAlias();
+    public abstract String getAlias();
 
     /**
      * add additional resources if needed
      * 
      * @return the resources as a hash table.
      */
-    public Hashtable<String, String> getResources();
+    public Map<String, String> getResources() {
+        HashMap<String, String> resources = new HashMap<>();
 
-    public Bundle getContextBundle();
+        resources.put("html", "html");
+        resources.put("css", "css");
+        resources.put("js", "js");
+        resources.put("images", "images");
+
+        return resources;
+    }
+
 }

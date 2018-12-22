@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-17 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,26 +21,28 @@
 
 package org.openmuc.framework.driver.ehz.iec62056_21;
 
+import org.openmuc.framework.data.DoubleValue;
+
 public class DataSet {
-    private String address = null;
-    private String value = null;
-    private String unit = null;
+    private final String address;
+    private String value;
+    private String unit;
 
-    public DataSet(String dataSet) {
-        int bracket = dataSet.indexOf('(');
+    public DataSet(String dataSetStr) {
+        int bracket = dataSetStr.indexOf('(');
 
-        address = dataSet.substring(0, bracket);
+        address = dataSetStr.substring(0, bracket);
 
-        dataSet = dataSet.substring(bracket);
+        dataSetStr = dataSetStr.substring(bracket);
 
-        int separator = dataSet.indexOf('*');
+        int separator = dataSetStr.indexOf('*');
 
         if (separator == -1) {
-            value = dataSet.substring(1, dataSet.length() - 2);
+            value = dataSetStr.substring(1, dataSetStr.length() - 2);
         }
         else {
-            value = dataSet.substring(1, separator);
-            unit = dataSet.substring(separator + 1, dataSet.length() - 1);
+            value = dataSetStr.substring(1, separator);
+            unit = dataSetStr.substring(separator + 1, dataSetStr.length() - 1);
         }
     }
 
@@ -48,11 +50,11 @@ public class DataSet {
         return address;
     }
 
-    public double getVal() {
+    public DoubleValue parseValueAsDouble() {
         try {
-            return Double.parseDouble(value);
+            return new DoubleValue(Double.parseDouble(value));
         } catch (NumberFormatException e) {
-            return Double.NaN;
+            return new DoubleValue(Double.NaN);
         }
     }
 

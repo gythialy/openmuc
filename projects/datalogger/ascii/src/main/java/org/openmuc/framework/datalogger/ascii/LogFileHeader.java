@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,17 +22,22 @@ package org.openmuc.framework.datalogger.ascii;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
 public class LogFileHeader {
+
+    private static final String OTHER_STRING = "other";
+    private static final String TRUE_STRING = "TRUE";
+    private static final String FALSE_STRING = "FALSE";
 
     private LogFileHeader() {
     }
@@ -51,7 +56,7 @@ public class LogFileHeader {
      * @return the header as a string
      */
     public static String getIESDataFormatHeaderString(LogIntervalContainerGroup group, String filename,
-            int loggingInterval, HashMap<String, LogChannel> logChannelList) {
+            int loggingInterval, Map<String, LogChannel> logChannelList) {
 
         StringBuilder sb = new StringBuilder();
         setHeaderTop(sb, loggingInterval, filename);
@@ -134,14 +139,17 @@ public class LogFileHeader {
         if (vType.equals(ValueType.BYTE_ARRAY) || vType.equals(ValueType.STRING)) {
             valueTypeLength = logChannel.getValueTypeLength();
         }
+        else {
+            valueTypeLength = LoggerUtils.getLengthOfValueType(vType);
+        }
 
         String description = logChannel.getDescription();
         if (description.equals("")) {
             description = "-";
         }
 
-        createRow(sb, String.format("%03d", colNumber), logChannel.getId(), "FALSE", "TRUE", unit, "other", valueType,
-                valueTypeLength, description);
+        createRow(sb, String.format("%03d", colNumber), logChannel.getId(), FALSE_STRING, TRUE_STRING, unit,
+                OTHER_STRING, valueType, valueTypeLength, description);
     }
 
     /**
@@ -170,7 +178,7 @@ public class LogFileHeader {
      */
     private static void setHeaderTop(StringBuilder sb, int loggingInterval, String filename) {
 
-        String timestep_sec = String.valueOf(loggingInterval / (double) 1000);
+        String timestepSeconds = String.valueOf(loggingInterval / (double) 1000);
         String seperator = Const.SEPARATOR;
 
         // write general header informations
@@ -178,21 +186,22 @@ public class LogFileHeader {
         appendStrings(sb, "#file: ", filename, Const.LINESEPARATOR_STRING);
         appendStrings(sb, "#file_info: ", Const.FILEINFO, Const.LINESEPARATOR_STRING);
         appendStrings(sb, "#timezone: ", getDiffLocalUTC(), Const.LINESEPARATOR_STRING);
-        appendStrings(sb, "#timestep_sec: ", timestep_sec, Const.LINESEPARATOR_STRING);
+        appendStrings(sb, "#timestep_sec: ", timestepSeconds, Const.LINESEPARATOR_STRING);
         appendStrings(sb, "#", "col_no", seperator, "col_name", seperator, "confidential", seperator, "measured",
                 seperator, "unit", seperator, "category", seperator, Const.COMMENT_NAME, Const.LINESEPARATOR_STRING);
-        createRow(sb, "001", "YYYYMMDD", "FALSE", "FALSE", "0", "time", "INTEGER", 8, "Date [human readable]");
-        createRow(sb, "002", "hhmmss", "FALSE", "FALSE", "0", "time", "SHORT", 6, "Time [human readable]");
-        createRow(sb, "003", "unixtimestamp", "FALSE", "FALSE", "s", "time", "DOUBLE", 14,
+        createRow(sb, "001", "YYYYMMDD", FALSE_STRING, FALSE_STRING, "0", "time", "INTEGER", 8,
+                "Date [human readable]");
+        createRow(sb, "002", "hhmmss", FALSE_STRING, FALSE_STRING, "0", "time", "SHORT", 6, "Time [human readable]");
+        createRow(sb, "003", "unixtimestamp", FALSE_STRING, FALSE_STRING, "s", "time", "DOUBLE", 14,
                 "lapsed seconds from 01-01-1970");
     }
 
     /**
      * Construct a header row with predefined separators and comment signs.
      * 
-     * @param col_no
+     * @param colNumber
      *            column number example: #001
-     * @param col_name
+     * @param colName
      *            column name example: YYYYMMDD
      * @param confidential
      *            false or true
@@ -209,18 +218,18 @@ public class LogFileHeader {
      * @param comment
      *            a comment
      */
-    private static void createRow(StringBuilder sb, String col_no, String col_name, String confidential,
+    private static void createRow(StringBuilder sb, String colNumber, String colName, String confidential,
             String measured, String unit, String category, String valueType, int valueTypeLength, String comment) {
 
         String seperator = Const.SEPARATOR;
-        String com_sign = Const.COMMENT_SIGN;
+        String commentSign = Const.COMMENT_SIGN;
         String vtEndSign = Const.VALUETYPE_ENDSIGN;
         String vtSizeSep = Const.VALUETYPE_SIZE_SEPARATOR;
         String valueTypeLengthString = "";
         if (valueTypeLength != 0) {
             valueTypeLengthString += valueTypeLength;
         }
-        appendStrings(sb, com_sign, col_no, seperator, col_name, seperator, confidential, seperator, measured,
+        appendStrings(sb, commentSign, colNumber, seperator, colName, seperator, confidential, seperator, measured,
                 seperator, unit, seperator, category, seperator, valueType, vtSizeSep, valueTypeLengthString, vtEndSign,
                 comment, Const.LINESEPARATOR_STRING);
     }

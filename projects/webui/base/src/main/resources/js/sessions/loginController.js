@@ -16,6 +16,7 @@
 			$scope.login = function() {				
 				AuthService.login($scope.user).then(function(response){
 					AuthService.setCurrentUser({user: $scope.user.user});
+					AuthService.setCurrentPwd({pwd: $scope.user.pwd}); // TODO: Don't like this
 					$state.go('dashboard');
 				}, function(error) {
 					$alert({content: $scope.loginCredentialsErrorErrorText, type: 'warning'});

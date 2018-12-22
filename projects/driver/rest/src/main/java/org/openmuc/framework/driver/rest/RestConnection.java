@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,6 +44,7 @@ import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.ByteValue;
 import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.FloatValue;
 import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
@@ -52,12 +53,15 @@ import org.openmuc.framework.data.ShortValue;
 import org.openmuc.framework.data.StringValue;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.driver.rest.helper.JsonWrapper;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ChannelValueContainer;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.lib.json.Const;
 
 public class RestConnection implements Connection {
 
@@ -69,19 +73,29 @@ public class RestConnection implements Connection {
     private boolean isHTTPS;
     private String authString;
 
-    // private final static Logger logger = LoggerFactory.getLogger(RestConnection.class);
+    private DataAccessService dataAccessService;
+    private String connectionAddress;
 
-    RestConnection(String deviceAddress, String credentials, int timeout) throws ConnectionException {
+    private static boolean checkTimestamp = false;
 
+    // private static final Logger logger = LoggerFactory.getLogger(RestConnection.class);
+
+    RestConnection(String deviceAddress, String credentials, int timeout, boolean checkTimestamp,
+            DataAccessService dataAccessService) throws ConnectionException {
+
+        RestConnection.checkTimestamp = checkTimestamp;
+        this.dataAccessService = dataAccessService;
         this.timeout = timeout;
         wrapper = new JsonWrapper();
         authString = new String(Base64.encodeBase64(credentials.getBytes()));
 
         if (!deviceAddress.endsWith("/")) {
             this.deviceAddress = deviceAddress + "/channels/";
+            this.connectionAddress = deviceAddress + "/connect/";
         }
         else {
             this.deviceAddress = deviceAddress + "channels/";
+            this.connectionAddress = deviceAddress + "connect/";
         }
 
         if (deviceAddress.startsWith("https://")) {
@@ -112,18 +126,19 @@ public class RestConnection implements Connection {
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             } catch (KeyManagementException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                throw new ConnectionException(e1.getMessage());
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+                throw new ConnectionException(e.getMessage());
             }
 
             // Create all-trusting host name verifier
             HostnameVerifier allHostsValid = new HostnameVerifier() {
+
                 @Override
                 public boolean verify(String hostname, SSLSession session) {
                     return true;
                 }
+
             };
 
             HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
@@ -137,10 +152,26 @@ public class RestConnection implements Connection {
         try {
             newRecord = wrapper.toRecord(get(channelAddress), valueType);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ConnectionException(e.getMessage());
         }
         return newRecord;
+    }
+
+    private long readChannelTimestamp(String channelAddress) throws ConnectionException {
+
+        long timestamp = -1;
+        try {
+            if (channelAddress.endsWith("/")) {
+                channelAddress += Const.TIMESTAMP;
+            }
+            else {
+                channelAddress += '/' + Const.TIMESTAMP;
+            }
+            timestamp = wrapper.toTimestamp(get(channelAddress));
+        } catch (IOException e) {
+            throw new ConnectionException(e.getMessage());
+        }
+        return timestamp;
     }
 
     private List<ChannelScanInfo> readChannels() throws ConnectionException {
@@ -149,29 +180,27 @@ public class RestConnection implements Connection {
         try {
             remoteChannels = wrapper.toChannelList(get(""));
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ConnectionException(e.getMessage());
         }
         return remoteChannels;
     }
 
-    private void writeChannel(String channelAddress, Value value, ValueType valueType) throws ConnectionException {
+    private Flag writeChannel(String channelAddress, Value value, ValueType valueType) throws ConnectionException {
 
-        Record remoteRecord = new Record(value, System.currentTimeMillis());
-        put(channelAddress, wrapper.fromRecord(remoteRecord, valueType));
+        Record remoteRecord = new Record(value, System.currentTimeMillis(), Flag.VALID);
+        return put(channelAddress, wrapper.fromRecord(remoteRecord, valueType));
     }
 
     void connect() throws ConnectionException {
 
         try {
-            url = new URL(deviceAddress);
+            url = new URL(connectionAddress);
             con = url.openConnection();
             con.setRequestProperty("Connection", "Keep-Alive");
             con.setConnectTimeout(timeout);
             con.setReadTimeout(timeout);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new ConnectionException("malformed URL: " + deviceAddress);
+            throw new ConnectionException("malformed URL: " + connectionAddress);
         } catch (IOException e) {
             throw new ConnectionException(e.getMessage());
         }
@@ -195,10 +224,8 @@ public class RestConnection implements Connection {
             con.setReadTimeout(timeout);
             stream = con.getInputStream();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
             throw new ConnectionException("malformed URL: " + deviceAddress);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ConnectionException(e.getMessage());
         }
 
@@ -206,7 +233,7 @@ public class RestConnection implements Connection {
         return stream;
     }
 
-    private void put(String suffix, String output) throws ConnectionException {
+    private Flag put(String suffix, String output) throws ConnectionException {
 
         try {
             url = new URL(deviceAddress + suffix);
@@ -228,17 +255,15 @@ public class RestConnection implements Connection {
             out.write(output);
             out.close();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
             throw new ConnectionException("malformed URL: " + deviceAddress);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ConnectionException(e.getMessage());
         }
 
-        checkResponseCode(con);
+        return checkResponseCode(con);
     }
 
-    private void checkResponseCode(URLConnection con) throws ConnectionException {
+    private Flag checkResponseCode(URLConnection con) throws ConnectionException {
 
         int respCode;
         try {
@@ -256,8 +281,8 @@ public class RestConnection implements Connection {
                             "HTTP " + respCode + ":" + ((HttpURLConnection) con).getResponseMessage());
                 }
             }
+            return Flag.VALID;
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ConnectionException(e.getMessage());
         }
     }
@@ -274,15 +299,29 @@ public class RestConnection implements Connection {
     }
 
     @Override
-    public Object read(List<ChannelRecordContainer> container, Object obj, String arg3)
+    public Object read(List<ChannelRecordContainer> containerList, Object obj, String arg3)
             throws UnsupportedOperationException, ConnectionException {
 
-        for (ChannelRecordContainer cont : container) {
+        for (ChannelRecordContainer container : containerList) {
+            Record record;
+            if (checkTimestamp) {
+                String channelId = container.getChannel().getId();
+                Channel channel = dataAccessService.getChannel(channelId);
+                record = channel.getLatestRecord();
 
-            Record record = readChannel(cont.getChannelAddress(), cont.getChannel().getValueType());
-
+                if (record.getTimestamp() == null || record.getFlag() != Flag.VALID
+                        || record.getTimestamp() < readChannelTimestamp(container.getChannelAddress())) {
+                    record = readChannel(container.getChannelAddress(), container.getChannel().getValueType());
+                }
+            }
+            else {
+                record = readChannel(container.getChannelAddress(), container.getChannel().getValueType());
+            }
             if (record != null) {
-                cont.setRecord(record);
+                container.setRecord(record);
+            }
+            else {
+                container.setRecord(new Record(Flag.DRIVER_ERROR_READ_FAILURE));
             }
         }
         return null;
@@ -305,38 +344,41 @@ public class RestConnection implements Connection {
     @Override
     public Object write(List<ChannelValueContainer> container, Object containerListHandle)
             throws UnsupportedOperationException, ConnectionException {
+        Flag flag = Flag.CONNECTION_EXCEPTION;
 
         for (ChannelValueContainer cont : container) {
             Value value = cont.getValue();
 
             if (value instanceof DoubleValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.DOUBLE);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.DOUBLE);
             }
             else if (value instanceof StringValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.STRING);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.STRING);
             }
             else if (value instanceof ByteArrayValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BYTE_ARRAY);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BYTE_ARRAY);
             }
             else if (value instanceof LongValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.LONG);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.LONG);
             }
             else if (value instanceof BooleanValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BOOLEAN);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BOOLEAN);
             }
             else if (value instanceof FloatValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.FLOAT);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.FLOAT);
             }
             else if (value instanceof IntValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.INTEGER);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.INTEGER);
             }
             else if (value instanceof ShortValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.SHORT);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.SHORT);
             }
             else if (value instanceof ByteValue) {
-                writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BYTE);
+                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BYTE);
             }
+            cont.setFlag(flag);
         }
         return null;
     }
+
 }

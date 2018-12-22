@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,7 +20,6 @@
  */
 package org.openmuc.framework.driver.modbus.rtu;
 
-import java.util.Enumeration;
 import java.util.List;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
@@ -29,6 +28,7 @@ import org.openmuc.framework.config.ScanException;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
+import org.openmuc.framework.driver.modbus.EDatatype;
 import org.openmuc.framework.driver.modbus.ModbusChannel;
 import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
 import org.openmuc.framework.driver.modbus.ModbusConnection;
@@ -39,13 +39,14 @@ import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gnu.io.CommPortIdentifier;
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.ModbusIOException;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.net.SerialConnection;
+import com.ghgande.j2mod.modbus.util.SerialParameters;
+
 import gnu.io.SerialPort;
-import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusException;
-import net.wimpi.modbus.io.ModbusSerialTransaction;
-import net.wimpi.modbus.net.SerialConnection;
-import net.wimpi.modbus.util.SerialParameters;
 
 /**
  * 
@@ -54,7 +55,7 @@ import net.wimpi.modbus.util.SerialParameters;
  */
 public class ModbusRTUConnection extends ModbusConnection {
 
-    private final static Logger logger = LoggerFactory.getLogger(ModbusRTUConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModbusRTUConnection.class);
 
     private static final int ENCODING = 1;
     private static final int BAUDRATE = 2;
@@ -73,31 +74,36 @@ public class ModbusRTUConnection extends ModbusConnection {
     private final SerialConnection connection;
     private ModbusSerialTransaction transaction;
 
-    public ModbusRTUConnection(String deviceAddress, String[] settings, int timeout)
+    public ModbusRTUConnection(String deviceAddress, String[] settings, int timoutMs)
             throws ModbusConfigurationException {
 
         super();
 
-        SerialParameters params = setParameters(deviceAddress, settings, timeout);
+        SerialParameters params = setParameters(deviceAddress, settings);
         connection = new SerialConnection(params);
 
         try {
             connect();
+            // connection.setReceiveTimeout(timoutMs);
             transaction = new ModbusSerialTransaction(connection);
             transaction.setSerialConnection(connection);
             setTransaction(transaction);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to connect to device " + deviceAddress, e);
             throw new ModbusConfigurationException("Wrong Modbus RTU configuration. Check configuration file");
         }
         logger.info("Modbus Device: " + deviceAddress + " connected");
     }
 
     @Override
-    public void connect() throws Exception {
+    public void connect() throws ConnectionException {
         if (!connection.isOpen()) {
-            connection.open();
+            try {
+                connection.open();
+            } catch (Exception e) {
+                throw new ConnectionException(e);
+            }
         }
     }
 
@@ -108,19 +114,13 @@ public class ModbusRTUConnection extends ModbusConnection {
         }
     }
 
-    public void setReceiveTimeout(int timeout) {
-        connection.setReceiveTimeout(timeout);
-    }
-
-    private SerialParameters setParameters(String address, String[] settings, int timeout)
-            throws ModbusConfigurationException {
+    private SerialParameters setParameters(String address, String[] settings) throws ModbusConfigurationException {
 
         SerialParameters params = new SerialParameters();
 
-        checkIfAddressIsAvailbale(address);
         params.setPortName(address);
 
-        if (settings.length == 9) {
+        try {
             setEncoding(params, settings[ENCODING]);
             setBaudrate(params, settings[BAUDRATE]);
             setDatabits(params, settings[DATABITS]);
@@ -129,51 +129,12 @@ public class ModbusRTUConnection extends ModbusConnection {
             setEcho(params, settings[ECHO]);
             setFlowControlIn(params, settings[FLOWCONTROL_IN]);
             setFlowControlOut(params, settings[FLOWCONTEOL_OUT]);
-        }
-        else {
-            throw new ModbusConfigurationException("Settings parameter missing. Specify all settings parameter");
+        } catch (Exception e) {
+            logger.error("Unable to set all parameters for RTU connection", e);
+            throw new ModbusConfigurationException("Specify all settings parameter");
         }
 
         return params;
-    }
-
-    /**
-     * Checks if the gnu.io.rxtx is able to find the specified address e.g. /dev/ttyUSB0
-     * 
-     * @param address
-     * @throws ModbusConfigurationException
-     */
-    private void checkIfAddressIsAvailbale(String address) throws ModbusConfigurationException {
-        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
-
-        boolean result = false;
-
-        while (ports.hasMoreElements()) {
-            CommPortIdentifier cpi = (CommPortIdentifier) ports.nextElement();
-            if (cpi.getName().equalsIgnoreCase(address)) {
-                result = true;
-                break;
-            }
-        }
-
-        if (!result) {
-            String availablePorts = getAvailablePorts();
-            throw new ModbusConfigurationException("gnu.io.rxtx is unable to detect address: " + address
-                    + ". Available addresses are: '" + availablePorts + "'");
-        }
-    }
-
-    private String getAvailablePorts() {
-
-        String availablePorts = "";
-
-        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
-        while (ports.hasMoreElements()) {
-            CommPortIdentifier cpi = (CommPortIdentifier) ports.nextElement();
-            availablePorts += cpi.getName() + "; ";
-        }
-
-        return availablePorts;
     }
 
     private void setFlowControlIn(SerialParameters params, String flowControlIn) throws ModbusConfigurationException {
@@ -294,55 +255,85 @@ public class ModbusRTUConnection extends ModbusConnection {
     public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
             throws UnsupportedOperationException, ConnectionException {
 
-        for (ChannelRecordContainer container : containers) {
-            long receiveTime = System.currentTimeMillis();
-            ModbusChannel channel = getModbusChannel(container.getChannelAddress(), EAccess.READ);
-            Value value;
-            try {
-                value = readChannel(channel);
-                container.setRecord(new Record(value, receiveTime));
-            } catch (ModbusException e) {
-                e.printStackTrace();
-                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
-            } catch (Exception e) {
-                // catch all possible exceptions and provide info about the channel
-                logger.error("Unable to read channel: " + container.getChannelAddress(), e);
-                container.setRecord(new Record(Flag.UNKNOWN_ERROR));
+        if (samplingGroup.isEmpty()) {
+            for (ChannelRecordContainer container : containers) {
+
+                long receiveTime = System.currentTimeMillis();
+                ModbusChannel channel = getModbusChannel(container.getChannelAddress(), EAccess.READ);
+                Value value;
+
+                try {
+                    value = readChannel(channel);
+
+                    if (logger.isTraceEnabled()) {
+                        printResponseValue(channel, value);
+                    }
+
+                    container.setRecord(new Record(value, receiveTime));
+
+                } catch (ModbusIOException e) {
+                    logger.error("ModbusIOException while reading channel:" + channel.getChannelAddress(), e);
+                    disconnect();
+                    throw new ConnectionException("ModbusIOException");
+
+                } catch (ModbusException e) {
+                    logger.error("ModbusException while reading channel: " + channel.getChannelAddress(), e);
+                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
+
+                } catch (Exception e) {
+                    // catch all possible exceptions and provide info about the channel
+                    logger.error("Exception while reading channel: " + channel.getChannelAddress(), e);
+                    container.setRecord(new Record(Flag.UNKNOWN_ERROR));
+                }
             }
         }
-
-        // logger.debug("### readChannels duration in ms = " + ((new Date().getTime()) - startTime));
+        // reads whole samplingGroup at once
+        else {
+            readChannelGroupHighLevel(containers, containerListHandle, samplingGroup);
+        }
 
         return null;
+    }
+
+    private void printResponseValue(ModbusChannel channel, Value value) {
+        if (channel.getDatatype().equals(EDatatype.BYTEARRAY)) {
+            final StringBuilder sb = new StringBuilder();
+            for (byte b : value.asByteArray()) {
+                sb.append(String.format("%02x ", b));
+            }
+            logger.trace("Value of response: " + sb.toString());
+        }
+        else {
+            logger.trace("Value of response: " + value.toString());
+        }
     }
 
     @Override
     public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
             throws UnsupportedOperationException, ConnectionException {
+
         for (ChannelValueContainer container : containers) {
 
-            ModbusChannel modbusChannel = getModbusChannel(container.getChannelAddress(), EAccess.WRITE);
-            if (modbusChannel != null) {
-                try {
-                    writeChannel(modbusChannel, container.getValue());
-                    container.setFlag(Flag.VALID);
-                } catch (ModbusException modbusException) {
-                    container.setFlag(Flag.UNKNOWN_ERROR);
-                    modbusException.printStackTrace();
-                    throw new ConnectionException(
-                            "Unable to write data on channel address: " + container.getChannelAddress());
-                } catch (Exception e) {
-                    container.setFlag(Flag.UNKNOWN_ERROR);
-                    e.printStackTrace();
-                    logger.error("Unable to write data on channel address: " + container.getChannelAddress());
-                }
-            }
-            else {
-                // TODO
+            ModbusChannel channel = getModbusChannel(container.getChannelAddress(), EAccess.WRITE);
+
+            try {
+                writeChannel(channel, container.getValue());
+                container.setFlag(Flag.VALID);
+
+            } catch (ModbusIOException e) {
+                logger.error("ModbusIOException while writing channel:" + channel.getChannelAddress(), e);
+                disconnect();
+                throw new ConnectionException("Try to solve issue with reconnect.");
+
+            } catch (ModbusException e) {
+                logger.error("ModbusException while writing channel: " + channel.getChannelAddress(), e);
+                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
+
+            } catch (Exception e) {
+                logger.error("Exception while writing channel: " + channel.getChannelAddress(), e);
                 container.setFlag(Flag.UNKNOWN_ERROR);
-                logger.error("Unable to write data on channel address: " + container.getChannelAddress()
-                        + "modbusChannel = null");
             }
+
         }
 
         return null;

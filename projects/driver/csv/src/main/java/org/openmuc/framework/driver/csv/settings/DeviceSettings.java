@@ -1,18 +1,18 @@
 package org.openmuc.framework.driver.csv.settings;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.driver.csv.ESampleMode;
+import org.openmuc.framework.driver.csv.ESamplingMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DeviceSettings extends GenericSetting {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceSettings.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeviceSettings.class);
 
     protected String samplingmode = "";
     protected String rewind = "false";
 
-    private ESampleMode samplingModeParam;
+    private ESamplingMode samplingModeParam;
     private boolean rewindParam = false;
 
     public static enum Option implements OptionI {
@@ -56,7 +56,7 @@ public class DeviceSettings extends GenericSetting {
         }
 
         try {
-            samplingModeParam = ESampleMode.valueOf(samplingmode.toUpperCase());
+            samplingModeParam = ESamplingMode.valueOf(samplingmode.toUpperCase());
         } catch (Exception e) {
             throw new ArgumentSyntaxException("wrong sampling mode");
         }
@@ -69,7 +69,7 @@ public class DeviceSettings extends GenericSetting {
 
     }
 
-    public ESampleMode samplingMode() {
+    public ESamplingMode samplingMode() {
         return samplingModeParam;
     }
 

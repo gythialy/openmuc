@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,8 +21,6 @@
 package org.openmuc.framework.driver.modbus.tcp;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
@@ -33,7 +31,6 @@ import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.driver.modbus.ModbusChannel;
 import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
-import org.openmuc.framework.driver.modbus.ModbusChannelGroup;
 import org.openmuc.framework.driver.modbus.ModbusConnection;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ChannelValueContainer;
@@ -42,58 +39,69 @@ import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.wimpi.modbus.ModbusException;
-import net.wimpi.modbus.ModbusIOException;
-import net.wimpi.modbus.io.ModbusTCPTransaction;
-import net.wimpi.modbus.net.TCPMasterConnection;
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.ModbusIOException;
+import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
+import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 /**
- * TODO
+ * Modbus connection using TCP for data transfer
  */
 public class ModbusTCPConnection extends ModbusConnection {
 
-    private final static Logger logger = LoggerFactory.getLogger(ModbusTCPConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModbusTCPConnection.class);
 
     private TCPMasterConnection connection;
     private ModbusTCPTransaction transaction;
+    private final int timeoutMs;
 
-    public ModbusTCPConnection(String deviceAddress, int timeoutInSeconds) {
+    public ModbusTCPConnection(String deviceAddress, int timeoutMs) throws ConnectionException {
 
         super();
+        this.timeoutMs = timeoutMs;
+
         ModbusTCPDeviceAddress address = new ModbusTCPDeviceAddress(deviceAddress);
         try {
             connection = new TCPMasterConnection(InetAddress.getByName(address.getIp()));
             connection.setPort(address.getPort());
-            // connection.setTimeout(timeoutInSeconds);
             connect();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            logger.error("Unable to connect to device " + deviceAddress, e);
+            throw new ConnectionException();
         }
         logger.info("Modbus Device: " + deviceAddress + " connected");
     }
 
     @Override
-    public void connect() throws Exception {
+    public void connect() throws ConnectionException {
 
         if (connection != null && !connection.isConnected()) {
-            connection.connect();
+            try {
+                connection.connect();
+            } catch (Exception e) {
+                throw new ConnectionException(e);
+            }
+            connection.setTimeout(this.timeoutMs);
             transaction = new ModbusTCPTransaction(connection);
             setTransaction(transaction);
             if (!connection.isConnected()) {
-                throw new Exception("unable to connect");
+                throw new ConnectionException("unable to connect");
             }
         }
     }
 
     @Override
     public void disconnect() {
-        logger.info("Disconnect Modbus TCP device");
-        if (connection != null && connection.isConnected()) {
-            connection.close();
-            transaction = null;
+        try {
+            logger.info("Disconnect Modbus TCP device");
+            if (connection != null && connection.isConnected()) {
+                connection.close();
+                transaction = null;
+            }
+        } catch (Exception e) {
+            logger.error("Unable to disconnect connection", e);
         }
+
     }
 
     @Override
@@ -103,99 +111,54 @@ public class ModbusTCPConnection extends ModbusConnection {
         // reads channels one by one
         if (samplingGroup.isEmpty()) {
             for (ChannelRecordContainer container : containers) {
+
+                // TODO consider retries in sampling timeout (e.g. one time 12000 ms or three times 4000 ms)
+                // FIXME quite inconvenient/complex to get the timeout from config, since the driver doesn't know the
+                // device id!
+
                 long receiveTime = System.currentTimeMillis();
                 ModbusChannel channel = getModbusChannel(container.getChannelAddress(), EAccess.READ);
                 Value value;
+
                 try {
                     value = readChannel(channel);
+
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Value of response: " + value.toString());
+                    }
+
                     container.setRecord(new Record(value, receiveTime));
+
                 } catch (ModbusIOException e) {
-                    logger.error("Unable to read channel: " + container.getChannelAddress(), e);
+                    logger.error("ModbusIOException while reading channel:" + channel.getChannelAddress()
+                            + " used timeout: " + timeoutMs + " ms", e);
                     disconnect();
-                    throw new ConnectionException("Try to reconnect to solve ModbusIOException");
+                    throw new ConnectionException("Try to solve issue with reconnect.");
+
                 } catch (ModbusException e) {
-                    logger.error("Unable to read channel: " + container.getChannelAddress(), e);
+                    logger.error("ModbusException while reading channel: " + channel.getChannelAddress(), e);
                     container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
                 } catch (Exception e) {
                     // catch all possible exceptions and provide info about the channel
-                    logger.error("Unable to read channel: " + container.getChannelAddress(), e);
+                    logger.error("Exception while reading channel: " + channel.getChannelAddress(), e);
                     container.setRecord(new Record(Flag.UNKNOWN_ERROR));
                 }
+                if (!connection.isConnected()) {
+                    throw new ConnectionException("Lost connection.");
+                }
+
             }
         }
         // reads whole samplingGroup at once
         else {
-            // TODO test channel group
-            logger.warn("Reading samplingGroup is not tested yet!");
             readChannelGroupHighLevel(containers, containerListHandle, samplingGroup);
+            if (!connection.isConnected()) {
+                throw new ConnectionException("Lost connection.");
+            }
         }
 
         return null;
     }
-
-    private Object readChannelGroupHighLevel(List<ChannelRecordContainer> containers, Object containerListHandle,
-            String samplingGroup) {
-
-        // NOTE: containerListHandle is null if something changed in configuration!!!
-
-        ModbusChannelGroup channelGroup = null;
-
-        // use existing channelGroup
-        if (containerListHandle != null) {
-            if (containerListHandle instanceof ModbusChannelGroup) {
-                channelGroup = (ModbusChannelGroup) containerListHandle;
-            }
-        }
-
-        // create new channelGroup
-        if (channelGroup == null) {
-            ArrayList<ModbusChannel> channelList = new ArrayList<>();
-            for (ChannelRecordContainer container : containers) {
-                channelList.add(getModbusChannel(container.getChannelAddress(), EAccess.READ));
-            }
-            channelGroup = new ModbusChannelGroup(samplingGroup, channelList);
-        }
-
-        // read all channels of the group
-        try {
-            readChannelGroup(channelGroup, containers);
-
-        } catch (ModbusException e) {
-            e.printStackTrace();
-
-            // set channel values and flag, otherwise the datamanager will throw a null pointer exception
-            // and the framework collapses.
-            setChannelsWithErrorFlag(containers);
-        }
-
-        // logger.debug("### readChannelGroup duration in ms = " + ((new Date().getTime()) - startTime));
-
-        return channelGroup;
-    }
-
-    // private ModbusChannel getModbusChannel(String channelAddress, EAccess access) {
-    //
-    // ModbusChannel modbusChannel = null;
-    //
-    // // check if the channel object already exists in the list
-    // if (modbusChannels.containsKey(channelAddress)) {
-    // modbusChannel = modbusChannels.get(channelAddress);
-    //
-    // // if the channel object exists the access flag might has to be updated
-    // // (this is case occurs when the channel is readable and writable)
-    // if (!modbusChannel.getAccessFlag().equals(access)) {
-    // modbusChannel.update(access);
-    // }
-    // }
-    // // create a new channel object
-    // else {
-    // modbusChannel = new ModbusChannel(channelAddress, access);
-    // modbusChannels.put(channelAddress, modbusChannel);
-    // }
-    //
-    // return modbusChannel;
-    //
-    // }
 
     @Override
     public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
@@ -203,27 +166,24 @@ public class ModbusTCPConnection extends ModbusConnection {
 
         for (ChannelValueContainer container : containers) {
 
-            ModbusChannel modbusChannel = getModbusChannel(container.getChannelAddress(), EAccess.WRITE);
-            if (modbusChannel != null) {
-                try {
-                    writeChannel(modbusChannel, container.getValue());
-                    container.setFlag(Flag.VALID);
-                } catch (ModbusException modbusException) {
-                    container.setFlag(Flag.UNKNOWN_ERROR);
-                    modbusException.printStackTrace();
-                    throw new ConnectionException(
-                            "Unable to write data on channel address: " + container.getChannelAddress());
-                } catch (Exception e) {
-                    container.setFlag(Flag.UNKNOWN_ERROR);
-                    e.printStackTrace();
-                    logger.error("Unable to write data on channel address: " + container.getChannelAddress());
-                }
-            }
-            else {
-                // TODO
+            ModbusChannel channel = getModbusChannel(container.getChannelAddress(), EAccess.WRITE);
+
+            try {
+                writeChannel(channel, container.getValue());
+                container.setFlag(Flag.VALID);
+
+            } catch (ModbusIOException e) {
+                logger.error("ModbusIOException while writing channel:" + channel.getChannelAddress(), e);
+                disconnect();
+                throw new ConnectionException("Try to solve issue with reconnect.");
+
+            } catch (ModbusException e) {
+                logger.error("ModbusException while writing channel: " + channel.getChannelAddress(), e);
+                container.setFlag(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
+
+            } catch (Exception e) {
+                logger.error("Exception while writing channel: " + channel.getChannelAddress(), e);
                 container.setFlag(Flag.UNKNOWN_ERROR);
-                logger.error("Unable to write data on channel address: " + container.getChannelAddress()
-                        + "modbusChannel = null");
             }
         }
 

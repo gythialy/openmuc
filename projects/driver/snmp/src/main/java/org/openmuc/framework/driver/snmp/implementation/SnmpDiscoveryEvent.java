@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,11 +25,6 @@ import java.util.EventObject;
 import org.openmuc.framework.driver.snmp.implementation.SnmpDevice.SNMPVersion;
 import org.snmp4j.smi.Address;
 
-/**
- * 
- * @author Mehran Shakeri
- * 
- */
 public class SnmpDiscoveryEvent extends EventObject {
 
     /**

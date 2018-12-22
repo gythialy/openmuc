@@ -1,3 +1,7 @@
+
+def projectName = "OpenMUC Driver - Aggregator"
+def projectDescription = "Aggregator driver for the OpenMUC framework."
+
 dependencies {
   compile project(':openmuc-core-spi')
   compile project(':openmuc-core-api')
@@ -5,7 +9,18 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Driver - Aggregator"
+    name = projectName
     instruction 'Export-Package', ''
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

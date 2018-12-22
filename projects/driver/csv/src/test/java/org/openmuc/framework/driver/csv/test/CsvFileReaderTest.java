@@ -1,9 +1,9 @@
 package org.openmuc.framework.driver.csv.test;
 
-import java.io.IOException;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.openmuc.framework.driver.csv.CsvFileReader;
+import org.openmuc.framework.driver.spi.ConnectionException;
 
 public class CsvFileReaderTest {
 
@@ -16,8 +16,10 @@ public class CsvFileReaderTest {
 
         try {
             CsvFileReader.readCsvFile(fileName);
-        } catch (IOException e) {
+            Assert.assertTrue(true);
+        } catch (ConnectionException e) {
             e.printStackTrace();
+            Assert.assertTrue(false);
         }
 
     }

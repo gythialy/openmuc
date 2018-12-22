@@ -4,70 +4,72 @@
 	
 	var ChannelsAccessController = function($scope, $location, $alert, $translate, $interval, DevicesService, ChannelsService, ChannelDataService) {
 		
-		$translate('CHANNEL_VALUE_UPDATED_SUCCESSFULLY').then(function(text) {
-			$scope.channelWriteValueOKText = text;
-		});
-		
-		$translate('CHANNEL_VALUE_UPDATED_ERROR').then(function(text) {
-			$scope.channelWriteValueErrorText = text;
-		});
+		$translate('CHANNEL_VALUE_UPDATED_SUCCESSFULLY').then(text => channelWriteValueOKText = text);
+		$translate('CHANNEL_VALUE_UPDATED_ERROR').then(text => channelWriteValueErrorText = text);
+		$translate('CHANNEL_NO_VALUE_TO_WRITE').then(text => channelNoValueToWrite = text);
 		
 		$scope.checkedDevices = [];
-		
-		$scope.interval = "";
-		
-		DevicesService.getAllDevicesIds().then(function(devices){
-			
-			$.each(devices, function(index, deviceId) {
-				if ($location.search()[deviceId] == "on") {
-					$scope.checkedDevices.push({id: deviceId});
-				}
-			});
 
-			$.each($scope.checkedDevices, function(index, device) {
+		$scope.interval = '';
+		
+        function retrieveDeviceFor(deviceId) {
+            var device = {id: deviceId, channels: {}};
+            ChannelsService.getChannels(device).then((channels) => {
+                channels.forEach(channel => {
+                    channel.newValue = '';
+                    device.channels[channel.id] = channel;
+                });
+            });
+            return device;
+        }
+        
+		DevicesService.getAllDevicesIds().then((devices) => {
+            devices.forEach((deviceId) => {
+				if ($location.search()[deviceId]) {
+                    var device = retrieveDeviceFor(deviceId);
+                    $scope.checkedDevices.push(device);
+                }
+            });
+            
+			$scope.interval = $interval(() => {
+                $scope.checkedDevices.forEach((device) => {
+                    DevicesService.getDeviceRecords(device).then((result) => {
+                        result.data.records.forEach(record => {
+                            var channel = device.channels[record.id];
+                            channel.records = record.record;
+                            if (channel.data.valueType === null) {
+                                channel.type = record.type;
+                            } else {
+                                channel.type = channel.data.valueType;
+                            }
+                        });
+                    });
+                });
 
-				ChannelsService.getChannels(device).then(function(channels){
-					device['channels'] = channels;
-					
-					// add new value for write form
-					$.each(device['channels'], function(j, channel) {
-						channel['newValue'] = "";
-					});
-				});
-			});
-									
-			$scope.interval = $interval(function(){
-				$.each($scope.checkedDevices, function(i, device) {
-					DevicesService.getDeviceRecords(device).then(function(response){
-						var records = response.data.records;
-						$.each(device['channels'], function(j, channel) {
-							channel['records'] = records[j].record; // TODO: check IDs to see if is it the right channel
-						});
-					});
-				});
-			}, 1000);	
+			}, 1000); // 1s
 		});
 
-		$scope.writeValue = function() {
-			$.each($scope.checkedDevices, function(i, device) {
-				$.each(device['channels'], function(j, channel) {
-					if (channel.newValue) {
-						ChannelsService.writeValue(channel.id, channel.data.valueType, channel.newValue).then(function(resp) {
-							$alert({content: $scope.channelWriteValueOKText, type: 'success'});
-						}, function(error) {
-							$alert({content: $scope.channelWriteValueErrorText, type: 'warning'});
-						});
-						
-						channel.newValue = "";						
-					}
-				});
-			});			
-		};
-		
-	    $scope.$on('$destroy', function () { 
-	    	$interval.cancel($scope.interval); 
-	    });
+        $scope.channelsMapAsArray = Object.values;
 
+        $scope.setNewValue = (channel, doWrite) => {
+            if (!channel.newValue || channel.newValue.trim().length === 0 ) {
+                $alert({content: channelNoValueToWrite, type: 'warning'});
+                return;
+            }
+
+            try {
+                ChannelsService.writeChannel(channel, doWrite).then(
+                    resp => $alert({content: channelWriteValueOKText, type: 'success'})
+                    , error => $alert({content: channelWriteValueErrorText, type: 'warning'})
+                );
+            } catch (e) {
+                $alert({content: channelWriteValueErrorText, type: 'warning'});
+            }
+
+            channel.newValue = '';
+        };
+
+        $scope.$on('$destroy', () => $interval.cancel($scope.interval));
 	};
 
 	ChannelsAccessController.$inject = injectParams;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 @Component
 public final class Iec61850Driver implements DriverService {
 
-    private final static Logger logger = LoggerFactory.getLogger(Iec61850Driver.class);
+    private static final Logger logger = LoggerFactory.getLogger(Iec61850Driver.class);
 
-    private final static DriverInfo info = new DriverInfo("iec61850", // id
+    private static final DriverInfo info = new DriverInfo("iec61850", // id
             // description
             "This driver can be used to access IEC 61850 MMS devices",
             // device address
@@ -106,6 +106,31 @@ public final class Iec61850Driver implements DriverService {
 
         String authentication = null;
 
+        authentication = parseSettings(settings, clientSap, authentication);
+
+        ClientAssociation clientAssociation;
+        try {
+            clientAssociation = clientSap.associate(address, remotePort, authentication, null);
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
+
+        ServerModel serverModel;
+        try {
+            serverModel = clientAssociation.retrieveModel();
+        } catch (ServiceError e) {
+            clientAssociation.close();
+            throw new ConnectionException("Service error retrieving server model" + e.getMessage(), e);
+        } catch (IOException e) {
+            clientAssociation.close();
+            throw new ConnectionException("IOException retrieving server model: " + e.getMessage(), e);
+        }
+
+        return new Iec61850Connection(clientAssociation, serverModel);
+    }
+
+    private String parseSettings(String settings, ClientSap clientSap, String authentication)
+            throws ArgumentSyntaxException {
         if (!settings.isEmpty()) {
             String[] args = settings.split("\\s+", 0);
             if (args.length > 6) {
@@ -155,26 +180,7 @@ public final class Iec61850Driver implements DriverService {
                 }
             }
         }
-
-        ClientAssociation clientAssociation;
-        try {
-            clientAssociation = clientSap.associate(address, remotePort, authentication, null);
-        } catch (IOException e) {
-            throw new ConnectionException(e);
-        }
-
-        ServerModel serverModel;
-        try {
-            serverModel = clientAssociation.retrieveModel();
-        } catch (ServiceError e) {
-            clientAssociation.close();
-            throw new ConnectionException("Service error retrieving server model" + e.getMessage(), e);
-        } catch (IOException e) {
-            clientAssociation.close();
-            throw new ConnectionException("IOException retrieving server model: " + e.getMessage(), e);
-        }
-
-        return new Iec61850Connection(clientAssociation, serverModel);
+        return authentication;
     }
 
 }

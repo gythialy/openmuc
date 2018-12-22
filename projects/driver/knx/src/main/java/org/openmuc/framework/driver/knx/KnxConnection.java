@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -95,7 +95,7 @@ public class KnxConnection implements Connection {
         if (settings != null) {
             String[] settingsArray = settings.split(";");
             for (String arg : settingsArray) {
-                int p = arg.indexOf("=");
+                int p = arg.indexOf('=');
                 if (p != -1) {
                     String key = arg.substring(0, p).toLowerCase().trim();
                     String value = arg.substring(p + 1).trim();
@@ -138,16 +138,15 @@ public class KnxConnection implements Connection {
             processCommunicator.addProcessListener(processListener);
             setResponseTimeout(timeout);
         } catch (KNXLinkClosedException e) {
-            e.printStackTrace();
             throw new ConnectionException(e);
         }
     }
 
     private boolean isSchemeOk(URI uri, String scheme) {
 
-        boolean isSchemeOK = uri.getScheme().toLowerCase().equals(scheme);
+        boolean isSchemeOK = uri.getScheme().equalsIgnoreCase(scheme);
         if (!isSchemeOK) {
-            logger.error("Scheme is not OK. Is " + uri.getScheme() + " should be " + scheme);
+            logger.error("Scheme is not OK. Is " + uri.getScheme() + " should be ", scheme);
         }
 
         return isSchemeOK;
@@ -166,14 +165,14 @@ public class KnxConnection implements Connection {
             InetSocketAddress localSocket = new InetSocketAddress(localIP, localPort);
             InetSocketAddress remoteSocket = new InetSocketAddress(remoteIP, remotePort);
             boolean useNAT = true;
-            KNXMediumSettings settings = new TPSettings(address, true);
+            KNXMediumSettings settings = new TPSettings();
+            settings.setDeviceAddress(address);
 
             knxNetworkLink = new KNXNetworkLinkIP(serviceMode, localSocket, remoteSocket, useNAT, settings);
         } catch (KNXException e) {
             logger.error("Connection failed: " + e.getMessage());
             throw new ConnectionException(e);
         } catch (InterruptedException e) {
-            e.printStackTrace();
             throw new ConnectionException(e);
         }
 
@@ -198,8 +197,9 @@ public class KnxConnection implements Connection {
     }
 
     private void ensureOpenConnection() throws ConnectionException {
-        if (!knxNetworkLink.isOpen())
+        if (!knxNetworkLink.isOpen()) {
             throw new ConnectionException();
+        }
     }
 
     private Record read(KnxGroupDP groupDP, int timeout) throws ConnectionException, KNXException {
@@ -212,8 +212,7 @@ public class KnxConnection implements Connection {
 
             record = new Record(groupDP.getKnxValue().getOpenMucValue(), System.currentTimeMillis());
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new ConnectionException("Read failed for group address " + groupDP.getMainAddress());
+            throw new ConnectionException("Read failed for group address " + groupDP.getMainAddress(), e);
         } catch (final KNXLinkClosedException e) {
             throw new ConnectionException(e);
         }
@@ -284,12 +283,12 @@ public class KnxConnection implements Connection {
                 container.setRecord(record);
             } catch (ArgumentSyntaxException e) {
                 container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_ADDRESS_SYNTAX_INVALID));
-                logger.error(e.getMessage() + "Channel-ID: " + container.getChannel().getId());
+                logger.error(e.getMessage(), "Channel-ID: " + container.getChannel().getId());
             } catch (KNXTimeoutException e1) {
                 logger.debug(e1.getMessage());
                 container.setRecord(new Record(null, System.currentTimeMillis(), Flag.TIMEOUT));
             } catch (KNXException e) {
-                e.printStackTrace();
+                logger.warn(e.getMessage());
             }
 
         }
@@ -308,11 +307,11 @@ public class KnxConnection implements Connection {
                     container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_ADDRESS_SYNTAX_INVALID));
                     logger.error(e.getMessage() + "Channel-ID: " + container.getChannel().getId());
                 } catch (KNXException e) {
-                    e.printStackTrace();
+                    logger.warn(e.getMessage());
                 }
             }
         }
-        logger.info("Start listening for " + containers.size() + " channels");
+        logger.info("Start listening for ", containers.size(), " channels");
         processListener.registerOpenMucListener(containers, listener);
     }
 
@@ -354,7 +353,7 @@ public class KnxConnection implements Connection {
         String[] address = channelAddress.split(":");
         KnxGroupDP dp = null;
 
-        if (address.length < 2 || address.length == 3 || address.length > 4) {
+        if (address.length != 2 && address.length != 4) {
             throw new ArgumentSyntaxException("Channel address has a wrong format. ");
         }
         else {

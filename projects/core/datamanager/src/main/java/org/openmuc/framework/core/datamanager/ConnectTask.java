@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public final class ConnectTask extends DeviceTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(ConnectTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConnectTask.class);
 
     public ConnectTask(DriverService driver, Device device, DataManager dataManager) {
         this.driver = driver;
@@ -41,14 +41,16 @@ public final class ConnectTask extends DeviceTask {
     public void run() {
 
         try {
-            device.connection = driver.connect(device.deviceConfig.deviceAddress, device.deviceConfig.settings);
+            device.connection = driver.connect(device.deviceConfig.getDeviceAddress(),
+                    device.deviceConfig.getSettings());
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Driver {} connected.", driver.getInfo().getId());
             }
         } catch (ConnectionException e) {
-            logger.warn("Unable to connect to device {} because {}. Will try again in {} ms.", device.deviceConfig.id,
-                    e.getMessage(), device.deviceConfig.connectRetryInterval);
+            logger.warn("Unable to connect to device {} because {}.\nWill try again in {} ms.",
+                    device.deviceConfig.getId(), e.getMessage(), device.deviceConfig.getConnectRetryInterval());
+            logger.debug("Trace", e);
             synchronized (dataManager.connectionFailures) {
                 dataManager.connectionFailures.add(device);
             }
@@ -56,8 +58,8 @@ public final class ConnectTask extends DeviceTask {
             return;
         } catch (ArgumentSyntaxException e) {
             logger.warn(
-                    "Unable to connect to device {} because the address or settings syntax is incorrect: {}. Will try again in {} ms.",
-                    device.deviceConfig.id, e.getMessage(), device.deviceConfig.connectRetryInterval);
+                    "Unable to connect to device {} because the address or settings syntax is incorrect: {}.\nWill try again in {} ms.",
+                    device.deviceConfig.getId(), e.getMessage(), device.deviceConfig.getConnectRetryInterval());
             synchronized (dataManager.connectionFailures) {
                 dataManager.connectionFailures.add(device);
             }

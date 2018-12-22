@@ -1,4 +1,7 @@
 
+def projectName = "OpenMUC Driver - SNMP"
+def projectDescription = "SNMP driver for the OpenMUC framework."
+
 configurations.create("embed")
 
 def snmp4jVersion = "2.3.4"
@@ -15,7 +18,7 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC SNMP Driver"
+    name = "OpenMUC Driver - SNMP"
     instruction "Bundle-ClassPath", ".,lib/snmp4j-" + snmp4jVersion + ".jar"
     instruction "Import-Package", "!org.snmp4j*,*" + jarDefaultImportPackageVersion
     instruction "Export-Package", ""
@@ -25,5 +28,16 @@ jar {
 jar {
   into("lib") {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }
