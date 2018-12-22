@@ -23,7 +23,7 @@ package org.openmuc.framework.lib.json.exceptions;
 public class RestConfigIsNotCorrectException extends Exception {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 8768653196104942337L;
 

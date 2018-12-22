@@ -21,9 +21,9 @@
 
 package org.openmuc.framework.config;
 
-import java.util.List;
-
 import org.openmuc.framework.data.ValueType;
+
+import java.util.List;
 
 public interface ChannelConfig {
 

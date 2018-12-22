@@ -1,43 +1,42 @@
-
 def projectName = "OpenMUC Driver - SNMP"
 def projectDescription = "SNMP driver for the OpenMUC framework."
 
 configurations.create("embed")
 
-def snmp4jVersion = "2.3.4"
+def snmp4jVersion = "2.6.2"
 
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-  compile project(":openmuc-core-spi")
-  compile files("dependencies/snmp4j/snmp4j-" + snmp4jVersion + ".jar")
-  embed files("dependencies/snmp4j/snmp4j-" + snmp4jVersion + ".jar")
+    compile project(":openmuc-core-spi")
+    compile group: 'org.snmp4j', name: 'snmp4j', version: snmp4jVersion
+    embed group: 'org.snmp4j', name: 'snmp4j', version: snmp4jVersion
 }
 
 jar {
-  manifest {
-    name = "OpenMUC Driver - SNMP"
-    instruction "Bundle-ClassPath", ".,lib/snmp4j-" + snmp4jVersion + ".jar"
-    instruction "Import-Package", "!org.snmp4j*,*" + jarDefaultImportPackageVersion
-    instruction "Export-Package", ""
-  }
+    manifest {
+        name = "OpenMUC Driver - SNMP"
+        instruction "Bundle-ClassPath", ".,lib/snmp4j-" + snmp4jVersion + ".jar"
+        instruction "Import-Package", "!org.snmp4j*,*" + jarDefaultImportPackageVersion
+        instruction "Export-Package", ""
+    }
 }
 
 jar {
-  into("lib") {
-    from configurations.embed
-  }
+    into("lib") {
+        from configurations.embed
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description projectDescription
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
     }
-  }
 }

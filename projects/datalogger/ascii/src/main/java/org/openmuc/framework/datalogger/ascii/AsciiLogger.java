@@ -20,20 +20,6 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
@@ -45,18 +31,159 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.util.*;
+import java.util.Map.Entry;
+
 @Component
 public class AsciiLogger implements DataLoggerService {
 
     private static final Logger logger = LoggerFactory.getLogger(AsciiLogger.class);
-
-    private final String loggerDirectory;
-    private final HashMap<String, LogChannel> logChannelList = new HashMap<>();
-    private static HashMap<String, Long> lastLoggedLineList = new HashMap<>();
-    private boolean isFillUpFiles = true;
-
     private static final String DIRECTORY = System
             .getProperty(AsciiLogger.class.getPackage().getName().toLowerCase() + ".directory");
+    private static HashMap<String, Long> lastLoggedLineList = new HashMap<>();
+    private final String loggerDirectory;
+    private final HashMap<String, LogChannel> logChannelList = new HashMap<>();
+    private boolean isFillUpFiles = true;
+
+    public AsciiLogger() {
+
+        if (DIRECTORY == null) {
+            loggerDirectory = Const.DEFAULT_DIRECTORY;
+        } else {
+            loggerDirectory = DIRECTORY.trim();
+        }
+        createDirectory(loggerDirectory);
+    }
+
+    public AsciiLogger(String loggerDirectory) {
+
+        this.loggerDirectory = loggerDirectory;
+        createDirectory(loggerDirectory);
+    }
+
+    public static Long getLastLoggedLineTimeStamp(int loggingInterval, int loggingOffset) {
+
+        return lastLoggedLineList.get(loggingInterval + Const.TIME_SEPERATOR_STRING + loggingOffset);
+    }
+
+    public static void setLastLoggedLineTimeStamp(String loggerInterval_loggerTimeOffset, long lastTimestamp) {
+
+        lastLoggedLineList.put(loggerInterval_loggerTimeOffset, lastTimestamp);
+    }
+
+    public static void setLastLoggedLineTimeStamp(int loggingInterval, int loggingOffset, long lastTimestamp) {
+
+        lastLoggedLineList.put(loggingInterval + Const.TIME_SEPERATOR_STRING + loggingOffset, lastTimestamp);
+    }
+
+    public static long fillUpFileWithErrorCode(String directoryPath, String loggerInterval_loggerTimeOffset,
+                                               Calendar calendar) {
+
+        String filename = LoggerUtils.buildFilename(loggerInterval_loggerTimeOffset, calendar);
+        File file = new File(directoryPath + filename);
+        RandomAccessFile raf = LoggerUtils.getRandomAccessFile(file, "r");
+        PrintWriter out = null;
+
+        String firstLogLine = "";
+        String lastLogLine = "";
+        long loggingInterval = 0;
+
+        if (loggerInterval_loggerTimeOffset.contains(Const.TIME_SEPERATOR_STRING)) {
+            loggingInterval = Long.parseLong(loggerInterval_loggerTimeOffset.split(Const.TIME_SEPERATOR_STRING)[0]);
+        } else {
+            loggingInterval = Long.parseLong(loggerInterval_loggerTimeOffset);
+        }
+
+        long lastLogLineTimeStamp = 0;
+
+        if (raf != null) {
+            try {
+                String line = raf.readLine();
+                if (line != null) {
+
+                    while (line.startsWith(Const.COMMENT_SIGN)) {
+                        // do nothing with this data, only for finding the begin of logging
+                        line = raf.readLine();
+                    }
+                    firstLogLine = raf.readLine();
+                }
+
+                // read last line backwards and read last line
+                byte[] readedByte = new byte[1];
+                long filePosition = file.length() - 2;
+                String charString;
+                while (lastLogLine.isEmpty() && filePosition > 0) {
+
+                    raf.seek(filePosition);
+                    int readedBytes = raf.read(readedByte);
+                    if (readedBytes == 1) {
+                        charString = new String(readedByte, Const.CHAR_SET);
+
+                        if (charString.equals(Const.LINESEPARATOR_STRING)) {
+                            lastLogLine = raf.readLine();
+                        } else {
+                            filePosition -= 1;
+                        }
+                    } else {
+                        filePosition = -1; // leave the while loop
+                    }
+                }
+                raf.close();
+
+                int firstLogLineLength = firstLogLine.length();
+
+                int lastLogLineLength = lastLogLine.length();
+
+                if (firstLogLineLength != lastLogLineLength) {
+                    /**
+                     * TODO: different size of logging lines, probably the last one is corrupted we have to fill it up
+                     * restOfLastLine = completeLastLine(firstLogLine, lastLogLine); raf.writeChars(restOfLastLine);
+                     */
+                    // File is corrupted rename to old
+                    LoggerUtils.renameFileToOld(directoryPath, loggerInterval_loggerTimeOffset, calendar);
+                    logger.error("File is coruppted, could not fill up, renamed it. " + file.getAbsolutePath());
+                    return 0l;
+                } else {
+
+                    String lastLogLineArray[] = lastLogLine.split(Const.SEPARATOR);
+
+                    StringBuilder errorValues = LoggerUtils.getErrorValues(lastLogLineArray);
+                    lastLogLineTimeStamp = (long) (Double.parseDouble(lastLogLineArray[2]) * 1000.);
+
+                    out = LoggerUtils.getPrintWriter(file, true);
+
+                    long numberOfFillUpLines = LoggerUtils.getNumberOfFillUpLines(lastLogLineTimeStamp,
+                            loggingInterval);
+
+                    while (numberOfFillUpLines > 0) {
+
+                        lastLogLineTimeStamp = LoggerUtils.fillUp(out, lastLogLineTimeStamp, loggingInterval,
+                                numberOfFillUpLines, errorValues);
+                        numberOfFillUpLines = LoggerUtils.getNumberOfFillUpLines(lastLogLineTimeStamp, loggingInterval);
+                    }
+                    out.close();
+                    AsciiLogger.setLastLoggedLineTimeStamp(loggerInterval_loggerTimeOffset, lastLogLineTimeStamp);
+                }
+            } catch (IOException e) {
+                logger.error("Could not read file " + file.getAbsolutePath(), e);
+                LoggerUtils.renameFileToOld(directoryPath, loggerInterval_loggerTimeOffset, calendar);
+            } finally {
+                try {
+                    raf.close();
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    logger.error("Could not close file " + file.getAbsolutePath());
+                }
+            }
+        }
+        return lastLogLineTimeStamp;
+    }
 
     protected void activate(ComponentContext context) {
 
@@ -67,23 +194,6 @@ public class AsciiLogger implements DataLoggerService {
     protected void deactivate(ComponentContext context) {
 
         logger.info("Deactivating Ascii Logger");
-    }
-
-    public AsciiLogger() {
-
-        if (DIRECTORY == null) {
-            loggerDirectory = Const.DEFAULT_DIRECTORY;
-        }
-        else {
-            loggerDirectory = DIRECTORY.trim();
-        }
-        createDirectory(loggerDirectory);
-    }
-
-    public AsciiLogger(String loggerDirectory) {
-
-        this.loggerDirectory = loggerDirectory;
-        createDirectory(loggerDirectory);
     }
 
     private void createDirectory(String loggerDirectory) {
@@ -135,8 +245,7 @@ public class AsciiLogger implements DataLoggerService {
                                 "Fill file " + LoggerUtils.buildFilename(key, calendar) + " up with error flag 32.");
                     }
                     fillUpFileWithErrorCode(loggerDirectory, key, calendar);
-                }
-                else {
+                } else {
                     // rename file in old file, because of configuration has changed
                     if (logger.isTraceEnabled()) {
                         logger.trace("Header not identical. Rename file " + LoggerUtils.buildFilename(key, calendar)
@@ -145,8 +254,7 @@ public class AsciiLogger implements DataLoggerService {
                     LoggerUtils.renameFileToOld(loggerDirectory, key, calendar);
                 }
             }
-        }
-        else {
+        } else {
             LoggerUtils.renameAllFilesToOld(loggerDirectory, calendar);
         }
 
@@ -168,8 +276,7 @@ public class AsciiLogger implements DataLoggerService {
                 logInterval = logChannelList.get(container.getChannelId()).getLoggingInterval();
                 logTimeOffset = logChannelList.get(container.getChannelId()).getLoggingTimeOffset();
                 logTimeArray = Arrays.asList(logInterval, logTimeOffset);
-            }
-            else {
+            } else {
                 // TODO there might be a change in the channel config file
             }
 
@@ -177,8 +284,7 @@ public class AsciiLogger implements DataLoggerService {
                 // add the container to an existing group
                 LogIntervalContainerGroup group = logIntervalGroups.get(logTimeArray);
                 group.add(container);
-            }
-            else {
+            } else {
                 // create a new group and add the container
                 LogIntervalContainerGroup group = new LogIntervalContainerGroup();
                 group.add(container);
@@ -216,8 +322,8 @@ public class AsciiLogger implements DataLoggerService {
             reader = new LogFileReader(loggerDirectory, logChannel);
             return reader.getValues(startTime, endTime).get(channelId);
         } // TODO: hier einfügen das nach Loggdateien gesucht werden sollen die vorhanden sind aber nicht geloggt
-          // werden,
-          // z.B für server only ohne Logging. Das suchen sollte nur beim ersten mal passieren (start).
+        // werden,
+        // z.B für server only ohne Logging. Das suchen sollte nur beim ersten mal passieren (start).
         else {
             throw new IOException("ChannelID (" + channelId + ") not available. It's not a logging Channel.");
         }
@@ -231,129 +337,5 @@ public class AsciiLogger implements DataLoggerService {
         if (fillUpProperty != null) {
             isFillUpFiles = Boolean.parseBoolean(fillUpProperty);
         }
-    }
-
-    public static Long getLastLoggedLineTimeStamp(int loggingInterval, int loggingOffset) {
-
-        return lastLoggedLineList.get(loggingInterval + Const.TIME_SEPERATOR_STRING + loggingOffset);
-    }
-
-    public static void setLastLoggedLineTimeStamp(String loggerInterval_loggerTimeOffset, long lastTimestamp) {
-
-        lastLoggedLineList.put(loggerInterval_loggerTimeOffset, lastTimestamp);
-    }
-
-    public static void setLastLoggedLineTimeStamp(int loggingInterval, int loggingOffset, long lastTimestamp) {
-
-        lastLoggedLineList.put(loggingInterval + Const.TIME_SEPERATOR_STRING + loggingOffset, lastTimestamp);
-    }
-
-    public static long fillUpFileWithErrorCode(String directoryPath, String loggerInterval_loggerTimeOffset,
-            Calendar calendar) {
-
-        String filename = LoggerUtils.buildFilename(loggerInterval_loggerTimeOffset, calendar);
-        File file = new File(directoryPath + filename);
-        RandomAccessFile raf = LoggerUtils.getRandomAccessFile(file, "r");
-        PrintWriter out = null;
-
-        String firstLogLine = "";
-        String lastLogLine = "";
-        long loggingInterval = 0;
-
-        if (loggerInterval_loggerTimeOffset.contains(Const.TIME_SEPERATOR_STRING)) {
-            loggingInterval = Long.parseLong(loggerInterval_loggerTimeOffset.split(Const.TIME_SEPERATOR_STRING)[0]);
-        }
-        else {
-            loggingInterval = Long.parseLong(loggerInterval_loggerTimeOffset);
-        }
-
-        long lastLogLineTimeStamp = 0;
-
-        if (raf != null) {
-            try {
-                String line = raf.readLine();
-                if (line != null) {
-
-                    while (line.startsWith(Const.COMMENT_SIGN)) {
-                        // do nothing with this data, only for finding the begin of logging
-                        line = raf.readLine();
-                    }
-                    firstLogLine = raf.readLine();
-                }
-
-                // read last line backwards and read last line
-                byte[] readedByte = new byte[1];
-                long filePosition = file.length() - 2;
-                String charString;
-                while (lastLogLine.isEmpty() && filePosition > 0) {
-
-                    raf.seek(filePosition);
-                    int readedBytes = raf.read(readedByte);
-                    if (readedBytes == 1) {
-                        charString = new String(readedByte, Const.CHAR_SET);
-
-                        if (charString.equals(Const.LINESEPARATOR_STRING)) {
-                            lastLogLine = raf.readLine();
-                        }
-                        else {
-                            filePosition -= 1;
-                        }
-                    }
-                    else {
-                        filePosition = -1; // leave the while loop
-                    }
-                }
-                raf.close();
-
-                int firstLogLineLength = firstLogLine.length();
-
-                int lastLogLineLength = lastLogLine.length();
-
-                if (firstLogLineLength != lastLogLineLength) {
-                    /**
-                     * TODO: different size of logging lines, probably the last one is corrupted we have to fill it up
-                     * restOfLastLine = completeLastLine(firstLogLine, lastLogLine); raf.writeChars(restOfLastLine);
-                     */
-                    // File is corrupted rename to old
-                    LoggerUtils.renameFileToOld(directoryPath, loggerInterval_loggerTimeOffset, calendar);
-                    logger.error("File is coruppted, could not fill up, renamed it. " + file.getAbsolutePath());
-                    return 0l;
-                }
-                else {
-
-                    String lastLogLineArray[] = lastLogLine.split(Const.SEPARATOR);
-
-                    StringBuilder errorValues = LoggerUtils.getErrorValues(lastLogLineArray);
-                    lastLogLineTimeStamp = (long) (Double.parseDouble(lastLogLineArray[2]) * 1000.);
-
-                    out = LoggerUtils.getPrintWriter(file, true);
-
-                    long numberOfFillUpLines = LoggerUtils.getNumberOfFillUpLines(lastLogLineTimeStamp,
-                            loggingInterval);
-
-                    while (numberOfFillUpLines > 0) {
-
-                        lastLogLineTimeStamp = LoggerUtils.fillUp(out, lastLogLineTimeStamp, loggingInterval,
-                                numberOfFillUpLines, errorValues);
-                        numberOfFillUpLines = LoggerUtils.getNumberOfFillUpLines(lastLogLineTimeStamp, loggingInterval);
-                    }
-                    out.close();
-                    AsciiLogger.setLastLoggedLineTimeStamp(loggerInterval_loggerTimeOffset, lastLogLineTimeStamp);
-                }
-            } catch (IOException e) {
-                logger.error("Could not read file " + file.getAbsolutePath(), e);
-                LoggerUtils.renameFileToOld(directoryPath, loggerInterval_loggerTimeOffset, calendar);
-            } finally {
-                try {
-                    raf.close();
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    logger.error("Could not close file " + file.getAbsolutePath());
-                }
-            }
-        }
-        return lastLogLineTimeStamp;
     }
 }

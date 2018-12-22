@@ -20,11 +20,6 @@
  */
 package org.openmuc.framework.driver.knx;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.knx.value.KnxValue;
@@ -32,19 +27,22 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.DetachEvent;
 import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.process.ProcessEvent;
 import tuwien.auto.calimero.process.ProcessListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 public class KnxProcessListener implements ProcessListener {
 
     private static Logger logger = LoggerFactory.getLogger(KnxProcessListener.class);
-
+    private final Map<GroupAddress, byte[]> cachedValues;
     private List<ChannelRecordContainer> containers;
     private RecordsReceivedListener listener;
-    private final Map<GroupAddress, byte[]> cachedValues;
 
     public KnxProcessListener() {
         cachedValues = new LinkedHashMap<>();
@@ -53,8 +51,15 @@ public class KnxProcessListener implements ProcessListener {
         listener = null;
     }
 
+    private static List<ChannelRecordContainer> createNewRecords(ChannelRecordContainer container, Record record) {
+        List<ChannelRecordContainer> recordContainers = new ArrayList<>();
+        container.setRecord(record);
+        recordContainers.add(container);
+        return recordContainers;
+    }
+
     public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-            RecordsReceivedListener listener) {
+                                                     RecordsReceivedListener listener) {
         this.containers = containers;
         this.listener = listener;
     }
@@ -66,7 +71,7 @@ public class KnxProcessListener implements ProcessListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see tuwien.auto.calimero.process.ProcessListener#groupWrite(tuwien.auto.calimero.process.ProcessEvent)
      */
     @Override
@@ -92,7 +97,7 @@ public class KnxProcessListener implements ProcessListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see tuwien.auto.calimero.process.ProcessListener#detached(tuwien.auto.calimero.DetachEvent)
      */
     @Override
@@ -102,13 +107,6 @@ public class KnxProcessListener implements ProcessListener {
 
     public Map<GroupAddress, byte[]> getCachedValues() {
         return cachedValues;
-    }
-
-    private static List<ChannelRecordContainer> createNewRecords(ChannelRecordContainer container, Record record) {
-        List<ChannelRecordContainer> recordContainers = new ArrayList<>();
-        container.setRecord(record);
-        recordContainers.add(container);
-        return recordContainers;
     }
 
 }

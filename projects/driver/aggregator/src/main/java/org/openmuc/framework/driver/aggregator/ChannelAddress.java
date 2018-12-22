@@ -13,7 +13,7 @@ public class ChannelAddress {
     private final ChannelRecordContainer container;
 
     public ChannelAddress(ChannelRecordContainer container, String sourceChannelId, String aggregationType,
-            double quality) {
+                          double quality) {
         this.container = container;
         this.sourceChannelId = sourceChannelId;
         this.aggregationType = aggregationType;

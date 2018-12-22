@@ -20,14 +20,7 @@
  */
 package org.openmuc.framework.driver.iec62056p21;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.config.DeviceScanInfo;
-import org.openmuc.framework.config.DriverInfo;
-import org.openmuc.framework.config.ScanException;
-import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
@@ -39,6 +32,9 @@ import org.openmuc.j62056.Iec21Port.Builder;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 @Component
 public final class Iec62056Driver implements DriverService {
@@ -53,22 +49,10 @@ public final class Iec62056Driver implements DriverService {
     private static final String FIXED_BAUD_RATE = "-fbd";
     private static final String REQUEST_START_CHARACTER = "-rsc";
     private static final String READ_STANDARD = "-rs";
-
-    private String serialPortName = "";
-    private int baudRateChangeDelay = 0;
-    private int timeout = 2000;
-    private int retries = 1;
-    private int initialBaudRate = -1;
-    private boolean fixedBaudRate = false;
     private static final boolean VERBOSE = false;
-    private String deviceAddress = "";
-    private String requestStartCharacter = "";
-    private boolean readStandard = false;
-
     private static final String DRIVER_ID = "iec62056p21";
     private static final String DRIVER_DESCRIPTION = "This driver can read meters using IEC 62056-21 Mode A, B and C.";
     private static final String DEVICE_ADDRESS_SYNTAX = "Synopsis: <serial_port>\nExamples: /dev/ttyS0 (Unix), COM1 (Windows)";
-
     private static final String SETTINGS = "[" + BAUD_RATE_CHANGE_DELAY + " <baud_rate_change_delay>] [" + TIMEOUT_PARAM
             + " <timeout>] [" + RETRIES_PARAM + " <number_of_read_retries>] [" + INITIAL_BAUD_RATE
             + " <initial_baud_rate>] [" + DEVICE_ADDRESS + " <device_address>] [" + FIXED_BAUD_RATE + "] ["
@@ -84,9 +68,17 @@ public final class Iec62056Driver implements DriverService {
     private static final String SETTINGS_SYNTAX = "Synopsis: " + SETTINGS;
     private static final String CHANNEL_ADDRESS_SYNTAX = "Synopsis: <data_set_id>";
     private static final String DEVICE_SCAN_SETTINGS_SYNTAX = "Synopsis: <serial_port> " + SETTINGS;
-
     private static final DriverInfo INFO = new DriverInfo(DRIVER_ID, DRIVER_DESCRIPTION, DEVICE_ADDRESS_SYNTAX,
             SETTINGS_SYNTAX, CHANNEL_ADDRESS_SYNTAX, DEVICE_SCAN_SETTINGS_SYNTAX);
+    private String serialPortName = "";
+    private int baudRateChangeDelay = 0;
+    private int timeout = 2000;
+    private int retries = 1;
+    private int initialBaudRate = -1;
+    private boolean fixedBaudRate = false;
+    private String deviceAddress = "";
+    private String requestStartCharacter = "";
+    private boolean readStandard = false;
 
     @Override
     public DriverInfo getInfo() {
@@ -180,34 +172,26 @@ public final class Iec62056Driver implements DriverService {
             if (args[i].equals(BAUD_RATE_CHANGE_DELAY)) {
                 ++i;
                 baudRateChangeDelay = getIntValue(args, i, BAUD_RATE_CHANGE_DELAY);
-            }
-            else if (args[i].equals(RETRIES_PARAM)) {
+            } else if (args[i].equals(RETRIES_PARAM)) {
                 ++i;
                 retries = getIntValue(args, i, RETRIES_PARAM);
-            }
-            else if (args[i].equals(TIMEOUT_PARAM)) {
+            } else if (args[i].equals(TIMEOUT_PARAM)) {
                 ++i;
                 timeout = getIntValue(args, i, TIMEOUT_PARAM);
-            }
-            else if (args[i].equals(INITIAL_BAUD_RATE)) {
+            } else if (args[i].equals(INITIAL_BAUD_RATE)) {
                 ++i;
                 initialBaudRate = getIntValue(args, i, INITIAL_BAUD_RATE);
-            }
-            else if (args[i].equals(DEVICE_ADDRESS)) {
+            } else if (args[i].equals(DEVICE_ADDRESS)) {
                 ++i;
                 deviceAddress = getStringValue(args, i, DEVICE_ADDRESS);
-            }
-            else if (args[i].equals(FIXED_BAUD_RATE)) {
+            } else if (args[i].equals(FIXED_BAUD_RATE)) {
                 fixedBaudRate = true;
-            }
-            else if (args[i].equals(REQUEST_START_CHARACTER)) {
+            } else if (args[i].equals(REQUEST_START_CHARACTER)) {
                 ++i;
                 requestStartCharacter = getStringValue(args, i, REQUEST_START_CHARACTER);
-            }
-            else if (args[i].equals(READ_STANDARD)) {
+            } else if (args[i].equals(READ_STANDARD)) {
                 readStandard = true;
-            }
-            else {
+            } else {
                 throw new ArgumentSyntaxException("Found unknown argument in settings: " + args[i]);
             }
         }

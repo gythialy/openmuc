@@ -20,14 +20,14 @@
  */
 package org.openmuc.framework.server.restws.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-
 import org.junit.Assert;
 import org.openmuc.framework.data.TypeConversionException;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestTools {
 
@@ -53,81 +53,81 @@ public class TestTools {
     public static void checkValueConversion(ValueType valueType, Value value) throws TypeConversionException {
 
         switch (valueType) {
-        case BOOLEAN:
-            value.asBoolean();
-            break;
-        case BYTE:
-            value.asByte();
-            break;
-        case BYTE_ARRAY:
-            value.asByteArray();
-            break;
-        case DOUBLE:
-            value.asDouble();
-            break;
-        case FLOAT:
-            value.asFloat();
-            break;
-        case INTEGER:
-            value.asInt();
-            break;
-        case LONG:
-            value.asLong();
-            break;
-        case SHORT:
-            value.asShort();
-            break;
-        case STRING:
-            value.asString();
-            break;
-        default:
-            // should never happen
-            throw new TypeConversionException("Unknown ValueType");
+            case BOOLEAN:
+                value.asBoolean();
+                break;
+            case BYTE:
+                value.asByte();
+                break;
+            case BYTE_ARRAY:
+                value.asByteArray();
+                break;
+            case DOUBLE:
+                value.asDouble();
+                break;
+            case FLOAT:
+                value.asFloat();
+                break;
+            case INTEGER:
+                value.asInt();
+                break;
+            case LONG:
+                value.asLong();
+                break;
+            case SHORT:
+                value.asShort();
+                break;
+            case STRING:
+                value.asString();
+                break;
+            default:
+                // should never happen
+                throw new TypeConversionException("Unknown ValueType");
         }
     }
 
     public static void checkValueValue(String Test_method, ValueType valueType, Value value) {
 
         switch (valueType) {
-        case BOOLEAN:
-            Assert.assertEquals(Test_method + ": Expected boolean is not equal the actual", Constants.BOOLEAN_VALUE,
-                    value.asBoolean());
-            break;
-        case BYTE:
-            Assert.assertEquals(Test_method + ": Expected byte is not equal the actual", Constants.BYTE_VALUE,
-                    value.asByte());
-            break;
-        case BYTE_ARRAY:
-            if (!Arrays.equals(Constants.BYTE_ARRAY_VALUE, value.asByteArray())) {
-                assertTrue(Test_method + ": Expected byte[] is not equal the actual", false);
-            }
-            break;
-        case DOUBLE:
-            Assert.assertEquals(Test_method + ": Expected double is not equal the actual", Constants.DOUBLE_VALUE,
-                    value.asDouble(), 0.00001);
-            break;
-        case FLOAT:
-            Assert.assertEquals(Test_method + ": Expected double is not equal the actual", Constants.FLOAT_VALUE,
-                    value.asFloat(), 0.00001);
-            break;
-        case INTEGER:
-            Assert.assertEquals(Test_method + ": Expected int is not equal the actual", Constants.INTEGER_VALUE,
-                    value.asInt());
-            break;
-        case LONG:
-            Assert.assertEquals(Test_method + ": Expected long is not equal the actual", Constants.LONG_VALUE,
-                    value.asLong());
-            break;
-        case SHORT:
-            Assert.assertEquals(Test_method + ": Expected short is not equal the actual", Constants.SHORT_VALUE,
-                    value.asShort());
-            break;
-        case STRING:
-            Assert.assertEquals(Test_method + ": Expected String is not equal the actual", Constants.STRING_VALUE,
-                    value.asString());
-            break;
-        default:
-            // should never happen
+            case BOOLEAN:
+                Assert.assertEquals(Test_method + ": Expected boolean is not equal the actual", Constants.BOOLEAN_VALUE,
+                        value.asBoolean());
+                break;
+            case BYTE:
+                Assert.assertEquals(Test_method + ": Expected byte is not equal the actual", Constants.BYTE_VALUE,
+                        value.asByte());
+                break;
+            case BYTE_ARRAY:
+                if (!Arrays.equals(Constants.BYTE_ARRAY_VALUE, value.asByteArray())) {
+                    assertTrue(Test_method + ": Expected byte[] is not equal the actual", false);
+                }
+                break;
+            case DOUBLE:
+                Assert.assertEquals(Test_method + ": Expected double is not equal the actual", Constants.DOUBLE_VALUE,
+                        value.asDouble(), 0.00001);
+                break;
+            case FLOAT:
+                Assert.assertEquals(Test_method + ": Expected double is not equal the actual", Constants.FLOAT_VALUE,
+                        value.asFloat(), 0.00001);
+                break;
+            case INTEGER:
+                Assert.assertEquals(Test_method + ": Expected int is not equal the actual", Constants.INTEGER_VALUE,
+                        value.asInt());
+                break;
+            case LONG:
+                Assert.assertEquals(Test_method + ": Expected long is not equal the actual", Constants.LONG_VALUE,
+                        value.asLong());
+                break;
+            case SHORT:
+                Assert.assertEquals(Test_method + ": Expected short is not equal the actual", Constants.SHORT_VALUE,
+                        value.asShort());
+                break;
+            case STRING:
+                Assert.assertEquals(Test_method + ": Expected String is not equal the actual", Constants.STRING_VALUE,
+                        value.asString());
+                break;
+            default:
+                // should never happen
         }
     }
 }

@@ -56,6 +56,7 @@ public class Const {
     public static final String READABLE = "readable";
     public static final String WRITEABLE = "writeable";
     public static final String METADATA = "metadata";
+    public static final String UNIT = "unit";
     public static final String CHANNELADDRESS = "channelAddress";
     public static final String VALUETYPE = "valueType";
     public static final String VALUETYPELENGTH = "valueTypeLength";

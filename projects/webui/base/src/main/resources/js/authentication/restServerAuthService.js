@@ -1,18 +1,18 @@
-(function(){
+(function () {
 
-	var injectParams = ['AuthService'];
+    var injectParams = ['AuthService'];
 
-	var RestServerAuthService = function(AuthService) {
+    var RestServerAuthService = function (AuthService) {
 
-    	this.getAuthHash = function() {
-			if (AuthService.isLoggedIn) {
-				return 'Basic ' + btoa(AuthService.currentUsername() + ":" + AuthService.currentPwd());
-			}
-    	};
+        this.getAuthHash = function () {
+            if (AuthService.isLoggedIn) {
+                return AuthService.getRestAuth();
+            }
+        };
     };
 
     RestServerAuthService.$inject = injectParams;
 
-	angular.module('openmuc.auth').service('RestServerAuthService', RestServerAuthService);    
+    angular.module('openmuc.auth').service('RestServerAuthService', RestServerAuthService);
 
 })();

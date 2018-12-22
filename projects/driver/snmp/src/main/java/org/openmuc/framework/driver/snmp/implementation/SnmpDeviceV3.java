@@ -44,38 +44,28 @@ public class SnmpDeviceV3 extends SnmpDevice {
 
     /**
      * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
-     * 
-     * @param address
-     *            Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
-     * @param username
-     *            String containing username
-     * @param securityName
-     *            the security name of the user (typically the user name). [required by snmp4j library]
-     * @param authenticationProtocol
-     *            the authentication protocol ID to be associated with this user. If set to <code>null</code>, this user
-     *            only supports unauthenticated messages. [required by snmp4j library] eg. AuthMD5.ID
-     * @param authenticationPassphrase
-     *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
-     *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * @param privacyProtocol
-     *            the privacy protocol ID to be associated with this user. If set to <code>null</code>, this user only
-     *            supports not encrypted messages. [required by snmp4j library] eg. PrivDES.ID
-     * @param privacyPassphrase
-     *            the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
-     *            <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
-     *            length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * 
-     * @throws ConnectionException
-     *             thrown if SNMP listen or initialization failed
-     * @throws ArgumentSyntaxException
-     *             thrown if Device address foramt is wrong
+     *
+     * @param address                  Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
+     * @param username                 String containing username
+     * @param securityName             the security name of the user (typically the user name). [required by snmp4j library]
+     * @param authenticationProtocol   the authentication protocol ID to be associated with this user. If set to <code>null</code>, this user
+     *                                 only supports unauthenticated messages. [required by snmp4j library] eg. AuthMD5.ID
+     * @param authenticationPassphrase the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
+     *                                 also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *                                 bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+     * @param privacyProtocol          the privacy protocol ID to be associated with this user. If set to <code>null</code>, this user only
+     *                                 supports not encrypted messages. [required by snmp4j library] eg. PrivDES.ID
+     * @param privacyPassphrase        the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
+     *                                 <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
+     *                                 length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+     * @throws ConnectionException     thrown if SNMP listen or initialization failed
+     * @throws ArgumentSyntaxException thrown if Device address foramt is wrong
      */
 
     public SnmpDeviceV3(String address, String username, String securityName, OID authenticationProtocol,
-            String authenticationPassphrase, OID privacyProtocol, String privacyPassphrase)
+                        String authenticationPassphrase, OID privacyProtocol, String privacyPassphrase)
             throws ConnectionException, ArgumentSyntaxException {
         super(address, authenticationPassphrase);
 
@@ -90,32 +80,24 @@ public class SnmpDeviceV3 extends SnmpDevice {
     /**
      * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
      * Default values: authenticationProtocol = AuthMD5.ID; privacyProtocol = PrivDES.ID;
-     * 
-     * @param address
-     *            Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
-     * @param username
-     *            String containing username
-     * @param securityName
-     *            the security name of the user (typically the user name). [required by snmp4j library]
-     * @param authenticationPassphrase
-     *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
-     *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * @param privacyPassphrase
-     *            the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
-     *            <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
-     *            length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * 
-     * @throws ConnectionException
-     *             thrown if SNMP listen or initialization failed
-     * @throws ArgumentSyntaxException
-     *             thrown if Device address foramt is wrong
+     *
+     * @param address                  Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
+     * @param username                 String containing username
+     * @param securityName             the security name of the user (typically the user name). [required by snmp4j library]
+     * @param authenticationPassphrase the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
+     *                                 also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *                                 bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+     * @param privacyPassphrase        the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
+     *                                 <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
+     *                                 length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+     * @throws ConnectionException     thrown if SNMP listen or initialization failed
+     * @throws ArgumentSyntaxException thrown if Device address foramt is wrong
      */
 
     public SnmpDeviceV3(String address, String username, String securityName, String authenticationPassphrase,
-            String privacyPassphrase) throws ConnectionException, ArgumentSyntaxException {
+                        String privacyPassphrase) throws ConnectionException, ArgumentSyntaxException {
         super(address, authenticationPassphrase);
 
         this.username = username;
@@ -132,23 +114,22 @@ public class SnmpDeviceV3 extends SnmpDevice {
         if (authenticationPassphrase == null || authenticationPassphrase.trim().equals("")) {
             // No Authentication and no Privacy
             securityLevel = SecurityLevel.NOAUTH_NOPRIV;
-        }
-        else {
+        } else {
             // With Authentication
             if (privacyPassphrase == null || privacyPassphrase.trim().equals("")) {
                 // No Privacy
                 securityLevel = SecurityLevel.AUTH_NOPRIV;
-            }
-            else {
+            } else {
                 // With Privacy
                 securityLevel = SecurityLevel.AUTH_PRIV;
             }
 
         }
-        snmp.getUSM().addUser(new OctetString(username),
-                new UsmUser(new OctetString(securityName), authenticationProtocol,
-                        new OctetString(authenticationPassphrase), privacyProtocol,
-                        new OctetString(privacyPassphrase)));
+        snmp.getUSM()
+                .addUser(new OctetString(username),
+                        new UsmUser(new OctetString(securityName), authenticationProtocol,
+                                new OctetString(authenticationPassphrase), privacyProtocol,
+                                new OctetString(privacyPassphrase)));
         // create the target
         target = new UserTarget();
         target.setAddress(targetAddress);

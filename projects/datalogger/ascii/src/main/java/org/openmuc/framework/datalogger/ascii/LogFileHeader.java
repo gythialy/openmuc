@@ -20,18 +20,13 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
+
+import java.util.*;
 
 public class LogFileHeader {
 
@@ -44,19 +39,15 @@ public class LogFileHeader {
 
     /**
      * Generate the standard IES Data Format Header.
-     * 
-     * @param group
-     *            a group of the LogIntervallContainer
-     * @param filename
-     *            the name of the file to add the header
-     * @param loggingInterval
-     *            logging interval in ms
-     * @param logChannelList
-     *            a list of all channels for this file
+     *
+     * @param group           a group of the LogIntervallContainer
+     * @param filename        the name of the file to add the header
+     * @param loggingInterval logging interval in ms
+     * @param logChannelList  a list of all channels for this file
      * @return the header as a string
      */
     public static String getIESDataFormatHeaderString(LogIntervalContainerGroup group, String filename,
-            int loggingInterval, Map<String, LogChannel> logChannelList) {
+                                                      int loggingInterval, Map<String, LogChannel> logChannelList) {
 
         StringBuilder sb = new StringBuilder();
         setHeaderTop(sb, loggingInterval, filename);
@@ -87,11 +78,9 @@ public class LogFileHeader {
 
     /**
      * Generate the standard IES Data Format Header
-     * 
-     * @param filename
-     *            the name of the file to add the header
-     * @param logChannelList
-     *            a list of all channels for this file
+     *
+     * @param filename       the name of the file to add the header
+     * @param logChannelList a list of all channels for this file
      * @return the header as a string
      */
     public static String getIESDataFormatHeaderString(String filename, List<LogChannel> logChannelList) {
@@ -122,7 +111,7 @@ public class LogFileHeader {
 
     /**
      * Appends channel specific comments to a StringBuilder
-     * 
+     *
      * @param sb
      * @param logChannel
      * @param colNumber
@@ -138,8 +127,7 @@ public class LogFileHeader {
         int valueTypeLength = 0;
         if (vType.equals(ValueType.BYTE_ARRAY) || vType.equals(ValueType.STRING)) {
             valueTypeLength = logChannel.getValueTypeLength();
-        }
-        else {
+        } else {
             valueTypeLength = LoggerUtils.getLengthOfValueType(vType);
         }
 
@@ -154,7 +142,7 @@ public class LogFileHeader {
 
     /**
      * Append column headers, the timestamps, in a StringBuilder
-     * 
+     *
      * @param sb
      * @param group
      */
@@ -171,7 +159,7 @@ public class LogFileHeader {
 
     /**
      * Sets the top of the header.
-     * 
+     *
      * @param sb
      * @param loggingInterval
      * @param filename
@@ -198,28 +186,19 @@ public class LogFileHeader {
 
     /**
      * Construct a header row with predefined separators and comment signs.
-     * 
-     * @param colNumber
-     *            column number example: #001
-     * @param colName
-     *            column name example: YYYYMMDD
-     * @param confidential
-     *            false or true
-     * @param measured
-     *            false or true
-     * @param unit
-     *            example: kWh
-     * @param category
-     *            example: time
-     * @param valueType
-     *            example: DOUBLE
-     * @param valueTypeLength
-     *            example: 8
-     * @param comment
-     *            a comment
+     *
+     * @param colNumber       column number example: #001
+     * @param colName         column name example: YYYYMMDD
+     * @param confidential    false or true
+     * @param measured        false or true
+     * @param unit            example: kWh
+     * @param category        example: time
+     * @param valueType       example: DOUBLE
+     * @param valueTypeLength example: 8
+     * @param comment         a comment
      */
     private static void createRow(StringBuilder sb, String colNumber, String colName, String confidential,
-            String measured, String unit, String category, String valueType, int valueTypeLength, String comment) {
+                                  String measured, String unit, String category, String valueType, int valueTypeLength, String comment) {
 
         String seperator = Const.SEPARATOR;
         String commentSign = Const.COMMENT_SIGN;
@@ -236,11 +215,9 @@ public class LogFileHeader {
 
     /**
      * appendStrings appends a any String to a StringBuilder
-     * 
-     * @param sb
-     *            StringBuilder to append a String
-     * @param s
-     *            the String to append
+     *
+     * @param sb StringBuilder to append a String
+     * @param s  the String to append
      */
     private static void appendStrings(StringBuilder sb, String... s) {
 
@@ -252,7 +229,7 @@ public class LogFileHeader {
     /**
      * Calculates the difference between the configured local time and the Coordinated Universal Time (UTC) without
      * daylight saving time and returns it as a string.
-     * 
+     *
      * @return the difference between local time and UTC as string.
      */
     private static String getDiffLocalUTC() {
@@ -267,8 +244,7 @@ public class LogFileHeader {
 
         if (time >= 0) {
             ret = ("+ " + time);
-        }
-        else {
+        } else {
             ret = ("- " + time);
         }
 

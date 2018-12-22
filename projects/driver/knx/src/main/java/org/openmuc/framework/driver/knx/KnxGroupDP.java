@@ -21,7 +21,6 @@
 package org.openmuc.framework.driver.knx;
 
 import org.openmuc.framework.driver.knx.value.KnxValue;
-
 import tuwien.auto.calimero.GroupAddress;
 import tuwien.auto.calimero.datapoint.CommandDP;
 import tuwien.auto.calimero.exception.KNXException;

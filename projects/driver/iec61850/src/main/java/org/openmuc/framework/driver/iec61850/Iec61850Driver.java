@@ -21,10 +21,6 @@
 
 package org.openmuc.framework.driver.iec61850;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -40,6 +36,10 @@ import org.openmuc.openiec61850.ServiceError;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Component
 public final class Iec61850Driver implements DriverService {
@@ -146,13 +146,11 @@ public final class Iec61850Driver implements DriverService {
                                 "No authentication parameter was specified after the -a parameter");
                     }
                     authentication = args[i];
-                }
-                else if (args[i].equals("-lt")) {
+                } else if (args[i].equals("-lt")) {
 
                     if (i == (args.length - 1) || args[i + 1].startsWith("-")) {
                         clientSap.setTSelLocal(new byte[0]);
-                    }
-                    else {
+                    } else {
                         i++;
                         byte[] tSelLocal = new byte[args[i].length()];
                         for (int j = 0; j < args[i].length(); j++) {
@@ -160,13 +158,11 @@ public final class Iec61850Driver implements DriverService {
                         }
                         clientSap.setTSelLocal(tSelLocal);
                     }
-                }
-                else if (args[i].equals("-rt")) {
+                } else if (args[i].equals("-rt")) {
 
                     if (i == (args.length - 1) || args[i + 1].startsWith("-")) {
                         clientSap.setTSelRemote(new byte[0]);
-                    }
-                    else {
+                    } else {
                         i++;
                         byte[] tSelRemote = new byte[args[i].length()];
                         for (int j = 0; j < args[i].length(); j++) {
@@ -174,8 +170,7 @@ public final class Iec61850Driver implements DriverService {
                         }
                         clientSap.setTSelRemote(tSelRemote);
                     }
-                }
-                else {
+                } else {
                     throw new ArgumentSyntaxException("Unexpected argument: " + args[i]);
                 }
             }

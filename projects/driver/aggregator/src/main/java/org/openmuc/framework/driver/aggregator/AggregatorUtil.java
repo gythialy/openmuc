@@ -20,9 +20,9 @@
  */
 package org.openmuc.framework.driver.aggregator;
 
-import java.util.List;
-
 import org.openmuc.framework.data.Record;
+
+import java.util.List;
 
 /**
  * Collection of methods
@@ -66,16 +66,21 @@ public class AggregatorUtil {
     // }
 
     /**
+     * Don't let anyone instantiate this class.
+     */
+    private AggregatorUtil() {
+
+    }
+
+    /**
      * Returns the value of the last record of the list
      * <p>
      * Can be used for energy aggregation. Smart meter sums the energy automatically therefore the last value contains
      * the aggregated value
-     * 
-     * @param recordList
-     *            List of Records
+     *
+     * @param recordList List of Records
      * @return the value of the last record of the list
-     * @throws AggregationException
-     *             on error
+     * @throws AggregationException on error
      */
     public static Record findLastRecordIn(List<Record> recordList) throws AggregationException {
         if (recordList.isEmpty()) {
@@ -83,12 +88,5 @@ public class AggregatorUtil {
         }
 
         return recordList.get(recordList.size() - 1);
-    }
-
-    /**
-     * Don't let anyone instantiate this class.
-     */
-    private AggregatorUtil() {
-
     }
 }

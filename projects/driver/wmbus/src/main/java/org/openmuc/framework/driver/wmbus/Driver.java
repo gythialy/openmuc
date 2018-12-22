@@ -20,8 +20,6 @@
  */
 package org.openmuc.framework.driver.wmbus;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -33,6 +31,8 @@ import org.openmuc.framework.driver.spi.DriverService;
 import org.openmuc.jmbus.SecondaryAddress;
 import org.osgi.service.component.annotations.Component;
 
+import javax.xml.bind.DatatypeConverter;
+
 @Component
 public class Driver implements DriverService {
 
@@ -40,7 +40,9 @@ public class Driver implements DriverService {
             // description
             "Wireless M-Bus is a protocol to read out meters and sensors.",
             // device address
-            "Synopsis: <serial_port>:<secondary_address>\nExample for <serial_port>: /dev/ttyS0 (Unix), COM1 (Windows)\n<mbus_id> as a hex string",
+            "Synopsis: <serial_port>:<secondary_address> / TCP:<host_address>:<port>:<secondary_address>"
+                    + "Example for <serial_port>: /dev/ttyS0 (Unix), COM1 (Windows)  <secondary_address> as a hex string.  "
+                    + "Example for <host_address>:<port> 192.168.8.15:2018",
             // settings
             "Synopsis: <transceiver> <mode> [<key>]\n Transceiver could be 'amber', 'imst' and 'rc'for RadioCraft. Possible modes are T or S. ",
             // channel address
@@ -67,29 +69,33 @@ public class Driver implements DriverService {
     @Override
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
-
         String[] deviceAddressTokens = deviceAddress.trim().split(":");
 
         if (deviceAddressTokens.length != 2) {
             throw new ArgumentSyntaxException("The device address does not consist of two parameters.");
         }
 
-        String serialPortName = deviceAddressTokens[0];
-        String secondaryAddressAsString = deviceAddressTokens[1].toLowerCase();
-        SecondaryAddress secondaryAddress;
-        try {
-            byte[] bytes = DatatypeConverter.parseHexBinary(secondaryAddressAsString);
-            secondaryAddress = SecondaryAddress.newFromWMBusLlHeader(bytes, 0);
-        } catch (NumberFormatException e) {
-            throw new ArgumentSyntaxException(
-                    "The SecondaryAddress: " + secondaryAddressAsString + " could not be converted to a byte array.");
+        String connectionPort = deviceAddressTokens[0];
+        String secondaryAddressAsString = "";
+        String host = "";
+        int port = 0;
+        boolean isTCP = false;
+        if (connectionPort.equalsIgnoreCase("TCP")) {
+            isTCP = true;
+            host = deviceAddressTokens[0];
+            try {
+                port = Integer.decode(deviceAddressTokens[1]);
+            } catch (NumberFormatException e) {
+                throw new ArgumentSyntaxException("TCP port is not a number.");
+            }
+            secondaryAddressAsString = deviceAddressTokens[2].toLowerCase();
+        } else {
+            secondaryAddressAsString = deviceAddressTokens[1].toLowerCase();
         }
 
-        String[] settingsTokens = settings.trim().toLowerCase().split(" ");
+        SecondaryAddress secondaryAddress = parseSecondaryAddress(secondaryAddressAsString);
 
-        if (settingsTokens.length < 2 || settingsTokens.length > 3) {
-            throw new ArgumentSyntaxException("The device's settings parameters does not contain 2 or 3 parameters.");
-        }
+        String[] settingsTokens = splitSettingsToken(settings);
 
         String transceiverString = settingsTokens[0];
         String modeString = settingsTokens[1];
@@ -98,13 +104,40 @@ public class Driver implements DriverService {
             keyString = settingsTokens[2];
         }
 
-        WMBusSerialInterface serialInterface;
+        WMBusInterface wmBusInterface;
 
-        synchronized (this) {
-            serialInterface = WMBusSerialInterface.getInstance(serialPortName, transceiverString, modeString);
-            return serialInterface.connect(secondaryAddress, keyString);
+        if (isTCP) {
+            synchronized (this) {
+                wmBusInterface = WMBusInterface.getTCPInstance(host, port, transceiverString, modeString);
+                return wmBusInterface.connect(secondaryAddress, keyString);
+            }
+        } else {
+            synchronized (this) {
+                wmBusInterface = WMBusInterface.getSerialInstance(connectionPort, transceiverString, modeString);
+                return wmBusInterface.connect(secondaryAddress, keyString);
+            }
         }
+    }
 
+    private String[] splitSettingsToken(String settings) throws ArgumentSyntaxException {
+        String[] settingsTokens = settings.trim().toLowerCase().split(" ");
+
+        if (settingsTokens.length < 2 || settingsTokens.length > 3) {
+            throw new ArgumentSyntaxException("The device's settings parameters does not contain 2 or 3 parameters.");
+        }
+        return settingsTokens;
+    }
+
+    private SecondaryAddress parseSecondaryAddress(String secondaryAddressAsString) throws ArgumentSyntaxException {
+        SecondaryAddress secondaryAddress;
+        try {
+            byte[] bytes = DatatypeConverter.parseHexBinary(secondaryAddressAsString);
+            secondaryAddress = SecondaryAddress.newFromWMBusLlHeader(bytes, 0);
+        } catch (NumberFormatException e) {
+            throw new ArgumentSyntaxException(
+                    "The SecondaryAddress: " + secondaryAddressAsString + " could not be converted to a byte array.");
+        }
+        return secondaryAddress;
     }
 
 }

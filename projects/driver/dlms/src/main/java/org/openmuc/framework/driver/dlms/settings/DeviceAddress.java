@@ -1,12 +1,12 @@
 package org.openmuc.framework.driver.dlms.settings;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.MessageFormat;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.MessageFormat;
 
 public class DeviceAddress extends GenericSetting {
 
@@ -57,13 +57,11 @@ public class DeviceAddress extends GenericSetting {
                     throw new ArgumentSyntaxException("Could not set default host address: localhost");
                 }
             }
-        }
-        else if (connectionType.equalsIgnoreCase("serial")) {
+        } else if (connectionType.equalsIgnoreCase("serial")) {
             if (serialPort.isEmpty()) {
                 throw new ArgumentSyntaxException("No serial port given. e.g. Linux: /dev/ttyUSB0 or Windows: COM12 ");
             }
-        }
-        else {
+        } else {
             throw new ArgumentSyntaxException(
                     "Only 'tcp' and 'serial' are supported connection types, given is: " + connectionType);
         }

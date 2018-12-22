@@ -22,7 +22,6 @@ package org.openmuc.framework.driver.knx.value;
 
 import org.openmuc.framework.data.ByteValue;
 import org.openmuc.framework.data.Value;
-
 import tuwien.auto.calimero.dptxlator.DPTXlator3BitControlled;
 import tuwien.auto.calimero.exception.KNXFormatException;
 
@@ -34,22 +33,22 @@ public class KnxValue3BitControlled extends KnxValue {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
-     */
-    @Override
-    public void setOpenMucValue(Value value) throws KNXFormatException {
-        ((DPTXlator3BitControlled) dptXlator).setValue(value.asByte());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
+     *
      * @see org.openmuc.framework.driver.knx.value.KnxValue#getOpenMucValue()
      */
     @Override
     public Value getOpenMucValue() {
         return new ByteValue(((DPTXlator3BitControlled) dptXlator).getData()[0]);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.openmuc.framework.driver.knx.value.KnxValue#setOpenMucValue(org.openmuc.framework.data.Value)
+     */
+    @Override
+    public void setOpenMucValue(Value value) throws KNXFormatException {
+        ((DPTXlator3BitControlled) dptXlator).setValue(value.asByte());
     }
 
 }

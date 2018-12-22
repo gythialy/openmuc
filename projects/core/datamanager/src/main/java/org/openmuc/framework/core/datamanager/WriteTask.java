@@ -21,14 +21,14 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.driver.spi.ChannelValueContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public final class WriteTask extends DeviceTask implements ConnectedTask {
 
@@ -38,7 +38,7 @@ public final class WriteTask extends DeviceTask implements ConnectedTask {
     List<WriteValueContainerImpl> writeValueContainers;
 
     public WriteTask(DataManager dataManager, Device device, List<WriteValueContainerImpl> writeValueContainers,
-            CountDownLatch writeTaskFinishedSignal) {
+                     CountDownLatch writeTaskFinishedSignal) {
         this.dataManager = dataManager;
         this.device = device;
         this.writeTaskFinishedSignal = writeTaskFinishedSignal;

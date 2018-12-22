@@ -1,38 +1,37 @@
-
 def projectName = "OpenMUC WebUI - Base"
 def projectDescription = "WebUI base for the OpenMUC framework."
 
 configurations.create('embed')
 
 dependencies {
-  compile project(':openmuc-core-api')
-  compile project(':openmuc-webui-spi')
-  compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
-  embed group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+    compile project(':openmuc-core-api')
+    compile project(':openmuc-webui-spi')
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+    embed group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Bundle-ClassPath', '.,lib/gson-2.3.1.jar'
-    instruction 'Import-Package', '!com.google.gson.*,*' + jarDefaultImportPackageVersion
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Bundle-ClassPath', '.,lib/gson-2.3.1.jar'
+        instruction 'Import-Package', '!com.google.gson.*,*' + jarDefaultImportPackageVersion
+        instruction 'Export-Package', ''
+    }
 }
 
 jar {
-  into('lib') {
-    from configurations.embed
-  }
+    into('lib') {
+        from configurations.embed
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description projectDescription
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
     }
-  }
 }

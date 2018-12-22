@@ -1,11 +1,5 @@
 package org.openmuc.framework.driver.csv.test;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,6 +9,8 @@ import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class CsvTimeChannelHourTest {
 
@@ -33,7 +29,7 @@ public class CsvTimeChannelHourTest {
         data.add("15.0");
         data.add("20.0");
 
-        timestamps = new long[] { 100000, 100005, 100010, 100015, 100020 };
+        timestamps = new long[]{100000, 100005, 100010, 100015, 100020};
 
     }
 

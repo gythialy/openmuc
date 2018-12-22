@@ -1,11 +1,11 @@
 package org.openmuc.framework.server.restws.servlets;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmuc.framework.config.DeviceScanInfo;
 import org.openmuc.framework.config.DeviceScanListener;
 import org.openmuc.framework.lib.json.rest.objects.RestScanProgressInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class DeviceScanListenerImplementation implements DeviceScanListener {
     private final RestScanProgressInfo restScanProgressInfo = new RestScanProgressInfo();

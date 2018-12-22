@@ -30,9 +30,9 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     private static final Record defaulRecord = new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
 
     private final ChannelImpl channel;
+    private final String channelAddress;
     private Record record;
     private Object channelHandle;
-    private final String channelAddress;
 
     public ChannelRecordContainerImpl(ChannelImpl channel) {
         this(channel, defaulRecord);
@@ -61,11 +61,6 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     }
 
     @Override
-    public void setRecord(Record record) {
-        this.record = record;
-    }
-
-    @Override
     public ChannelRecordContainer copy() {
         return new ChannelRecordContainerImpl(channel, record);
     }
@@ -78,5 +73,10 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     @Override
     public Record getRecord() {
         return record;
+    }
+
+    @Override
+    public void setRecord(Record record) {
+        this.record = record;
     }
 }

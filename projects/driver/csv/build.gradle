@@ -1,4 +1,3 @@
-
 def projectName = "OpenMUC Driver - CSV"
 def projectDescription = "CSV driver for the OpenMUC framework."
 
@@ -7,38 +6,37 @@ def univocityVersion = "2.5.9"
 configurations.create('embed')
 
 dependencies {
-  compile project(':openmuc-core-spi')
-  
-  compile group: 'com.univocity', name: 'univocity-parsers', version: univocityVersion
-  embed group: 'com.univocity', name: 'univocity-parsers', version: univocityVersion
-  
-  
-  
+    compile project(':openmuc-core-spi')
+
+    compile group: 'com.univocity', name: 'univocity-parsers', version: univocityVersion
+    embed group: 'com.univocity', name: 'univocity-parsers', version: univocityVersion
+
+
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Bundle-ClassPath', '.,lib/univocity-parsers-' + univocityVersion + '.jar'
-    instruction 'Import-Package', '!com.univocity.parsers.*,*' + jarDefaultImportPackageVersion
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Bundle-ClassPath', '.,lib/univocity-parsers-' + univocityVersion + '.jar'
+        instruction 'Import-Package', '!com.univocity.parsers.*,*' + jarDefaultImportPackageVersion
+        instruction 'Export-Package', ''
+    }
 }
 
 jar {
-  into('lib') {
-    from configurations.embed
-  }
+    into('lib') {
+        from configurations.embed
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description projectDescription
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
     }
-  }
 }
 

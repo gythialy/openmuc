@@ -1,10 +1,11 @@
 package org.openmuc.framework.driver.dlms.settings;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.DatatypeConverter;
+import java.lang.annotation.*;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,11 +16,9 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.DatatypeConverter;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-
 public abstract class GenericSetting {
+
+    private static final Logger logger = LoggerFactory.getLogger(GenericSetting.class);
 
     private static final String SEPARATOR = ";";
     private static final String PAIR_SEP = "=";
@@ -61,8 +60,7 @@ public abstract class GenericSetting {
         String range;
         if (option.range().isEmpty()) {
             range = option.value();
-        }
-        else {
+        } else {
             range = option.range();
         }
 
@@ -74,6 +72,10 @@ public abstract class GenericSetting {
 
         return sb.append(" ").toString();
 
+    }
+
+    private static Number parseNumber(String value) throws ParseException {
+        return NumberFormat.getNumberInstance().parse(value);
     }
 
     protected int parseFields(String settingsStr) throws ArgumentSyntaxException {
@@ -98,12 +100,11 @@ public abstract class GenericSetting {
                     setField(field, val, option);
                     ++setFieldCounter;
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    logger.error("Not able to access to field " + field, e);
                 } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
+                    logger.error("No field found with name " + field, e);
                 }
-            }
-            else if (option.mandatory()) {
+            } else if (option.mandatory()) {
                 String message = MessageFormat.format("Mandatory parameter {0} is nor present in {1}.", option.value(),
                         this.getClass().getSimpleName());
                 throw new ArgumentSyntaxException(message);
@@ -150,35 +151,25 @@ public abstract class GenericSetting {
 
         if (type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) {
             return extractBoolean(trimmed);
-        }
-        else if (type.isAssignableFrom(byte.class) || type.isAssignableFrom(Byte.class)) {
+        } else if (type.isAssignableFrom(byte.class) || type.isAssignableFrom(Byte.class)) {
             return extractByte(trimmed);
-        }
-        else if (type.isAssignableFrom(short.class) || type.isAssignableFrom(Short.class)) {
+        } else if (type.isAssignableFrom(short.class) || type.isAssignableFrom(Short.class)) {
             return extractShort(trimmed);
-        }
-        else if (type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) {
+        } else if (type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class)) {
             return extractInteger(trimmed);
-        }
-        else if (type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) {
+        } else if (type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class)) {
             return extractLong(trimmed);
-        }
-        else if (type.isAssignableFrom(float.class) || type.isAssignableFrom(Float.class)) {
+        } else if (type.isAssignableFrom(float.class) || type.isAssignableFrom(Float.class)) {
             return extractFloat(trimmed);
-        }
-        else if (type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) {
+        } else if (type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class)) {
             return extractDouble(trimmed);
-        }
-        else if (type.isAssignableFrom(String.class)) {
+        } else if (type.isAssignableFrom(String.class)) {
             return value;
-        }
-        else if (type.isAssignableFrom(byte[].class)) {
+        } else if (type.isAssignableFrom(byte[].class)) {
             return extractByteArray(trimmed);
-        }
-        else if (type.isAssignableFrom(InetAddress.class)) {
+        } else if (type.isAssignableFrom(InetAddress.class)) {
             return extractInetAddress(trimmed);
-        }
-        else {
+        } else {
             throw new NoSuchFieldException(
                     type + "  Driver implementation error not supported data type. Report driver developer\n");
         }
@@ -266,10 +257,6 @@ public abstract class GenericSetting {
                 this.getClass().getSimpleName(), returnType));
     }
 
-    private static Number parseNumber(String value) throws ParseException {
-        return NumberFormat.getNumberInstance().parse(value);
-    }
-
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
@@ -279,7 +266,7 @@ public abstract class GenericSetting {
 
         boolean mandatory()
 
-        default false;
+                default false;
 
         String range() default "";
     }

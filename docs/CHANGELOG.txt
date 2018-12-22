@@ -1,5 +1,30 @@
-v0.17.0 27-02-2018
-------------------
+v0.17.1 16-Jul-2018
+-------------------
+- driver M-Bus:
+  * fixed NullPointerException when scan for channels
+  * fixed bug when scan device with secondary address
+  * fixed wrong ValueType after channel scan
+  * updated jmbus to v3.1.1
+  * added more channel/device scan description
+- driver wireless M-Bus:
+  * added wireless M-Bus over TCP
+  * updated jmbus to v3.1.1
+  * added more device/channel information after scan
+- driver dlms:
+  * updated jdlms to v1.6.0
+  * fixed bug when serial communication is used
+- driver rest:
+  * fixed some bugs
+  * reduced configuration overhead
+- updated jrxtx to v1.0.1
+- WebUI
+  * enable config of contextpath 
+  * added unit to channel scan
+  * fixed changing user PW. Thanks to B. Kruger
+  * minor fixes
+
+v0.17.0 27-Feb-2018
+-------------------
 - OpenMUC now requires Java 1.8 instead of Java 1.7
 - driver Modbus:
   * changed to j2mod
@@ -8,12 +33,12 @@ v0.17.0 27-02-2018
   * new debug messages
   * supports more data types
   * replaced int and short with int16, int32, uint16 and uint32
-- driver IEC 68070:
+- driver IEC 60870:
   * added writing
   * more supported data types 
   * in sampling/read mode only general interrogation command is possible, yet
 - driver EHZ:
-  * can read FNN Basiszaehler
+  * can read FNN Basiszaehler "INFO" interface
   * updated libraries
   * added scan progress
   * added listening

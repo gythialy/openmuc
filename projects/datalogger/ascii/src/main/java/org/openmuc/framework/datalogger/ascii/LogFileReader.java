@@ -20,6 +20,13 @@
  */
 package org.openmuc.framework.datalogger.ascii;
 
+import org.openmuc.framework.data.*;
+import org.openmuc.framework.datalogger.ascii.utils.Const;
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
+import org.openmuc.framework.datalogger.spi.LogChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -30,17 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.openmuc.framework.data.ByteArrayValue;
-import org.openmuc.framework.data.DoubleValue;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Record;
-import org.openmuc.framework.data.StringValue;
-import org.openmuc.framework.datalogger.ascii.utils.Const;
-import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
-import org.openmuc.framework.datalogger.spi.LogChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LogFileReader {
 
@@ -57,16 +53,14 @@ public class LogFileReader {
 
     /**
      * LogFileReader Constructor
-     * 
-     * @param path
-     *            the path to the files to read from
-     * @param logChannel
-     *            the channel to read from
+     *
+     * @param path       the path to the files to read from
+     * @param logChannel the channel to read from
      */
     public LogFileReader(String path, LogChannel logChannel) {
 
         this.path = path;
-        ids = new String[] { logChannel.getId(), Const.TIMESTAMP_STRING };
+        ids = new String[]{logChannel.getId(), Const.TIMESTAMP_STRING};
         this.loggingInterval = logChannel.getLoggingInterval();
         this.logTimeOffset = logChannel.getLoggingTimeOffset();
         firstTimestampFromFile = -1;
@@ -74,11 +68,9 @@ public class LogFileReader {
 
     /**
      * Get the values between start time stamp and end time stamp
-     * 
-     * @param startTimestamp
-     *            start time stamp
-     * @param endTimestamp
-     *            end time stamp
+     *
+     * @param startTimestamp start time stamp
+     * @param endTimestamp   end time stamp
      * @return All records of the given time span
      */
     public Map<String, List<Record>> getValues(long startTimestamp, long endTimestamp) {
@@ -102,8 +94,7 @@ public class LogFileReader {
             String filepath;
             if (path.endsWith(File.separator)) {
                 filepath = path + filenames.get(i);
-            }
-            else {
+            } else {
                 filepath = path + File.separatorChar + filenames.get(i);
             }
 
@@ -118,8 +109,7 @@ public class LogFileReader {
     /**
      * get a single record from single channel of time stamp
      *
-     * @param timestamp
-     *            time stamp
+     * @param timestamp time stamp
      * @return Record on success, otherwise null
      */
     public Map<String, Record> getValue(long timestamp) {
@@ -140,12 +130,10 @@ public class LogFileReader {
             if (recordList == null || recordList.size() == 0) {
                 // no record found for requested timestamp
                 record = null;// new Record(Flag.UNKNOWN_ERROR);
-            }
-            else if (recordsMap.size() == 1) {
+            } else if (recordsMap.size() == 1) {
                 // t_request lays between two logged values
                 record = recordList.get(0);
-            }
-            else {
+            } else {
                 record = new Record(Flag.UNKNOWN_ERROR);
             }
             recordMap.put(entries.getKey(), record);
@@ -156,15 +144,13 @@ public class LogFileReader {
 
     /**
      * Reads the file line by line
-     * 
-     * @param filepath
-     *            file path
-     * @param nextFile
-     *            if it is the next file and not the first between a time span
+     *
+     * @param filepath file path
+     * @param nextFile if it is the next file and not the first between a time span
      * @return records on success, otherwise null
      */
     private Map<String, List<Record>> processFile(Map<String, List<Record>> recordsMap, String filepath,
-            Boolean nextFile) {
+                                                  Boolean nextFile) {
 
         String line = null;
         long currentPosition = 0;
@@ -187,7 +173,7 @@ public class LogFileReader {
             unixTimestampColumn = channelsColumnsMap.get(Const.TIMESTAMP_STRING);
             firstValueLine = raf.readLine();
 
-            rowSize = firstValueLine.length() + 1; // +1 because of "\n"
+            rowSize = firstValueLine.length() + 1l; // +1 because of "\n"
 
             // rewind the position to the start of the firstValue line
             currentPosition = raf.getFilePointer() - rowSize;
@@ -212,8 +198,7 @@ public class LogFileReader {
                     currentTimestamp += loggingInterval;
                 }
                 raf.close();
-            }
-            else {
+            } else {
                 recordsMap = null; // because the column of the channel was not identified
             }
         } catch (IOException e) {
@@ -225,16 +210,13 @@ public class LogFileReader {
 
     /**
      * Process the line: ignore comments, read records
-     * 
-     * @param line
-     *            the line to process
-     * @param channelColumn
-     *            channel column
-     * @param recordsMap
-     *            list of records
+     *
+     * @param line          the line to process
+     * @param channelColumn channel column
+     * @param recordsMap    list of records
      */
     private void processLine(String line, Map<String, Integer> channelsColumnsMap,
-            Map<String, List<Record>> recordsMap) {
+                             Map<String, List<Record>> recordsMap) {
 
         if (!line.startsWith(Const.COMMENT_SIGN)) {
             readRecordsFromLine(line, channelsColumnsMap, recordsMap);
@@ -243,15 +225,13 @@ public class LogFileReader {
 
     /**
      * read the records from a line.
-     * 
-     * @param line
-     *            to read
-     * @param column
-     *            of the channelId
+     *
+     * @param line   to read
+     * @param column of the channelId
      * @return Records read from line
      */
     private void readRecordsFromLine(String line, Map<String, Integer> channelsColumnsMap,
-            Map<String, List<Record>> recordsMap) {
+                                     Map<String, List<Record>> recordsMap) {
 
         String columnValue[] = line.split(Const.SEPARATOR);
 
@@ -270,8 +250,7 @@ public class LogFileReader {
                     }
                     list.add(record);
                 }
-            }
-            else {
+            } else {
                 if (logger.isTraceEnabled()) {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
                     logger.trace("timestampMS: " + sdf.format(timestampMS) + " " + timestampMS);
@@ -280,15 +259,14 @@ public class LogFileReader {
         } catch (NumberFormatException e) {
             logger.warn("It's not a timestamp.\n", e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
+            logger.error("Array Index Out Of Bounds Exception. ", e);
         }
     }
 
     /**
      * Checks if the time stamp read from file is part of the requested logging interval
-     * 
-     * @param lineTimestamp
-     *            time stamp to check if it is part of the time span
+     *
+     * @param lineTimestamp time stamp to check if it is part of the time span
      * @return true if it is a part of the requested interval, if not false.
      */
     private boolean isTimestampPartOfRequestedInterval(long lineTimestamp) {
@@ -307,15 +285,13 @@ public class LogFileReader {
 
     /**
      * Get the position of the startTimestamp, without Header.
-     * 
-     * @param loggingInterval
-     *            logging interval
-     * @param startTimestamp
-     *            start time stamp
+     *
+     * @param loggingInterval logging interval
+     * @param startTimestamp  start time stamp
      * @return the position of the start timestamp as long.
      */
     private long getFilePosition(int loggingInterval, long startTimestamp, long firstTimestampOfFile,
-            long firstValuePos, long rowSize) {
+                                 long firstValuePos, long rowSize) {
 
         long timeOffsetMs = startTimestamp - firstTimestampOfFile;
         long numberOfLinesToSkip = timeOffsetMs / loggingInterval;
@@ -331,13 +307,12 @@ public class LogFileReader {
     }
 
     // TODO support ints, booleans, ...
+
     /**
      * Converts an entry from the logging file into a record
-     * 
-     * @param strValue
-     *            string value
-     * @param timestamp
-     *            time stamp
+     *
+     * @param strValue  string value
+     * @param timestamp time stamp
      * @return the converted logfile entry.
      */
     private Record convertLogfileEntryToRecord(String strValue, long timestamp) {
@@ -345,8 +320,7 @@ public class LogFileReader {
         Record record = null;
         if (isNumber(strValue)) {
             record = new Record(new DoubleValue(Double.parseDouble(strValue)), timestamp, Flag.VALID);
-        }
-        else {
+        } else {
             record = getRecordFromNonNumberValue(strValue, timestamp);
         }
         return record;
@@ -355,11 +329,9 @@ public class LogFileReader {
     /**
      * Returns the record from a non number value read from the logfile. This is the case if the value is an error like
      * "e0" or a normal ByteArrayValue
-     * 
-     * @param strValue
-     *            string value
-     * @param timestamp
-     *            time stamp
+     *
+     * @param strValue  string value
+     * @param timestamp time stamp
      * @return the value in a record.
      */
     private Record getRecordFromNonNumberValue(String strValue, long timestamp) {
@@ -375,12 +347,10 @@ public class LogFileReader {
 
             if (isNumber(errorFlag)) {
                 record = new Record(null, timestamp, Flag.newFlag(Integer.parseInt(errorFlag)));
-            }
-            else {
+            } else {
                 record = new Record(null, timestamp, Flag.NO_VALUE_RECEIVED_YET);
             }
-        }
-        else if (strValue.trim().startsWith(Const.HEXADECIMAL)) {
+        } else if (strValue.trim().startsWith(Const.HEXADECIMAL)) {
             try {
                 record = new Record(new ByteArrayValue(strValue.trim().getBytes(Const.CHAR_SET)), timestamp,
                         Flag.VALID);
@@ -388,8 +358,7 @@ public class LogFileReader {
                 record = new Record(Flag.UNKNOWN_ERROR);
                 logger.error("Hexadecimal value is non US-ASCII decoded, value is: " + strValue.trim());
             }
-        }
-        else {
+        } else {
             record = new Record(new StringValue(strValue.trim()), timestamp, Flag.VALID);
         }
         return record;
@@ -397,9 +366,8 @@ public class LogFileReader {
 
     /**
      * Checks if the string value is a number
-     * 
-     * @param strValue
-     *            string value
+     *
+     * @param strValue string value
      * @return True on success, otherwise false
      */
     private boolean isNumber(String strValue) {

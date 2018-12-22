@@ -36,11 +36,10 @@ public class IntegerMappingInputRegister extends MappingInputRegister {
         if (useUnscaledValues) {
             Value value = channel.getLatestRecord().getValue();
             bytes = new IntValue(value.asInt() / (int) channel.getScalingFactor()).asByteArray();
-        }
-        else {
+        } else {
             bytes = new IntValue(channel.getLatestRecord().getValue().asInt()).asByteArray();
         }
-        byte[] toReturn = { bytes[highByte], bytes[lowByte] };
+        byte[] toReturn = {bytes[highByte], bytes[lowByte]};
         return toReturn;
     }
 

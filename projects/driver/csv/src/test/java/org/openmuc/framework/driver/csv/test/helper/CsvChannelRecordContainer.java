@@ -6,8 +6,8 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
 public class CsvChannelRecordContainer implements ChannelRecordContainer {
 
-    private Record record;
     private final String channelAddress;
+    private Record record;
 
     public CsvChannelRecordContainer(String channelAddress) {
         this.channelAddress = channelAddress;
@@ -16,6 +16,11 @@ public class CsvChannelRecordContainer implements ChannelRecordContainer {
     @Override
     public Record getRecord() {
         return record;
+    }
+
+    @Override
+    public void setRecord(Record record) {
+        this.record = record;
     }
 
     @Override
@@ -39,11 +44,6 @@ public class CsvChannelRecordContainer implements ChannelRecordContainer {
     public void setChannelHandle(Object handle) {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public void setRecord(Record record) {
-        this.record = record;
     }
 
     @Override

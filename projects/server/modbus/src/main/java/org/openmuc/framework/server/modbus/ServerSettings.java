@@ -2,17 +2,15 @@ package org.openmuc.framework.server.modbus;
 
 class ServerSettings {
 
-    private int unitId = 15;
-    private int port = 502;
-    private String address = "127.0.0.1";
-    private boolean master = false;
-
     private static final String NAME = ServerSettings.class.getPackage().getName().toLowerCase();
-
     private static final String PORT_STRING = System.getProperty(NAME + ".port");
     private static final String ADDRESS = System.getProperty(NAME + ".address");
     private static final String UNITID_STRING = System.getProperty(NAME + ".unitId");
     private static final String MASTER_STRING = System.getProperty(NAME + ".master");
+    private int unitId = 15;
+    private int port = 502;
+    private String address = "127.0.0.1";
+    private boolean master = false;
 
     ServerSettings() {
         if (PORT_STRING != null) {

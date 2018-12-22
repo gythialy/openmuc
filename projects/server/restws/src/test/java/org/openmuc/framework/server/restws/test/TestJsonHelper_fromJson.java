@@ -20,19 +20,19 @@
  */
 package org.openmuc.framework.server.restws.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.lib.json.Const;
 import org.openmuc.framework.lib.json.FromJson;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestJsonHelper_fromJson {
 
@@ -55,9 +55,9 @@ public class TestJsonHelper_fromJson {
         String testJsonStringValue = "\"value\":" + stringValueWithTicks;
 
         // ValueType enum: DOUBLE, FLOAT, LONG, INTEGER, SHORT, BYTE, BOOLEAN, BYTE_ARRAY, STRING
-        String[] testJsonValueArray = { testJsonDoubleValue, testJsonFloatValue, testJsonLongValue,
+        String[] testJsonValueArray = {testJsonDoubleValue, testJsonFloatValue, testJsonLongValue,
                 testJsonIntegerValue, testJsonShortValue, testJsonByteValue, testJsonBooleanValue,
-                testJsonByteArrayValue, testJsonStringValue };
+                testJsonByteArrayValue, testJsonStringValue};
 
         String testRecord = "\"" + Const.RECORD + "\":{\"timestamp\":" + Constants.TIMESTAMP + ",\"flag\":\""
                 + Constants.TEST_FLAG.toString() + "\",";

@@ -34,7 +34,7 @@ public class LogChannelTestImpl implements LogChannel {
     private Integer valueLength;
 
     public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
-            Integer loggingTimeOffset) {
+                              Integer loggingTimeOffset) {
 
         this.id = id;
         this.description = description;
@@ -45,7 +45,7 @@ public class LogChannelTestImpl implements LogChannel {
     }
 
     public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
-            Integer loggingTimeOffset, int valueLength) {
+                              Integer loggingTimeOffset, int valueLength) {
 
         this(id, description, unit, valueType, loggingInterval, loggingTimeOffset);
         this.valueLength = valueLength;

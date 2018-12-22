@@ -1,27 +1,26 @@
-
 def projectName = 'OpenMUC Core - Data Manager'
 
 dependencies {
-  testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 
-  compile project(':openmuc-core-spi') 
-  compile group:'org.apache.felix',name:'org.apache.felix.gogo.runtime', version:'0.16.2'
+    compile project(':openmuc-core-spi')
+    compile group: 'org.apache.felix', name: 'org.apache.felix.gogo.runtime', version: '0.16.2'
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Export-Package', ''
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description 'The data manager is the core bundle of the OpenMUC framework.'
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description 'The data manager is the core bundle of the OpenMUC framework.'
+            }
+        }
     }
-  }
 }

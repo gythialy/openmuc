@@ -36,11 +36,10 @@ public class DoubleMappingInputRegister extends MappingInputRegister {
         if (useUnscaledValues) {
             Value value = channel.getLatestRecord().getValue();
             bytes = new DoubleValue(value.asDouble() / channel.getScalingFactor()).asByteArray();
-        }
-        else {
+        } else {
             bytes = new DoubleValue(channel.getLatestRecord().getValue().asDouble()).asByteArray();
         }
-        byte[] toReturn = { bytes[highByte], bytes[lowByte] };
+        byte[] toReturn = {bytes[highByte], bytes[lowByte]};
         return toReturn;
     }
 

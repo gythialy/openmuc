@@ -10,9 +10,9 @@ configurations.osgibundles.transitive = false;
 configurations.osgimain.transitive = false;
 
 dependencies {
-  def openmucVersion = "0.17.0"
+  def openmucVersion = "0.17.1"
 
-  osgimain group:    "org.apache.felix",      name: "org.apache.felix.main",             version: "5.6.10"
+  osgimain group:    "org.apache.felix",      name: "org.apache.felix.main",             version: "6.0.0"
 
   osgibundles group: "org.openmuc.framework", name: "openmuc-core-api",                  version: openmucVersion
   osgibundles group: "org.openmuc.framework", name: "openmuc-core-spi",                  version: openmucVersion
@@ -39,10 +39,10 @@ dependencies {
   //--------------------------------------------------------------------------------------------------
   // The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)
   //--------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.runtime",      version: "1.0.10"
+  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.runtime",      version: "1.1.0"
   osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.command",      version: "1.0.2"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.jline",        version: "1.0.10"
-  osgibundles group: "org.jline",            name: "jline",                              version: "3.5.2"
+  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.jline",        version: "1.1.0"
+  osgibundles group: "org.jline",            name: "jline",                              version: "3.8.0"
 
   //--------------------------------------------------------------------------------------------------
   // Adds a telnet server so that the Felix Gogo Shell can be accessed
@@ -65,21 +65,21 @@ dependencies {
   // Apache Felix Service Component Runtime that implements the OSGi Declarative Services Specification
   // the OpenMUC core bundles use declarative services and thus depend on them
   //--------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",    name: "org.apache.felix.scr",                version: "2.0.14"
+  osgibundles group: "org.apache.felix",    name: "org.apache.felix.scr",                version: "2.1.0"
 
   //--------------------------------------------------------------------------------------------------
   // An implementation of the OSGi HTTP Service Specification, needed by the WebUI bundles
   //--------------------------------------------------------------------------------------------------
   osgibundles group: "org.apache.felix",    name: "org.apache.felix.http.servlet-api",   version: "1.1.2"
   osgibundles group: "org.apache.felix",    name: "org.apache.felix.http.api",           version: "3.0.0"
-  osgibundles group: "org.apache.felix",    name: "org.apache.felix.http.jetty",         version: "3.4.8"
+  osgibundles group: "org.apache.felix",    name: "org.apache.felix.http.jetty",         version: "4.0.0"
 
   //--------------------------------------------------------------------------------------------------
   // Implementations of the OSGi Event Admin, Configuration Admin and MetaType services, needed by jetty
   //--------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.eventadmin",        version: "1.4.10"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.configadmin",       version: "1.8.16"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.metatype",          version: "1.1.6"
+  osgibundles group: "org.apache.felix",     name: "org.apache.felix.eventadmin",        version: "1.5.0"
+  osgibundles group: "org.apache.felix",     name: "org.apache.felix.configadmin",       version: "1.9.2"
+  osgibundles group: "org.apache.felix",     name: "org.apache.felix.metatype",          version: "1.2.0"
 
   //--------------------------------------------------------------------------------------------------
   // Adds a web console for felix bundle management

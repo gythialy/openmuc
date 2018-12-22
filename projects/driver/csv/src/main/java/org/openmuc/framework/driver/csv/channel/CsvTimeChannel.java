@@ -1,18 +1,20 @@
 package org.openmuc.framework.driver.csv.channel;
 
-import java.util.List;
-
 import org.openmuc.framework.driver.csv.exceptions.CsvException;
 import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public abstract class CsvTimeChannel implements CsvChannel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvTimeChannel.class);
 
-    /** remember index of last valid sampled value */
+    /**
+     * remember index of last valid sampled value
+     */
     protected int lastReadIndex = 0;
 
     protected int maxIndex;
@@ -37,8 +39,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
 
         if (isWithinTimeperiod(samplingTime)) {
             index = handleWithinTimeperiod(samplingTime);
-        }
-        else { // is outside time period
+        } else { // is outside time period
             index = handleOutsideTimeperiod(samplingTime);
         }
 
@@ -51,11 +52,9 @@ public abstract class CsvTimeChannel implements CsvChannel {
     private int handleWithinTimeperiod(long samplingTime) throws CsvException {
         if (isBehindLastReadIndex(samplingTime)) {
             return getIndexByRegularSearch(samplingTime);
-        }
-        else if (isBeforeLastReadIndex(samplingTime)) {
+        } else if (isBeforeLastReadIndex(samplingTime)) {
             return handleBeforeLastReadIndex(samplingTime);
-        }
-        else { // is same timestamp
+        } else { // is same timestamp
             return lastReadIndex;
         }
     }
@@ -64,8 +63,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
         if (rewind) {
             rewindIndex();
             return getIndexByRegularSearch(samplingTime);
-        }
-        else { // rewind disabled
+        } else { // rewind disabled
             throw new TimeTravelException(
                     "Current sampling time is before the last sampling time. Since rewind is disabled, driver can't get value for current sampling time.");
         }
@@ -74,8 +72,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
     private int handleOutsideTimeperiod(long samplingTime) throws CsvException {
         if (isBeforeFirstTimestamp(samplingTime)) {
             return handleOutsideTimeperiodEarly(samplingTime);
-        }
-        else { // is after last timestamp
+        } else { // is after last timestamp
             LOGGER.warn(
                     "Current sampling time is behind last available timestamp of csv file. Returning value corresponding to last timestamp in file.");
             return maxIndex;
@@ -102,8 +99,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
 
         if (samplingTime == nextTimestamp) {
             return nextIndex;
-        }
-        else {
+        } else {
             return nextIndex - 1;
         }
 
@@ -112,8 +108,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
     private boolean isBeforeLastReadIndex(long samplingTime) {
         if (samplingTime < timestamps[lastReadIndex]) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -125,8 +120,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
     private boolean isBehindLastReadIndex(long samplingTime) {
         if (samplingTime > timestamps[lastReadIndex]) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -135,8 +129,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
         if (isInitialised) {
             throw new TimeTravelException(
                     "Illogical time jump for sampling time. Driver can't find corresponding value in csv file.");
-        }
-        else {
+        } else {
             throw new NoValueReceivedYetException("Sampling time before first timestamp of csv file.");
         }
     }
@@ -144,8 +137,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
     private boolean isWithinTimeperiod(long samplingTime) {
         if (samplingTime >= firstTimestamp && samplingTime <= lastTimestamp) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -153,8 +145,7 @@ public abstract class CsvTimeChannel implements CsvChannel {
     private boolean isBeforeFirstTimestamp(long samplingTime) {
         if (samplingTime < firstTimestamp) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

@@ -14,6 +14,7 @@
       <channel id="power_photovoltaics">
         <description>pv_power_production</description>
         <channelAddress>pv_power_production</channelAddress>
+        <unit>W</unit>
         <samplingInterval>5s</samplingInterval>
         <loggingInterval>5s</loggingInterval>
       </channel>

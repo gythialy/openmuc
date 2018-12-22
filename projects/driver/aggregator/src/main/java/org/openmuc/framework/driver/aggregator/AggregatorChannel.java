@@ -1,15 +1,15 @@
 package org.openmuc.framework.driver.aggregator;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.TypeConversionException;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 public abstract class AggregatorChannel {
 
@@ -43,14 +43,11 @@ public abstract class AggregatorChannel {
 
     /**
      * Performs aggregation.
-     * 
-     * @param currentTimestamp
-     *            start TS.
-     * @param endTimestamp
-     *            stop TS.
+     *
+     * @param currentTimestamp start TS.
+     * @param endTimestamp     stop TS.
      * @return the aggregated value.
-     * @throws AggregationException
-     *             if an error occurs.
+     * @throws AggregationException if an error occurs.
      */
     public abstract double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException;
 
@@ -90,7 +87,7 @@ public abstract class AggregatorChannel {
 
     /**
      * Checks limitations of the sampling/aggregating intervals and sourceSamplingOffset
-     * 
+     *
      * @param sourceLoggingInterval
      * @param aggregationInterval
      * @param sourceSamplingOffset
@@ -147,7 +144,7 @@ public abstract class AggregatorChannel {
 
     /**
      * Removes invalid records from the list. All records remaining a valid DOUBLE records.
-     * 
+     * <p>
      * NOTE: directly manipulates the records object for all future operations!
      */
     private void removeErrorRecords(List<Record> records) {

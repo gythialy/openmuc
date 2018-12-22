@@ -2,53 +2,53 @@
 
 <div ng-repeat="device in checkedDevices">
 
-  <div class="alert alert-primary"><b>{{device.id}}</b></div>
+    <div class="alert alert-primary"><b>{{device.id}}</b></div>
 
-  <div class="table-responsive">
-    <table class="table table-hover">
-	    <thead>
-	      <tr>
-	        <th>{{'CHANNEL_ACCESS_TOOL_CHANNEL_ID' | translate}}</th>
-	        <th>{{'LATEST_RECORD' | translate}}</th>
-	        <th><label for="value-input">{{'WRITE' | translate}}</label></th>
-	        <th>{{'DESCRIPTION' | translate}}</th>
-	      </tr>
-	    </thead>
-	    <tr ng-repeat="channel in channelsMapAsArray(device.channels)">
-	      <td>{{channel.id}}</td>
-	      <td>
-	        <div>
-				<b>{{'VALUE' | translate}}:</b> {{channel.records.value | intArrayToHexArray}} <span> {{channel.data.unit}}</span>
-	        </div>
-	        <div>
-				<b>{{'TIME' | translate}}:</b> {{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss a'}}
-	        </div>
-	        <div>
-				<b>{{'FLAG' | translate}}:</b> {{channel.records.flag}}
-	        </div>
-	      </td>
-	      <td>
-	        <form class="form-inline">
-				<input id="value-input" type="text" class="form-control" ng-model="channel.newValue" />
-				<input type="submit"
-					   ng-click="setNewValue(channel, true)"
-					   class="btn btn-default" value="{{'WRITE_VALUE' | translate}}"
-					   data-title="{{'WRITE_VALUE_DESCRIPTION' | translate}}"
-					   bs-tooltip />
-				<input type="submit"
-					   ng-click="setNewValue(channel, false)"
-					   class="btn btn-default" value="{{'SET_RECORD' | translate}}"
-					   data-title="{{'SET_RECORD_DESCRIPTION' | translate}}"
-					   bs-tooltip />
-	        </form>
-	      </td>
-	      <td>{{device.data.description}}</td>
-	    </tr>
-	  </table>
-  </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>{{'CHANNEL_ACCESS_TOOL_CHANNEL_ID' | translate}}</th>
+                <th>{{'LATEST_RECORD' | translate}}</th>
+                <th><label for="value-input">{{'WRITE' | translate}}</label></th>
+                <th>{{'DESCRIPTION' | translate}}</th>
+            </tr>
+            </thead>
+            <tr ng-repeat="channel in channelsMapAsArray(device.channels)">
+                <td>{{channel.id}}</td>
+                <td>
+                    <div>
+                        <b>{{'VALUE' | translate}}:</b> {{channel.records.value | intArrayToHexArray}} <span> {{channel.data.unit}}</span>
+                    </div>
+                    <div>
+                        <b>{{'TIME' | translate}}:</b> {{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss a'}}
+                    </div>
+                    <div>
+                        <b>{{'FLAG' | translate}}:</b> {{channel.records.flag}}
+                    </div>
+                </td>
+                <td>
+                    <form class="form-inline">
+                        <input id="value-input" type="text" class="form-control" ng-model="channel.newValue"/>
+                        <input type="submit"
+                               ng-click="setNewValue(channel, true)"
+                               class="btn btn-default" value="{{'WRITE_VALUE' | translate}}"
+                               data-title="{{'WRITE_VALUE_DESCRIPTION' | translate}}"
+                               bs-tooltip/>
+                        <input type="submit"
+                               ng-click="setNewValue(channel, false)"
+                               class="btn btn-default" value="{{'SET_RECORD' | translate}}"
+                               data-title="{{'SET_RECORD_DESCRIPTION' | translate}}"
+                               bs-tooltip/>
+                    </form>
+                </td>
+                <td>{{device.data.description}}</td>
+            </tr>
+        </table>
+    </div>
 
 </div>
 
-<br />
+<br/>
 
 <a ui-sref="channelaccesstool.index" class="btn btn-default">{{'BACK_TO_SELECTION' | translate}}</a>

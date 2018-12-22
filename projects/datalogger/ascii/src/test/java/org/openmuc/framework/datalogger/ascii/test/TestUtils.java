@@ -20,6 +20,8 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
+
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,8 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-
-import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 
 public class TestUtils {
     public static final String TESTFOLDER = "test";

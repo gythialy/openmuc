@@ -20,29 +20,21 @@
  */
 package org.openmuc.framework.driver.dlms;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.driver.dlms.settings.DeviceAddress;
 import org.openmuc.framework.driver.dlms.settings.DeviceSettings;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
-import org.openmuc.jdlms.AccessResultCode;
-import org.openmuc.jdlms.AttributeAddress;
-import org.openmuc.jdlms.DlmsConnection;
-import org.openmuc.jdlms.GetResult;
-import org.openmuc.jdlms.ObisCode;
+import org.openmuc.framework.driver.spi.*;
+import org.openmuc.jdlms.*;
 import org.openmuc.jdlms.datatypes.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 class DlmsCosemConnection implements Connection {
 
@@ -64,6 +56,31 @@ class DlmsCosemConnection implements Connection {
 
         this.readHandle = new ReadHandle(this.dlmsConnection);
         this.writeHandle = new WriteHandle(dlmsConnection);
+    }
+
+    private static ChannelScanInfo createScanInfoFor(int classId, byte[] logicalName, DataObject attributeAccess) {
+        List<DataObject> value = attributeAccess.getValue();
+        int attributeId = extractNumVal(value.get(0));
+
+        AttributeAccessMode accessMode = AttributeAccessMode.accessModeFor(value.get(1));
+
+        ObisCode instanceId = new ObisCode(logicalName);
+
+        String channelAddress = MessageFormat.format("a={0}/{1}/{2}", classId, instanceId, attributeId);
+
+        int valueTypeLength = 0;
+
+        // TODO: more/better description
+        String description = channelAddress;
+
+        return new ChannelScanInfo(channelAddress, description, ValueType.DOUBLE, valueTypeLength,
+                accessMode.isReadable(), accessMode.isWriteable());
+
+    }
+
+    private static int extractNumVal(DataObject dataObject) {
+        Number attributeId = dataObject.getValue();
+        return attributeId.intValue() & 0xFF;
     }
 
     @Override
@@ -93,21 +110,25 @@ class DlmsCosemConnection implements Connection {
 
     @Override
     public List<ChannelScanInfo> scanForChannels(String settings) throws ConnectionException {
+        if (deviceSettings.useSn()) {
+            throw new UnsupportedOperationException("Scan devices for SN is not supported, yet.");
+        }
+
         AttributeAddress scanChannel = new AttributeAddress(15, "0.0.40.0.0.255", 2);
         GetResult scanResult = executeScan(scanChannel);
-
         if (scanResult.getResultCode() != AccessResultCode.SUCCESS) {
             logger.error("Cannot scan device for channels. Resultcode: " + scanResult.getResultCode());
             throw new ConnectionException("Cannot scan device for channels.");
         }
 
         List<DataObject> objectArray = scanResult.getResultData().getValue();
-
         List<ChannelScanInfo> result = new ArrayList<>(objectArray.size());
         for (DataObject objectDef : objectArray) {
             List<DataObject> defItems = objectDef.getValue();
+
             int classId = defItems.get(0).getValue();
             classId &= 0xFF;
+
             byte[] instanceId = defItems.get(2).getValue();
             List<DataObject> accessRight = defItems.get(3).getValue();
             List<DataObject> attributes = accessRight.get(0).getValue();
@@ -130,33 +151,8 @@ class DlmsCosemConnection implements Connection {
 
     @Override
     public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
-            throws UnsupportedOperationException, ConnectionException {
+            throws ConnectionException {
         throw new UnsupportedOperationException();
-    }
-
-    private static ChannelScanInfo createScanInfoFor(int classId, byte[] logicalName, DataObject attributeAccess) {
-        List<DataObject> value = attributeAccess.getValue();
-        int attributeId = extractNumVal(value.get(0));
-
-        AttributeAccessMode accessMode = AttributeAccessMode.accessModeFor(value.get(1));
-
-        ObisCode instanceId = new ObisCode(logicalName);
-
-        String channelAddress = MessageFormat.format("a={0}/{1}/{2}", classId, instanceId.toString(), attributeId);
-
-        int valueTypeLength = 0;
-
-        // TODO: more/better description
-        String description = channelAddress;
-
-        return new ChannelScanInfo(channelAddress, description, ValueType.DOUBLE, valueTypeLength,
-                accessMode.isReadable(), accessMode.isWriteable());
-
-    }
-
-    private static int extractNumVal(DataObject dataObject) {
-        Number attributeId = dataObject.getValue();
-        return attributeId.intValue() & 0xFF;
     }
 
     private enum AttributeAccessMode {
@@ -180,14 +176,6 @@ class DlmsCosemConnection implements Connection {
             this.writeable = writeable;
         }
 
-        public boolean isReadable() {
-            return readable;
-        }
-
-        public boolean isWriteable() {
-            return writeable;
-        }
-
         public static AttributeAccessMode accessModeFor(DataObject dataObject) {
             Number code = dataObject.getValue();
             return accessModeFor(code.intValue() & 0xFF);
@@ -201,6 +189,14 @@ class DlmsCosemConnection implements Connection {
             }
 
             return UNKNOWN_ACCESS_MODE;
+        }
+
+        public boolean isReadable() {
+            return readable;
+        }
+
+        public boolean isWriteable() {
+            return writeable;
         }
 
     }

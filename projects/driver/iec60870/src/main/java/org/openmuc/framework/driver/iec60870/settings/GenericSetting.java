@@ -1,5 +1,9 @@
 package org.openmuc.framework.driver.iec60870.settings;
 
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -7,10 +11,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Locale;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class GenericSetting {
 
@@ -36,8 +36,7 @@ public abstract class GenericSetting {
                     + genericSettings.getSimpleName() + ". Report driver developer.";
             logger.error(errorMessage);
             sb.append(errorMessage);
-        }
-        else {
+        } else {
             sb.append("Synopsis:");
             boolean first = true;
             try {
@@ -53,8 +52,7 @@ public abstract class GenericSetting {
                         }
                         first = false;
                         sb.append(' ' + value + PAIR_SEP + " <" + option.name().toLowerCase(LOCALE) + '>');
-                    }
-                    else {
+                    } else {
                         sbNotMandetory.append(
                                 " [" + SEPARATOR + value + PAIR_SEP + " <" + option.name().toLowerCase(LOCALE) + ">]");
                     }
@@ -70,46 +68,33 @@ public abstract class GenericSetting {
         return sb.toString();
     }
 
-    public interface OptionI {
+    private static byte[] fromShortHexString(String shortHexString) throws NumberFormatException {
 
-        String prefix();
+        validate(shortHexString);
 
-        Class<?> type();
+        int length = shortHexString.length();
 
-        boolean mandatory();
+        byte[] data = new byte[length / 2];
+        for (int i = 0; i < length; i += 2) {
+            int firstCharacter = Character.digit(shortHexString.charAt(i), 16);
+            int secondCharacter = Character.digit(shortHexString.charAt(i + 1), 16);
+
+            if (firstCharacter == -1 || secondCharacter == -1) {
+                throw new NumberFormatException("string is not a legal hex string.");
+            }
+
+            data[i / 2] = (byte) ((firstCharacter << 4) + secondCharacter);
+        }
+        return data;
     }
 
-    /**
-     * Example Option Enum
-     */
-    @SuppressWarnings("unused")
-    private static enum Option implements OptionI {
-        EXAMPLE0("ex0", Integer.class, false),
-        EXAMPLE1("ex1", String.class, true);
-
-        private final String prefix;
-        private final Class<?> type;
-        private final boolean mandatory;
-
-        private Option(String prefix, Class<?> type, boolean mandatory) {
-            this.prefix = prefix;
-            this.type = type;
-            this.mandatory = mandatory;
+    private static void validate(String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("string s may not be null");
         }
 
-        @Override
-        public String prefix() {
-            return this.prefix;
-        }
-
-        @Override
-        public Class<?> type() {
-            return this.type;
-        }
-
-        @Override
-        public boolean mandatory() {
-            return this.mandatory;
+        if ((s.length() == 0) || ((s.length() % 2) != 0)) {
+            throw new NumberFormatException("string is not a legal hex string.");
         }
     }
 
@@ -174,50 +159,49 @@ public abstract class GenericSetting {
                                 + "\' problem to invoke method. Report driver developer.\n" + e);
             }
 
-        }
-        else if (settingsArrayLength > enumValuesLength) {
+        } else if (settingsArrayLength > enumValuesLength) {
             throw new ArgumentSyntaxException("Too much parameters in " + enclosingClassName + ".");
         }
         return settingsArrayLength;
     }
 
     private synchronized void setField(String value, String enumName, Class<?> type,
-            Class<? extends Enum<? extends OptionI>> options)
+                                       Class<? extends Enum<? extends OptionI>> options)
             throws IllegalAccessException, NoSuchFieldException, ArgumentSyntaxException {
         String optionName = enumName.toLowerCase(LOCALE);
         value = value.trim();
 
         switch (type.getSimpleName()) {
-        case "Boolean":
-            options.getDeclaringClass().getDeclaredField(optionName).setBoolean(this, extractBoolean(value, enumName));
-            break;
-        case "Short":
-            options.getDeclaringClass().getDeclaredField(optionName).setShort(this, extractShort(value, enumName));
-            break;
-        case "Integer":
-            options.getDeclaringClass().getDeclaredField(optionName).setInt(this, extractInteger(value, enumName));
-            break;
-        case "Long":
-            options.getDeclaringClass().getDeclaredField(optionName).setLong(this, extractLong(value, enumName));
-            break;
-        case "Float":
-            options.getDeclaringClass().getDeclaredField(optionName).setFloat(this, extractFloat(value, enumName));
-            break;
-        case "Double":
-            options.getDeclaringClass().getDeclaredField(optionName).setDouble(this, extractDouble(value, enumName));
-            break;
-        case "String":
-            options.getDeclaringClass().getDeclaredField(optionName).set(this, value);
-            break;
-        case "byte[]":
-            options.getDeclaringClass().getDeclaredField(optionName).set(this, extractByteArray(value, enumName));
-            break;
-        case "InetAddress":
-            options.getDeclaringClass().getDeclaredField(optionName).set(this, extractInetAddress(value, enumName));
-            break;
-        default:
-            throw new NoSuchFieldException(type.getSimpleName() + "  Driver implementation error, \'"
-                    + enumName.toLowerCase(LOCALE) + "\' not supported data type. Report driver developer\n");
+            case "Boolean":
+                options.getDeclaringClass().getDeclaredField(optionName).setBoolean(this, extractBoolean(value, enumName));
+                break;
+            case "Short":
+                options.getDeclaringClass().getDeclaredField(optionName).setShort(this, extractShort(value, enumName));
+                break;
+            case "Integer":
+                options.getDeclaringClass().getDeclaredField(optionName).setInt(this, extractInteger(value, enumName));
+                break;
+            case "Long":
+                options.getDeclaringClass().getDeclaredField(optionName).setLong(this, extractLong(value, enumName));
+                break;
+            case "Float":
+                options.getDeclaringClass().getDeclaredField(optionName).setFloat(this, extractFloat(value, enumName));
+                break;
+            case "Double":
+                options.getDeclaringClass().getDeclaredField(optionName).setDouble(this, extractDouble(value, enumName));
+                break;
+            case "String":
+                options.getDeclaringClass().getDeclaredField(optionName).set(this, value);
+                break;
+            case "byte[]":
+                options.getDeclaringClass().getDeclaredField(optionName).set(this, extractByteArray(value, enumName));
+                break;
+            case "InetAddress":
+                options.getDeclaringClass().getDeclaredField(optionName).set(this, extractInetAddress(value, enumName));
+                break;
+            default:
+                throw new NoSuchFieldException(type.getSimpleName() + "  Driver implementation error, \'"
+                        + enumName.toLowerCase(LOCALE) + "\' not supported data type. Report driver developer\n");
         }
     }
 
@@ -289,8 +273,7 @@ public abstract class GenericSetting {
             } catch (NumberFormatException e) {
                 argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());
             }
-        }
-        else {
+        } else {
             ret = value.getBytes(StandardCharsets.US_ASCII);
         }
 
@@ -314,34 +297,47 @@ public abstract class GenericSetting {
                 this.getClass().getSimpleName(), returnType));
     }
 
-    private static byte[] fromShortHexString(String shortHexString) throws NumberFormatException {
+    /**
+     * Example Option Enum
+     */
+    @SuppressWarnings("unused")
+    private static enum Option implements OptionI {
+        EXAMPLE0("ex0", Integer.class, false),
+        EXAMPLE1("ex1", String.class, true);
 
-        validate(shortHexString);
+        private final String prefix;
+        private final Class<?> type;
+        private final boolean mandatory;
 
-        int length = shortHexString.length();
-
-        byte[] data = new byte[length / 2];
-        for (int i = 0; i < length; i += 2) {
-            int firstCharacter = Character.digit(shortHexString.charAt(i), 16);
-            int secondCharacter = Character.digit(shortHexString.charAt(i + 1), 16);
-
-            if (firstCharacter == -1 || secondCharacter == -1) {
-                throw new NumberFormatException("string is not a legal hex string.");
-            }
-
-            data[i / 2] = (byte) ((firstCharacter << 4) + secondCharacter);
+        private Option(String prefix, Class<?> type, boolean mandatory) {
+            this.prefix = prefix;
+            this.type = type;
+            this.mandatory = mandatory;
         }
-        return data;
+
+        @Override
+        public String prefix() {
+            return this.prefix;
+        }
+
+        @Override
+        public Class<?> type() {
+            return this.type;
+        }
+
+        @Override
+        public boolean mandatory() {
+            return this.mandatory;
+        }
     }
 
-    private static void validate(String s) {
-        if (s == null) {
-            throw new IllegalArgumentException("string s may not be null");
-        }
+    public interface OptionI {
 
-        if ((s.length() == 0) || ((s.length() % 2) != 0)) {
-            throw new NumberFormatException("string is not a legal hex string.");
-        }
+        String prefix();
+
+        Class<?> type();
+
+        boolean mandatory();
     }
 
 }

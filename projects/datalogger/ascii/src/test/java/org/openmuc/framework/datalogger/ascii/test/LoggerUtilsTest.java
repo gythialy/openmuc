@@ -1,13 +1,5 @@
 package org.openmuc.framework.datalogger.ascii.test;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openmuc.framework.core.datamanager.LogRecordContainerImpl;
@@ -21,18 +13,19 @@ import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 
-public class LoggerUtilsTest {
+import java.util.*;
 
-    LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, true);
+import static org.junit.Assert.assertEquals;
+
+public class LoggerUtilsTest {
 
     private static int loggingInterval = 1; // ms;
     private static int loggingTimeOffset = 0; // ms;
-
     private static String ch01 = "Double";
     private static String dummy = "dummy";
-
     private static HashMap<String, LogChannel> logChannelList = new HashMap<>();
     private static Calendar calendar = new GregorianCalendar();
+    LogFileWriter lfw = new LogFileWriter(TestUtils.TESTFOLDERPATH, true);
 
     @BeforeClass
     public static void setup() {
@@ -59,6 +52,18 @@ public class LoggerUtilsTest {
             AsciiLogger.setLastLoggedLineTimeStamp(loggingInterval, loggingTimeOffset, calendar.getTimeInMillis());
             calendar.add(Calendar.MILLISECOND, loggingInterval);
         }
+    }
+
+    private static LogIntervalContainerGroup getGroup(long timeStamp, int i) {
+
+        LogIntervalContainerGroup group = new LogIntervalContainerGroup();
+
+        LogRecordContainer container1 = new LogRecordContainerImpl(ch01,
+                new Record(new DoubleValue(i * 7 - 0.555), timeStamp));
+
+        group.add(container1);
+
+        return group;
     }
 
     @Test
@@ -88,6 +93,10 @@ public class LoggerUtilsTest {
         assertEquals(actual, expected);
     }
 
+    // ####################################################################################################################
+    // ####################################################################################################################
+    // ####################################################################################################################
+
     @Test
     public void tc_503_test_fillUpFileWithErrorCode() {
 
@@ -106,21 +115,5 @@ public class LoggerUtilsTest {
 
         LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "dummy description", dummy, ValueType.DOUBLE,
                 loggingInterval, loggingTimeOffset);
-    }
-
-    // ####################################################################################################################
-    // ####################################################################################################################
-    // ####################################################################################################################
-
-    private static LogIntervalContainerGroup getGroup(long timeStamp, int i) {
-
-        LogIntervalContainerGroup group = new LogIntervalContainerGroup();
-
-        LogRecordContainer container1 = new LogRecordContainerImpl(ch01,
-                new Record(new DoubleValue(i * 7 - 0.555), timeStamp));
-
-        group.add(container1);
-
-        return group;
     }
 }

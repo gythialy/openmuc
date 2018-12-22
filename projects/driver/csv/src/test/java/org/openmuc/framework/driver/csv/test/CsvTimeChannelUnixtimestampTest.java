@@ -1,8 +1,5 @@
 package org.openmuc.framework.driver.csv.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,14 +10,16 @@ import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CsvTimeChannelUnixtimestampTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvTimeChannelUnixtimestampTest.class);
-
+    private static final long OFFSET = 1436306400000l;
     static List<String> data;
     static long[] timestamps;
     static double value;
-    private static final long OFFSET = 1436306400000l;
 
     @BeforeClass
     public static void initTestClass() {
@@ -33,9 +32,9 @@ public class CsvTimeChannelUnixtimestampTest {
 
         // TODO map hhmmss und timestamp
         // TODO ein gleiche parameter für CsvTimeChannelHourTest und CsvTimeChannelUnixtimestampTest
-        timestamps = new long[] { 1436306400000l /* 20150708 000000 */, 1436306405000l /* 20150708 000005 */,
+        timestamps = new long[]{1436306400000l /* 20150708 000000 */, 1436306405000l /* 20150708 000005 */,
                 1436306410000l /* 20150708 000010 */, 1436306415000l /* 20150708 000015 */,
-                1436306420000l /* 20150708 000020 */ };
+                1436306420000l /* 20150708 000020 */};
 
     }
 

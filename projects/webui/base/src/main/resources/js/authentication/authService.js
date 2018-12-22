@@ -1,62 +1,53 @@
-(function(){
-	
-	var injectParams = ['$rootScope', '$http', '$state', '$cookieStore', '$state', 'SETTINGS'];
-	
-	var AuthService = function($rootScope, $http, $state, $cookieStore, $state, SETTINGS) {
-		
-		this.login = function(credentials) {
+(function () {
 
-    		var req = {
-            		method: 'POST',
-            		url: SETTINGS.LOGIN_URL,
-            		data: $.param({user: credentials.user, pwd: credentials.pwd}),
-            		headers: {
-            			'Content-Type': 'application/x-www-form-urlencoded', 
-            		},
-            	};
+    var injectParams = ['$rootScope', '$http', '$state', 'SETTINGS'];
 
-    		return $http(req).then(function(response) {
-				return response.data;
-			});
-		};
-		
-		this.isLoggedIn = function() {
-			if ($cookieStore.get('user')) {
-				return true;
-			} else {
-				return false;
-			}
-		};
+    var AuthService = function ($rootScope, $http, $state, SETTINGS) {
+        var userName;
+        var auth;
 
-		this.currentPwd = function() {
-			return $cookieStore.get('pwd').pwd;
-		};
-
-        this.setCurrentPwd = function (pwd) {
-            $cookieStore.put('pwd', pwd);
+        this.login = function (credentials) {
+            var req = {
+                method: 'POST',
+                url: SETTINGS.LOGIN_URL,
+                data: $.param({user: credentials.user, pwd: credentials.pwd}),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            };
+            userName = credentials.user;
+            var p = $http(req);
+            p.then(r = > {
+                auth = 'Basic ' + btoa(credentials.user + ":" + credentials.pwd);
+        })
+            ;
+            return p;
         };
 
-		this.currentUsername = function() {
-			return $cookieStore.get('user').user;
-		};
-		
-		this.setCurrentUser = function (user) {
-			$cookieStore.put('user', user);
-		};
-		
-		this.redirectToLogin = function() {
-			$state.go('home');
-		};
-		
-		this.logout = function() {
-			$rootScope.currentUser = null;
-			$cookieStore.remove('user');
-		};
-		
-	};
+        this.currentUsername = function () {
+            return userName;
+        };
 
-	AuthService.$inject = injectParams;
+        this.getRestAuth = function () {
+            return auth;
+        };
 
-	angular.module('openmuc.auth').service('AuthService', AuthService);    
-	
+        this.redirectToLogin = function () {
+            $state.go('home');
+        };
+
+        this.isLoggedIn = function () {
+            return auth != null;
+        };
+
+        this.logout = function () {
+            auth = null;
+        };
+
+    };
+
+    AuthService.$inject = injectParams;
+
+    angular.module('openmuc.auth').service('AuthService', AuthService);
+
 })();

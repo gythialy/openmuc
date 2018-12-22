@@ -1,25 +1,24 @@
-
 def projectName = "OpenMUC Data Logger - SlotsDB"
 
 
 dependencies {
-  compile project(':openmuc-core-spi')
+    compile project(':openmuc-core-spi')
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Export-Package', ''
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description "SlotsDB is a binary data logger for the OpenMUC framework."
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description "SlotsDB is a binary data logger for the OpenMUC framework."
+            }
+        }
     }
-  }
 }

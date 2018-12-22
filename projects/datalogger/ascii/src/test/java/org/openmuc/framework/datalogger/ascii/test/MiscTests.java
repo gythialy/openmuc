@@ -20,9 +20,6 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
-import java.util.Iterator;
-import java.util.TreeMap;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,10 +28,13 @@ import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 
+import java.util.Iterator;
+import java.util.TreeMap;
+
 public class MiscTests {
 
-    public static final byte[] BYTE_ARRAY = { (byte) 0x00, (byte) 0x01, (byte) 0x0A, (byte) 0xAA, (byte) 0xBB,
-            (byte) 0xF7, (byte) 0xFF, (byte) 0xCA, (byte) 0xD5, 0x5E };
+    public static final byte[] BYTE_ARRAY = {(byte) 0x00, (byte) 0x01, (byte) 0x0A, (byte) 0xAA, (byte) 0xBB,
+            (byte) 0xF7, (byte) 0xFF, (byte) 0xCA, (byte) 0xD5, 0x5E};
     public static final String STRING_BYTE_ARRAY = "0x00010AAABBF7FFCAD55E";
 
     StringBuilder sb = new StringBuilder();

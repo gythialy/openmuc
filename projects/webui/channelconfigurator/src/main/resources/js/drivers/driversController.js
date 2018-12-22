@@ -1,39 +1,42 @@
 ﻿(function () {
-	
-	var injectParams = ['$scope', '$alert', '$state', '$translate', 'DriversService'];
-	
-	var DriversController = function($scope, $alert, $state, $translate, DriversService) {
-		
-		$translate('DRIVER_DELETED_SUCCESSFULLY').then(function(text) {
-			$scope.driverOKText = text;
-		});
 
-        $translate('DELETE_CONFIRM_MESSAGE').then(function(confirmMessage) {
-            $scope.confirmMessage = confirmMessage;
+    var injectParams = ['$scope', '$alert', '$state', '$translate', 'DriversService'];
+
+    var DriversController = function ($scope, $alert, $state, $translate, DriversService) {
+
+        $translate('DRIVER_DELETED_SUCCESSFULLY').then(text = > $scope.driverOKText = text
+    )
+        ;
+
+        $translate('DELETE_CONFIRM_MESSAGE').then(confirmMessage = > $scope.confirmMessage = confirmMessage
+    )
+        ;
+
+        $scope.drivers = [];
+
+        DriversService.getDrivers().then(function (drivers) {
+            $scope.drivers = drivers;
         });
 
-		$scope.drivers = [];
-		
-		DriversService.getDrivers().then(function(drivers){
-			$scope.drivers = drivers;
-		});
-		
-		$scope.deleteDriver = function(id) {
-            if (confirm($scope.confirmMessage + " " + id + "?") == true) {
-				DriversService.destroy(id).then(function(data) {
-					$alert({content: $scope.driverOKText, type: 'success'});
-				});
+        $scope.deleteDriver = function (id) {
+            if (!confirm($scope.confirmMessage + " " + id + "?")) {
+                return;
+            }
 
-				DriversService.getDrivers().then(function(drivers){
-					$scope.drivers = drivers;
-				});
-			}
-		};
-		
-	};
+            DriversService.destroy(id).then(function (data) {
+                $alert({content: $scope.driverOKText, type: 'success'});
 
-	DriversController.$inject = injectParams;
+                DriversService.getDrivers().then(function (drivers) {
+                    $scope.drivers = drivers;
+                });
+            });
 
-	angular.module('openmuc.drivers').controller('DriversController', DriversController);
-	
+        };
+
+    };
+
+    DriversController.$inject = injectParams;
+
+    angular.module('openmuc.drivers').controller('DriversController', DriversController);
+
 }());

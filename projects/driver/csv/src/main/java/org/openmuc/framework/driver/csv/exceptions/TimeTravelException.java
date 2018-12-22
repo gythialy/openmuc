@@ -7,7 +7,6 @@ package org.openmuc.framework.driver.csv.exceptions;
  * driver has successfully sampled a value within this period. Now the time has jumped and the next sampling time is
  * 090000 o'clock (so before the first entry of the csv file). The driver therefore can't find a value for this sampling
  * time.
- * 
  */
 public class TimeTravelException extends CsvException {
 

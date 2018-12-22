@@ -20,28 +20,18 @@
  */
 package org.openmuc.framework.driver.aggregator;
 
-import java.util.List;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.config.DriverInfo;
-import org.openmuc.framework.config.ScanException;
-import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
-import org.openmuc.framework.driver.spi.DriverService;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.driver.spi.*;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Driver which performs aggregation of logged values from a channel. It uses the DriverService and the
@@ -75,22 +65,22 @@ import org.slf4j.LoggerFactory;
  * values could appear as block at the beginning or end of the interval, which might be problematic for some aggregation
  * types</li>
  * </ul>
- * 
+ * <p>
  * Example: <br>
  * Channel A (channelA) is sampled and logged every 10 seconds.
- * 
+ *
  * <pre>
  * &lt;channelid="channelA"&gt;
  *   &lt;samplingInterval&gt;10s&lt;/samplingInterval&gt;
  *   &lt;loggingInterval&gt;10s&lt;/loggingInterval&gt;
  * &lt;/channel&gt;
  * </pre>
- * 
- * 
+ * <p>
+ * <p>
  * Now you want a channel B (channelB) which contains the same values as channel A but in a 1 minute resolution by using
  * the 'average' as aggregation type. You can achieve this by simply adding the aggregator driver to your channel config
  * file and define a the channel B as follows:
- * 
+ *
  * <pre>
  * &lt;driver id="aggregator"&gt;
  *   &lt;device id="aggregatordevice"&gt;
@@ -102,19 +92,19 @@ import org.slf4j.LoggerFactory;
  *   &lt;/device&gt;
  * &lt;/driver&gt;
  * </pre>
- * 
+ * <p>
  * The new (aggregated) channel has the id channelB. The channel address consists of the channel id of the original
  * channel and the aggregation type which is channelA:avg in this example. OpenMUC calls the read method of the
  * aggregator every minute. The aggregator then gets all logged records from channelA of the last minute, calculates the
  * average and sets this value for the record of channelB.
- * 
+ *
  * <p>
- * 
+ * <p>
  * NOTE: It's recommended to specify the samplingTimeOffset for channelB. It should be between samplingIntervalB -
  * samplingIntervalA and samplingIntervalB. In this example: 50 &lt; offset &lt; 60. This constraint ensures that values
  * are AGGREGATED CORRECTLY. At hh:mm:55 the aggregator gets the logged values of channelA and at hh:mm:60 respectively
  * hh:mm:00 the aggregated value is logged.
- * 
+ *
  * <pre>
  * &lt;driver id="aggregator"&gt;
  *   &lt;device id="aggregatordevice"&gt;
@@ -127,8 +117,6 @@ import org.slf4j.LoggerFactory;
  *   &lt;/device&gt;
  * &lt;/driver&gt;
  * </pre>
- * 
- * 
  */
 
 // TODO: Performance: Some checks of aggregatorUtil.getDoubleRecordValue() could be removed since
@@ -148,6 +136,30 @@ public class Aggregator implements DriverService, Connection {
     // - impulse pro wh
     //
     // [:<optionalLongSetting1>][:<optionalLongSetting2>]
+
+    /**
+     * @return the current timestamp where milliseconds are set to 000: e.g. 10:45:00.015 --> 10:45:00.000
+     */
+    private static long currentTimestamp() {
+        return (System.currentTimeMillis() / 1000) * 1000;
+    }
+
+    /**
+     * endTimestamp must be slightly before the currentTimestamp Example: Aggregate a channel from 10:30:00 to 10:45:00
+     * to 15 min values. 10:45:00 should be the timestamp of the aggregated value therefore the aggregator has to get
+     * logged values from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
+     *
+     * @param currentTimestamp
+     * @return endTimestamp
+     */
+    private static long endTimestampFrom(long currentTimestamp) {
+        return currentTimestamp - 1;
+    }
+
+    private static Record newRecordWithErrorFlag(long endTimestamp) {
+        return new Record(null, endTimestamp, Flag.DRIVER_ERROR_READ_FAILURE);
+
+    }
 
     @Override
     public DriverInfo getInfo() {
@@ -193,30 +205,6 @@ public class Aggregator implements DriverService, Connection {
                     e);
             return newRecordWithErrorFlag(currentTimestamp);
         }
-    }
-
-    /**
-     * @return the current timestamp where milliseconds are set to 000: e.g. 10:45:00.015 --> 10:45:00.000
-     */
-    private static long currentTimestamp() {
-        return (System.currentTimeMillis() / 1000) * 1000;
-    }
-
-    /**
-     * endTimestamp must be slightly before the currentTimestamp Example: Aggregate a channel from 10:30:00 to 10:45:00
-     * to 15 min values. 10:45:00 should be the timestamp of the aggregated value therefore the aggregator has to get
-     * logged values from 10:30:00,000 till 10:44:59,999. 10:45:00 is part of the next 15 min interval.
-     * 
-     * @param currentTimestamp
-     * @return endTimestamp
-     */
-    private static long endTimestampFrom(long currentTimestamp) {
-        return currentTimestamp - 1;
-    }
-
-    private static Record newRecordWithErrorFlag(long endTimestamp) {
-        return new Record(null, endTimestamp, Flag.DRIVER_ERROR_READ_FAILURE);
-
     }
 
     @Override

@@ -20,18 +20,17 @@
  */
 package org.openmuc.framework.driver.knx;
 
-import java.io.IOException;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-
 import org.openmuc.framework.config.DeviceScanInfo;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.knxnetip.Discoverer;
 import tuwien.auto.calimero.knxnetip.servicetype.SearchResponse;
 import tuwien.auto.calimero.knxnetip.util.DeviceDIB;
+
+import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 
 public class KnxIpDiscover {
 
@@ -80,8 +79,7 @@ public class KnxIpDiscover {
 
             if (address instanceof Inet6Address) {
                 deviceAddress.append("[").append(ipAddress).append("]");
-            }
-            else {
+            } else {
                 deviceAddress.append(ipAddress);
             }
             deviceAddress.append(":").append(response.getControlEndpoint().getPort());

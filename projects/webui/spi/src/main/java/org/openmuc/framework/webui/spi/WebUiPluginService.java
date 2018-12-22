@@ -21,12 +21,12 @@
 
 package org.openmuc.framework.webui.spi;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class WebUiPluginService {
 
@@ -53,7 +53,7 @@ public abstract class WebUiPluginService {
 
     /**
      * add additional resources if needed
-     * 
+     *
      * @return the resources as a hash table.
      */
     public Map<String, String> getResources() {

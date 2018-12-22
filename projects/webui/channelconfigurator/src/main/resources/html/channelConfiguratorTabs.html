@@ -1,17 +1,30 @@
 <div ng-controller="TabsController">
-	<ul class="nav nav-tabs">
-        <li role="presentation" ng-class="{active: isDriversPage()}"><a ui-sref="channelconfigurator.drivers.index">{{'DRIVERS' | translate}}</a></li>
-        <li role="presentation" ng-class="{active: isDevicesPage()}"><a ui-sref="channelconfigurator.devices.index">{{'DEVICES' | translate}}</a></li>
-        <li role="presentation" ng-class="{active: isChannelsPage()}"><a ui-sref="channelconfigurator.channels.index">{{'CHANNELS' | translate}}</a></li>
-        <li role="presentation" ng-class="{active: isOptionsPage()}"><a ui-sref="channelconfigurator.options">{{'OPTIONS' | translate}}</a></li>
-        <li role="presentation" ng-show="isDriversNewPage()" class="active"><a href="">{{'NEW_DRIVER' | translate}}</a></li>
-        <li role="presentation" ng-show="isDriversEditPage()" class="active"><a href="">{{'EDIT_DRIVER' | translate}}</a></li>
-        <li role="presentation" ng-show="isDevicesNewPage()" class="active"><a href="">{{'NEW_DEVICE' | translate}}</a></li>
-        <li role="presentation" ng-show="isDevicesEditPage()" class="active"><a href="">{{'EDIT_DEVICE' | translate}}</a></li>
-        <li role="presentation" ng-show="isChannelsNewPage()" class="active"><a href="">{{'NEW_CHANNEL' | translate}}</a></li>
-        <li role="presentation" ng-show="isChannelsEditPage()" class="active"><a href="">{{'EDIT_CHANNEL' | translate}}</a></li>
-        <li role="presentation" ng-show="isDriversInfosPage()" class="active"><a href="">{{'INFOS_DRIVER' | translate}}</a></li>
-        <li role="presentation" ng-show="isDriversScanPage()" class="active"><a href="">{{'SCAN_DRIVER' | translate}}</a></li>
-        <li role="presentation" ng-show="isDevicesScanPage()" class="active"><a href="">{{'SCAN_DEVICE_TAB' | translate}}</a></li>
-	</ul>
+    <ul class="nav nav-tabs">
+        <li ng-class="{active: isDriversPage()}" role="presentation"><a ui-sref="channelconfigurator.drivers.index">{{'DRIVERS'
+            | translate}}</a></li>
+        <li ng-class="{active: isDevicesPage()}" role="presentation"><a ui-sref="channelconfigurator.devices.index">{{'DEVICES'
+            | translate}}</a></li>
+        <li ng-class="{active: isChannelsPage()}" role="presentation"><a ui-sref="channelconfigurator.channels.index">{{'CHANNELS'
+            | translate}}</a></li>
+        <li ng-class="{active: isOptionsPage()}" role="presentation"><a ui-sref="channelconfigurator.options">{{'OPTIONS'
+            | translate}}</a></li>
+        <li class="active" ng-show="isDriversNewPage()" role="presentation"><a href="">{{'NEW_DRIVER' | translate}}</a>
+        </li>
+        <li class="active" ng-show="isDriversEditPage()" role="presentation"><a href="">{{'EDIT_DRIVER' |
+            translate}}</a></li>
+        <li class="active" ng-show="isDevicesNewPage()" role="presentation"><a href="">{{'NEW_DEVICE' | translate}}</a>
+        </li>
+        <li class="active" ng-show="isDevicesEditPage()" role="presentation"><a href="">{{'EDIT_DEVICE' |
+            translate}}</a></li>
+        <li class="active" ng-show="isChannelsNewPage()" role="presentation"><a href="">{{'NEW_CHANNEL' |
+            translate}}</a></li>
+        <li class="active" ng-show="isChannelsEditPage()" role="presentation"><a href="">{{'EDIT_CHANNEL' |
+            translate}}</a></li>
+        <li class="active" ng-show="isDriversInfosPage()" role="presentation"><a href="">{{'INFOS_DRIVER' |
+            translate}}</a></li>
+        <li class="active" ng-show="isDriversScanPage()" role="presentation"><a href="">{{'SCAN_DRIVER' |
+            translate}}</a></li>
+        <li class="active" ng-show="isDevicesScanPage()" role="presentation"><a href="">{{'SCAN_DEVICE_TAB' |
+            translate}}</a></li>
+    </ul>
 </div>

@@ -1,84 +1,84 @@
-(function(){
+(function () {
 
-	var injectParams = ['$scope', '$location'];
-	
-	var TabsController = function($scope, $location) {
-		$scope.isTabActive = function(url) {
-			return $location.url().search(url) > -1;
-		};
-		
-		$scope.isDriversPage = function() {
-			return $location.url() == "/channelconfigurator/";
-		};
-		
-		$scope.isDevicesPage = function() {
-			return $location.url() == "/channelconfigurator/devices";
-		};
+    var injectParams = ['$scope', '$location'];
 
-		$scope.isChannelsPage = function() {
-			return $location.url() == "/channelconfigurator/channels";
-		};
+    var TabsController = function ($scope, $location) {
+        $scope.isTabActive = function (url) {
+            return $location.url().search(url) > -1;
+        };
 
-		$scope.isOptionsPage = function() {
-			return $location.url() == "/channelconfigurator/options";
-		};
+        $scope.isDriversPage = function () {
+            return $location.url() == "/channelconfigurator/";
+        };
 
-		$scope.isDriversEditPage = function() {
-			return $location.url().search('/drivers/edit') > -1;
-		};
+        $scope.isDevicesPage = function () {
+            return $location.url() == "/channelconfigurator/devices";
+        };
 
-		$scope.isDevicesEditPage = function() {
-			return $location.url().search('/devices/edit') > -1;
-		};
+        $scope.isChannelsPage = function () {
+            return $location.url() == "/channelconfigurator/channels";
+        };
 
-		$scope.isChannelsEditPage = function() {
-			return $location.url().search('/channels/edit') > -1;
-		};
+        $scope.isOptionsPage = function () {
+            return $location.url() == "/channelconfigurator/options";
+        };
 
-		$scope.isDriversInfosPage = function() {
-			return $location.url().search('/drivers/infos') > -1;
-		};
+        $scope.isDriversEditPage = function () {
+            return $location.url().search('/drivers/edit') > -1;
+        };
 
-		$scope.isDriversNewPage = function() {
-			return $location.url().search('/drivers/new') > -1;
-		};
+        $scope.isDevicesEditPage = function () {
+            return $location.url().search('/devices/edit') > -1;
+        };
 
-		$scope.isDevicesNewPage = function() {
-			return $location.url().search('/devices/new') > -1;
-		};
+        $scope.isChannelsEditPage = function () {
+            return $location.url().search('/channels/edit') > -1;
+        };
 
-		$scope.isChannelsNewPage = function() {
-			return $location.url().search('/channels/new') > -1;
-		};
+        $scope.isDriversInfosPage = function () {
+            return $location.url().search('/drivers/infos') > -1;
+        };
 
-		$scope.isDriversScanPage = function() {
-			return $location.url().search('/drivers/scan') > -1;
-		};
+        $scope.isDriversNewPage = function () {
+            return $location.url().search('/drivers/new') > -1;
+        };
 
-		$scope.isDevicesScanPage = function() {
-			return $location.url().search('/devices/scan') > -1;
-		}
-		
-		$scope.isDataPlotterPage = function() {
-			return $location.url() == '/dataplotter/data/';
-		};
+        $scope.isDevicesNewPage = function () {
+            return $location.url().search('/devices/new') > -1;
+        };
 
-		$scope.isLivePlotterPage = function() {
-			return $location.url() == '/dataplotter/live/';
-		};
-		
-		$scope.isPlotterPageActive = function(type, name) {
-			if ($location.url() == '/dataplotter/'+type+"/"+encodeURIComponent(name)) {
-				return true;
-			} else {
-				return false;
-			}
-		};
+        $scope.isChannelsNewPage = function () {
+            return $location.url().search('/channels/new') > -1;
+        };
 
-	};
+        $scope.isDriversScanPage = function () {
+            return $location.url().search('/drivers/scan') > -1;
+        };
 
-	TabsController.$inject = injectParams;
+        $scope.isDevicesScanPage = function () {
+            return $location.url().search('/devices/scan') > -1;
+        }
 
-	angular.module('openmuc.common').controller('TabsController', TabsController);
-	
+        $scope.isDataPlotterPage = function () {
+            return $location.url() == '/dataplotter/data/';
+        };
+
+        $scope.isLivePlotterPage = function () {
+            return $location.url() == '/dataplotter/live/';
+        };
+
+        $scope.isPlotterPageActive = function (type, name) {
+            if ($location.url() == '/dataplotter/' + type + "/" + encodeURIComponent(name)) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+    };
+
+    TabsController.$inject = injectParams;
+
+    angular.module('openmuc.common').controller('TabsController', TabsController);
+
 })();

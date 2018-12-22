@@ -20,34 +20,28 @@
  */
 package org.openmuc.framework.driver.wmbus;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.DatatypeConverter;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.driver.spi.*;
 import org.openmuc.jmbus.SecondaryAddress;
 import org.openmuc.jmbus.wireless.WMBusConnection;
+
+import javax.xml.bind.DatatypeConverter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class representing an MBus Connection.<br>
  * This class will bind to the local com-interface.<br>
- * 
  */
 public class DriverConnection implements Connection {
     private final SecondaryAddress secondaryAddress;
-    private final WMBusSerialInterface serialInterface;
+    private final WMBusInterface serialInterface;
     private final WMBusConnection con;
     private List<ChannelRecordContainer> containersToListenFor = new ArrayList<>();
 
     public DriverConnection(WMBusConnection con, SecondaryAddress secondaryAddress, String keyString,
-            WMBusSerialInterface serialInterface) throws ArgumentSyntaxException {
+                            WMBusInterface serialInterface) throws ArgumentSyntaxException {
         this.con = con;
         this.serialInterface = serialInterface;
         this.secondaryAddress = secondaryAddress;

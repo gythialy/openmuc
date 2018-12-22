@@ -1,11 +1,10 @@
-(function(){
+(function () {
 
     var app = angular.module('openmuc');
 
     app.config(['$stateProvider', '$urlRouterProvider',
-        function($stateProvider, $urlRouterProvider) {
-            $stateProvider.
-            state('dataplotter', {
+        function ($stateProvider, $urlRouterProvider) {
+            $stateProvider.state('dataplotter', {
                 url: '/dataplotter',
                 templateUrl: 'dataplotter/html/index.html',
                 requireLogin: true,
@@ -32,13 +31,11 @@
                         )
                     }
                 }
-            }).
-            state('dataplotter.index', {
+            }).state('dataplotter.index', {
                 url: '/',
                 templateUrl: 'dataplotter/html/list.html',
                 requireLogin: true
-            }).
-            state('dataplotter.data', {
+            }).state('dataplotter.data', {
                 url: '/data/:name',
                 templateUrl: 'dataplotter/html/dataPlotter.html',
                 controller: 'DataPlotterController',
@@ -53,8 +50,7 @@
                         )
                     }
                 }
-            }).
-            state('dataplotter.live', {
+            }).state('dataplotter.live', {
                 url: '/live/:name',
                 templateUrl: 'dataplotter/html/livePlotter.html',
                 controller: 'LivePlotterController',

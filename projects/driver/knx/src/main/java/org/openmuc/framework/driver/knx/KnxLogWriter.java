@@ -22,7 +22,6 @@ package org.openmuc.framework.driver.knx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.log.LogLevel;
 import tuwien.auto.calimero.log.LogWriter;
 
@@ -32,7 +31,7 @@ public class KnxLogWriter extends LogWriter {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see tuwien.auto.calimero.log.LogWriter#write(java.lang.String, tuwien.auto.calimero.log.LogLevel,
      * java.lang.String)
      */
@@ -43,7 +42,7 @@ public class KnxLogWriter extends LogWriter {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see tuwien.auto.calimero.log.LogWriter#write(java.lang.String, tuwien.auto.calimero.log.LogLevel,
      * java.lang.String, java.lang.Throwable)
      */
@@ -53,20 +52,15 @@ public class KnxLogWriter extends LogWriter {
         // Logger logger = LoggerFactory.getLogger(logService);
         if (level.equals(LogLevel.TRACE)) {
             logger.trace(logMsg);
-        }
-        else if (level.equals(LogLevel.INFO)) {
+        } else if (level.equals(LogLevel.INFO)) {
             logger.debug(logMsg);
-        }
-        else if (level.equals(LogLevel.WARN)) {
+        } else if (level.equals(LogLevel.WARN)) {
             logger.info(logMsg);
-        }
-        else if (level.equals(LogLevel.ERROR)) {
+        } else if (level.equals(LogLevel.ERROR)) {
             logger.warn(logMsg);
-        }
-        else if (level.equals(LogLevel.FATAL)) {
+        } else if (level.equals(LogLevel.FATAL)) {
             logger.error(logMsg);
-        }
-        else {
+        } else {
             logger.debug(level.toString().toUpperCase() + " " + logMsg);
         }
 
@@ -77,7 +71,7 @@ public class KnxLogWriter extends LogWriter {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see tuwien.auto.calimero.log.LogWriter#flush()
      */
     @Override
@@ -86,7 +80,7 @@ public class KnxLogWriter extends LogWriter {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see tuwien.auto.calimero.log.LogWriter#close()
      */
     @Override

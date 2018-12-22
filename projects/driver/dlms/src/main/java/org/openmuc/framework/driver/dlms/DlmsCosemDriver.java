@@ -58,13 +58,13 @@ public class DlmsCosemDriver implements DriverService {
 
     @Override
     public void scanForDevices(String settings, DriverDeviceScanListener listener)
-            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+            throws ArgumentSyntaxException, ScanException, ScanInterruptedException {
         throw new UnsupportedOperationException();
 
     }
 
     @Override
-    public void interruptDeviceScan() throws UnsupportedOperationException {
+    public void interruptDeviceScan() {
         throw new UnsupportedOperationException();
     }
 

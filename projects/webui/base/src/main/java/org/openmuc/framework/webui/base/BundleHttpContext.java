@@ -20,64 +20,84 @@
  */
 package org.openmuc.framework.webui.base;
 
+import org.osgi.framework.Bundle;
+import org.osgi.service.http.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.openmuc.framework.authentication.AuthenticationService;
-import org.osgi.framework.Bundle;
-import org.osgi.service.http.HttpContext;
-
 public class BundleHttpContext implements HttpContext {
 
-    Bundle contextBundle;
-    AuthenticationService authService;
+    private static final Logger logger = LoggerFactory.getLogger(BundleHttpContext.class);
 
-    public BundleHttpContext(Bundle contextBundle, AuthenticationService authService) {
+    private Bundle contextBundle;
+
+    public BundleHttpContext(Bundle contextBundle) {
         this.contextBundle = contextBundle;
-        this.authService = authService;
     }
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // TODO: change this for some files..
         return true;
     }
 
     @Override
     public URL getResource(String name) {
+        String pathname = System.getProperty("user.dir") + name;
         if (name.startsWith("/media/")) {
-            File file = new File(System.getProperty("user.dir") + name);
-            if (!file.canRead()) {
-                return null;
-            }
-            try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }
-        else if (name.startsWith("/conf/webui/")) {
-            File file = new File(System.getProperty("user.dir") + name + ".conf");
-            if (!file.canRead()) {
-                return null;
-            }
-            try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException e) {
-                return null;
-            }
+            return findUrl(pathname, "*");
+        } else if (name.startsWith("/conf/webui/")) {
+            return findUrl(pathname, ".conf");
         }
         return contextBundle.getResource(name);
 
     }
 
+    private URL findUrl(String pathname, String fileEnding) {
+        String path = pathname;
+        if (!fileEnding.equals("*")) {
+            path += fileEnding;
+        }
+        File file = new File(path);
+
+        if (!file.canRead()) {
+            logger.warn("Can not read requested file at {}.", path);
+            return null;
+        }
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            logger.warn("Can not read requested file at {}. {}", path, e);
+            return null;
+        }
+    }
+
     @Override
-    public String getMimeType(String name) {
-        return null;
+    public String getMimeType(String file) {
+        if (file.endsWith(".jpg")) {
+            return "image/jpeg";
+        } else if (file.endsWith(".png")) {
+            return "image/png";
+        } else if (file.endsWith(".js")) {
+            return "text/javascript";
+        } else if (file.endsWith(".css")) {
+            return "text/css";
+        } else if (file.endsWith(".html")) {
+            return "text/html";
+        } else if (file.endsWith(".pdf")) {
+            return "application/pdf";
+        } else if (file.startsWith("/conf/webui")) {
+            return "application/json";
+        } else {
+            return "text/html";
+        }
     }
 
 }

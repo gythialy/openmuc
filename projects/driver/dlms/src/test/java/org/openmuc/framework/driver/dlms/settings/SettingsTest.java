@@ -1,7 +1,6 @@
 package org.openmuc.framework.driver.dlms.settings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
@@ -9,24 +8,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SettingsTest {
-
-    @Test
-    public void testChannelAddress() throws Exception {
-        check(ChannelAddress.class, 2);
-    }
-
-    @Test
-    public void testDeviceAddress() throws Exception {
-        check(DeviceAddress.class, 10);
-    }
-
-    @Test
-    public void testDeviceSetting() throws Exception {
-        check(DeviceSettings.class, 12);
-    }
 
     private static void check(Class<? extends GenericSetting> clazz, int numArgs) {
         Pattern p = Pattern.compile("(\\w+:) *(\\[?\\w+=.*\\]?)+$");
@@ -46,6 +31,21 @@ public class SettingsTest {
         }
 
         assertEquals(numArgs, keys.size());
+    }
+
+    @Test
+    public void testChannelAddress() throws Exception {
+        check(ChannelAddress.class, 2);
+    }
+
+    @Test
+    public void testDeviceAddress() throws Exception {
+        check(DeviceAddress.class, 10);
+    }
+
+    @Test
+    public void testDeviceSetting() throws Exception {
+        check(DeviceSettings.class, 12);
     }
 
     @Test

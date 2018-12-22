@@ -22,8 +22,7 @@ public class ChannelAddress extends GenericSetting {
 
         if (optionsNumber > 2) {
             throw new ArgumentSyntaxException("Too many arguments given.");
-        }
-        else if (optionsNumber < 1) {
+        } else if (optionsNumber < 1) {
             throw new ArgumentSyntaxException("Attribute address must be provided.");
         }
         try {
@@ -44,18 +43,6 @@ public class ChannelAddress extends GenericSetting {
 
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public Type getType() {
-        return dataObjectType;
-    }
-
-    public AttributeAddress getAttributeAddress() {
-        return attributeAddress;
-    }
-
     private static Type typeFrom(String typeAsString) throws IllegalArgumentException {
         return Type.valueOf(typeAsString.toUpperCase().trim());
     }
@@ -74,6 +61,18 @@ public class ChannelAddress extends GenericSetting {
         int attributeId = Integer.parseInt(arguments[2]);
 
         return new AttributeAddress(classId, instanceId, attributeId);
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public Type getType() {
+        return dataObjectType;
+    }
+
+    public AttributeAddress getAttributeAddress() {
+        return attributeAddress;
     }
 
 }

@@ -20,16 +20,15 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.openmuc.framework.lib.json.FromJson;
 import org.openmuc.framework.lib.json.ToJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class ControlsServlet extends GenericServlet {
 
@@ -50,14 +49,12 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            }
-            else {
+            } else {
                 String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
 
                 if (pathInfoArray.length == 1) {
 
-                }
-                else {
+                } else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Path Info = ", request.getPathInfo());
                 }
@@ -79,8 +76,7 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            }
-            else {
+            } else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
@@ -99,8 +95,7 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            }
-            else {
+            } else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
@@ -122,14 +117,12 @@ public class ControlsServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
 
-            }
-            else {
+            } else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
 
-        }
-        else {
+        } else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
         }

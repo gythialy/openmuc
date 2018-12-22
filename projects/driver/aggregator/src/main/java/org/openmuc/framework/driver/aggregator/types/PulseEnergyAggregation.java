@@ -1,15 +1,11 @@
 package org.openmuc.framework.driver.aggregator.types;
 
-import java.util.List;
-
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.driver.aggregator.AggregationException;
-import org.openmuc.framework.driver.aggregator.AggregatorChannel;
-import org.openmuc.framework.driver.aggregator.AggregatorConstants;
-import org.openmuc.framework.driver.aggregator.AggregatorUtil;
-import org.openmuc.framework.driver.aggregator.ChannelAddress;
+import org.openmuc.framework.driver.aggregator.*;
+
+import java.util.List;
 
 public class PulseEnergyAggregation extends AggregatorChannel {
 
@@ -23,22 +19,8 @@ public class PulseEnergyAggregation extends AggregatorChannel {
         super(simpleAddress, dataAccessService);
     }
 
-    @Override
-    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
-
-        try {
-            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-            return getPulsesEnergy(channelAddress, sourceChannel, recordList, aggregatedChannel);
-        } catch (AggregationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AggregationException(e.getMessage());
-        }
-
-    }
-
     private static double getPulsesEnergy(ChannelAddress simpleAdress, Channel sourceChannel, List<Record> recordList,
-            Channel aggregatedChannel) throws AggregationException, AggregationException {
+                                          Channel aggregatedChannel) throws AggregationException, AggregationException {
 
         // parse type address params. length = 3: <type,pulsePerWh,maxCounterValue>
         String[] typeParams = simpleAdress.getAggregationType().split(AggregatorConstants.TYPE_PARAM_SEPARATOR);
@@ -63,7 +45,7 @@ public class PulseEnergyAggregation extends AggregatorChannel {
     }
 
     private static double calcImpulsValue(Channel sourceChannel, List<Record> recordList, long samplingInterval,
-            double pulsesPerX, double maxCounterValue) throws AggregationException {
+                                          double pulsesPerX, double maxCounterValue) throws AggregationException {
 
         if (recordList.isEmpty()) {
             throw new AggregationException("List holds less than 1 records, calculation of pulses not possible.");
@@ -77,14 +59,13 @@ public class PulseEnergyAggregation extends AggregatorChannel {
     }
 
     private static double calcPulsesValue(double actualPulses, double pulsesHist, double pulsesPerX,
-            long loggingInterval, double maxCounterValue) {
+                                          long loggingInterval, double maxCounterValue) {
 
         double pulses = actualPulses - pulsesHist;
 
         if (pulses >= 0.0) {
             pulses = actualPulses - pulsesHist;
-        }
-        else {
+        } else {
             pulses = (maxCounterValue - pulsesHist) + actualPulses;
         }
         return pulses / pulsesPerX * (loggingInterval / 1000.);
@@ -101,6 +82,20 @@ public class PulseEnergyAggregation extends AggregatorChannel {
         } while (srcChannel.getLatestRecord().getTimestamp() == timestamp);
 
         return srcChannel.getLatestRecord().getValue().asDouble();
+    }
+
+    @Override
+    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
+
+        try {
+            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
+            return getPulsesEnergy(channelAddress, sourceChannel, recordList, aggregatedChannel);
+        } catch (AggregationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AggregationException(e.getMessage());
+        }
+
     }
 
 }

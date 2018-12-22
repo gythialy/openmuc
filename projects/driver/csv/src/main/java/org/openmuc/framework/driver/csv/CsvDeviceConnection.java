@@ -1,11 +1,5 @@
 package org.openmuc.framework.driver.csv;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -19,13 +13,11 @@ import org.openmuc.framework.driver.csv.exceptions.CsvException;
 import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.openmuc.framework.driver.csv.settings.DeviceSettings;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.driver.spi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Holds complete data of the CSV file.
@@ -33,14 +25,15 @@ import org.slf4j.LoggerFactory;
 public class CsvDeviceConnection implements Connection {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvDeviceConnection.class);
-
-    /** Map holds all data of the csv file */
-    private HashMap<String, CsvChannel> channelMap = new HashMap<>();
-
-    /** Map containing 'column name' as key and 'list of all column data' as value */
+    /**
+     * Map containing 'column name' as key and 'list of all column data' as value
+     */
     private final Map<String, List<String>> data;
-
     private final DeviceSettings settings;
+    /**
+     * Map holds all data of the csv file
+     */
+    private HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
     public CsvDeviceConnection(String deviceAddress, String deviceSettings)
             throws ConnectionException, ArgumentSyntaxException {
@@ -79,8 +72,7 @@ public class CsvDeviceConnection implements Connection {
             CsvChannel channel = channelMap.get(container.getChannelAddress());
             if (channel == null) {
                 throw new ConnectionException("channel not found");
-            }
-            else {
+            } else {
 
                 double value = Double.NaN;
 

@@ -1,19 +1,15 @@
 package org.openmuc.framework.driver.csv.test;
 
-import java.util.List;
-
 import org.junit.Test;
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.config.DeviceScanInfo;
-import org.openmuc.framework.config.ScanException;
-import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.driver.csv.CsvDeviceConnection;
 import org.openmuc.framework.driver.csv.CsvDriver;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class CsvScanDeviceTest {
 

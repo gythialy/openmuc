@@ -15,36 +15,6 @@ public class DeviceSettings extends GenericSetting {
     private ESamplingMode samplingModeParam;
     private boolean rewindParam = false;
 
-    public static enum Option implements OptionI {
-        SAMPLINGMODE("samplingmode", String.class, true),
-        REWIND("rewind", String.class, false);
-
-        private String prefix;
-        private Class<?> type;
-        private boolean mandatory;
-
-        private Option(String prefix, Class<?> type, boolean mandatory) {
-            this.prefix = prefix;
-            this.type = type;
-            this.mandatory = mandatory;
-        }
-
-        @Override
-        public String prefix() {
-            return this.prefix;
-        }
-
-        @Override
-        public Class<?> type() {
-            return this.type;
-        }
-
-        @Override
-        public boolean mandatory() {
-            return this.mandatory;
-        }
-    }
-
     public DeviceSettings(String deviceScanSettings) throws ArgumentSyntaxException {
 
         // sollte super aufrufen, der fields parsed
@@ -75,6 +45,36 @@ public class DeviceSettings extends GenericSetting {
 
     public boolean rewind() {
         return rewindParam;
+    }
+
+    public static enum Option implements OptionI {
+        SAMPLINGMODE("samplingmode", String.class, true),
+        REWIND("rewind", String.class, false);
+
+        private String prefix;
+        private Class<?> type;
+        private boolean mandatory;
+
+        private Option(String prefix, Class<?> type, boolean mandatory) {
+            this.prefix = prefix;
+            this.type = type;
+            this.mandatory = mandatory;
+        }
+
+        @Override
+        public String prefix() {
+            return this.prefix;
+        }
+
+        @Override
+        public Class<?> type() {
+            return this.type;
+        }
+
+        @Override
+        public boolean mandatory() {
+            return this.mandatory;
+        }
     }
 
 }

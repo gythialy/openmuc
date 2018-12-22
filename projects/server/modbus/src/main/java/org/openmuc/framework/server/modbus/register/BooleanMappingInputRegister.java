@@ -31,11 +31,10 @@ public class BooleanMappingInputRegister extends MappingInputRegister {
     @Override
     public byte[] toBytes() {
         if (channel.getLatestRecord().getValue().asBoolean() == true) {
-            byte[] bytes = { (byte) 0x01 };
+            byte[] bytes = {(byte) 0x01};
             return bytes;
-        }
-        else if (channel.getLatestRecord().getValue().asBoolean() == false) {
-            byte[] bytes = { (byte) 0x00 };
+        } else if (channel.getLatestRecord().getValue().asBoolean() == false) {
+            byte[] bytes = {(byte) 0x00};
             return bytes;
         }
         return null;

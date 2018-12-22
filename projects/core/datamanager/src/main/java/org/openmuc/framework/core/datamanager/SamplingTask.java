@@ -21,8 +21,6 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import java.util.List;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
@@ -30,21 +28,22 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public final class SamplingTask extends DeviceTask {
 
     private static final Logger logger = LoggerFactory.getLogger(SamplingTask.class);
 
     List<ChannelRecordContainerImpl> channelRecordContainers;
+    boolean running = false;
+    boolean startedLate = false;
+    String samplingGroup;
     private boolean methodNotExceptedExceptionThrown = false;
     private boolean unknownDriverExceptionThrown = false;
     private volatile boolean disabled = false;
 
-    boolean running = false;
-    boolean startedLate = false;
-    String samplingGroup;
-
     public SamplingTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels,
-            String samplingGroup) {
+                        String samplingGroup) {
         this.dataManager = dataManager;
         this.device = device;
         channelRecordContainers = selectedChannels;
@@ -61,13 +60,11 @@ public final class SamplingTask extends DeviceTask {
             for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
                 channelRecordContainer.getChannel().setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
             }
-        }
-        else if (unknownDriverExceptionThrown) {
+        } else if (unknownDriverExceptionThrown) {
             for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
                 channelRecordContainer.getChannel().setFlag(Flag.DRIVER_THREW_UNKNOWN_EXCEPTION);
             }
-        }
-        else {
+        } else {
             for (ChannelRecordContainerImpl channelRecordContainer : channelRecordContainers) {
                 channelRecordContainer.getChannel().setNewRecord(channelRecordContainer.getRecord());
             }
@@ -126,13 +123,11 @@ public final class SamplingTask extends DeviceTask {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
                 driverChannel.getChannel().setFlag(Flag.STARTED_LATE_AND_TIMED_OUT);
             }
-        }
-        else if (running) {
+        } else if (running) {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
                 driverChannel.getChannel().setFlag(Flag.TIMEOUT);
             }
-        }
-        else {
+        } else {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
                 driverChannel.getChannel().setFlag(Flag.DEVICE_OR_INTERFACE_BUSY);
             }

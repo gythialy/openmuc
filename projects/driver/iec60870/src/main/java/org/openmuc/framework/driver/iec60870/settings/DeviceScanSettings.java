@@ -1,12 +1,12 @@
 package org.openmuc.framework.driver.iec60870.settings;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.MessageFormat;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.MessageFormat;
 
 public class DeviceScanSettings extends GenericSetting {
 
@@ -15,6 +15,36 @@ public class DeviceScanSettings extends GenericSetting {
     protected InetAddress host_address = null;
     protected int port = 2404;
     protected int common_address = 1;
+
+    public DeviceScanSettings(String deviceScanSettings) throws ArgumentSyntaxException {
+
+        int addressLength = parseFields(deviceScanSettings, Option.class);
+
+        if (addressLength == 0) {
+            logger.info(MessageFormat.format(
+                    "No device address setted in configuration, default values will be used: host address = localhost; port = {0}",
+                    port));
+        }
+        if (host_address == null) {
+            try {
+                host_address = InetAddress.getLocalHost();
+            } catch (UnknownHostException e) {
+                throw new ArgumentSyntaxException("Could not set default host address: localhost");
+            }
+        }
+    }
+
+    public InetAddress hostAddress() {
+        return host_address;
+    }
+
+    public int port() {
+        return port;
+    }
+
+    public int commonAddress() {
+        return common_address;
+    }
 
     protected static enum Option implements OptionI {
         PORT("p", Integer.class, false),
@@ -45,35 +75,5 @@ public class DeviceScanSettings extends GenericSetting {
         public boolean mandatory() {
             return this.mandatory;
         }
-    }
-
-    public DeviceScanSettings(String deviceScanSettings) throws ArgumentSyntaxException {
-
-        int addressLength = parseFields(deviceScanSettings, Option.class);
-
-        if (addressLength == 0) {
-            logger.info(MessageFormat.format(
-                    "No device address setted in configuration, default values will be used: host address = localhost; port = {0}",
-                    port));
-        }
-        if (host_address == null) {
-            try {
-                host_address = InetAddress.getLocalHost();
-            } catch (UnknownHostException e) {
-                throw new ArgumentSyntaxException("Could not set default host address: localhost");
-            }
-        }
-    }
-
-    public InetAddress hostAddress() {
-        return host_address;
-    }
-
-    public int port() {
-        return port;
-    }
-
-    public int commonAddress() {
-        return common_address;
     }
 }

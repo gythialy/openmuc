@@ -21,10 +21,6 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.TypeConversionException;
 import org.openmuc.framework.datalogger.spi.DataLoggerService;
@@ -35,79 +31,72 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+
 @Component
 public final class SlotsDb implements DataLoggerService {
-
-    private static final Logger logger = LoggerFactory.getLogger(SlotsDb.class);
 
     /*
      * File extension for SlotsDB files. Only these Files will be loaded.
      */
-    public static String FILE_EXTENSION = ".slots";
-
+    public static final String FILE_EXTENSION = ".slots";
     /*
      * Root folder for SlotsDB files
      */
-    public static String DB_ROOT_FOLDER = System
+    public static final String DB_ROOT_FOLDER = System
             .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".dbfolder");
-
     /*
      * If no other root folder is defined, data will be stored to this folder
      */
-    public static String DEFAULT_DB_ROOT_FOLDER = "data/slotsdb/";
-
+    public static final String DEFAULT_DB_ROOT_FOLDER = "data/slotsdb/";
     /*
      * Root Folder for JUnit Testcases
      */
-    public static String DB_TEST_ROOT_FOLDER = "testdata/";
-
+    public static final String DB_TEST_ROOT_FOLDER = "testdata/";
     /*
      * limit open files in Hashmap
-     * 
+     *
      * Default Linux Configuration: (should be below)
-     * 
+     *
      * host:/#> ulimit -aH [...] open files (-n) 1024 [...]
      */
-    public static String MAX_OPEN_FOLDERS = System
+    public static final String MAX_OPEN_FOLDERS = System
             .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".max_open_folders");
-    public static int MAX_OPEN_FOLDERS_DEFAULT = 512;
-
+    public static final int MAX_OPEN_FOLDERS_DEFAULT = 512;
     /*
      * configures the data flush period. The less you flush, the faster SLOTSDB will be. unset this System Property (or
      * set to 0) to flush data directly to disk.
      */
-    public static String FLUSH_PERIOD = System
+    public static final String FLUSH_PERIOD = System
             .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".flushperiod");
-
     /*
      * configures how long data will at least be stored in the SLOTSDB.
      */
-    public static String DATA_LIFETIME_IN_DAYS = System
+    public static final String DATA_LIFETIME_IN_DAYS = System
             .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_days");
-
     /*
      * configures the maximum Database Size (in MB).
      */
-    public static String MAX_DATABASE_SIZE = System
+    public static final String MAX_DATABASE_SIZE = System
             .getProperty(SlotsDb.class.getPackage().getName().toLowerCase() + ".limit_size");
-
     /*
      * Minimum Size for SLOTSDB (in MB).
      */
-    public static int MINIMUM_DATABASE_SIZE = 2;
-
+    public static final int MINIMUM_DATABASE_SIZE = 2;
     /*
      * Initial delay for scheduled tasks (size watcher, data expiration, etc.)
      */
-    public static int INITIAL_DELAY = 10000;
-
+    public static final int INITIAL_DELAY = 10000;
     /*
      * Interval for scanning expired, old data. Set this to 86400000 to scan every 24 hours.
      */
-    public static int DATA_EXPIRATION_CHECK_INTERVAL = 5000;
-
+    public static final int DATA_EXPIRATION_CHECK_INTERVAL = 5000;
+    private static final Logger logger = LoggerFactory.getLogger(SlotsDb.class);
+    private final HashMap<String, Integer> loggingIntervalsById = new HashMap<>();
     private FileObjectProxy fileObjectProxy;
-    private final HashMap<String, Integer> loggingIntervalsById = new HashMap<>();;
+    ;
 
     protected void activate(ComponentContext context) {
         String rootFolder = SlotsDb.DB_ROOT_FOLDER;
@@ -147,8 +136,7 @@ public final class SlotsDb implements DataLoggerService {
             Double value;
             if (container.getRecord().getValue() == null) {
                 value = Double.NaN;
-            }
-            else {
+            } else {
                 try {
                     value = container.getRecord().getValue().asDouble();
                 } catch (TypeConversionException e) {
@@ -165,8 +153,7 @@ public final class SlotsDb implements DataLoggerService {
                 fileObjectProxy.appendValue(container.getChannelId(), value, timestamp,
                         container.getRecord().getFlag().getCode(), loggingIntervalsById.get(container.getChannelId()));
             } catch (IOException e) {
-                logger.error("error logging records");
-                e.printStackTrace();
+                logger.error("error logging records", e);
             }
         }
     }

@@ -1,21 +1,15 @@
-(function(){
+(function () {
 
-	var injectParams = ['$scope', 'MediaViewerService'];
+    var injectParams = ['$scope', 'MediaViewerService'];
 
-	var MediaViewerController = function($scope, MediaViewerService) {
+    var MediaViewerController = function ($scope, MediaViewerService) {
+        MediaViewerService.getAllMedia().then(response = > $scope.media = response
+    )
+        ;
+    };
 
-		MediaViewerService.getAllMedia().then(function(response) {
-			for(var key in response) {
-				var url = window.location.origin + response[key].file;
-				response[key].url = url;
-			}
-			$scope.media = response;
-		});
-		
-	};
+    MediaViewerController.$inject = injectParams;
 
-	MediaViewerController.$inject = injectParams;
-
-	angular.module('openmuc.mediaviewer').controller('MediaViewerController', MediaViewerController);
+    angular.module('openmuc.mediaviewer').controller('MediaViewerController', MediaViewerController);
 
 })();

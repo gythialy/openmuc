@@ -20,26 +20,24 @@
  */
 package org.openmuc.framework.datalogger.ascii.utils;
 
+import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
-
 public class IESDataFormatUtils {
+
+    private IESDataFormatUtils() {
+    }
 
     /**
      * Convert a double value into a string with the maximal allowed length of maxLength.
-     * 
-     * @param value
-     *            the value to convert
-     * @param maxLength
-     *            The maximal allowed length with all signs.
-     * @param sbValue
-     *            StringBuffer for the return value
-     * 
-     * @throws WrongScalingException
-     *             will thrown if converted value is bigger then maxLength
+     *
+     * @param value     the value to convert
+     * @param maxLength The maximal allowed length with all signs.
+     * @param sbValue   StringBuffer for the return value
+     * @throws WrongScalingException will thrown if converted value is bigger then maxLength
      */
     public static void convertDoubleToStringWithMaxLength(StringBuilder sbValue, double value, int maxLength)
             throws WrongScalingException {
@@ -54,8 +52,7 @@ public class IESDataFormatUtils {
                 valueWork *= -1l;
             }
             format = '+' + getFormat(valueWork);
-        }
-        else {
+        } else {
             format = getFormat(valueWork);
         }
 
@@ -75,20 +72,14 @@ public class IESDataFormatUtils {
 
         if (lValue > 999999 || lValue < -999999) {
             format = "#######0";
-        }
-        else if (lValue > 99999 || lValue < -99999) {
+        } else if (lValue > 99999 || lValue < -99999) {
             format = "#####0.0";
-        }
-        else if (lValue > 9999 || lValue < -9999) {
+        } else if (lValue > 9999 || lValue < -9999) {
             format = "####0.00";
-        }
-        else {
+        } else {
             format = "###0.000";
         }
 
         return format;
-    }
-
-    private IESDataFormatUtils() {
     }
 }

@@ -340,3 +340,7 @@ task (tarFull, type: Tar) {
   dependsOn(tar)
   archiveName = project.name + "-" + project.version + "_full.tgz"
 }
+
+subprojects {
+    task allDeps(type: DependencyReportTask) {}
+}

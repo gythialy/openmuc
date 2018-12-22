@@ -21,31 +21,21 @@
 
 package org.openmuc.framework.driver.ehz;
 
-import java.util.List;
-import java.util.Map;
-
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.driver.spi.*;
+
+import java.util.List;
+import java.util.Map;
 
 public abstract class GeneralConnection implements Connection {
 
     protected static final int TIMEOUT = 10000;
 
-    public abstract void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException;
-
-    public abstract List<ChannelScanInfo> scanForChannels(int timeout);
-
-    public abstract boolean works();
-
     protected static void handleChannelRecordContainer(List<ChannelRecordContainer> containers,
-            Map<String, Value> values, long timestamp) {
+                                                       Map<String, Value> values, long timestamp) {
         for (ChannelRecordContainer container : containers) {
             String address = container.getChannelAddress();
 
@@ -58,6 +48,12 @@ public abstract class GeneralConnection implements Connection {
             container.setRecord(record);
         }
     }
+
+    public abstract void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException;
+
+    public abstract List<ChannelScanInfo> scanForChannels(int timeout);
+
+    public abstract boolean works();
 
     @Override
     public List<ChannelScanInfo> scanForChannels(String settings)

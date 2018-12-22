@@ -1,10 +1,10 @@
 package org.openmuc.framework.driver.csv.settings;
 
-import java.io.File;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class DeviceScanSettings extends GenericSetting {
 
@@ -13,6 +13,39 @@ public class DeviceScanSettings extends GenericSetting {
     protected String path = null;
 
     private File file;
+
+    public DeviceScanSettings(String deviceScanSettings) throws ArgumentSyntaxException {
+
+        // FIXME, ganzen null und empty abfragen sind nervig und fehleranfällig - needs refactoring.
+
+        if (deviceScanSettings == null || deviceScanSettings.isEmpty()) {
+            throw new ArgumentSyntaxException("No scan settings specified.");
+        } else {
+            // TODO braucht man das? Dirk?
+            int addressLength = parseFields(deviceScanSettings, Option.class);
+            if (addressLength == 0) {
+                logger.info("No path given");
+                throw new ArgumentSyntaxException("<path> argument not found in settings.");
+            }
+        }
+
+        if (path == null) {
+            throw new ArgumentSyntaxException("<path> argument not found in settings.");
+        } else {
+            if (!path.isEmpty()) {
+                file = new File(path);
+                if (!file.isDirectory()) {
+                    throw new ArgumentSyntaxException("<path> argument must point to a directory.");
+                }
+            } else {
+                throw new ArgumentSyntaxException("<path> argument must point to a directory.");
+            }
+        }
+    }
+
+    public File path() {
+        return file;
+    }
 
     protected static enum Option implements OptionI {
         PATH("path", String.class, true);
@@ -41,42 +74,6 @@ public class DeviceScanSettings extends GenericSetting {
         public boolean mandatory() {
             return this.mandatory;
         }
-    }
-
-    public DeviceScanSettings(String deviceScanSettings) throws ArgumentSyntaxException {
-
-        // FIXME, ganzen null und empty abfragen sind nervig und fehleranfällig - needs refactoring.
-
-        if (deviceScanSettings == null || deviceScanSettings.isEmpty()) {
-            throw new ArgumentSyntaxException("No scan settings specified.");
-        }
-        else {
-            // TODO braucht man das? Dirk?
-            int addressLength = parseFields(deviceScanSettings, Option.class);
-            if (addressLength == 0) {
-                logger.info("No path given");
-                throw new ArgumentSyntaxException("<path> argument not found in settings.");
-            }
-        }
-
-        if (path == null) {
-            throw new ArgumentSyntaxException("<path> argument not found in settings.");
-        }
-        else {
-            if (!path.isEmpty()) {
-                file = new File(path);
-                if (!file.isDirectory()) {
-                    throw new ArgumentSyntaxException("<path> argument must point to a directory.");
-                }
-            }
-            else {
-                throw new ArgumentSyntaxException("<path> argument must point to a directory.");
-            }
-        }
-    }
-
-    public File path() {
-        return file;
     }
 
 }

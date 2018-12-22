@@ -1,13 +1,6 @@
 package org.openmuc.framework.driver.csv;
 
-import java.io.File;
-import java.util.Arrays;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.config.DeviceScanInfo;
-import org.openmuc.framework.config.DriverInfo;
-import org.openmuc.framework.config.ScanException;
-import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.driver.csv.settings.DeviceScanSettings;
 import org.openmuc.framework.driver.csv.settings.DeviceSettings;
 import org.openmuc.framework.driver.csv.settings.GenericSetting;
@@ -18,6 +11,9 @@ import org.openmuc.framework.driver.spi.DriverService;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Arrays;
 
 /**
  * Driver to read data from CSV file.
@@ -113,8 +109,13 @@ public class CsvDriver implements DriverService {
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
 
+        File csvFile = new File(deviceAddress);
+        if (!csvFile.exists()) {
+            throw new ArgumentSyntaxException("CSV driver - file not found: " + deviceAddress);
+        }
+
         CsvDeviceConnection csvConnection = new CsvDeviceConnection(deviceAddress, settings);
-        logger.debug("CSV driver connected");
+        logger.info("Device connected: " + deviceAddress);
         return csvConnection;
     }
 

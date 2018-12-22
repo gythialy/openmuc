@@ -1,10 +1,5 @@
 package org.openmuc.framework.driver.iec60870;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.iec60870.settings.ChannelAddress;
@@ -18,18 +13,22 @@ import org.openmuc.j60870.InformationObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class Iec60870Listener implements ConnectionEventListener {
 
+    private static final Logger logger = LoggerFactory.getLogger(Iec60870Listener.class);
     private RecordsReceivedListener listener;
     private List<ChannelRecordContainer> containers;
     private List<ChannelAddress> channelAddresses = new ArrayList<>();
-
-    private static final Logger logger = LoggerFactory.getLogger(Iec60870Listener.class);
     private String driverId;
     private Connection connection;
 
     public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-            RecordsReceivedListener listener, String driverId, Connection connection) throws ConnectionException {
+                                                     RecordsReceivedListener listener, String driverId, Connection connection) throws ConnectionException {
 
         this.containers = containers;
         this.listener = listener;
@@ -78,8 +77,7 @@ public class Iec60870Listener implements ConnectionEventListener {
                     ++i;
                 }
             }
-        }
-        else {
+        } else {
             logger.warn("Listener object is null.");
         }
     }
@@ -87,17 +85,11 @@ public class Iec60870Listener implements ConnectionEventListener {
     private void processRecords(ASdu aSdu, long timestamp, int i, ChannelAddress channelAddress) {
         for (InformationObject informationObject : aSdu.getInformationObjects()) {
             if (informationObject.getInformationObjectAddress() == channelAddress.ioa()) {
-                Record record = IEC60870DataHandling.handleInformationObject(aSdu, timestamp, channelAddress,
+                Record record = Iec60870DataHandling.handleInformationObject(aSdu, timestamp, channelAddress,
                         informationObject);
                 newRecords(i, record);
             }
         }
-    }
-
-    @Override
-    public void connectionClosed(IOException e) {
-        logger.info("Connection was closed by server.");
-        listener.connectionInterrupted(driverId, connection);
     }
 
     private void newRecords(int i, Record record) {
@@ -108,11 +100,17 @@ public class Iec60870Listener implements ConnectionEventListener {
     }
 
     private List<ChannelRecordContainer> creatNewChannelRecordContainer(ChannelRecordContainer container,
-            Record record) {
+                                                                        Record record) {
         List<ChannelRecordContainer> channelRecordContainerList = new ArrayList<>();
         container.setRecord(record);
         channelRecordContainerList.add(container);
         return channelRecordContainerList;
+    }
+
+    @Override
+    public void connectionClosed(IOException e) {
+        logger.info("Connection was closed by server.");
+        listener.connectionInterrupted(driverId, connection);
     }
 
 }

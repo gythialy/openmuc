@@ -21,13 +21,6 @@
 
 package org.openmuc.framework.driver.ehz;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
@@ -39,11 +32,17 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 public class IecConnection extends GeneralConnection {
 
-    private IecReceiver receiver;
-
     private static Logger logger = LoggerFactory.getLogger(IecConnection.class);
+    private IecReceiver receiver;
 
     public IecConnection(String deviceAddress, int timeout) throws ConnectionException {
         try {

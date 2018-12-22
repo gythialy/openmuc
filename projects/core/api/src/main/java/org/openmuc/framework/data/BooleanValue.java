@@ -58,8 +58,7 @@ public class BooleanValue implements Value {
     public byte asByte() {
         if (value) {
             return 1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -71,7 +70,7 @@ public class BooleanValue implements Value {
 
     @Override
     public byte[] asByteArray() {
-        return new byte[] { asByte() };
+        return new byte[]{asByte()};
     }
 
     @Override

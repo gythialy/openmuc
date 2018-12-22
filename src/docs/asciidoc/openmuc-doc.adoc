@@ -23,120 +23,53 @@ link:https://www.openmuc.org/openmuc/[overview page]. This guide is a
 detailed documentation on how OpenMUC works and how to use it.
 
 
-== Architecture
-
-The following image depicts the software layers of an OpenMUC
-system.
-
-:img-file: openmuc-software-layers.png
-image::{img-file}[title="OpenMUC software layers",width={width60}, link="{imagesdir}/{img-file}"]
-
-The OpenMUC framework runs within an OSGi environment which in turn is
-being run by a Java Virtual Machine. The underlying operating system
-and hardware can be chosen freely as long as it can run a Java 7 VM.
-
-OpenMUC consists essentially of various software modules which are
-implemented as OSGi bundles that run in the OSGi environment and
-communicate over OSGi services. The following figure illustrates the
-main modules that make up OpenMUC.
-
-:img-file: openmuc-bundles-with-numbers.png
-image::{img-file}[title="OpenMUC modules",width={width60}, link="{imagesdir}/{img-file}"]
-
-All modules except for the data manager are optional. Thus by
-selecting the modules you need you can easily create your own
-customized and lightweight system.
-
-The different modules in the picture are now further explained:
-
-. The *data manager* represents the core and center of
-OpenMUC. Virtually all other OpenMUC modules (e.g. drivers, data
-loggers, servers, applications and web interface plugins) communicate
-with it through OSGi services. The data manager gets automatically
-notified when new drivers or data loggers get installed. OpenMUC
-applications communicate with devices, access logged data or change
-the configuration by calling service functions provided by the data
-manager. It is therefore the data manager that shields the application
-programmer from the details of the communication and data logging
-technology. What the data manager does is mostly controlled through a
-central configuration.
-
-. The *channel configuration* holds the user defined data channels and
-its parameters. Data channels are the frameworks
-representation of data points in connected devices. Amongst others the
-channel configuration holds the following information:
-+
---
-
-	     .. communication parameters that the drivers require
-
-	     .. when to sample new data from connected devices
-
-	     .. when to send sampled data to existing data logger(s)
-for efficient persistent storage.
-
-The configuration is stored in the file
-conf/channels.xml. You may add or modify the configured channels by
-manually editing the channels.xml file or through the channel
-configurator web interface.
---
-
-. A *driver* is used by the data manager to send/get data to/from a
-connected device. Thus a driver usually implements a communication
-protocol. Several communication drivers have already been developed
-(e.g. IEC 61850, ModbusTCP, KNX, DLMS/COSEM). Many drivers use
-standalone communication libraries (e.g. OpenIEC61850, jMBus)
-developed by the OpenMUC team. These libraries do not depend on the
-OpenMUC framework and can therefore be used by any Java
-application. New communication drivers for OpenMUC can be easily
-developed by third parties.
-
-. A *data logger* saves sampled data persistently. The data manager
-forwards sampled data to all available data loggers if configured to
-do so. Data loggers are specifically designed to store time series
-data for short storage and retrieval times. Note that this usually
-means that they are not SQL-based. OpenMUC currently includes two data
-loggers. The ASCII data logger saves data in a human readable text
-format while SlotsDB saves data in a more efficient binary format.
-
-. If all you want is sample and log data then you can use the OpenMUC
-framework as it is and simply configure it to your needs. But if you
-want to process sampled data or control a device you will want to
-write your own *application*. Like all other modules your application
-will be an OSGi bundle. In your application you can use the
-DataAccessService and the ConfigService provided by the data manager
-to access sampled and logged data. You may also issue immediate read
-or write commands. These are forwarded by the data manager to the
-driver. The configuration (when to sample and to log) can also be
-changed during run-time by the application. At all times the
-application only communicates with the data manager and is therefore
-not confronted with the complicated details of the communication
-technology being used.
-
-. If your application is located on a remote system (e.g. a smart
-phone or an Internet server) then the data and configuration can be
-accessed through an OpenMUC *server*. At the moment OpenMUC provides a
-RESTful web service for this purpose.
-
-. Finally the OpenMUC framework provides a web user interface
-(*WebUI*) for tasks such as configuration, visualization of sampled
-data or exporting logged data. The web interface is modular and
-provides a plug-in interface. This way developers may write a website
-that integrates into the main menu of the web interface. The WebUI is
-mostly for configuration and testing purposes. Most companies will
-want to create their own individual UI.
-
-
-
-
-
-
 == Quick Start
 
 This chapter will give you an idea of how OpenMUC works by showing you
 how to run and adjust the demo framework which is part of the OpenMUC
 distribution. OpenMUC requires Java 7 or higher, therefore make sure
 it is installed on your machine.
+
+=== Starting the Demo
+
+The contains a simple demo app which demonstrates how you can access channels and
+their records from an application. The app reads data from channels of
+the CSV driver, calculates new values from them and writes them to
+other channels. The app can be used as starting point to create your
+own OpenMUC application.
+
+First open a terminal and go to the folder named "framework".
+
+To start OpenMUC on Linux run:
+
+----
+./bin/openmuc start -fg
+----
+
+To start OpenMUC on Window run:
+
+----
+bin\openmuc.bat
+----
+
+For more information about the start script see chapter <<anchor-start-script,OpenMUC start script>>.
+
+This will start the Apache Felix OSGi framework which in turn starts
+all the bundles located in the "bundle" folder. Among the bundles that
+are started is the Apache Gogo shell. This shell is entered once you
+run OpenMUC.
+
+The shell can be used to start, stop, and reload bundles among other
+things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
+or "stop 0".
+
+
+Now type "lb" to list all installed bundles.
+
+You will see that among the active bundles are the Simple Demo App,
+the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
+as the CSV driver.
+
 
 === Framework Files
 
@@ -167,40 +100,6 @@ conf::
 
     Various configuration files of the framework.
 
-
-
-=== Starting the Demo
-
-First open a terminal and go to the folder named "framework".
-
-To start OpenMUC on Linux run:
-
-----
-./bin/openmuc start -fg
-----
-
-To start OpenMUC on Window run:
-
-----
-bin\openmuc.bat
-----
-
-This will start the Apache Felix OSGi framework which in turn starts
-all the bundles located in the "bundle" folder. Among the bundles that
-are started is the Apache Gogo shell. This shell is entered once you
-run OpenMUC.
-
-The shell can be used to start, stop, and reload bundles among other
-things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
-or "stop 0".
-
-
-Now type "lb" to list all installed bundles.
-
-You will see that among the active bundles are the Simple Demo App,
-the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
-as the CSV driver.
-
 === Configuration
 
 One of the most important configuration files is
@@ -214,15 +113,6 @@ are read by the CSV driver. The channels are sampled/read and logged
 every 5 seconds.
 
 For more information about the channels.xml see the <<anchor-configuration,configuration>> chapter.
-
-=== Simple Demo App
-
-The simple demo app demonstrates how you can access channels and
-their records from an application. The app reads data from channels of
-the CSV driver, calculates new values from them and writes them to
-other channels. The app can be used as starting point to create your
-own OpenMUC application.
-
 
 === WebUI Walk Through
 
@@ -378,6 +268,110 @@ image::{img-file}[title="WebUI channel access tool",width=400,link="{imagesdir}/
 * You can also change the configuration by editing /openmuc/framework/conf/channels.xml
 
 
+== Architecture
+
+The following image depicts the software layers of an OpenMUC
+system.
+
+:img-file: openmuc-software-layers.png
+image::{img-file}[title="OpenMUC software layers",width={width60}, link="{imagesdir}/{img-file}"]
+
+The OpenMUC framework runs within an OSGi environment which in turn is
+being run by a Java Virtual Machine. The underlying operating system
+and hardware can be chosen freely as long as it can run a Java 7 VM.
+
+OpenMUC consists essentially of various software modules which are
+implemented as OSGi bundles that run in the OSGi environment and
+communicate over OSGi services. The following figure illustrates the
+main modules that make up OpenMUC.
+
+:img-file: openmuc-bundles-with-numbers.png
+image::{img-file}[title="OpenMUC modules",width={width60}, link="{imagesdir}/{img-file}"]
+
+All modules except for the data manager are optional. Thus by
+selecting the modules you need you can easily create your own
+customized and lightweight system.
+
+The different modules in the picture are now further explained:
+
+. The *data manager* represents the core and center of
+OpenMUC. Virtually all other OpenMUC modules (e.g. drivers, data
+loggers, servers, applications and web interface plugins) communicate
+with it through OSGi services. The data manager gets automatically
+notified when new drivers or data loggers get installed. OpenMUC
+applications communicate with devices, access logged data or change
+the configuration by calling service functions provided by the data
+manager. It is therefore the data manager that shields the application
+programmer from the details of the communication and data logging
+technology. What the data manager does is mostly controlled through a
+central configuration.
+
+. The *channel configuration* holds the user defined data channels and
+its parameters. Data channels are the frameworks
+representation of data points in connected devices. Amongst others the
+channel configuration holds the following information:
++
+--
+
+	     .. communication parameters that the drivers require
+
+	     .. when to sample new data from connected devices
+
+	     .. when to send sampled data to existing data logger(s)
+for efficient persistent storage.
+
+The configuration is stored in the file
+conf/channels.xml. You may add or modify the configured channels by
+manually editing the channels.xml file or through the channel
+configurator web interface.
+--
+
+. A *driver* is used by the data manager to send/get data to/from a
+connected device. Thus a driver usually implements a communication
+protocol. Several communication drivers have already been developed
+(e.g. IEC 61850, ModbusTCP, KNX, DLMS/COSEM). Many drivers use
+standalone communication libraries (e.g. OpenIEC61850, jMBus)
+developed by the OpenMUC team. These libraries do not depend on the
+OpenMUC framework and can therefore be used by any Java
+application. New communication drivers for OpenMUC can be easily
+developed by third parties.
+
+. A *data logger* saves sampled data persistently. The data manager
+forwards sampled data to all available data loggers if configured to
+do so. Data loggers are specifically designed to store time series
+data for short storage and retrieval times. Note that this usually
+means that they are not SQL-based. OpenMUC currently includes two data
+loggers. The ASCII data logger saves data in a human readable text
+format while SlotsDB saves data in a more efficient binary format.
+
+. If all you want is sample and log data then you can use the OpenMUC
+framework as it is and simply configure it to your needs. But if you
+want to process sampled data or control a device you will want to
+write your own *application*. Like all other modules your application
+will be an OSGi bundle. In your application you can use the
+DataAccessService and the ConfigService provided by the data manager
+to access sampled and logged data. You may also issue immediate read
+or write commands. These are forwarded by the data manager to the
+driver. The configuration (when to sample and to log) can also be
+changed during run-time by the application. At all times the
+application only communicates with the data manager and is therefore
+not confronted with the complicated details of the communication
+technology being used.
+
+. If your application is located on a remote system (e.g. a smart
+phone or an Internet server) then the data and configuration can be
+accessed through an OpenMUC *server*. At the moment OpenMUC provides a
+RESTful web service for this purpose.
+
+. Finally the OpenMUC framework provides a web user interface
+(*WebUI*) for tasks such as configuration, visualization of sampled
+data or exporting logged data. The web interface is modular and
+provides a plug-in interface. This way developers may write a website
+that integrates into the main menu of the web interface. The WebUI is
+mostly for configuration and testing purposes. Most companies will
+want to create their own individual UI.
+
+
 == Distribution
 
 The distribution contains the following important files and folders:
@@ -403,7 +397,8 @@ framework::
     A ready to use OpenMUC demo framework that is introduced next.
 
 
-== Running OpenMUC
+[[anchor-start-script]]
+== OpenMUC start script
 
 To start OpenMUC on Linux run:
 
@@ -464,6 +459,30 @@ To stop OpenMUC run:
 ./bin/openmuc stop
 ----
 
+To reload a new configuration without restarting:
+
+----
+./bin/openmuc reload
+----
+
+To restart a running OpenMUC (stop/start):
+
+----
+./bin/openmuc restart
+----
+
+To update the bundles in the bundle folder after e.g. changing bundles.conf.gradle
+Before using this the first time see the next point.
+
+----
+./bin/openmuc update-bundles
+----
+
+For building and installing the sources of OpenMUC with updating the bundles:
+----
+./bin/openmuc update-bundles -i
+----
+
 === Auto-start at Boot Time
 
 On Debian based Linux distributions it is easy to configure automatic
@@ -481,12 +500,44 @@ script to /etc/init.d/ and edit it to set the OPENMUC_HOME variable.
 
 == Install a Driver
 
-When you want to use a new driver you have to copy the corresponding
-jar file from the folder "build/libs-all/" to the "bundle" folder of
-the framework. Many drivers are "fat jars" which include their
+For installing a new driver you have two possible ways.
+
+=== Copy driver
+Copy the corresponding driver jar file from the folder "build/libs-all/" to the
+"bundle" folder of the framework. Many drivers are "fat jars" which include their
 dependencies. An exception is the RXTX library which cannot be packed
 with the jars.
 
+=== Editing bundles configuration
+In /openmuc/framework/conf/bundles.conf.gradle you can find the list of all used
+bundles e.g.:
+
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base", version: openmucVersion
+----
+
+If you want to add a new driver to the list, e.g. M-Bus, you can do this:
+
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc",           name: "jrxtx",               version: "1.0.1"
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",   version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base",  version: openmucVersion
+----
+
+Afterwards you have to execute in /openmuc/framework/bin/
+----
+./openmuc update-bundles
+----
+If this is the first time using ./openmuc update-bundles you have to add the parameter -i
+----
+./openmuc update-bundles -i
+----
 
 === Use a Driver with Serial Communication
 
@@ -494,7 +545,7 @@ When you need to use a driver that uses serial communication you have
 to copy the RXTX bundle to the frameworks "bundle" folder.
 
 ----
-cp ../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar ./bundle/
+cp ../dependencies/rxtx/jrxtx-1.0.1.jar ./bundle/
 ----
 
 Additionally you need to install librxtx-java:
@@ -712,7 +763,8 @@ need to be the same.
 	<listening>true</listening>
 </channel>
 ----
-In example 3 listening instead of sampling is used. This means that the driver reports a new channel value to the data manager when the value has changed for example.
+In example 3 listening instead of sampling is used. This means that the driver
+reports a new channel value to the data manager when the value has changed for example.
 
 .Example 4: Listening and Logging
 [source,xml]
@@ -761,6 +813,19 @@ User Configurator::
 
 Plugin for user configuration
 
+=== Context Root
+
+The servlet context root of the OpenMUC WebUI can be configured, by setting the `org.apache.felix.http.context_path` 
+system property.
+
+[source]
+----
+org.apache.felix.http.context_path=/muc1
+----
+
+This must be a valid path starting with a slash and not ending with a slash (unless it is the root context).
+
+
 === HTTPS
 
 You can access the WebUI over https as well:
@@ -772,7 +837,9 @@ conf/system.properties file to false.
 [[id_restful_web_services]]
 == REST Server
 
-The openmuc-server-restws bundle manages a RESTful web service to access all registered channels of the framework. The RESTful web service is accessed by the same port as the web interface mentioned in Chapter 2.
+The openmuc-server-restws bundle manages a RESTful web service to access all
+registered channels of the framework. The RESTful web service is accessed by the
+same port as the web interface mentioned in Chapter 2.
 
 TIP: The address to access the web service using the provided demo/framework folder is 'http://localhost:8888/rest/'
 
@@ -783,7 +850,8 @@ In order to start the RESTful web service, the following bundle must be provided
 
  - Bundle that provides an org.osgi.service.http.HttpService service. In the demo framework, that service is provided by the org.apache.felix.http.jetty bundle.
 
-This bundles is already provided by the demo framework. The RESTful web service will start automatically with the framework without additional settings.
+This bundles is already provided by the demo framework. The RESTful web service
+will start automatically with the framework without additional settings.
 
 === Accessing channels
 

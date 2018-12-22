@@ -1,15 +1,15 @@
 package org.openmuc.framework.driver.csv.settings;
 
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.Locale;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class GenericSetting {
 
@@ -42,8 +42,7 @@ public abstract class GenericSetting {
                     + genericSettings.getSimpleName() + ". Report driver developer.";
             logger.error(errorMessage);
             sb.append(errorMessage);
-        }
-        else {
+        } else {
             sb.append("Synopsis:");
             boolean first = true;
             try {
@@ -59,8 +58,7 @@ public abstract class GenericSetting {
                         }
                         first = false;
                         sb.append(' ' + value + PAIR_SEP + " <" + option.name().toLowerCase(LOCALE) + '>');
-                    }
-                    else {
+                    } else {
                         sbNotMandetory.append(
                                 " [" + SEPARATOR + value + PAIR_SEP + " <" + option.name().toLowerCase(LOCALE) + ">]");
                     }
@@ -74,49 +72,6 @@ public abstract class GenericSetting {
             }
         }
         return sb.toString();
-    }
-
-    public interface OptionI {
-
-        String prefix();
-
-        Class<?> type();
-
-        boolean mandatory();
-    }
-
-    /**
-     * Example Option Enum
-     */
-    @SuppressWarnings("unused")
-    private static enum Option implements OptionI {
-        EXAMPLE0("ex0", Integer.class, false),
-        EXAMPLE1("ex1", String.class, true);
-
-        private final String prefix;
-        private final Class<?> type;
-        private final boolean mandatory;
-
-        private Option(String prefix, Class<?> type, boolean mandatory) {
-            this.prefix = prefix;
-            this.type = type;
-            this.mandatory = mandatory;
-        }
-
-        @Override
-        public String prefix() {
-            return this.prefix;
-        }
-
-        @Override
-        public Class<?> type() {
-            return this.type;
-        }
-
-        @Override
-        public boolean mandatory() {
-            return this.mandatory;
-        }
     }
 
     synchronized int parseFields(String settings, Class<? extends Enum<? extends OptionI>> options)
@@ -180,47 +135,46 @@ public abstract class GenericSetting {
                                 + "\' problem to invoke method. Report driver developer.\n" + e);
             }
 
-        }
-        else if (settingsArrayLength > enumValuesLength) {
+        } else if (settingsArrayLength > enumValuesLength) {
             throw new ArgumentSyntaxException("Too much parameters in " + enclosingClassName + ".");
         }
         return settingsArrayLength;
     }
 
     private synchronized void setField(String value, String enumName, Class<?> type,
-            Class<? extends Enum<? extends OptionI>> options)
+                                       Class<? extends Enum<? extends OptionI>> options)
             throws IllegalAccessException, NoSuchFieldException, ArgumentSyntaxException {
         String optionName = enumName.toLowerCase(LOCALE);
         value = value.trim();
 
         switch (type.getSimpleName()) {
-        case "Boolean":
-            options.getDeclaringClass().getDeclaredField(optionName).setBoolean(this, extractBoolean(value, enumName));
-            break;
-        case "Short":
-            options.getDeclaringClass().getDeclaredField(optionName).setShort(this, extractShort(value, enumName));
-            break;
-        case "Integer":
-            options.getDeclaringClass().getDeclaredField(optionName).setInt(this, extractInteger(value, enumName));
-            break;
-        case "Long":
-            options.getDeclaringClass().getDeclaredField(optionName).setLong(this, extractLong(value, enumName));
-            break;
-        case "Float":
-            options.getDeclaringClass().getDeclaredField(optionName).setFloat(this, extractFloat(value, enumName));
-            break;
-        case "Double":
-            options.getDeclaringClass().getDeclaredField(optionName).setDouble(this, extractDouble(value, enumName));
-            break;
-        case "String":
-            options.getDeclaringClass().getDeclaredField(optionName).set(this, value);
-            break;
-        case "InetAddress":
-            options.getDeclaringClass().getDeclaredField(optionName).set(this, extractInetAddress(value, enumName));
-            break;
-        default:
-            throw new NoSuchFieldException("Driver implementation error, \'" + enumName.toLowerCase(LOCALE)
-                    + "\' not supported data type. Report driver developer\n");
+            case "Boolean":
+                options.getDeclaringClass().getDeclaredField(optionName).setBoolean(this, extractBoolean(value, enumName));
+                break;
+            case "Short":
+                options.getDeclaringClass().getDeclaredField(optionName).setShort(this, extractShort(value, enumName));
+                break;
+            case "Integer":
+                options.getDeclaringClass().getDeclaredField(optionName).setInt(this, extractInteger(value, enumName));
+                break;
+            case "Long":
+                options.getDeclaringClass().getDeclaredField(optionName).setLong(this, extractLong(value, enumName));
+                break;
+            case "Float":
+                options.getDeclaringClass().getDeclaredField(optionName).setFloat(this, extractFloat(value, enumName));
+                break;
+            case "Double":
+                options.getDeclaringClass().getDeclaredField(optionName).setDouble(this, extractDouble(value, enumName));
+                break;
+            case "String":
+                options.getDeclaringClass().getDeclaredField(optionName).set(this, value);
+                break;
+            case "InetAddress":
+                options.getDeclaringClass().getDeclaredField(optionName).set(this, extractInetAddress(value, enumName));
+                break;
+            default:
+                throw new NoSuchFieldException("Driver implementation error, \'" + enumName.toLowerCase(LOCALE)
+                        + "\' not supported data type. Report driver developer\n");
         }
     }
 
@@ -299,6 +253,49 @@ public abstract class GenericSetting {
             throws ArgumentSyntaxException {
         throw new ArgumentSyntaxException(MessageFormat.format("Value of {0} in {1} is not type of {2}.", errorMessage,
                 this.getClass().getSimpleName(), returnType));
+    }
+
+    /**
+     * Example Option Enum
+     */
+    @SuppressWarnings("unused")
+    private static enum Option implements OptionI {
+        EXAMPLE0("ex0", Integer.class, false),
+        EXAMPLE1("ex1", String.class, true);
+
+        private final String prefix;
+        private final Class<?> type;
+        private final boolean mandatory;
+
+        private Option(String prefix, Class<?> type, boolean mandatory) {
+            this.prefix = prefix;
+            this.type = type;
+            this.mandatory = mandatory;
+        }
+
+        @Override
+        public String prefix() {
+            return this.prefix;
+        }
+
+        @Override
+        public Class<?> type() {
+            return this.type;
+        }
+
+        @Override
+        public boolean mandatory() {
+            return this.mandatory;
+        }
+    }
+
+    public interface OptionI {
+
+        String prefix();
+
+        Class<?> type();
+
+        boolean mandatory();
     }
 
 }

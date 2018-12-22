@@ -1,42 +1,39 @@
-
 def projectName = "OpenMUC Driver - Modbus"
 def projectDescription = "Modbus driver for the OpenMUC framework."
 
 configurations.create('embed')
 
-repositories {
-  mavenCentral()
-}
+def jrxtxversion = '1.0.1'
 
 dependencies {
-  compile project(':openmuc-core-spi')
-  compile files('../../../dependencies/rxtx/jrxtx-1.0.1.jar')
-  compile files('../../../dependencies/j2mod/j2mod-r100.jar')
-  embed files('../../../dependencies/j2mod/j2mod-r100.jar')
+    compile project(':openmuc-core-spi')
+    compile group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
+    compile files('../../../dependencies/j2mod/j2mod-r100.jar')
+    embed files('../../../dependencies/j2mod/j2mod-r100.jar')
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Bundle-ClassPath', '.,lib/j2mod-r100.jar'
-    instruction 'Import-Package', '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Bundle-ClassPath', '.,lib/j2mod-r100.jar'
+        instruction 'Import-Package', '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
+        instruction 'Export-Package', ''
+    }
 }
 
 jar {
-  into('lib') {
-    from configurations.embed
-  }
+    into('lib') {
+        from configurations.embed
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description projectDescription
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
     }
-  }
 }

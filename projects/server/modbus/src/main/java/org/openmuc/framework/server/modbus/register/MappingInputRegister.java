@@ -20,21 +20,20 @@
  */
 package org.openmuc.framework.server.modbus.register;
 
-import java.nio.ByteBuffer;
-
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.server.modbus.ModbusServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import java.nio.ByteBuffer;
 
 public abstract class MappingInputRegister implements InputRegister {
     private static Logger logger = LoggerFactory.getLogger(ModbusServer.class);
-    boolean useUnscaledValues;
     protected Channel channel;
     protected int highByte;
     protected int lowByte;
+    boolean useUnscaledValues;
 
     public MappingInputRegister(Channel channel, int byteHigh, int byteLow) {
         this.channel = channel;
@@ -53,8 +52,8 @@ public abstract class MappingInputRegister implements InputRegister {
     public int getValue() {
         int toReturn = ByteBuffer.wrap(toBytes())
                 .getShort(); /*
-                              * toBytes always only contains two bytes. So cast from short.
-                              */
+         * toBytes always only contains two bytes. So cast from short.
+         */
         return toReturn;
     }
 

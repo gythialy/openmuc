@@ -20,8 +20,13 @@
  */
 package org.openmuc.framework.driver.modbus.rtu;
 
-import java.util.List;
-
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.ModbusIOException;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.net.SerialConnection;
+import com.ghgande.j2mod.modbus.util.SerialParameters;
+import gnu.io.SerialPort;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
@@ -39,19 +44,10 @@ import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.Modbus;
-import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.ModbusIOException;
-import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
-import com.ghgande.j2mod.modbus.net.SerialConnection;
-import com.ghgande.j2mod.modbus.util.SerialParameters;
-
-import gnu.io.SerialPort;
+import java.util.List;
 
 /**
- * 
  * TODO
- * 
  */
 public class ModbusRTUConnection extends ModbusConnection {
 
@@ -140,14 +136,11 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setFlowControlIn(SerialParameters params, String flowControlIn) throws ModbusConfigurationException {
         if (flowControlIn.equalsIgnoreCase("FLOWCONTROL_NONE")) {
             params.setFlowControlIn(SerialPort.FLOWCONTROL_NONE);
-        }
-        else if (flowControlIn.equalsIgnoreCase("FLOWCONTROL_RTSCTS_IN")) {
+        } else if (flowControlIn.equalsIgnoreCase("FLOWCONTROL_RTSCTS_IN")) {
             params.setFlowControlIn(SerialPort.FLOWCONTROL_RTSCTS_IN);
-        }
-        else if (flowControlIn.equalsIgnoreCase("FLOWCONTROL_XONXOFF_IN")) {
+        } else if (flowControlIn.equalsIgnoreCase("FLOWCONTROL_XONXOFF_IN")) {
             params.setFlowControlIn(SerialPort.FLOWCONTROL_XONXOFF_IN);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown flow control in setting. Check configuration file");
         }
 
@@ -156,14 +149,11 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setFlowControlOut(SerialParameters params, String flowControlOut) throws ModbusConfigurationException {
         if (flowControlOut.equalsIgnoreCase("FLOWCONTROL_NONE")) {
             params.setFlowControlOut(SerialPort.FLOWCONTROL_NONE);
-        }
-        else if (flowControlOut.equalsIgnoreCase("FLOWCONTROL_RTSCTS_OUT")) {
+        } else if (flowControlOut.equalsIgnoreCase("FLOWCONTROL_RTSCTS_OUT")) {
             params.setFlowControlOut(SerialPort.FLOWCONTROL_RTSCTS_OUT);
-        }
-        else if (flowControlOut.equalsIgnoreCase("FLOWCONTROL_XONXOFF_OUT")) {
+        } else if (flowControlOut.equalsIgnoreCase("FLOWCONTROL_XONXOFF_OUT")) {
             params.setFlowControlOut(SerialPort.FLOWCONTROL_XONXOFF_OUT);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown flow control out setting. Check configuration file");
         }
 
@@ -172,11 +162,9 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setEcho(SerialParameters params, String echo) throws ModbusConfigurationException {
         if (echo.equalsIgnoreCase(ECHO_TRUE)) {
             params.setEcho(true);
-        }
-        else if (echo.equalsIgnoreCase(ECHO_FALSE)) {
+        } else if (echo.equalsIgnoreCase(ECHO_FALSE)) {
             params.setEcho(false);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown echo setting. Check configuration file");
         }
 
@@ -185,14 +173,11 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setStopbits(SerialParameters params, String stopbits) throws ModbusConfigurationException {
         if (stopbits.equalsIgnoreCase("STOPBITS_1")) {
             params.setStopbits(SerialPort.STOPBITS_1);
-        }
-        else if (stopbits.equalsIgnoreCase("STOPBITS_1_5")) {
+        } else if (stopbits.equalsIgnoreCase("STOPBITS_1_5")) {
             params.setStopbits(SerialPort.STOPBITS_1_5);
-        }
-        else if (stopbits.equalsIgnoreCase("STOPBITS_2")) {
+        } else if (stopbits.equalsIgnoreCase("STOPBITS_2")) {
             params.setStopbits(SerialPort.STOPBITS_2);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown stobit setting. Check configuration file");
         }
 
@@ -201,20 +186,15 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setParity(SerialParameters params, String parity) throws ModbusConfigurationException {
         if (parity.equalsIgnoreCase("PARITY_EVEN")) {
             params.setParity(SerialPort.PARITY_EVEN);
-        }
-        else if (parity.equalsIgnoreCase("PARITY_MARK")) {
+        } else if (parity.equalsIgnoreCase("PARITY_MARK")) {
             params.setParity(SerialPort.PARITY_MARK);
-        }
-        else if (parity.equalsIgnoreCase("PARITY_NONE")) {
+        } else if (parity.equalsIgnoreCase("PARITY_NONE")) {
             params.setParity(SerialPort.PARITY_NONE);
-        }
-        else if (parity.equalsIgnoreCase("PARITY_ODD")) {
+        } else if (parity.equalsIgnoreCase("PARITY_ODD")) {
             params.setParity(SerialPort.PARITY_ODD);
-        }
-        else if (parity.equalsIgnoreCase("PARITY_SPACE")) {
+        } else if (parity.equalsIgnoreCase("PARITY_SPACE")) {
             params.setParity(SerialPort.PARITY_SPACE);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown parity setting. Check configuration file");
         }
 
@@ -223,17 +203,13 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setDatabits(SerialParameters params, String databits) throws ModbusConfigurationException {
         if (databits.equalsIgnoreCase("DATABITS_5")) {
             params.setDatabits(SerialPort.DATABITS_5);
-        }
-        else if (databits.equalsIgnoreCase("DATABITS_6")) {
+        } else if (databits.equalsIgnoreCase("DATABITS_6")) {
             params.setDatabits(SerialPort.DATABITS_6);
-        }
-        else if (databits.equalsIgnoreCase("DATABITS_7")) {
+        } else if (databits.equalsIgnoreCase("DATABITS_7")) {
             params.setDatabits(SerialPort.DATABITS_7);
-        }
-        else if (databits.equalsIgnoreCase("DATABITS_8")) {
+        } else if (databits.equalsIgnoreCase("DATABITS_8")) {
             params.setDatabits(SerialPort.DATABITS_8);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown databit setting. Check configuration file");
         }
     }
@@ -245,8 +221,7 @@ public class ModbusRTUConnection extends ModbusConnection {
     private void setEncoding(SerialParameters params, String encoding) throws ModbusConfigurationException {
         if (encoding.equalsIgnoreCase(SERIAL_ENCODING_RTU)) {
             params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
-        }
-        else {
+        } else {
             throw new ModbusConfigurationException("Unknown encoding setting. Check configuration file");
         }
     }
@@ -302,8 +277,7 @@ public class ModbusRTUConnection extends ModbusConnection {
                 sb.append(String.format("%02x ", b));
             }
             logger.trace("Value of response: " + sb.toString());
-        }
-        else {
+        } else {
             logger.trace("Value of response: " + value.toString());
         }
     }

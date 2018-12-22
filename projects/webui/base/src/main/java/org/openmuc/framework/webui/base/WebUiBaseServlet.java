@@ -20,29 +20,30 @@
  */
 package org.openmuc.framework.webui.base;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.openmuc.framework.authentication.AuthenticationService;
+import org.openmuc.framework.webui.spi.WebUiPluginService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.openmuc.framework.authentication.AuthenticationService;
-import org.openmuc.framework.webui.spi.WebUiPluginService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 @SuppressWarnings("serial")
 public class WebUiBaseServlet extends HttpServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(WebUiBaseServlet.class);
 
+    /**
+     * 5 minutes.
+     */
     private static final int SESSION_TIMEOUT = 300;
 
     private final WebUiBase webUiBase;
@@ -51,14 +52,21 @@ public class WebUiBaseServlet extends HttpServlet {
         this.webUiBase = webUiBase;
     }
 
+    public static void copyStream(InputStream input, OutputStream output) throws IOException {
+        byte[] buffer = new byte[1024]; // Adjust if you want
+        int bytesRead;
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String servletPath = req.getServletPath();
 
         if (servletPath == null) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Path is null.");
-        }
-        else if ("/applications".equals(servletPath)) {
+        } else if ("/applications".equals(servletPath)) {
 
             if (req.getSession().isNew()) {
                 req.getSession().invalidate();
@@ -93,35 +101,28 @@ public class WebUiBaseServlet extends HttpServlet {
         inputStream.close();
     }
 
-    public static void copyStream(InputStream input, OutputStream output) throws IOException {
-        byte[] buffer = new byte[1024]; // Adjust if you want
-        int bytesRead;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(buffer, 0, bytesRead);
-        }
-    }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/login".equals(req.getServletPath())) {
-            String user = req.getParameter("user");
-            String pwd = req.getParameter("pwd");
-
-            AuthenticationService auth = webUiBase.getAuthenticationService();
-            if (auth.login(user, pwd)) {
-
-                HttpSession session = req.getSession(true); // create a new session
-                session.setMaxInactiveInterval(SESSION_TIMEOUT); // and set timeout
-                session.setAttribute("user", user);
-            }
-            else {
-                logger.info("login failed!");
-                req.getSession().invalidate(); // invalidate the session
-                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            }
-        }
-        else {
+        String servletPath = req.getServletPath();
+        logger.info(servletPath);
+        if (!servletPath.equals("/login")) {
             doGet(req, resp);
+            return;
+        }
+
+        String user = req.getParameter("user");
+        String pwd = req.getParameter("pwd");
+
+        AuthenticationService auth = webUiBase.getAuthenticationService();
+        if (auth.login(user, pwd)) {
+            HttpSession session = req.getSession(true); // create a new session
+            session.setMaxInactiveInterval(SESSION_TIMEOUT); // set session timeout
+            session.setAttribute("user", user);
+            resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+        } else {
+            logger.info("login failed!");
+            req.getSession().invalidate(); // invalidate the session
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         }
 
     }

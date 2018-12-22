@@ -36,11 +36,10 @@ public class ShortMappingInputRegister extends MappingInputRegister {
         if (useUnscaledValues) {
             Value value = channel.getLatestRecord().getValue();
             bytes = new ShortValue((short) (value.asShort() / (short) channel.getScalingFactor())).asByteArray();
-        }
-        else {
+        } else {
             bytes = new ShortValue(channel.getLatestRecord().getValue().asShort()).asByteArray();
         }
-        byte[] toReturn = { bytes[highByte], bytes[lowByte] };
+        byte[] toReturn = {bytes[highByte], bytes[lowByte]};
         return toReturn;
     }
 

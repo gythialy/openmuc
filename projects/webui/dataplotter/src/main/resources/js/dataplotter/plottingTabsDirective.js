@@ -1,16 +1,16 @@
-(function(){
+(function () {
 
-	var injectParams = [];
-	
-	var PlottingTabsDirective = function() {
-		return {
-			restrict: 'E',
-			templateUrl: 'dataplotter/html/plottingTabs.html'
-		};
-	};
+    var injectParams = [];
 
-	PlottingTabsDirective.$inject = injectParams;
+    var PlottingTabsDirective = function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'dataplotter/html/plottingTabs.html'
+        };
+    };
 
-	angular.module('openmuc.dataplotter').directive('plottingTabs', PlottingTabsDirective);
-	
+    PlottingTabsDirective.$inject = injectParams;
+
+    angular.module('openmuc.dataplotter').directive('plottingTabs', PlottingTabsDirective);
+
 })();

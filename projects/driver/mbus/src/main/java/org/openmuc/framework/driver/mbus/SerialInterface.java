@@ -20,25 +20,24 @@
  */
 package org.openmuc.framework.driver.mbus;
 
-import java.util.Map;
-
 import org.openmuc.jmbus.MBusConnection;
+
+import java.util.Map;
 
 /**
  * Class representing an MBus Connection.<br>
  * This class will bind to the local com-interface.<br>
- * 
  */
-public class SerialInterface {
+class SerialInterface {
 
-    private int connectionCounter = 0;
     private final MBusConnection mBusConnection;
-    private boolean open = true;
     private final String serialPortName;
     private final Map<String, SerialInterface> interfaces;
+    private int connectionCounter = 0;
+    private boolean open = true;
 
     public SerialInterface(MBusConnection mBusConnection, String serialPortName,
-            Map<String, SerialInterface> interfaces) {
+                           Map<String, SerialInterface> interfaces) {
         this.mBusConnection = mBusConnection;
         this.serialPortName = serialPortName;
         this.interfaces = interfaces;

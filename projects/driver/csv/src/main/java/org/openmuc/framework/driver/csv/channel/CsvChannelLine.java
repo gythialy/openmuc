@@ -1,9 +1,9 @@
 package org.openmuc.framework.driver.csv.channel;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Channel to return value of next line in the file. Timestamps are ignored. It always starts with the first line, which
@@ -12,10 +12,9 @@ import org.slf4j.LoggerFactory;
 public class CsvChannelLine implements CsvChannel {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvChannelLine.class);
-
-    private int lastReadIndex = 0;
     private final int maxIndex;
     private final List<String> data;
+    private int lastReadIndex = 0;
     private boolean rewind = false;
 
     public CsvChannelLine(String id, List<String> data, boolean rewind) {
@@ -31,8 +30,7 @@ public class CsvChannelLine implements CsvChannel {
         if (lastReadIndex > maxIndex) {
             if (rewind) {
                 lastReadIndex = 0;
-            }
-            else {
+            } else {
                 // once maximum is reached it always returns the maximum (value of last line in file)
                 lastReadIndex = maxIndex;
             }

@@ -20,23 +20,23 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+
 public class ServletLib {
-
-    private static final String COULD_NOT_SEND_HTTP_ERROR_MESSAGE = "Could not send HTTP Error message.";
-
-    private static final Logger logger = LoggerFactory.getLogger(ServletLib.class);
 
     protected static final int PATH_ARRAY_NR = 0;
     protected static final int QUERRY_ARRAY_NR = 1;
+    private static final String COULD_NOT_SEND_HTTP_ERROR_MESSAGE = "Could not send HTTP Error message.";
+    private static final Logger logger = LoggerFactory.getLogger(ServletLib.class);
+
+    private ServletLib() {
+    }
 
     protected static String buildString(BufferedReader br) {
         StringBuilder text = new StringBuilder();
@@ -53,18 +53,14 @@ public class ServletLib {
 
     /**
      * Only the first String will be sended over HTTP response.
-     * 
-     * @param response
-     *            HttpServletResponse response
-     * @param errorCode
-     *            error code
-     * @param logger
-     *            logger
-     * @param msg
-     *            message array
+     *
+     * @param response  HttpServletResponse response
+     * @param errorCode error code
+     * @param logger    logger
+     * @param msg       message array
      */
     protected static void sendHTTPErrorAndLogWarn(HttpServletResponse response, int errorCode, Logger logger,
-            String... msg) {
+                                                  String... msg) {
         try {
             response.sendError(errorCode, msg[0]);
         } catch (IOException e) {
@@ -81,7 +77,7 @@ public class ServletLib {
      * Only the first String will be sended over HTTP response.
      */
     protected static void sendHTTPErrorAndLogDebug(HttpServletResponse response, int errorCode, Logger logger,
-            String... msg) {
+                                                   String... msg) {
         try {
             response.sendError(errorCode, msg[0]);
         } catch (IOException e) {
@@ -98,7 +94,7 @@ public class ServletLib {
      * Logger and HTTP response are the same message.
      */
     protected static void sendHTTPErrorAndLogErr(HttpServletResponse response, int errorCode, Logger logger,
-            String... msg) {
+                                                 String... msg) {
         try {
             StringBuilder sbErrMessage = new StringBuilder();
             for (String m : msg) {
@@ -120,12 +116,8 @@ public class ServletLib {
     protected static String[] getPathInfoArray(String pathInfo) {
         if (pathInfo.length() > 1) {
             return pathInfo.replaceFirst("/", "").split("/");
+        } else {
+            return new String[]{"/"};
         }
-        else {
-            return new String[] { "/" };
-        }
-    }
-
-    private ServletLib() {
     }
 }

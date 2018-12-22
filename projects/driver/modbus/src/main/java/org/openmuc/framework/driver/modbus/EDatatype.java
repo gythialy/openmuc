@@ -23,13 +23,15 @@ package org.openmuc.framework.driver.modbus;
 
 /**
  * Matching from Java Datatyp to Modbus Register
- * 
+ * <p>
  * One modbus register has the size of two Bytes
  */
 
 public enum EDatatype {
 
-    /** 1 Bit */
+    /**
+     * 1 Bit
+     */
     BOOLEAN(1),
 
     // not implemented yet
@@ -46,10 +48,14 @@ public enum EDatatype {
     @Deprecated
     SHORT(1),
 
-    /** 1 Register, 2 bytes */
+    /**
+     * 1 Register, 2 bytes
+     */
     INT16(1),
 
-    /** 2 Register, 4 bytes */
+    /**
+     * 2 Register, 4 bytes
+     */
     INT32(2),
 
     // not implemented yet
@@ -64,25 +70,39 @@ public enum EDatatype {
     /// ** to convert register low byte RLB to uint8 */
     // UINT8_RLB( 1),
 
-    /** 1 Register, 2 bytes */
+    /**
+     * 1 Register, 2 bytes
+     */
     UINT16(1),
 
-    /** 2 Register, 4 bytes */
+    /**
+     * 2 Register, 4 bytes
+     */
     UINT32(2),
 
-    /** 2 Register, 4 bytes */
+    /**
+     * 2 Register, 4 bytes
+     */
     FLOAT(2),
 
-    /** 4 Register, 8 bytes */
+    /**
+     * 4 Register, 8 bytes
+     */
     DOUBLE(4),
 
-    /** 4 Register, 8 bytes */
+    /**
+     * 4 Register, 8 bytes
+     */
     LONG(4),
 
-    /** n Registers, n*2 bytes. Note: 0 will be overwritten */
+    /**
+     * n Registers, n*2 bytes. Note: 0 will be overwritten
+     */
     BYTEARRAY(0),
 
-    /** n Registers, n*2 bytes. Note: max. registers 4; 0 will be overwritten */
+    /**
+     * n Registers, n*2 bytes. Note: max. registers 4; 0 will be overwritten
+     */
     BYTEARRAYLONG(0);
 
     // not implemented yet
@@ -99,10 +119,6 @@ public enum EDatatype {
         this.registerSize = registerSize;
     }
 
-    public int getRegisterSize() {
-        return registerSize;
-    }
-
     public static EDatatype getEnum(String string) {
         EDatatype returnValue = null;
 
@@ -113,13 +129,11 @@ public enum EDatatype {
                 if (string.equals(type.toString())) {
                     returnValue = type;
                     break;
-                }
-                else if (string.toUpperCase().matches(EDatatype.BYTEARRAY + "\\[\\d+\\]")) {
+                } else if (string.toUpperCase().matches(EDatatype.BYTEARRAY + "\\[\\d+\\]")) {
                     // Special check for BYTEARRAY[n] datatyp
                     returnValue = EDatatype.BYTEARRAY;
                     break;
-                }
-                else if (string.toUpperCase().matches(EDatatype.BYTEARRAYLONG + "\\[\\d+\\]")) {
+                } else if (string.toUpperCase().matches(EDatatype.BYTEARRAYLONG + "\\[\\d+\\]")) {
                     // Special check for BYTEARRAYLONG[n] datatyp
                     returnValue = EDatatype.BYTEARRAYLONG;
                     break;
@@ -152,9 +166,8 @@ public enum EDatatype {
 
     /**
      * Checks if the datatype is valid
-     * 
-     * @param string
-     *            Enum as String
+     *
+     * @param string Enum as String
      * @return true if valid, otherwise false
      */
     public static boolean isValid(String string) {
@@ -168,5 +181,9 @@ public enum EDatatype {
         }
 
         return returnValue;
+    }
+
+    public int getRegisterSize() {
+        return registerSize;
     }
 }

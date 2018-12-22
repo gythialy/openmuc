@@ -21,9 +21,8 @@
 
 package org.openmuc.framework.driver.modbus;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.util.BitVector;
 import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.Value;
@@ -31,8 +30,8 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.util.BitVector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a group of channels which is used for a multiple read request
@@ -42,19 +41,19 @@ public class ModbusChannelGroup {
     private static final Logger logger = LoggerFactory.getLogger(ModbusChannelGroup.class);
 
     private static final int INVALID = -1;
-
-    private EPrimaryTable primaryTable;
     private final ArrayList<ModbusChannel> channels;
-
-    /** Start address to read from */
+    private final String samplingGroup;
+    private EPrimaryTable primaryTable;
+    /**
+     * Start address to read from
+     */
     private int startAddress;
-
-    /** Number of Registers/Coils to be read from startAddress */
+    /**
+     * Number of Registers/Coils to be read from startAddress
+     */
     private int count;
-
     private int unitId;
     private EFunctionCode functionCode;
-    private final String samplingGroup;
 
     public ModbusChannelGroup(String samplingGroup, ArrayList<ModbusChannel> channels) {
         this.samplingGroup = samplingGroup;
@@ -83,8 +82,7 @@ public class ModbusChannelGroup {
             if (!init) {
                 tempFunctionCode = channel.getFunctionCode();
                 init = true;
-            }
-            else {
+            } else {
                 if (!tempFunctionCode.equals(channel.getFunctionCode())) {
                     throw new RuntimeException("FunctionCodes of all channels within the samplingGroup '"
                             + samplingGroup + "' are not equal! Change your openmuc config.");
@@ -108,8 +106,7 @@ public class ModbusChannelGroup {
             if (!init) {
                 tempPrimaryTable = channel.getPrimaryTable();
                 init = true;
-            }
-            else {
+            } else {
                 if (!tempPrimaryTable.equals(channel.getPrimaryTable())) {
                     throw new RuntimeException("Primary tables of all channels within the samplingGroup '"
                             + samplingGroup + "' are not equal! Change your openmuc config.");
@@ -125,8 +122,7 @@ public class ModbusChannelGroup {
         for (ModbusChannel channel : channels) {
             if (idOfFirstChannel == INVALID) {
                 idOfFirstChannel = channel.getUnitId();
-            }
-            else {
+            } else {
                 if (channel.getUnitId() != idOfFirstChannel) {
 
                     // TODO ???
@@ -152,8 +148,7 @@ public class ModbusChannelGroup {
         for (ModbusChannel channel : channels) {
             if (startAddress == INVALID) {
                 startAddress = channel.getStartAddress();
-            }
-            else {
+            } else {
                 startAddress = Math.min(startAddress, channel.getStartAddress());
             }
         }

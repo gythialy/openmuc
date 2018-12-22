@@ -1,20 +1,19 @@
 package org.openmuc.framework.driver.modbus.util.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Test;
 import org.openmuc.framework.driver.modbus.util.DatatypeConversion;
 import org.openmuc.framework.driver.modbus.util.DatatypeConversion.EndianInput;
 import org.openmuc.framework.driver.modbus.util.DatatypeConversion.EndianOutput;
 
+import javax.xml.bind.DatatypeConverter;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * This test case test the datatype conversion. It covers tests from datatype to byte[] and vice versa
- * 
+ * <p>
  * TODO: Currently not all conversions are tested
  */
 public class DatatypeConversionTest {
@@ -22,6 +21,12 @@ public class DatatypeConversionTest {
     // BE = BigEndian;
     // LE = LittleEndian
 
+    final long MAX_UNSIGNED_INT32 = 4294967295L;
+    final int MAX_UNSIGNED_INT16 = 65535;
+    final int MAX_SIGNED_INT16 = 32767;
+    final int MIN_SIGNED_INT16 = -32768;
+    final int MAX_SIGNED_INT8 = 127;
+    final int MIN_SIGNED_INT8 = -128;
     byte[] bytes8_Value_MaxPositive_BE = DatatypeConverter.parseHexBinary("7FFFFFFFFFFFFFFF");
     byte[] bytes8_Value_2_BE = DatatypeConverter.parseHexBinary("0000000000000002");
     byte[] bytes8_Value_1_BE = DatatypeConverter.parseHexBinary("0000000000000001");
@@ -29,7 +34,6 @@ public class DatatypeConversionTest {
     byte[] bytes8_Value_Minus_1_BE = DatatypeConverter.parseHexBinary("FFFFFFFFFFFFFFFF");
     byte[] bytes8_Value_Minus_2_BE = DatatypeConverter.parseHexBinary("FFFFFFFFFFFFFFFE");
     byte[] bytes8_Value_MaxNegative_BE = DatatypeConverter.parseHexBinary("8000000000000000");
-
     byte[] bytes4_Value_MaxPositive_BE = DatatypeConverter.parseHexBinary("7FFFFFFF");
     byte[] bytes4_Value_2_BE = DatatypeConverter.parseHexBinary("00000002");
     byte[] bytes4_Value_1_BE = DatatypeConverter.parseHexBinary("00000001");
@@ -37,7 +41,6 @@ public class DatatypeConversionTest {
     byte[] bytes4_Value_Minus_1_BE = DatatypeConverter.parseHexBinary("FFFFFFFF");
     byte[] bytes4_Value_Minus_2_BE = DatatypeConverter.parseHexBinary("FFFFFFFE");
     byte[] bytes4_Value_MaxNegative_BE = DatatypeConverter.parseHexBinary("80000000");
-
     byte[] bytes2_Value_MaxPositive_BE = DatatypeConverter.parseHexBinary("7FFF");
     byte[] bytes2_Value_2_BE = DatatypeConverter.parseHexBinary("0002");
     byte[] bytes2_Value_1_BE = DatatypeConverter.parseHexBinary("0001");
@@ -45,7 +48,6 @@ public class DatatypeConversionTest {
     byte[] bytes2_Value_Minus_1_BE = DatatypeConverter.parseHexBinary("FFFF");
     byte[] bytes2_Value_Minus_2_BE = DatatypeConverter.parseHexBinary("FFFE");
     byte[] bytes2_Value_MaxNegative_BE = DatatypeConverter.parseHexBinary("8000");
-
     byte[] bytes8_Value_MaxPositive_LE = DatatypeConversion.reverseByteOrderNewArray(bytes8_Value_MaxPositive_BE);
     byte[] bytes8_Value_2_LE = DatatypeConversion.reverseByteOrderNewArray(bytes8_Value_2_BE);
     byte[] bytes8_Value_1_LE = DatatypeConversion.reverseByteOrderNewArray(bytes8_Value_1_BE);
@@ -53,7 +55,6 @@ public class DatatypeConversionTest {
     byte[] bytes8_Value_Minus_1_LE = DatatypeConversion.reverseByteOrderNewArray(bytes8_Value_Minus_1_BE);
     byte[] bytes8_Value_Minus_2_LE = DatatypeConversion.reverseByteOrderNewArray(bytes8_Value_Minus_2_BE);
     byte[] bytes8_Value_MaxNegative_LE = DatatypeConversion.reverseByteOrderNewArray(bytes8_Value_MaxNegative_BE);
-
     byte[] bytes4_Value_MaxPositive_LE = DatatypeConversion.reverseByteOrderNewArray(bytes4_Value_MaxPositive_BE);
     byte[] bytes4_Value_2_LE = DatatypeConversion.reverseByteOrderNewArray(bytes4_Value_2_BE);
     byte[] bytes4_Value_1_LE = DatatypeConversion.reverseByteOrderNewArray(bytes4_Value_1_BE);
@@ -61,7 +62,6 @@ public class DatatypeConversionTest {
     byte[] bytes4_Value_Minus_1_LE = DatatypeConversion.reverseByteOrderNewArray(bytes4_Value_Minus_1_BE);
     byte[] bytes4_Value_Minus_2_LE = DatatypeConversion.reverseByteOrderNewArray(bytes4_Value_Minus_2_BE);
     byte[] bytes4_Value_MaxNegative_LE = DatatypeConversion.reverseByteOrderNewArray(bytes4_Value_MaxNegative_BE);
-
     byte[] bytes2_Value_MaxPositive_LE = DatatypeConversion.reverseByteOrderNewArray(bytes2_Value_MaxPositive_BE);
     byte[] bytes2_Value_2_LE = DatatypeConversion.reverseByteOrderNewArray(bytes2_Value_2_BE);
     byte[] bytes2_Value_1_LE = DatatypeConversion.reverseByteOrderNewArray(bytes2_Value_1_BE);
@@ -69,23 +69,13 @@ public class DatatypeConversionTest {
     byte[] bytes2_Value_Minus_1_LE = DatatypeConversion.reverseByteOrderNewArray(bytes2_Value_Minus_1_BE);
     byte[] bytes2_Value_Minus_2_LE = DatatypeConversion.reverseByteOrderNewArray(bytes2_Value_Minus_2_BE);
     byte[] bytes2_Value_MaxNegative_LE = DatatypeConversion.reverseByteOrderNewArray(bytes2_Value_MaxNegative_BE);
-
-    byte[] bytes1_Value_MaxPositive = new byte[] { (byte) 0x7F };
-    byte[] bytes1_Value_2 = new byte[] { (byte) 0x02 };
-    byte[] bytes1_Value_1 = new byte[] { (byte) 0x01 };
-    byte[] bytes1_Value_0 = new byte[] { (byte) 0x00 };
-    byte[] bytes1_Value_Minus_1 = new byte[] { (byte) 0xFF };
-    byte[] bytes1_Value_Minus_2 = new byte[] { (byte) 0xFE };
-    byte[] bytes1_Value_MaxNegative = new byte[] { (byte) 0x80, };
-
-    final long MAX_UNSIGNED_INT32 = 4294967295L;
-    final int MAX_UNSIGNED_INT16 = 65535;
-
-    final int MAX_SIGNED_INT16 = 32767;
-    final int MIN_SIGNED_INT16 = -32768;
-
-    final int MAX_SIGNED_INT8 = 127;
-    final int MIN_SIGNED_INT8 = -128;
+    byte[] bytes1_Value_MaxPositive = new byte[]{(byte) 0x7F};
+    byte[] bytes1_Value_2 = new byte[]{(byte) 0x02};
+    byte[] bytes1_Value_1 = new byte[]{(byte) 0x01};
+    byte[] bytes1_Value_0 = new byte[]{(byte) 0x00};
+    byte[] bytes1_Value_Minus_1 = new byte[]{(byte) 0xFF};
+    byte[] bytes1_Value_Minus_2 = new byte[]{(byte) 0xFE};
+    byte[] bytes1_Value_MaxNegative = new byte[]{(byte) 0x80,};
 
     @Test
     public void test_reverseByteOrder() {
@@ -745,7 +735,7 @@ public class DatatypeConversionTest {
     public void test_unsignedInt8_To_Bytes() {
 
         final int UNSIGNED_INT8_MAX = 255;
-        byte[] MAX_UNSINGND_INT8_BYTE = new byte[] { (byte) 0xFF };
+        byte[] MAX_UNSINGND_INT8_BYTE = new byte[]{(byte) 0xFF};
 
         byte[] bytes;
 

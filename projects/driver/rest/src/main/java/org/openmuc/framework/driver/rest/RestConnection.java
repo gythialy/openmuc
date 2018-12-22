@@ -20,6 +20,16 @@
  */
 package org.openmuc.framework.driver.rest;
 
+import org.apache.commons.codec.binary.Base64;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.*;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DataAccessService;
+import org.openmuc.framework.driver.rest.helper.JsonWrapper;
+import org.openmuc.framework.driver.spi.*;
+import org.openmuc.framework.lib.json.Const;
+
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -31,99 +41,49 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.codec.binary.Base64;
-import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.data.BooleanValue;
-import org.openmuc.framework.data.ByteArrayValue;
-import org.openmuc.framework.data.ByteValue;
-import org.openmuc.framework.data.DoubleValue;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.FloatValue;
-import org.openmuc.framework.data.IntValue;
-import org.openmuc.framework.data.LongValue;
-import org.openmuc.framework.data.Record;
-import org.openmuc.framework.data.ShortValue;
-import org.openmuc.framework.data.StringValue;
-import org.openmuc.framework.data.Value;
-import org.openmuc.framework.data.ValueType;
-import org.openmuc.framework.dataaccess.Channel;
-import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.driver.rest.helper.JsonWrapper;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
-import org.openmuc.framework.lib.json.Const;
-
 public class RestConnection implements Connection {
 
-    private JsonWrapper wrapper;
+    private final JsonWrapper wrapper;
+    private final int timeout;
+    private final String authString;
+    private final DataAccessService dataAccessService;
     private URL url;
     private URLConnection con;
-    private String deviceAddress;
-    private int timeout;
+    private String baseAddress;
     private boolean isHTTPS;
-    private String authString;
-
-    private DataAccessService dataAccessService;
     private String connectionAddress;
 
-    private static boolean checkTimestamp = false;
-
-    // private static final Logger logger = LoggerFactory.getLogger(RestConnection.class);
+    private boolean checkTimestamp = false;
 
     RestConnection(String deviceAddress, String credentials, int timeout, boolean checkTimestamp,
-            DataAccessService dataAccessService) throws ConnectionException {
+                   DataAccessService dataAccessService) throws ConnectionException {
 
-        RestConnection.checkTimestamp = checkTimestamp;
+        this.checkTimestamp = checkTimestamp;
         this.dataAccessService = dataAccessService;
         this.timeout = timeout;
         wrapper = new JsonWrapper();
         authString = new String(Base64.encodeBase64(credentials.getBytes()));
 
         if (!deviceAddress.endsWith("/")) {
-            this.deviceAddress = deviceAddress + "/channels/";
-            this.connectionAddress = deviceAddress + "/connect/";
-        }
-        else {
-            this.deviceAddress = deviceAddress + "channels/";
-            this.connectionAddress = deviceAddress + "connect/";
+            this.baseAddress = deviceAddress + "/rest/channels/";
+            this.connectionAddress = deviceAddress + "/rest/connect/";
+        } else {
+            this.baseAddress = deviceAddress + "rest/channels/";
+            this.connectionAddress = deviceAddress + "rest/connect/";
         }
 
         if (deviceAddress.startsWith("https://")) {
             isHTTPS = true;
-        }
-        else {
+        } else {
             isHTTPS = false;
         }
 
         if (isHTTPS) {
-            TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-                @Override
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                @Override
-                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-                }
-
-                @Override
-                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-                }
-            } };
+            TrustManager[] trustManager = getTrustManager();
 
             try {
                 SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                sc.init(null, trustManager, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             } catch (KeyManagementException e1) {
                 throw new ConnectionException(e1.getMessage());
@@ -132,22 +92,38 @@ public class RestConnection implements Connection {
             }
 
             // Create all-trusting host name verifier
-            HostnameVerifier allHostsValid = new HostnameVerifier() {
-
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-
-            };
-
+            HostnameVerifier allHostsValid = getHostnameVerifier();
             HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-            // HttpsURLConnection.setFollowRedirects(false);
         }
     }
 
-    private Record readChannel(String channelAddress, ValueType valueType) throws ConnectionException {
+    private HostnameVerifier getHostnameVerifier() {
+        return new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+    }
 
+    private TrustManager[] getTrustManager() {
+        return new TrustManager[]{new X509TrustManager() {
+            @Override
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            }
+
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            }
+        }};
+    }
+
+    private Record readChannel(String channelAddress, ValueType valueType) throws ConnectionException {
         Record newRecord = null;
         try {
             newRecord = wrapper.toRecord(get(channelAddress), valueType);
@@ -158,13 +134,11 @@ public class RestConnection implements Connection {
     }
 
     private long readChannelTimestamp(String channelAddress) throws ConnectionException {
-
         long timestamp = -1;
         try {
             if (channelAddress.endsWith("/")) {
                 channelAddress += Const.TIMESTAMP;
-            }
-            else {
+            } else {
                 channelAddress += '/' + Const.TIMESTAMP;
             }
             timestamp = wrapper.toTimestamp(get(channelAddress));
@@ -174,31 +148,24 @@ public class RestConnection implements Connection {
         return timestamp;
     }
 
-    private List<ChannelScanInfo> readChannels() throws ConnectionException {
-
-        List<ChannelScanInfo> remoteChannels = null;
+    private List<ChannelScanInfo> readDeviceChannelList() throws ConnectionException {
         try {
-            remoteChannels = wrapper.toChannelList(get(""));
+            return wrapper.tochannelScanInfos(get(""));
         } catch (IOException e) {
             throw new ConnectionException(e.getMessage());
         }
-        return remoteChannels;
     }
 
     private Flag writeChannel(String channelAddress, Value value, ValueType valueType) throws ConnectionException {
-
         Record remoteRecord = new Record(value, System.currentTimeMillis(), Flag.VALID);
         return put(channelAddress, wrapper.fromRecord(remoteRecord, valueType));
     }
 
     void connect() throws ConnectionException {
-
         try {
             url = new URL(connectionAddress);
             con = url.openConnection();
-            con.setRequestProperty("Connection", "Keep-Alive");
-            con.setConnectTimeout(timeout);
-            con.setReadTimeout(timeout);
+            setConnectionProberties();
         } catch (MalformedURLException e) {
             throw new ConnectionException("malformed URL: " + connectionAddress);
         } catch (IOException e) {
@@ -214,17 +181,14 @@ public class RestConnection implements Connection {
     }
 
     private InputStream get(String suffix) throws ConnectionException {
-
         InputStream stream = null;
         try {
-            url = new URL(deviceAddress + suffix);
+            url = new URL(baseAddress + suffix);
             con = url.openConnection();
-            con.setRequestProperty("Connection", "Keep-Alive");
-            con.setConnectTimeout(timeout);
-            con.setReadTimeout(timeout);
+            setConnectionProberties();
             stream = con.getInputStream();
         } catch (MalformedURLException e) {
-            throw new ConnectionException("malformed URL: " + deviceAddress);
+            throw new ConnectionException("malformed URL: " + baseAddress);
         } catch (IOException e) {
             throw new ConnectionException(e.getMessage());
         }
@@ -234,28 +198,21 @@ public class RestConnection implements Connection {
     }
 
     private Flag put(String suffix, String output) throws ConnectionException {
-
         try {
-            url = new URL(deviceAddress + suffix);
+            url = new URL(baseAddress + suffix);
             con = url.openConnection();
-            con.setConnectTimeout(timeout);
             con.setDoOutput(true);
-            con.setRequestProperty("Connection", "Keep-Alive");
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setRequestProperty("Accept", "application/json");
-            con.setRequestProperty("Authorization", "Basic " + authString);
-            con.setReadTimeout(timeout);
+            setConnectionProberties();
             if (isHTTPS) {
                 ((HttpsURLConnection) con).setRequestMethod("PUT");
-            }
-            else {
+            } else {
                 ((HttpURLConnection) con).setRequestMethod("PUT");
             }
             OutputStreamWriter out = new OutputStreamWriter(con.getOutputStream());
             out.write(output);
             out.close();
         } catch (MalformedURLException e) {
-            throw new ConnectionException("malformed URL: " + deviceAddress);
+            throw new ConnectionException("malformed URL: " + baseAddress);
         } catch (IOException e) {
             throw new ConnectionException(e.getMessage());
         }
@@ -263,8 +220,16 @@ public class RestConnection implements Connection {
         return checkResponseCode(con);
     }
 
-    private Flag checkResponseCode(URLConnection con) throws ConnectionException {
+    private void setConnectionProberties() {
+        con.setConnectTimeout(timeout);
+        con.setReadTimeout(timeout);
+        con.setRequestProperty("Connection", "Keep-Alive");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setRequestProperty("Authorization", "Basic " + authString);
+    }
 
+    private Flag checkResponseCode(URLConnection con) throws ConnectionException {
         int respCode;
         try {
             if (isHTTPS) {
@@ -273,8 +238,7 @@ public class RestConnection implements Connection {
                     throw new ConnectionException(
                             "HTTPS " + respCode + ":" + ((HttpsURLConnection) con).getResponseMessage());
                 }
-            }
-            else {
+            } else {
                 respCode = ((HttpURLConnection) con).getResponseCode();
                 if (!(respCode >= 200 && respCode < 300)) {
                     throw new ConnectionException(
@@ -292,16 +256,14 @@ public class RestConnection implements Connection {
 
         if (isHTTPS) {
             ((HttpsURLConnection) con).disconnect();
-        }
-        else {
+        } else {
             ((HttpURLConnection) con).disconnect();
         }
     }
 
     @Override
-    public Object read(List<ChannelRecordContainer> containerList, Object obj, String arg3)
-            throws UnsupportedOperationException, ConnectionException {
-
+    public Object read(List<ChannelRecordContainer> containerList, Object obj, String arg3) throws ConnectionException {
+        // TODO: add grouping (reading device/driver in once)
         for (ChannelRecordContainer container : containerList) {
             Record record;
             if (checkTimestamp) {
@@ -313,14 +275,12 @@ public class RestConnection implements Connection {
                         || record.getTimestamp() < readChannelTimestamp(container.getChannelAddress())) {
                     record = readChannel(container.getChannelAddress(), container.getChannel().getValueType());
                 }
-            }
-            else {
+            } else {
                 record = readChannel(container.getChannelAddress(), container.getChannel().getValueType());
             }
             if (record != null) {
                 container.setRecord(record);
-            }
-            else {
+            } else {
                 container.setRecord(new Record(Flag.DRIVER_ERROR_READ_FAILURE));
             }
         }
@@ -328,57 +288,50 @@ public class RestConnection implements Connection {
     }
 
     @Override
-    public List<ChannelScanInfo> scanForChannels(String settings)
-            throws UnsupportedOperationException, ConnectionException {
-
-        return readChannels();
+    public List<ChannelScanInfo> scanForChannels(String settings) throws ConnectionException {
+        return readDeviceChannelList();
     }
 
     @Override
     public void startListening(List<ChannelRecordContainer> arg1, RecordsReceivedListener arg2)
-            throws UnsupportedOperationException, ConnectionException {
-
+            throws ConnectionException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object write(List<ChannelValueContainer> container, Object containerListHandle)
-            throws UnsupportedOperationException, ConnectionException {
-        Flag flag = Flag.CONNECTION_EXCEPTION;
-
+    public Object write(List<ChannelValueContainer> container, Object containerListHandle) throws ConnectionException {
         for (ChannelValueContainer cont : container) {
             Value value = cont.getValue();
-
-            if (value instanceof DoubleValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.DOUBLE);
-            }
-            else if (value instanceof StringValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.STRING);
-            }
-            else if (value instanceof ByteArrayValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BYTE_ARRAY);
-            }
-            else if (value instanceof LongValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.LONG);
-            }
-            else if (value instanceof BooleanValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BOOLEAN);
-            }
-            else if (value instanceof FloatValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.FLOAT);
-            }
-            else if (value instanceof IntValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.INTEGER);
-            }
-            else if (value instanceof ShortValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.SHORT);
-            }
-            else if (value instanceof ByteValue) {
-                flag = writeChannel(cont.getChannelAddress(), cont.getValue(), ValueType.BYTE);
-            }
+            ValueType valueType = getValueType(value);
+            Flag flag = writeChannel(cont.getChannelAddress(), value, valueType);
             cont.setFlag(flag);
         }
         return null;
+    }
+
+    private ValueType getValueType(Value value) {
+        ValueType valueType = ValueType.DOUBLE;
+
+        if (value instanceof DoubleValue) {
+            valueType = ValueType.DOUBLE;
+        } else if (value instanceof StringValue) {
+            valueType = ValueType.STRING;
+        } else if (value instanceof ByteArrayValue) {
+            valueType = ValueType.BYTE_ARRAY;
+        } else if (value instanceof LongValue) {
+            valueType = ValueType.LONG;
+        } else if (value instanceof BooleanValue) {
+            valueType = ValueType.BOOLEAN;
+        } else if (value instanceof FloatValue) {
+            valueType = ValueType.FLOAT;
+        } else if (value instanceof IntValue) {
+            valueType = ValueType.INTEGER;
+        } else if (value instanceof ShortValue) {
+            valueType = ValueType.SHORT;
+        } else if (value instanceof ByteValue) {
+            valueType = ValueType.BYTE;
+        }
+        return valueType;
     }
 
 }

@@ -1,43 +1,28 @@
 <plotting-tabs class="clearfix display-block"></plotting-tabs>
 
-<div class="well">
-    <div class="plotter-place-holder" id="graph"></div>
+<div class="well" id="graph">
+    <svg viewBox="0 0 450 300" class="plotter-place-holder"></svg>
 </div>
-
-<nvd3-line-chart
-        data="data"
-        id="graph"
-        x="xFunction()"
-        y="yFunction()"
-        xAxisTickFormat="xAxisTickFormat()"
-        yAxisTickFormat="yAxisTickFormat()"
-        width="450"
-        height="300"
-        showXAxis="true"
-        showYAxis="true"
-        useInteractiveGuideLine="true"
-        tooltips="true"
-        noData="{{'NO_DATA_TO_DISPLAY' | translate}}"
-        interactive="true"
-        objectEquality="true"
-        margin="{left:70}"
-        yAxisLabel="{{yAxisLabel()}}"
-        xAxisLabel="{{xAxisLabel()}}"
-        forceY="{{plotRange()}}">
-
-</nvd3-line-chart>
 
 <form name="plot_form" class="form-horizontal" ng-submit="plotData()" novalidate>
     <fieldset>
-        <legend>{{'PLOT_OPTIONS' | translate}}:</legend>
+        <legend>
+            {{'PLOT_OPTIONS' | translate}}
+            <span style="float: right;">
+                <a href
+                   ng-click="advanced = true"
+                   ng-hide="advanced"
+                   class="small text-muted">{{'SHOW_ADVANCED' | translate}}</a>
+            </span>
+        </legend>
 
-        <div class="form-group">
+        <div class="form-group" ng-show="advanced">
             <label for="refresh" class="col-sm-2 control-label">
                 {{'REFRESH' | translate}}
             </label>
             <div class="col-sm-6">
                 <div class="input-group">
-                    <input type="text" class="form-control" ng-model="refresh">
+                    <input id="refresh" type="text" class="form-control" ng-model="refresh">
                     <div class="input-group-addon">ms</div>
                 </div>
             </div>
@@ -47,15 +32,17 @@
             <label for="start_date" class="col-sm-2 control-label">
                 {{'PLOT_TIME_PERIOD' | translate}}
             </label>
-            <div class="col-sm-2">
-                <input type="text" class="form-control" ng-model="timePeriod">
-            </div>
-            <div class="col-sm-2">
-                <select class="form-control" name="timePeriodUnit" ng-model="timePeriodUnit">
-                    <option value="seconds">{{'SECONDS' | translate}}</option>
-                    <option value="minutes">{{'MINUTES' | translate}}</option>
-                    <option value="hours">{{'HOURS' | translate}}</option>
-                </select>
+            <div id="start_date">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" ng-model="timePeriod">
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="timePeriodUnit" ng-model="timePeriodUnit">
+                        <option value="seconds">{{'SECONDS' | translate}}</option>
+                        <option value="minutes">{{'MINUTES' | translate}}</option>
+                        <option value="hours">{{'HOURS' | translate}}</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -67,14 +54,26 @@
             <div class="col-sm-6">
                 <div class="col-sm-5" ng-repeat="channel in channels">
                     <label class="sr-only">{{channel.label}}</label>
-                    <label><input type="checkbox" checklist-model="selectedChannels" checklist-value="channel"> {{channel.label}}</label>
+                    <label data-title="{{channel.valueType == 'STRING'  ? ('CHANNEL_VALUE_NOT_PLOTTABLE' | translate) : ''}}"
+                           bs-tooltip>
+                        <input type="checkbox"
+                               checklist-model="selectedChannels"
+                               checklist-value="channel"
+                               ng-disabled="channel.valueType == 'STRING'">
+                        {{channel.label}}
+                    </label>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-8 text-right">
-            <input type="submit" class="btn btn-primary" value="{{'PLOT_DATA' | translate}}" ng-disabled="disabledPlot()">
+            <input type="submit" class="btn btn-primary" value="{{'PLOT_DATA' | translate}}"
+                   ng-disabled="plotDisabled()">
+            <input type="button"
+                   class="btn btn-primary"
+                   ng-click="togglePlotting()"
+                   value="{{paused ? ('RESUME_PLOT_DATA' | translate) : ('PAUSE_PLOTTING_DATA' | translate)}}"
+                   ng-disabled="!(paused || plotting)">
         </div>
-
     </fieldset>
 </form>

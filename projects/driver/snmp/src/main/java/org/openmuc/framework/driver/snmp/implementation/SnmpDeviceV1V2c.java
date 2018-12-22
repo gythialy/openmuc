@@ -20,9 +20,6 @@
  */
 package org.openmuc.framework.driver.snmp.implementation;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.snmp.SnmpDriver.SnmpDriverSettingVariableNames;
 import org.openmuc.framework.driver.spi.ConnectionException;
@@ -44,6 +41,9 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
+import java.io.IOException;
+import java.util.Vector;
+
 public class SnmpDeviceV1V2c extends SnmpDevice {
 
     private static final Logger logger = LoggerFactory.getLogger(SnmpDeviceV1V2c.class);
@@ -52,21 +52,15 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
 
     /**
      * snmp constructor takes primary parameters in order to create snmp object. this implementation uses UDP protocol
-     * 
-     * @param version
-     *            Can be V1 or V2c corresponding to snmp v1 or v2c
-     * @param address
-     *            Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
-     * @param authenticationPassphrase
-     *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
-     *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
-     *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
-     * 
-     * @throws ConnectionException
-     *             thrown if SNMP listen or initialization failed
-     * @throws ArgumentSyntaxException
-     *             thrown if Given snmp version is not correct or supported
+     *
+     * @param version                  Can be V1 or V2c corresponding to snmp v1 or v2c
+     * @param address                  Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
+     * @param authenticationPassphrase the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
+     *                                 also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *                                 bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *                                 <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
+     * @throws ConnectionException     thrown if SNMP listen or initialization failed
+     * @throws ArgumentSyntaxException thrown if Given snmp version is not correct or supported
      */
 
     public SnmpDeviceV1V2c(SNMPVersion version, String address, String authenticationPassphrase)
@@ -79,13 +73,10 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
 
     /**
      * scanner constructor
-     * 
-     * @param version
-     *            SNMP version
-     * @throws ArgumentSyntaxException
-     *             thrown if Given snmp version is not correct or supported
-     * @throws ConnectionException
-     *             thrown if SNMP listen failed
+     *
+     * @param version SNMP version
+     * @throws ArgumentSyntaxException thrown if Given snmp version is not correct or supported
+     * @throws ConnectionException     thrown if SNMP listen failed
      */
     public SnmpDeviceV1V2c(SNMPVersion version) throws ArgumentSyntaxException, ConnectionException {
         setVersion(version);
@@ -106,24 +97,22 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
 
     /**
      * set SNMP version
-     * 
-     * @param version
-     *            SNMP version
-     * @throws ArgumentSyntaxException
-     *             thrown if Given snmp version is not correct or supported
+     *
+     * @param version SNMP version
+     * @throws ArgumentSyntaxException thrown if Given snmp version is not correct or supported
      */
     private void setVersion(SNMPVersion version) throws ArgumentSyntaxException {
         switch (version) {
-        case V1:
-            snmpVersion = SnmpConstants.version1;
-            break;
-        case V2c:
-            snmpVersion = SnmpConstants.version2c;
-            break;
+            case V1:
+                snmpVersion = SnmpConstants.version1;
+                break;
+            case V2c:
+                snmpVersion = SnmpConstants.version2c;
+                break;
 
-        default:
-            throw new ArgumentSyntaxException(
-                    "Given snmp version is not correct or supported! Expected values are [V1,V2c].");
+            default:
+                throw new ArgumentSyntaxException(
+                        "Given snmp version is not correct or supported! Expected values are [V1,V2c].");
         }
     }
 
@@ -157,20 +146,16 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
 
     /**
      * Search for SNMP V2c enabled devices in network by sending proper SNMP GET request to given range of IP addresses.
-     * 
+     * <p>
      * For network and process efficiency, requests are sent to broadcast addresses (IP addresses ending with .255).
-     * 
+     * <p>
      * startIPRange can be greater than endIPRange. In this case, it will reach the last available address and start
      * from the first IP address again
-     * 
-     * @param startIPRange
-     *            start of IP range
-     * @param endIPRange
-     *            en of IP range
-     * @param communityWords
-     *            community words
-     * @throws ArgumentSyntaxException
-     *             thrown if Given start ip address is not a valid IPV4 address
+     *
+     * @param startIPRange   start of IP range
+     * @param endIPRange     en of IP range
+     * @param communityWords community words
+     * @throws ArgumentSyntaxException thrown if Given start ip address is not a valid IPV4 address
      */
     public void scanSnmpV2cEnabledDevices(String startIPRange, String endIPRange, String[] communityWords)
             throws ArgumentSyntaxException {
@@ -223,9 +208,9 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
                             /**
                              * Since we are sending broadcast request we have to keep async request alive. Otherwise
                              * async request must be cancel by blew code in order to prevent memory leak
-                             * 
+                             *
                              * ((Snmp)event.getSource()).cancel(event.getRequest (), this);
-                             * 
+                             *
                              */
 
                             if (event.getResponse() != null) {

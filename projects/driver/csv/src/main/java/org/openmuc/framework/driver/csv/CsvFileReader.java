@@ -1,16 +1,15 @@
 package org.openmuc.framework.driver.csv;
 
+import com.univocity.parsers.common.processor.ColumnProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import org.openmuc.framework.driver.spi.ConnectionException;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openmuc.framework.driver.spi.ConnectionException;
-
-import com.univocity.parsers.common.processor.ColumnProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
 
 /**
  * Class to parse the CSV file into a map of column names and their respective list of values

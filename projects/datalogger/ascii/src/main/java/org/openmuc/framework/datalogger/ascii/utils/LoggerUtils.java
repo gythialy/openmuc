@@ -20,28 +20,6 @@
  */
 package org.openmuc.framework.datalogger.ascii.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.LogFileHeader;
@@ -50,26 +28,30 @@ import org.openmuc.framework.datalogger.spi.LogRecordContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.Map.Entry;
+
 public class LoggerUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggerUtils.class);
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
+    private LoggerUtils() {
+    }
+
     /**
      * Returns all filenames of the given time span defined by the two dates
-     * 
-     * @param loggingInterval
-     *            logging interval
-     * @param logTimeOffset
-     *            logging time offset
-     * @param startTimestamp
-     *            start time stamp
-     * @param endTimestamp
-     *            end time stamp
+     *
+     * @param loggingInterval logging interval
+     * @param logTimeOffset   logging time offset
+     * @param startTimestamp  start time stamp
+     * @param endTimestamp    end time stamp
      * @return a list of strings with all files names
      */
     public static List<String> getFilenames(int loggingInterval, int logTimeOffset, long startTimestamp,
-            long endTimestamp) {
+                                            long endTimestamp) {
 
         Calendar calendarStart = new GregorianCalendar(Locale.getDefault());
         calendarStart.setTimeInMillis(startTimestamp);
@@ -95,13 +77,10 @@ public class LoggerUtils {
 
     /**
      * Returns the filename, with the help of the timestamp and the interval.
-     * 
-     * @param loggingInterval
-     *            logging interval
-     * @param logTimeOffset
-     *            logging time offset
-     * @param timestamp
-     *            timestamp
+     *
+     * @param loggingInterval logging interval
+     * @param logTimeOffset   logging time offset
+     * @param timestamp       timestamp
      * @return a filename from timestamp (date) and interval
      */
     public static String getFilename(int loggingInterval, int logTimeOffset, long timestamp) {
@@ -113,13 +92,10 @@ public class LoggerUtils {
 
     /**
      * Builds the Logfile name from logging interval, logging time offset and the date of the calendar
-     * 
-     * @param loggingInterval
-     *            logging interval
-     * @param logTimeOffset
-     *            logging time offset
-     * @param calendar
-     *            Calendar for the time of the file name
+     *
+     * @param loggingInterval logging interval
+     * @param logTimeOffset   logging time offset
+     * @param calendar        Calendar for the time of the file name
      * @return logging file name
      */
     public static String buildFilename(int loggingInterval, int logTimeOffset, Calendar calendar) {
@@ -139,11 +115,9 @@ public class LoggerUtils {
 
     /**
      * Builds the Logfile name from string interval_timeOffset and the date of the calendar
-     * 
-     * @param intervalTimeOffset
-     *            the IntervallTimeOffset
-     * @param calendar
-     *            Calendar for the time of the file name
+     *
+     * @param intervalTimeOffset the IntervallTimeOffset
+     * @param calendar           Calendar for the time of the file name
      * @return logfile name
      */
     public static String buildFilename(String intervalTimeOffset, Calendar calendar) {
@@ -159,11 +133,9 @@ public class LoggerUtils {
 
     /**
      * Checks if it has a next container entry.
-     * 
-     * @param containers
-     *            a list with LogRecordContainer
-     * @param i
-     *            the current possition of the list
+     *
+     * @param containers a list with LogRecordContainer
+     * @param i          the current possition of the list
      * @return true if it has a next container entry, if not else.
      */
     public static boolean hasNext(List<LogRecordContainer> containers, int i) {
@@ -177,11 +149,9 @@ public class LoggerUtils {
 
     /**
      * This method rename all *.dat files with the date from today in directoryPath into a *.old0, *.old1, ...
-     * 
-     * @param directoryPath
-     *            directory path
-     * @param calendar
-     *            Calendar for the time of the file name
+     *
+     * @param directoryPath directory path
+     * @param calendar      Calendar for the time of the file name
      */
     public static void renameAllFilesToOld(String directoryPath, Calendar calendar) {
 
@@ -213,8 +183,7 @@ public class LoggerUtils {
                     }
                 }
             }
-        }
-        else {
+        } else {
             logger.error("No file found in " + directoryPath);
         }
     }
@@ -222,13 +191,10 @@ public class LoggerUtils {
     /**
      * This method renames a singel &lt;date&gt;_&lt;loggerInterval&gt;_&lt;loggerTimeOffset&gt;.dat file into a *.old0,
      * *.old1, ...
-     * 
-     * @param directoryPath
-     *            directory path
-     * @param loggerIntervalLoggerTimeOffset
-     *            logger interval with logger time offset as String separated with underline
-     * @param calendar
-     *            calendar of the day
+     *
+     * @param directoryPath                  directory path
+     * @param loggerIntervalLoggerTimeOffset logger interval with logger time offset as String separated with underline
+     * @param calendar                       calendar of the day
      */
     public static void renameFileToOld(String directoryPath, String loggerIntervalLoggerTimeOffset, Calendar calendar) {
 
@@ -255,9 +221,8 @@ public class LoggerUtils {
 
     /**
      * Returns the calendar from today with the first hour, minute, second and millisecond.
-     * 
-     * @param today
-     *            the current calendar
+     *
+     * @param today the current calendar
      * @return the calendar from today with the first hour, minute, second and millisecond
      */
     public static Calendar getCalendarTodayZero(Calendar today) {
@@ -271,13 +236,10 @@ public class LoggerUtils {
 
     /**
      * This method adds a blank spaces to a StringBuilder object.
-     * 
-     * @param length
-     *            length of the value to add the spaces
-     * @param size
-     *            maximal allowed size
-     * @param sb
-     *            StringBuilder object to add the spaces
+     *
+     * @param length length of the value to add the spaces
+     * @param size   maximal allowed size
+     * @param sb     StringBuilder object to add the spaces
      */
     public static void addSpaces(int length, int size, StringBuilder sb) {
 
@@ -290,11 +252,9 @@ public class LoggerUtils {
 
     /**
      * This method adds a string value up with blank spaces from left to right.
-     * 
-     * @param sb
-     *            StringBuilder in wich the spaces will appended
-     * @param number
-     *            the number of spaces
+     *
+     * @param sb     StringBuilder in wich the spaces will appended
+     * @param number the number of spaces
      */
     public static void appendSpaces(StringBuilder sb, int number) {
 
@@ -305,11 +265,9 @@ public class LoggerUtils {
 
     /**
      * Construct a error value with standard error prefix and the flag as number.
-     * 
-     * @param flag
-     *            the wished error flag
-     * @param sbValue
-     *            string buffer to add the error flag
+     *
+     * @param flag    the wished error flag
+     * @param sbValue string buffer to add the error flag
      */
     public static void buildError(StringBuilder sbValue, Flag flag) {
         sbValue.append(Const.ERROR).append(flag.getCode());
@@ -317,11 +275,9 @@ public class LoggerUtils {
 
     /**
      * Get the column number by name.
-     * 
-     * @param line
-     *            the line to search
-     * @param name
-     *            the name to search in line
+     *
+     * @param line the line to search
+     * @param name the name to search in line
      * @return the column number as int.
      */
     public static int getColumnNumberByName(String line, String name) {
@@ -343,11 +299,9 @@ public class LoggerUtils {
 
     /**
      * Get the columns number by names.
-     * 
-     * @param line
-     *            the line to search
-     * @param names
-     *            the name to search in line
+     *
+     * @param line  the line to search
+     * @param names the name to search in line
      * @return the column numbers mapped with the name.
      */
     public static Map<String, Integer> getColumnNumbersByNames(String line, String[] names) {
@@ -372,14 +326,11 @@ public class LoggerUtils {
     /**
      * Get the column number by name, in comments. It searches the line by his self. The BufferdReader has to be on the
      * begin of the file.
-     * 
-     * @param name
-     *            the name to search
-     * @param br
-     *            the BufferedReader
+     *
+     * @param name the name to search
+     * @param br   the BufferedReader
      * @return column number as int, -1 if name not found
-     * @throws IOException
-     *             throws IOException If an I/O error occurs
+     * @throws IOException throws IOException If an I/O error occurs
      */
     public static int getCommentColumnNumberByName(String name, BufferedReader br) throws IOException {
 
@@ -405,16 +356,12 @@ public class LoggerUtils {
 
     /**
      * Get the value which is coded in the comment
-     * 
-     * @param colNumber
-     *            the number of the channel
-     * @param column
-     *            the column
-     * @param br
-     *            a BufferedReader
+     *
+     * @param colNumber the number of the channel
+     * @param column    the column
+     * @param br        a BufferedReader
      * @return the value of a column of a specific col_num
-     * @throws IOException
-     *             If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     public static String getCommentValue(int colNumber, int column, BufferedReader br) throws IOException {
 
@@ -433,11 +380,9 @@ public class LoggerUtils {
 
     /**
      * Identifies the ValueType of a logger value on a specific col_no
-     * 
-     * @param columnNumber
-     *            column number
-     * @param dataFile
-     *            the logger data file
+     *
+     * @param columnNumber column number
+     * @param dataFile     the logger data file
      * @return the ValueType from col_num x
      */
     public static ValueType identifyValueType(int columnNumber, File dataFile) {
@@ -476,42 +421,39 @@ public class LoggerUtils {
 
     /**
      * Returns the predefined size of a ValueType.
-     * 
-     * @param valueType
-     *            the type to get the predefined size
+     *
+     * @param valueType the type to get the predefined size
      * @return predefined size of a ValueType as int.
      */
     public static int getLengthOfValueType(ValueType valueType) {
 
         switch (valueType) {
-        case DOUBLE:
-            return Const.VALUE_SIZE_DOUBLE;
-        case FLOAT:
-            return Const.VALUE_SIZE_DOUBLE;
-        case INTEGER:
-            return Const.VALUE_SIZE_INTEGER;
-        case LONG:
-            return Const.VALUE_SIZE_LONG;
-        case SHORT:
-            return Const.VALUE_SIZE_SHORT;
-        case BYTE_ARRAY:
-            return Const.VALUE_SIZE_MINIMAL;
-        case STRING:
-            return Const.VALUE_SIZE_MINIMAL;
-        case BOOLEAN:
-        case BYTE:
-        default:
-            return Const.VALUE_SIZE_MINIMAL;
+            case DOUBLE:
+                return Const.VALUE_SIZE_DOUBLE;
+            case FLOAT:
+                return Const.VALUE_SIZE_DOUBLE;
+            case INTEGER:
+                return Const.VALUE_SIZE_INTEGER;
+            case LONG:
+                return Const.VALUE_SIZE_LONG;
+            case SHORT:
+                return Const.VALUE_SIZE_SHORT;
+            case BYTE_ARRAY:
+                return Const.VALUE_SIZE_MINIMAL;
+            case STRING:
+                return Const.VALUE_SIZE_MINIMAL;
+            case BOOLEAN:
+            case BYTE:
+            default:
+                return Const.VALUE_SIZE_MINIMAL;
         }
     }
 
     /**
      * Converts a byte array to an hexadecimal string
-     * 
-     * @param sb
-     *            to add hex string
-     * @param byteArray
-     *            the byte array to convert
+     *
+     * @param sb        to add hex string
+     * @param byteArray the byte array to convert
      */
     public static void byteArrayToHexString(StringBuilder sb, byte[] byteArray) {
         char[] hexChars = new char[byteArray.length * 2];
@@ -525,11 +467,9 @@ public class LoggerUtils {
 
     /**
      * Constructs the timestamp for every log value into a StringBuilder.
-     * 
-     * @param sb
-     *            the StringBuilder to add the logger timestamp
-     * @param calendar
-     *            Calendar with the wished time
+     *
+     * @param sb       the StringBuilder to add the logger timestamp
+     * @param calendar Calendar with the wished time
      */
     public static void setLoggerTimestamps(StringBuilder sb, Calendar calendar) {
 
@@ -545,11 +485,9 @@ public class LoggerUtils {
 
     /**
      * Constructs the timestamp for every log value into a StringBuilder.
-     * 
-     * @param sb
-     *            the StringBuilder to add the logger timestamp
-     * @param unixTimeStamp
-     *            unix time stamp in ms
+     *
+     * @param sb            the StringBuilder to add the logger timestamp
+     * @param unixTimeStamp unix time stamp in ms
      */
     public static void setLoggerTimestamps(StringBuilder sb, long unixTimeStamp) {
 
@@ -602,11 +540,9 @@ public class LoggerUtils {
 
     /**
      * Returns a RandomAccessFile of the specified file.
-     * 
-     * @param file
-     *            file get the RandomAccessFile
-     * @param accesMode
-     *            access mode
+     *
+     * @param file      file get the RandomAccessFile
+     * @param accesMode access mode
      * @return the RandomAccessFile of the specified file, {@code null} if an error occured.
      */
     public static RandomAccessFile getRandomAccessFile(File file, String accesMode) {
@@ -632,7 +568,7 @@ public class LoggerUtils {
     }
 
     public static Map<String, Boolean> areHeadersIdentical(String loggerDirectory, List<LogChannel> channels,
-            Calendar calendar) {
+                                                           Calendar calendar) {
 
         Map<String, Boolean> areHeadersIdentical = new TreeMap<>();
         Map<String, List<LogChannel>> logChannelMap = new TreeMap<>();
@@ -643,8 +579,7 @@ public class LoggerUtils {
 
             if (logChannel.getLoggingTimeOffset() != 0) {
                 key = logChannel.getLoggingInterval() + Const.TIME_SEPERATOR_STRING + logChannel.getLoggingTimeOffset();
-            }
-            else {
+            } else {
                 key = logChannel.getLoggingInterval().toString();
             }
 
@@ -652,8 +587,7 @@ public class LoggerUtils {
                 List<LogChannel> logChannelList = new ArrayList<>();
                 logChannelList.add(logChannel);
                 logChannelMap.put(key, logChannelList);
-            }
-            else {
+            } else {
                 logChannelMap.get(key).add(logChannel);
             }
         }
@@ -677,21 +611,16 @@ public class LoggerUtils {
 
     /**
      * * fills a AsciiLogg file up.
-     * 
-     * @param out
-     *            the output stream to write on
-     * @param unixTimeStamp
-     *            unix time stamp
-     * @param loggingInterval
-     *            logging interval
-     * @param numberOfFillUpLines
-     *            the number to fill up lines
-     * @param errorValues
-     *            the error value set in the line
+     *
+     * @param out                 the output stream to write on
+     * @param unixTimeStamp       unix time stamp
+     * @param loggingInterval     logging interval
+     * @param numberOfFillUpLines the number to fill up lines
+     * @param errorValues         the error value set in the line
      * @return returns the unix time stamp of the last filled up line
      */
     public static long fillUp(PrintWriter out, long unixTimeStamp, long loggingInterval, long numberOfFillUpLines,
-            StringBuilder errorValues) {
+                              StringBuilder errorValues) {
 
         StringBuilder line = new StringBuilder();
         for (int i = 0; i < numberOfFillUpLines; ++i) {
@@ -720,9 +649,8 @@ public class LoggerUtils {
 
     /**
      * Returns the error value as a StringBuilder.
-     * 
-     * @param lineArray
-     *            a ascii line as a array with error code
+     *
+     * @param lineArray a ascii line as a array with error code
      * @return StringBuilder with appended error
      */
     public static StringBuilder getErrorValues(String[] lineArray) {
@@ -753,11 +681,9 @@ public class LoggerUtils {
 
     /**
      * Get the length from a type+length tuple. Example: "Byte_String,95"
-     * 
-     * @param string
-     *            has to be a string with ByteType and length.
-     * @param dataFile
-     *            the logger data file
+     *
+     * @param string   has to be a string with ByteType and length.
+     * @param dataFile the logger data file
      * @return the length of a ByteString.
      */
     private static int getByteStringLength(String string) {
@@ -770,9 +696,6 @@ public class LoggerUtils {
                     + Const.VALUE_SIZE_MINIMAL + ".");
         }
         return Const.VALUE_SIZE_MINIMAL;
-    }
-
-    private LoggerUtils() {
     }
 
 }

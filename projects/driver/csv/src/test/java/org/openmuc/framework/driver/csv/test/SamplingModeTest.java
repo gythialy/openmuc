@@ -1,8 +1,5 @@
 package org.openmuc.framework.driver.csv.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openmuc.framework.config.ArgumentSyntaxException;
@@ -12,6 +9,9 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SamplingModeTest {
 

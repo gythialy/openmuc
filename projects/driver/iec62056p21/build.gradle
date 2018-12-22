@@ -1,4 +1,3 @@
-
 def projectName = "OpenMUC Driver - IEC 62056-21"
 def projectDescription = "IEC 62056-21 driver for the OpenMUC framework."
 
@@ -7,34 +6,34 @@ configurations.create('embed')
 def j62056version = "2.1.0"
 
 dependencies {
-  compile project(':openmuc-core-spi')
-  
-  compile group: 'org.openmuc', name: 'j62056', version: j62056version
-  embed group: 'org.openmuc', name: 'j62056', version: j62056version
+    compile project(':openmuc-core-spi')
+
+    compile group: 'org.openmuc', name: 'j62056', version: j62056version
+    embed group: 'org.openmuc', name: 'j62056', version: j62056version
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
-    instruction 'Import-Package', '!org.openmuc.j62056*,org.openmuc.jrxtx,*' + jarDefaultImportPackageVersion
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
+        instruction 'Import-Package', '!org.openmuc.j62056*,org.openmuc.jrxtx,*' + jarDefaultImportPackageVersion
+        instruction 'Export-Package', ''
+    }
 }
 
 jar {
-  into('lib') {
-    from configurations.embed
-  }
+    into('lib') {
+        from configurations.embed
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description projectDescription
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
     }
-  }
 }

@@ -1,36 +1,36 @@
 package org.openmuc.framework.driver.csv.channel;
 
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.driver.csv.settings.DeviceSettings;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.driver.csv.settings.DeviceSettings;
-
 public class ChannelFactory {
 
     public static HashMap<String, CsvChannel> createChannelMap(Map<String, List<String>> csvMap,
-            DeviceSettings settings) throws ArgumentSyntaxException {
+                                                               DeviceSettings settings) throws ArgumentSyntaxException {
 
         HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
         switch (settings.samplingMode()) {
-        case UNIXTIMESTAMP:
+            case UNIXTIMESTAMP:
 
-            channelMap = ChannelFactory.createMapUnixtimestamp(csvMap);
-            break;
+                channelMap = ChannelFactory.createMapUnixtimestamp(csvMap);
+                break;
 
-        case HHMMSS:
-            channelMap = ChannelFactory.createMapHHMMSS(csvMap, settings.rewind());
-            break;
+            case HHMMSS:
+                channelMap = ChannelFactory.createMapHHMMSS(csvMap, settings.rewind());
+                break;
 
-        case LINE:
-            channelMap = ChannelFactory.createMapLine(csvMap, settings.rewind());
-            break;
+            case LINE:
+                channelMap = ChannelFactory.createMapLine(csvMap, settings.rewind());
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         return channelMap;
@@ -88,7 +88,7 @@ public class ChannelFactory {
 
     /**
      * Convert timestamps from List String to long[]
-     * 
+     *
      * @throws ArgumentSyntaxException
      */
     private static long[] getTimestamps(Map<String, List<String>> csvMap) throws ArgumentSyntaxException {

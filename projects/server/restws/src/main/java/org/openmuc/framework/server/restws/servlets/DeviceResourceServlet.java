@@ -20,26 +20,10 @@
  */
 package org.openmuc.framework.server.restws.servlets;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.openmuc.framework.config.ArgumentSyntaxException;
-import org.openmuc.framework.config.ChannelConfig;
-import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.config.ConfigService;
-import org.openmuc.framework.config.ConfigWriteException;
-import org.openmuc.framework.config.DeviceConfig;
-import org.openmuc.framework.config.DriverConfig;
-import org.openmuc.framework.config.DriverNotAvailableException;
-import org.openmuc.framework.config.IdCollisionException;
-import org.openmuc.framework.config.RootConfig;
-import org.openmuc.framework.config.ScanException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.dataaccess.DeviceState;
@@ -51,9 +35,13 @@ import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class DeviceResourceServlet extends GenericServlet {
 
@@ -85,8 +73,7 @@ public class DeviceResourceServlet extends GenericServlet {
 
             if (pathInfo.equals("/")) {
                 json.addStringList(Const.DEVICES, deviceList);
-            }
-            else {
+            } else {
                 deviceID = pathInfoArray[0].replace("/", "");
 
                 if (deviceList.contains(deviceID)) {
@@ -97,32 +84,25 @@ public class DeviceResourceServlet extends GenericServlet {
                     if (pathInfoArray.length == 1) {
                         json.addChannelRecordList(deviceChannelList);
                         json.addDeviceState(deviceState);
-                    }
-                    else if (pathInfoArray[1].equalsIgnoreCase(Const.STATE)) {
+                    } else if (pathInfoArray[1].equalsIgnoreCase(Const.STATE)) {
                         json.addDeviceState(deviceState);
-                    }
-                    else if (pathInfoArray.length > 1 && pathInfoArray[1].equals(Const.CHANNELS)) {
+                    } else if (pathInfoArray.length > 1 && pathInfoArray[1].equals(Const.CHANNELS)) {
                         json.addChannelList(deviceChannelList);
                         json.addDeviceState(deviceState);
-                    }
-                    else if (pathInfoArray.length == 2 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
+                    } else if (pathInfoArray.length == 2 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
                         doGetConfigs(json, deviceID, response);
-                    }
-                    else if (pathInfoArray.length == 3 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
+                    } else if (pathInfoArray.length == 3 && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
                         configField = pathInfoArray[2];
                         doGetConfigField(json, deviceID, configField, response);
-                    }
-                    else if (pathInfoArray[1].equalsIgnoreCase(Const.SCAN)) {
+                    } else if (pathInfoArray[1].equalsIgnoreCase(Const.SCAN)) {
                         String settings = request.getParameter(Const.SETTINGS);
                         List<ChannelScanInfo> channelScanInfoList = scanForAllChannels(deviceID, settings, response);
                         json.addChannelScanInfoList(channelScanInfoList);
-                    }
-                    else {
+                    } else {
                         ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                                 "Requested rest device is not available, DeviceID = " + deviceID);
                     }
-                }
-                else {
+                } else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             "Requested rest device is not available, DeviceID = " + deviceID);
                 }
@@ -147,8 +127,7 @@ public class DeviceResourceServlet extends GenericServlet {
 
             if (pathInfoArray.length == 1) {
                 setAndWriteDeviceConfig(deviceID, response, json, false);
-            }
-            else {
+            } else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
             }
@@ -173,16 +152,14 @@ public class DeviceResourceServlet extends GenericServlet {
             if (pathInfoArray.length < 1) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
-            }
-            else {
+            } else {
 
                 DeviceConfig deviceConfig = rootConfig.getDevice(deviceID);
 
                 if (deviceConfig != null && pathInfoArray.length == 2
                         && pathInfoArray[1].equalsIgnoreCase(Const.CONFIGS)) {
                     setAndWriteDeviceConfig(deviceID, response, json, true);
-                }
-                else {
+                } else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
                 }
@@ -210,12 +187,10 @@ public class DeviceResourceServlet extends GenericServlet {
             if (pathInfoArray.length != 1) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "Requested rest path is not available", " Path Info = ", request.getPathInfo());
-            }
-            else if (deviceConfig == null) {
+            } else if (deviceConfig == null) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "Device \"" + deviceID + "\" does not exist.");
-            }
-            else {
+            } else {
                 try {
                     deviceConfig.delete();
                     configService.setConfig(rootConfig);
@@ -223,8 +198,7 @@ public class DeviceResourceServlet extends GenericServlet {
 
                     if (rootConfig.getDriver(deviceID) == null) {
                         response.setStatus(HttpServletResponse.SC_OK);
-                    }
-                    else {
+                    } else {
                         ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                 logger, "Not able to delete driver ", deviceID);
                     }
@@ -302,22 +276,19 @@ public class DeviceResourceServlet extends GenericServlet {
             if (jsoConfigAll == null) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                         "Could not find JSON object \"configs\"");
-            }
-            else {
+            } else {
                 JsonElement jseConfigField = jsoConfigAll.get(configField);
 
                 if (jseConfigField == null) {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                             "Requested rest config field is not available.", " configField = ", configField);
-                }
-                else {
+                } else {
                     JsonObject jso = new JsonObject();
                     jso.add(configField, jseConfigField);
                     json.addJsonObject(Const.CONFIGS, jso);
                 }
             }
-        }
-        else {
+        } else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     "Requested rest channel is not available.", " ChannelID = ", deviceID);
         }
@@ -329,21 +300,19 @@ public class DeviceResourceServlet extends GenericServlet {
 
         if (deviceConfig != null) {
             json.addDeviceConfig(deviceConfig);
-        }
-        else {
+        } else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
                     "Requested rest device is not available.", " DeviceID = ", deviceID);
         }
     }
 
     private boolean setAndWriteDeviceConfig(String deviceID, HttpServletResponse response, FromJson json,
-            boolean isHTTPPut) {
+                                            boolean isHTTPPut) {
 
         try {
             if (isHTTPPut) {
                 return setAndWriteHttpPutDeviceConfig(deviceID, response, json);
-            }
-            else {
+            } else {
                 return setAndWriteHttpPostDeviceConfig(deviceID, response, json);
             }
         } catch (JsonSyntaxException e) {
@@ -382,8 +351,7 @@ public class DeviceResourceServlet extends GenericServlet {
             configService.writeConfigToFile();
             response.setStatus(HttpServletResponse.SC_OK);
             ok = true;
-        }
-        else {
+        } else {
             ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, logger,
                     "Not able to access to device ", deviceID);
         }
@@ -404,20 +372,17 @@ public class DeviceResourceServlet extends GenericServlet {
 
         if (driverID != null) {
             driverConfig = rootConfig.getDriver(driverID);
-        }
-        else {
+        } else {
             throw new Error("No driver ID in JSON");
         }
 
         if (driverConfig == null) {
             ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_CONFLICT, logger,
                     "Driver does not exists: ", driverID);
-        }
-        else if (deviceConfig != null) {
+        } else if (deviceConfig != null) {
             ServletLib.sendHTTPErrorAndLogErr(response, HttpServletResponse.SC_CONFLICT, logger,
                     "Device already exists: ", deviceID);
-        }
-        else {
+        } else {
             try {
                 deviceConfig = driverConfig.addDevice(deviceID);
                 json.setDeviceConfig(deviceConfig, deviceID);

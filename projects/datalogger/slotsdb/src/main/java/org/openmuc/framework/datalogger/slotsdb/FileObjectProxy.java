@@ -21,38 +21,28 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
+import org.openmuc.framework.data.Record;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
-
-import org.openmuc.framework.data.Record;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
 
 public final class FileObjectProxy {
 
     private static final Logger logger = LoggerFactory.getLogger(FileObjectProxy.class);
 
     private final File rootNode;
-    private HashMap<String, FileObjectList> openFilesHM;
     private final HashMap<String, String> encodedLabels;
     private final SimpleDateFormat sdf;
     private final Date date;
     private final Timer timer;
+    private HashMap<String, FileObjectList> openFilesHM;
     private List<File> days;
     private long size;
 
@@ -71,9 +61,8 @@ public final class FileObjectProxy {
     /**
      * Creates an instance of a FileObjectProxy<br>
      * The rootNodePath (output folder) usually is specified in JVM flag: org.openmuc.mux.dbprovider.slotsdb.dbfolder
-     * 
-     * @param rootNodePath
-     *            root node path
+     *
+     * @param rootNodePath root node path
      */
     public FileObjectProxy(String rootNodePath) {
         timer = new Timer();
@@ -96,8 +85,7 @@ public final class FileObjectProxy {
             flush_period = Integer.parseInt(SlotsDb.FLUSH_PERIOD);
             logger.info("Flushing Data every: " + flush_period + "s. to disk.");
             createScheduledFlusher();
-        }
-        else {
+        } else {
             logger.info("No Flush Period set. Writing Data directly to disk.");
         }
 
@@ -105,8 +93,7 @@ public final class FileObjectProxy {
             limit_days = Integer.parseInt(SlotsDb.DATA_LIFETIME_IN_DAYS);
             logger.info("Maximum lifetime of stored Values: " + limit_days + " Days.");
             createScheduledDeleteJob();
-        }
-        else {
+        } else {
             logger.info("Maximum lifetime of stored Values: UNLIMITED Days.");
         }
 
@@ -117,16 +104,14 @@ public final class FileObjectProxy {
             }
             logger.info("Size Limit: " + limit_size + " MB.");
             createScheduledSizeWatcher();
-        }
-        else {
+        } else {
             logger.info("Size Limit: UNLIMITED MB.");
         }
 
         if (SlotsDb.MAX_OPEN_FOLDERS != null) {
             max_open_files = Integer.parseInt(SlotsDb.MAX_OPEN_FOLDERS);
             logger.info("Maximum open Files for Database changed to: " + max_open_files);
-        }
-        else {
+        } else {
             max_open_files = SlotsDb.MAX_OPEN_FOLDERS_DEFAULT;
             logger.info("Maximum open Files for Database is set to: " + max_open_files + " (default).");
         }
@@ -167,92 +152,15 @@ public final class FileObjectProxy {
      * Define flush-period in seconds with JVM flag: org.openmuc.mux.dbprovider.slotsdb.flushperiod
      */
     private void createScheduledFlusher() {
-        timer.schedule(new Flusher(), flush_period * 1000, flush_period * 1000);
-    }
-
-    class Flusher extends TimerTask {
-
-        @Override
-        public void run() {
-            try {
-                flush();
-            } catch (IOException e) {
-                logger.error("Flushing Data failed in IOException: " + e.getMessage());
-            }
-        }
+        timer.schedule(new Flusher(), flush_period * 1000l, flush_period * 1000l);
     }
 
     private void createScheduledDeleteJob() {
         timer.schedule(new DeleteJob(), SlotsDb.INITIAL_DELAY, SlotsDb.DATA_EXPIRATION_CHECK_INTERVAL);
     }
 
-    class DeleteJob extends TimerTask {
-
-        @Override
-        public void run() {
-            try {
-                deleteFoldersOlderThen(limit_days);
-            } catch (IOException e) {
-                logger.error("Deleting old Data failed in IOException: " + e.getMessage());
-            }
-        }
-
-        private void deleteFoldersOlderThen(int limit_days) throws IOException {
-            Calendar limit = Calendar.getInstance();
-            limit.setTimeInMillis(System.currentTimeMillis() - (86400000L * limit_days));
-            Iterator<File> iterator = days.iterator();
-            try {
-                while (iterator.hasNext()) {
-                    File curElement = iterator.next();
-                    if (sdf.parse(curElement.getName()).getTime() + 86400000 < limit
-                            .getTimeInMillis()) { /*
-                                                   * compare folder 's oldest value to limit
-                                                   */
-                        logger.info("Folder: " + curElement.getName() + " is older then " + limit_days
-                                + " Days. Will be deleted.");
-                        deleteRecursiveFolder(curElement);
-                    }
-                    else {
-                        /* oldest existing Folder is not to be deleted yet */
-                        break;
-                    }
-                }
-                loadDays();
-            } catch (ParseException e) {
-                logger.error("Error during sorting Files: Any Folder doesn't match yyyymmdd Format?");
-            }
-        }
-    }
-
     private void createScheduledSizeWatcher() {
         timer.schedule(new SizeWatcher(), SlotsDb.INITIAL_DELAY, SlotsDb.DATA_EXPIRATION_CHECK_INTERVAL);
-    }
-
-    class SizeWatcher extends TimerTask {
-
-        @Override
-        public void run() {
-            try {
-                while ((getDiskUsage(rootNode) / 1000000 > limit_size)
-                        && (days.size() >= 2)) { /*
-                                                  * avoid deleting current folder
-                                                  */
-                    deleteOldestFolder();
-                }
-            } catch (IOException e) {
-                logger.error("Deleting old Data failed in IOException: " + e.getMessage());
-            }
-        }
-
-        private void deleteOldestFolder() throws IOException {
-            if (days.size() >= 2) {
-                logger.info("Exceeded Maximum Database Size: " + limit_size + " MB. Current size: " + (size / 1000000)
-                        + " MB. Deleting: " + days.get(0).getCanonicalPath());
-                deleteRecursiveFolder(days.get(0));
-                days.remove(0);
-                clearOpenFilesHashMap();
-            }
-        }
     }
 
     private synchronized void deleteRecursiveFolder(File folder) {
@@ -263,8 +171,7 @@ public final class FileObjectProxy {
                     if (f.delete()) {
                         ;
                     }
-                }
-                else {
+                } else {
                     f.delete();
                 }
             }
@@ -292,19 +199,13 @@ public final class FileObjectProxy {
 
     /**
      * Appends a new Value to Slots Database.
-     * 
-     * @param id
-     *            ID
-     * @param value
-     *            Value
-     * @param timestamp
-     *            time stamp
-     * @param state
-     *            State
-     * @param storingPeriod
-     *            storing period
-     * @throws IOException
-     *             if an I/O error occurs.
+     *
+     * @param id            ID
+     * @param value         Value
+     * @param timestamp     time stamp
+     * @param state         State
+     * @param storingPeriod storing period
+     * @throws IOException if an I/O error occurs.
      */
     public synchronized void appendValue(String id, double value, long timestamp, byte state, long storingPeriod)
             throws IOException {
@@ -354,6 +255,9 @@ public final class FileObjectProxy {
                 return;
             }
         }
+        if (toStoreIn == null) {
+            throw new IOException("\"Store in\" is null.");
+        }
 
         /*
          * The storing Period may have changed. In this case, a new FileObject must be created.
@@ -363,12 +267,10 @@ public final class FileObjectProxy {
             toStoreIn.append(value, timestamp, state);
             if (flush_period == 0) {
                 toStoreIn.flush();
-            }
-            else {
+            } else {
                 return;
             }
-        }
-        else {
+        } else {
             /*
              * Intervall changed -> create new File (if there are no newer values for this day, or file)
              */
@@ -389,7 +291,7 @@ public final class FileObjectProxy {
         String encodedLabel = encodedLabels.get(label);
         if (encodedLabel == null) {
             encodedLabel = URLEncoder.encode(label, Charset.defaultCharset().toString()); // encodes label to supported
-                                                                                          // String for Filenames.
+            // String for Filenames.
             encodedLabels.put(label, encodedLabel);
         }
         return encodedLabel;
@@ -410,7 +312,7 @@ public final class FileObjectProxy {
         FileObject toReadFrom = openFilesHM.get(label + strDate).getFileObjectForTimestamp(timestamp);
         if (toReadFrom != null) {
             return toReadFrom.read(timestamp); // null if no value for timestamp
-                                               // is available
+            // is available
         }
         return null;
     }
@@ -433,8 +335,8 @@ public final class FileObjectProxy {
             return toReturn;
         }
         if (end > 50000000000000L) { /*
-                                      * to prevent buffer overflows. in cases of multiplication
-                                      */
+         * to prevent buffer overflows. in cases of multiplication
+         */
             end = 50000000000000L;
         }
 
@@ -484,11 +386,9 @@ public final class FileObjectProxy {
              */
             if (days.size() == 0) {
                 return toReturn;
-            }
-            else if (days.size() == 1) {
+            } else if (days.size() == 1) {
                 toRead.addAll(days.get(0).getFileObjectsFromTo(start, end));
-            }
-            else { // days.size()>1
+            } else { // days.size()>1
                 toRead.addAll(days.get(0).getFileObjectsStartingAt(start));
                 for (int i = 1; i < days.size() - 1; i++) {
                     toRead.addAll(days.get(i).getAllFileObjects());
@@ -496,13 +396,12 @@ public final class FileObjectProxy {
                 toRead.addAll(days.get(days.size() - 1).getFileObjectsUntil(end));
             }
             toRead.removeAll(Collections.singleton(null));
-        }
-        else { // Start == End Folder -> only 1 FileObjectList must be read.
+        } else { // Start == End Folder -> only 1 FileObjectList must be read.
             File folder = new File(rootNode.getPath() + "/" + strStartDate + "/" + label);
             FileObjectList fol;
             if (folder.list() != null) {
                 if (folder.list().length > 0) { // Are there Files in the
-                                                // folder, that should be read?
+                    // folder, that should be read?
                     fol = new FileObjectList(rootNode.getPath() + "/" + strStartDate + "/" + label);
                     toRead.addAll(fol.getFileObjectsFromTo(start, end));
                 }
@@ -531,8 +430,7 @@ public final class FileObjectProxy {
                  */
                 toReturn.removeAll(Collections.singleton(null));
 
-            }
-            else if (toRead.size() == 1) { // single FileObject
+            } else if (toRead.size() == 1) { // single FileObject
                 toReturn.addAll(toRead.get(0).read(start, end));
                 toReturn.removeAll(Collections.singleton(null));
             }
@@ -545,13 +443,10 @@ public final class FileObjectProxy {
      * Parses a Timestamp in Milliseconds from a String in yyyyMMdd Format <br>
      * e.g.: 25.Sept.2011: 20110925 <br>
      * would return: 1316901600000 ms. equal to (25.09.2011 - 00:00:00) <br>
-     * 
-     * @param name
-     *            in "yyyyMMdd" Format
-     * @param start
-     *            start time stamp
-     * @param end
-     *            ens time stamp
+     *
+     * @param name  in "yyyyMMdd" Format
+     * @param start start time stamp
+     * @param end   ens time stamp
      * @return boolean true if yes else false
      */
     private boolean isFolderBetweenStartAndEnd(String name, long start, long end) {
@@ -561,13 +456,13 @@ public final class FileObjectProxy {
             logger.error("Unable to parse Timestamp from: " + name + " folder. " + e.getMessage());
         }
         if (start <= sdf.getCalendar().getTimeInMillis() + 86399999 && sdf.getCalendar().getTimeInMillis() <= end) { // if
-                                                                                                                     // start
-                                                                                                                     // <=
-                                                                                                                     // folder.lastTSofDay
-                                                                                                                     // &&
-                                                                                                                     // folder.firstTSofDay
-                                                                                                                     // <=
-                                                                                                                     // end
+            // start
+            // <=
+            // folder.lastTSofDay
+            // &&
+            // folder.firstTSofDay
+            // <=
+            // end
             return true;
         }
         return false;
@@ -632,14 +527,14 @@ public final class FileObjectProxy {
                     + " DataStreams are opened. Flushing and closing some to not exceed OS-Limit.");
             Iterator<FileObjectList> itr = openFilesHM.values().iterator();
             for (int i = 0; i < (max_open_files / 5); i++) { // randomly kick
-                                                             // out some of
-                                                             // the
-                                                             // FileObjectLists.
-                                                             // -> the needed
-                                                             // ones will be
-                                                             // reinitialized,
-                                                             // no problem
-                                                             // here.
+                // out some of
+                // the
+                // FileObjectLists.
+                // -> the needed
+                // ones will be
+                // reinitialized,
+                // no problem
+                // here.
                 itr.next().closeAllFiles();
                 itr.remove();
             }
@@ -648,9 +543,8 @@ public final class FileObjectProxy {
 
     /**
      * Flushes all Datastreams from all FileObjectLists and FileObjects
-     * 
-     * @throws IOException
-     *             if an I/O error occurs.
+     *
+     * @throws IOException if an I/O error occurs.
      */
     public synchronized void flush() throws IOException {
 
@@ -660,5 +554,81 @@ public final class FileObjectProxy {
         }
 
         logger.info("Data from " + openFilesHM.size() + " Folders flushed to disk.");
+    }
+
+    class Flusher extends TimerTask {
+
+        @Override
+        public void run() {
+            try {
+                flush();
+            } catch (IOException e) {
+                logger.error("Flushing Data failed in IOException: " + e.getMessage());
+            }
+        }
+    }
+
+    class DeleteJob extends TimerTask {
+
+        @Override
+        public void run() {
+            try {
+                deleteFoldersOlderThen(limit_days);
+            } catch (IOException e) {
+                logger.error("Deleting old Data failed in IOException: " + e.getMessage());
+            }
+        }
+
+        private void deleteFoldersOlderThen(int limit_days) throws IOException {
+            Calendar limit = Calendar.getInstance();
+            limit.setTimeInMillis(System.currentTimeMillis() - (86400000L * limit_days));
+            Iterator<File> iterator = days.iterator();
+            try {
+                while (iterator.hasNext()) {
+                    File curElement = iterator.next();
+                    if (sdf.parse(curElement.getName()).getTime() + 86400000 < limit
+                            .getTimeInMillis()) { /*
+                     * compare folder 's oldest value to limit
+                     */
+                        logger.info("Folder: " + curElement.getName() + " is older then " + limit_days
+                                + " Days. Will be deleted.");
+                        deleteRecursiveFolder(curElement);
+                    } else {
+                        /* oldest existing Folder is not to be deleted yet */
+                        break;
+                    }
+                }
+                loadDays();
+            } catch (ParseException e) {
+                logger.error("Error during sorting Files: Any Folder doesn't match yyyymmdd Format?");
+            }
+        }
+    }
+
+    class SizeWatcher extends TimerTask {
+
+        @Override
+        public void run() {
+            try {
+                while ((getDiskUsage(rootNode) / 1000000 > limit_size)
+                        && (days.size() >= 2)) { /*
+                 * avoid deleting current folder
+                 */
+                    deleteOldestFolder();
+                }
+            } catch (IOException e) {
+                logger.error("Deleting old Data failed in IOException: " + e.getMessage());
+            }
+        }
+
+        private void deleteOldestFolder() throws IOException {
+            if (days.size() >= 2) {
+                logger.info("Exceeded Maximum Database Size: " + limit_size + " MB. Current size: " + (size / 1000000)
+                        + " MB. Deleting: " + days.get(0).getCanonicalPath());
+                deleteRecursiveFolder(days.get(0));
+                days.remove(0);
+                clearOpenFilesHashMap();
+            }
+        }
     }
 }

@@ -1,8 +1,5 @@
 package org.openmuc.framework.driver.iec62056p21;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.StringValue;
@@ -15,6 +12,9 @@ import org.openmuc.j62056.ModeDListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Iec62056Listener implements ModeDListener {
 
     private static final Logger logger = LoggerFactory.getLogger(Iec62056Listener.class);
@@ -23,7 +23,7 @@ public class Iec62056Listener implements ModeDListener {
     private List<ChannelRecordContainer> containers;
 
     public synchronized void registerOpenMucListener(List<ChannelRecordContainer> containers,
-            RecordsReceivedListener listener) throws ConnectionException {
+                                                     RecordsReceivedListener listener) throws ConnectionException {
         this.listener = listener;
         this.containers = containers;
     }

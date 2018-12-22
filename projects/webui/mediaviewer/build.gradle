@@ -1,26 +1,25 @@
-
 def projectName = "OpenMUC WebUI - Media Viewer"
 def projectDescription = "Media Viewer plug-in for the WebUI of the OpenMUC framework."
 
 dependencies {
-  compile project(':openmuc-core-api')
-  compile project(':openmuc-webui-spi')
+    compile project(':openmuc-core-api')
+    compile project(':openmuc-webui-spi')
 }
 
 jar {
-  manifest {
-    name = projectName
-    instruction 'Export-Package', ''
-  }
+    manifest {
+        name = projectName
+        instruction 'Export-Package', ''
+    }
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name projectName
-        description projectDescription
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name projectName
+                description projectDescription
+            }
+        }
     }
-  }
 }

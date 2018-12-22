@@ -21,17 +21,13 @@
 
 package org.openmuc.framework.driver.ehz.iec62056_21;
 
+import org.openmuc.jrxtx.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-
-import org.openmuc.jrxtx.DataBits;
-import org.openmuc.jrxtx.Parity;
-import org.openmuc.jrxtx.SerialPort;
-import org.openmuc.jrxtx.SerialPortBuilder;
-import org.openmuc.jrxtx.StopBits;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class IecReceiver {
 
@@ -43,35 +39,10 @@ public class IecReceiver {
     // public static final int MODE_DATA_READOUT = 0;
     // public static final int MODE_PROGRAMMING = 1;
     // public static final int MODE_BINARY_HDLC = 2;,
-
-    private SerialPort serialPort;
     private final byte[] msgBuffer = new byte[10000];
     private final byte[] inputBuffer = new byte[2000];
     private final DataInputStream inStream;
-
-    private class Timeout extends Thread {
-        private final long time;
-        private boolean end;
-
-        public Timeout(long msTimeout) {
-            time = msTimeout;
-            end = false;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(time);
-            } catch (InterruptedException e) {
-            }
-            end = true;
-            return;
-        }
-
-        public boolean isEnd() {
-            return end;
-        }
-    }
+    private SerialPort serialPort;
 
     public IecReceiver(String iface) throws IOException {
         this.serialPort = SerialPortBuilder.newBuilder(iface)
@@ -161,6 +132,30 @@ public class IecReceiver {
             logger.warn("Failed to close the serial port properly.", e);
         }
         serialPort = null;
+    }
+
+    private class Timeout extends Thread {
+        private final long time;
+        private boolean end;
+
+        public Timeout(long msTimeout) {
+            time = msTimeout;
+            end = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+            }
+            end = true;
+            return;
+        }
+
+        public boolean isEnd() {
+            return end;
+        }
     }
 
 }

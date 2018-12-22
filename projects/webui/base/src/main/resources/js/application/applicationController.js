@@ -1,48 +1,40 @@
-(function(){
+(function () {
 
-	var injectParams = ['$scope', '$state', '$cookieStore', '$alert', '$translate', 'AuthService'];
-	
-	var ApplicationController = function($scope, $state, $cookieStore, $alert, $translate, AuthService) {
+    var injectParams = ['$scope', '$state', '$cookieStore', '$alert', '$translate', 'AuthService'];
 
-		$translate('SUCCESSFULLY_LOGGED_OUT').then(function(text) {
-			$scope.loggedOutText = text;
-		});
-		
-		$scope.isLoggedIn = function() {
-			return AuthService.isLoggedIn();
-		};
-		
-		$scope.currentUsername = function() {
-			return AuthService.currentUsername();
-		};
+    var ApplicationController = function ($scope, $state, $cookieStore, $alert, $translate, AuthService) {
 
-		this.currentPwd = function() {
-			return AuthService.currentPwd();
-		};
+        $translate('SUCCESSFULLY_LOGGED_OUT').then(function (text) {
+            $scope.loggedOutText = text;
+        });
 
-		$scope.logout = function() {
-			AuthService.logout();
-			
-			$alert({content: $scope.loggedOutText, type: 'success'});
-			$state.go('home');
-		};
+        $scope.isLoggedIn = function () {
+            return AuthService.isLoggedIn();
+        };
 
-		$scope.changeLanguage = function (key) {
-		    $translate.use(key);
-		};
-		  
-		$scope.currentLanguageIsEnglish = function() {
-			return $translate.use() == 'en';
-		};
+        $scope.logout = function () {
+            AuthService.logout();
 
-		$scope.currentLanguageIsGerman = function() {
-			return $translate.use() == 'de';
-		};
-				
-	};
+            $alert({content: $scope.loggedOutText, type: 'success'});
+            $state.go('home');
+        };
 
-	ApplicationController.$inject = injectParams;
+        $scope.changeLanguage = function (key) {
+            $translate.use(key);
+        };
 
-	angular.module('openmuc.common').controller('ApplicationController', ApplicationController);
-	
+        $scope.currentLanguageIsEnglish = function () {
+            return $translate.use() == 'en';
+        };
+
+        $scope.currentLanguageIsGerman = function () {
+            return $translate.use() == 'de';
+        };
+
+    };
+
+    ApplicationController.$inject = injectParams;
+
+    angular.module('openmuc.common').controller('ApplicationController', ApplicationController);
+
 })();

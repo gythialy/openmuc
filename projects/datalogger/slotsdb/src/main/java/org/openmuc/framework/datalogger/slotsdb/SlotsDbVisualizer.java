@@ -21,34 +21,29 @@
 
 package org.openmuc.framework.datalogger.slotsdb;
 
+import org.openmuc.framework.data.Record;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-
-import org.openmuc.framework.data.Record;
-
 /**
  * Class providing a graphical UI to view the content of a .opm file
- * 
  */
 public final class SlotsDbVisualizer extends JFrame {
+
+    private static final Logger logger = LoggerFactory.getLogger(SlotsDbVisualizer.class);
 
     private static final long serialVersionUID = 1L;
     JFileChooser fc = new JFileChooser();
     File file;
-    String[][] rowData = { { "0", "0", "0" } };
-    String[] columnNames = { "Time", "Value", "State" };
+    String[][] rowData = {{"0", "0", "0"}};
+    String[] columnNames = {"Time", "Value", "State"};
     JTable table = new JTable(rowData, columnNames);
     JScrollPane content = new JScrollPane(table);
 
@@ -74,6 +69,11 @@ public final class SlotsDbVisualizer extends JFrame {
 
     }
 
+    public static void main(String[] args) {
+        JFrame window = new SlotsDbVisualizer();
+        window.setVisible(true);
+    }
+
     class openFileListener implements ActionListener {
 
         @Override
@@ -86,6 +86,7 @@ public final class SlotsDbVisualizer extends JFrame {
                     FileObject fo = new FileObject(file);
                     res = fo.readFully();
                 } catch (IOException e1) {
+                    logger.error("error read fully. ", e);
                     e1.printStackTrace();
                 }
                 if (res != null) {
@@ -107,10 +108,5 @@ public final class SlotsDbVisualizer extends JFrame {
                 }
             }
         }
-    }
-
-    public static void main(String[] args) {
-        JFrame window = new SlotsDbVisualizer();
-        window.setVisible(true);
     }
 }

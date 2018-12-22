@@ -20,22 +20,10 @@
  */
 package org.openmuc.framework.driver.iec62056p21;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.config.ScanException;
-import org.openmuc.framework.data.DoubleValue;
-import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.Record;
-import org.openmuc.framework.data.StringValue;
-import org.openmuc.framework.data.ValueType;
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-import org.openmuc.framework.driver.spi.ChannelValueContainer;
-import org.openmuc.framework.driver.spi.Connection;
-import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.framework.data.*;
+import org.openmuc.framework.driver.spi.*;
 import org.openmuc.j62056.DataMessage;
 import org.openmuc.j62056.DataSet;
 import org.openmuc.j62056.Iec21Port;
@@ -43,18 +31,21 @@ import org.openmuc.j62056.Iec21Port.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Iec62056Connection implements Connection {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-    private Iec21Port iec21Port;
-    private int retries = 0;
+public class Iec62056Connection implements Connection {
 
     private static final Logger logger = LoggerFactory.getLogger(Iec62056Connection.class);
     private final boolean readStandard;
     private final Builder configuredBuilder;
     private final String requestStartCharacter;
+    private Iec21Port iec21Port;
+    private int retries = 0;
 
     public Iec62056Connection(Builder configuredBuilder, int retries, boolean readStandard,
-            String requestStartCharacter) throws ConnectionException {
+                              String requestStartCharacter) throws ConnectionException {
         this.configuredBuilder = configuredBuilder;
         this.readStandard = readStandard;
         this.requestStartCharacter = requestStartCharacter;
@@ -76,6 +67,27 @@ public class Iec62056Connection implements Connection {
         }
 
         sleep(5000);
+    }
+
+    public static void setRecords(List<ChannelRecordContainer> containers, List<DataSet> dataSets) {
+        long time = System.currentTimeMillis();
+
+        for (ChannelRecordContainer container : containers) {
+            for (DataSet dataSet : dataSets) {
+                if (dataSet.getAddress().equals(container.getChannelAddress())) {
+                    String value = dataSet.getValue();
+                    if (value != null) {
+                        try {
+                            container.setRecord(
+                                    new Record(new DoubleValue(Double.parseDouble(dataSet.getValue())), time));
+                        } catch (NumberFormatException e) {
+                            container.setRecord(new Record(new StringValue(dataSet.getValue()), time));
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -150,27 +162,6 @@ public class Iec62056Connection implements Connection {
             }
         }
         return dataSetsRet;
-    }
-
-    public static void setRecords(List<ChannelRecordContainer> containers, List<DataSet> dataSets) {
-        long time = System.currentTimeMillis();
-
-        for (ChannelRecordContainer container : containers) {
-            for (DataSet dataSet : dataSets) {
-                if (dataSet.getAddress().equals(container.getChannelAddress())) {
-                    String value = dataSet.getValue();
-                    if (value != null) {
-                        try {
-                            container.setRecord(
-                                    new Record(new DoubleValue(Double.parseDouble(dataSet.getValue())), time));
-                        } catch (NumberFormatException e) {
-                            container.setRecord(new Record(new StringValue(dataSet.getValue()), time));
-                        }
-                    }
-                    break;
-                }
-            }
-        }
     }
 
     @Override

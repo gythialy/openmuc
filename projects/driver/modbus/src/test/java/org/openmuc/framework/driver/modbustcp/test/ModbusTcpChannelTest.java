@@ -20,8 +20,6 @@
  */
 package org.openmuc.framework.driver.modbustcp.test;
 
-import java.util.ArrayList;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +28,12 @@ import org.openmuc.framework.driver.modbus.EPrimaryTable;
 import org.openmuc.framework.driver.modbus.ModbusChannel;
 import org.openmuc.framework.driver.modbus.ModbusChannel.EAccess;
 
+import java.util.ArrayList;
+
 /**
  * This test class tests various parameter combination of the channel address
- * 
+ *
  * @author Marco Mittelsdorf
- * 
  */
 public class ModbusTcpChannelTest {
 
@@ -95,8 +94,7 @@ public class ModbusTcpChannelTest {
                         channel.getDatatype());
                 if (!validAddressCombinations.contains(testString.toUpperCase())) {
                     Assert.fail(testString + "is not a valid paramaeter combination");
-                }
-                else {
+                } else {
                     System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
                 }
 
@@ -127,8 +125,7 @@ public class ModbusTcpChannelTest {
                         channel.getDatatype());
                 if (!validAddressCombinations.contains(testString.toUpperCase())) {
                     Assert.fail(testString + "is not a valid paramaeter combination");
-                }
-                else {
+                } else {
                     System.out.println(channelAddress + " and resulting " + testString.toUpperCase() + " are valid.");
                 }
             } catch (Exception e) {

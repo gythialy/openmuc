@@ -36,11 +36,10 @@ public class LongMappingInputRegister extends MappingInputRegister {
         if (useUnscaledValues) {
             Value value = channel.getLatestRecord().getValue();
             bytes = new LongValue(value.asLong() / (long) channel.getScalingFactor()).asByteArray();
-        }
-        else {
+        } else {
             bytes = new LongValue(channel.getLatestRecord().getValue().asLong()).asByteArray();
         }
-        byte[] toReturn = { bytes[highByte], bytes[lowByte] };
+        byte[] toReturn = {bytes[highByte], bytes[lowByte]};
         return toReturn;
     }
 

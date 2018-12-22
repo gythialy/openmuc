@@ -20,8 +20,6 @@
  */
 package org.openmuc.framework.driver.knx;
 
-import java.io.IOException;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -34,17 +32,15 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.log.LogManager;
+
+import java.io.IOException;
 
 @Component
 public class KnxDriver implements DriverService {
 
     public static final String ADDRESS_SCHEME_KNXIP = "knxip";
-    private static Logger logger = LoggerFactory.getLogger(KnxDriver.class);
-
     static final int timeout = 10000;
-
     private static final DriverInfo info = new DriverInfo(
             // id*/
             "knx",
@@ -58,6 +54,7 @@ public class KnxDriver implements DriverService {
             "<Group_Adress>:<DPT_ID>",
             // device scan settings
             "<host_ip>;<mcast> for multicast scan or <host_ip>;<nat> for NAT scan");
+    private static Logger logger = LoggerFactory.getLogger(KnxDriver.class);
 
     protected void activate(ComponentContext context) {
         if (logger.isDebugEnabled()) {

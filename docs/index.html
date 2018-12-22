@@ -506,26 +506,27 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_intro">1. Intro</a></li>
-<li><a href="#_architecture">2. Architecture</a></li>
-<li><a href="#_quick_start">3. Quick Start</a>
+<li><a href="#_quick_start">2. Quick Start</a>
 <ul class="sectlevel2">
-<li><a href="#_framework_files">3.1. Framework Files</a></li>
-<li><a href="#_starting_the_demo">3.2. Starting the Demo</a></li>
-<li><a href="#_configuration">3.3. Configuration</a></li>
-<li><a href="#_simple_demo_app">3.4. Simple Demo App</a></li>
-<li><a href="#_webui_walk_through">3.5. WebUI Walk Through</a></li>
+<li><a href="#_starting_the_demo">2.1. Starting the Demo</a></li>
+<li><a href="#_framework_files">2.2. Framework Files</a></li>
+<li><a href="#_configuration">2.3. Configuration</a></li>
+<li><a href="#_webui_walk_through">2.4. WebUI Walk Through</a></li>
 </ul>
 </li>
-<li><a href="#_tutorial_simple_m_bus_data_logger">4. Tutorial - Simple M-Bus Data Logger</a></li>
+<li><a href="#_tutorial_simple_m_bus_data_logger">3. Tutorial - Simple M-Bus Data Logger</a></li>
+<li><a href="#_architecture">4. Architecture</a></li>
 <li><a href="#_distribution">5. Distribution</a></li>
-<li><a href="#_running_openmuc">6. Running OpenMUC</a>
+<li><a href="#anchor-start-script">6. OpenMUC start script</a>
 <ul class="sectlevel2">
 <li><a href="#_auto_start_at_boot_time">6.1. Auto-start at Boot Time</a></li>
 </ul>
 </li>
 <li><a href="#_install_a_driver">7. Install a Driver</a>
 <ul class="sectlevel2">
-<li><a href="#_use_a_driver_with_serial_communication">7.1. Use a Driver with Serial Communication</a></li>
+<li><a href="#_copy_driver">7.1. Copy driver</a></li>
+<li><a href="#_editing_bundles_configuration">7.2. Editing bundles configuration</a></li>
+<li><a href="#_use_a_driver_with_serial_communication">7.3. Use a Driver with Serial Communication</a></li>
 </ul>
 </li>
 <li><a href="#_devices_and_channels">8. Devices and Channels</a>
@@ -547,12 +548,14 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_ehz">9.9. eHZ</a></li>
 <li><a href="#_snmp">9.10. SNMP</a></li>
 <li><a href="#_aggregator">9.11. Aggregator</a></li>
+<li><a href="#_rest_json">9.12. REST/JSON</a></li>
 </ul>
 </li>
 <li><a href="#anchor-web-ui">10. The WebUI</a>
 <ul class="sectlevel2">
 <li><a href="#_plugins">10.1. Plugins</a></li>
-<li><a href="#_https">10.2. HTTPS</a></li>
+<li><a href="#_context_root">10.2. Context Root</a></li>
+<li><a href="#_https">10.3. HTTPS</a></li>
 </ul>
 </li>
 <li><a href="#id_restful_web_services">11. REST Server</a>
@@ -594,7 +597,349 @@ detailed documentation on how OpenMUC works and how to use it.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_architecture">2. Architecture</h2>
+<h2 id="_quick_start">2. Quick Start</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This chapter will give you an idea of how OpenMUC works by showing you
+how to run and adjust the demo framework which is part of the OpenMUC
+distribution. OpenMUC requires Java 7 or higher, therefore make sure
+it is installed on your machine.</p>
+</div>
+<div class="sect2">
+<h3 id="_starting_the_demo">2.1. Starting the Demo</h3>
+<div class="paragraph">
+<p>The contains a simple demo app which demonstrates how you can access channels and
+their records from an application. The app reads data from channels of
+the CSV driver, calculates new values from them and writes them to
+other channels. The app can be used as starting point to create your
+own OpenMUC application.</p>
+</div>
+<div class="paragraph">
+<p>First open a terminal and go to the folder named "framework".</p>
+</div>
+<div class="paragraph">
+<p>To start OpenMUC on Linux run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc start -fg</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To start OpenMUC on Window run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>bin\openmuc.bat</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information about the start script see chapter <a href="#anchor-start-script">OpenMUC start script</a>.</p>
+</div>
+<div class="paragraph">
+<p>This will start the Apache Felix OSGi framework which in turn starts
+all the bundles located in the "bundle" folder. Among the bundles that
+are started is the Apache Gogo shell. This shell is entered once you
+run OpenMUC.</p>
+</div>
+<div class="paragraph">
+<p>The shell can be used to start, stop, and reload bundles among other
+things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
+or "stop 0".</p>
+</div>
+<div class="paragraph">
+<p>Now type "lb" to list all installed bundles.</p>
+</div>
+<div class="paragraph">
+<p>You will see that among the active bundles are the Simple Demo App,
+the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
+as the CSV driver.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_framework_files">2.2. Framework Files</h3>
+<div class="paragraph">
+<p>The folder "framework" contains a configured OpenMUC framework that
+can be used as a basis to create your own customized OpenMUC framework
+for your task. The framework folder contains the following important
+files and folders:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">felix</dt>
+<dd>
+<p>The main Apache Felix OSGi jar which is run to start OpenMUC.</p>
+</dd>
+<dt class="hdlist1">bin</dt>
+<dd>
+<p>Run scripts for Linux/Unix and Windows.</p>
+</dd>
+<dt class="hdlist1">bundle</dt>
+<dd>
+<p>Contains all bundles that are started by the Felix OSGi
+framework. Note that this folder does not contain all available
+OpenMUC bundles but only a subset for demonstration purposes.</p>
+</dd>
+<dt class="hdlist1">log</dt>
+<dd>
+<p>Log files produced by the running framework.</p>
+</dd>
+<dt class="hdlist1">conf</dt>
+<dd>
+<p>Various configuration files of the framework.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuration">2.3. Configuration</h3>
+<div class="paragraph">
+<p>One of the most important configuration files is
+conf/channels.xml. This file tells the OpenMUC Data Manager which data
+it shall sample, listen for, and log. This is done by configuring so
+called channels. Each channel represents a single data point whose
+value can be an integer, double, string or byte array.</p>
+</div>
+<div class="paragraph">
+<p>The demo&#8217;s channels.xml configures among others channels whose values
+are read by the CSV driver. The channels are sampled/read and logged
+every 5 seconds.</p>
+</div>
+<div class="paragraph">
+<p>For more information about the channels.xml see the <a href="#anchor-configuration">configuration</a> chapter.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_webui_walk_through">2.4. WebUI Walk Through</h3>
+<div class="paragraph">
+<p>This section leads you through the framework&#8217;s WebUI.</p>
+</div>
+<div class="paragraph">
+<p>Open a browser (works currently best with Google Chrome) and enter the
+URL "http://localhost:8888". This leads you to the login page. The
+default user is <em>admin</em> and the default password is <em>admin</em> as well.</p>
+</div>
+<div class="paragraph">
+<p>After successful login the OpenMUC Dashboard opens, which provides
+various plugins for configuration and visualization. A full
+description of the plugins can be found in the chapter
+<a href="#anchor-web-ui">Web UI</a>.</p>
+</div>
+<div class="paragraph">
+<p>Let us first look at the Channel Access Tool which provides the
+current value of each channel and also enables you to write
+values. Click on Channel Access Tool to open this plugin. The next
+page lists all available devices which are currently configured in
+OpenMUC. Select the <em>home1</em> and proceed with <em>Access selected</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-channelaccesstool-device-selection.png"><img src="images/webui-channelaccesstool-device-selection.png" alt="webui channelaccesstool device selection" width="60%"></a>
+</div>
+<div class="title">Figure 1. WebUI device selection</div>
+</div>
+<div class="paragraph">
+<p>On the next page you will see the latest records of all channels of
+home1. Each record consists of a data value, a timestamp when it was
+sampled and a quality flag.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-channelaccesstool-channels.png"><img src="images/webui-channelaccesstool-channels.png" alt="webui channelaccesstool channels" width="60%"></a>
+</div>
+<div class="title">Figure 2. WebUI channel access tool</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s have look at the <em>Data Plotter</em>. To get to the <em>Data Plotter</em>
+click on <em>Applications</em> next to the OpenMUC logo and select <em>Data
+Plotter</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-dataplotter.png"><img src="images/webui-dataplotter.png" alt="webui dataplotter" width="60%"></a>
+</div>
+<div class="title">Figure 3. WebUI data plotter</div>
+</div>
+<div class="paragraph">
+<p>Select the <em>Live</em> Data Plotter. To view the live data select the channels of your choice and
+click <em>Plot Data</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/webui-dataplotter-live.png"><img src="images/webui-dataplotter-live.png" alt="webui dataplotter live" width="60%"></a>
+</div>
+<div class="title">Figure 4. WebUI live plotter</div>
+</div>
+<div class="sect3">
+<h4 id="_add_a_new_channel">2.4.1. Add a New Channel</h4>
+<div class="paragraph">
+<p>All channels currently defined get their data using the CSV driver
+from the file "csv-driver/home1.csv". That file contains additional
+data. So let us now add a new channel to the OpenMUC configuration
+using the channel scan feature.</p>
+</div>
+<div class="paragraph">
+<p>In the WebUI go to the Channel Configurator. Click the tab
+"Devices". In the row of device "home1" click on the search/scan
+icon. It shows you all the channels available in that device. Once the
+scan has completed a list of available channels is shown. In this
+tutorial we select the channel with address
+"pv_energy_production". Click "add channels".</p>
+</div>
+<div class="paragraph">
+<p>Now the channel overview opens where we can find our selected
+channel. In the last step of the configuration we click on the edit
+icon of the channel and set the parameters <em>logging interval</em> and
+<em>sampling interval</em> to 5000 ms and change the unit to kWh.</p>
+</div>
+<div class="paragraph">
+<p>You can now check that the new channel was added to the
+"conf/channels.xml" file.</p>
+</div>
+<div class="paragraph">
+<p>After submitting the channel configuration we go back to the dashboard
+and open the Channel Access Tool. Here we select our home1 device and
+continue with <em>access selected</em>. Now we able to see the current values
+of the pv_energy_production channel.</p>
+</div>
+<div class="paragraph">
+<p>The logged data can be found in
+<em>openmuc/framework/data/ascii/&lt;currentdate&gt;_5000.dat</em></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tutorial_simple_m_bus_data_logger">3. Tutorial - Simple M-Bus Data Logger</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>Objective:</strong> You will learn how to create a simple data logger which reads out a M-Bus meter via serial communication. It uses OpenMUC on-board tools so no programming is required.</p>
+</div>
+<div class="paragraph">
+<p><strong>Preparation:</strong> If not already done, your system needs to be prepared once for serial communication.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>sudo apt-get install librxtx-java
+sudo adduser $USER dialout</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now logout from your system and login again to apply system changes.</p>
+</div>
+<div class="paragraph">
+<p><strong>Step-by-step</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download OpenMUC and unpack it</p>
+</li>
+<li>
+<p>Open openmuc/framework/conf/bundles.conf.gradle and comment the following lines by //</p>
+<div class="listingblock">
+<div class="content">
+<pre>osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo", version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add following lines to make the M-Bus driver and serial communication available</p>
+<div class="listingblock">
+<div class="content">
+<pre>osgibundles group: "org.openmuc.framework" name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc", name: "jrxtx", version: "1.0.1"</pre>
+</div>
+</div>
+</li>
+<li>
+<p>To apply changes navigate to openmuc/framework/bin and run</p>
+<div class="listingblock">
+<div class="content">
+<pre>./openmuc update-bundles</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Start OpenMUC</p>
+<div class="listingblock">
+<div class="content">
+<pre>./openmuc start -fg</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open a browser and point it to localhost:8888 to view the WebUI of OpenMUC. Login with user <em>admin</em> and password <em>admin</em>.</p>
+</li>
+<li>
+<p>Click on <em>Channel Configurator</em> &gt; <em>Tab Drivers</em> &gt; <em>Add new driver to configuration</em></p>
+</li>
+<li>
+<p>Enter <em>mbus</em> as ID and click Submit</p>
+</li>
+<li>
+<p>Now the M-Bus driver appears under <em>Channel Configurator</em> &gt; <em>Tab Drivers</em>. Click on the search icon</p>
+</li>
+<li>
+<p>Enter the serial port the meter is connected to and provide the baud rate if needed (e.g. /dev/ttyS0 or /dev/ttyS0:2400). See M-Bus driver section for more information.</p>
+</li>
+<li>
+<p>Click on <em>Scan for devices</em>. Now OpenMUC scans all M-Bus addresses, which may take a while</p>
+</li>
+<li>
+<p>Select the desired device from the list and click <em>Add devices</em></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/tutorial_mbus_logger_driver_scan.png"><img src="images/tutorial_mbus_logger_driver_scan.png" alt="tutorial mbus logger driver scan" width="400"></a>
+</div>
+<div class="title">Figure 5. WebUI M-Bus device scan</div>
+</div>
+</li>
+<li>
+<p>Now the device is added. If you do not see the search icon next to the device, press F5 to reload the page and navigate to <em>Channel Configurator</em> &gt; <em>Tab Devices</em></p>
+</li>
+<li>
+<p>Click on the search icon and OpenMUC automatically scans all available channels. Select the desired channels and click <em>Add channels</em></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/tutorial_mbus_logger_channel_scan.png"><img src="images/tutorial_mbus_logger_channel_scan.png" alt="tutorial mbus logger channel scan" width="400"></a>
+</div>
+<div class="title">Figure 6. WebUI M-Bus channel scan</div>
+</div>
+</li>
+<li>
+<p>Now we need to define a sampling and logging interval for the channels. Click on <em>Channel Configurator</em> &gt; <em>Tab Channels</em> and click on <em>Edit Icon</em> of the desired channel. Write <em>2000</em> in the <em>Sampling Interval</em> and <em>Logging Interval</em> field and click Submit</p>
+</li>
+<li>
+<p>To show actual values of the channel, navigate to <em>Applications</em> &gt; <em>Channel Access Tool</em>, select your device and click <em>Access selected</em></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/tutorial_mbus_logger_channel_access_tool.png"><img src="images/tutorial_mbus_logger_channel_access_tool.png" alt="tutorial mbus logger channel access tool" width="400"></a>
+</div>
+<div class="title">Figure 7. WebUI channel access tool</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Tips</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>All logged data are stored in /openmuc/framework/data/ascii/</p>
+</li>
+<li>
+<p>You can also change the configuration by editing /openmuc/framework/conf/channels.xml</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture">4. Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following image depicts the software layers of an OpenMUC
@@ -604,7 +949,7 @@ system.</p>
 <div class="content">
 <a class="image" href="images/openmuc-software-layers.png"><img src="images/openmuc-software-layers.png" alt="openmuc software layers" width="60%"></a>
 </div>
-<div class="title">Figure 1. OpenMUC software layers</div>
+<div class="title">Figure 8. OpenMUC software layers</div>
 </div>
 <div class="paragraph">
 <p>The OpenMUC framework runs within an OSGi environment which in turn is
@@ -621,7 +966,7 @@ main modules that make up OpenMUC.</p>
 <div class="content">
 <a class="image" href="images/openmuc-bundles-with-numbers.png"><img src="images/openmuc-bundles-with-numbers.png" alt="openmuc bundles with numbers" width="60%"></a>
 </div>
-<div class="title">Figure 2. OpenMUC modules</div>
+<div class="title">Figure 9. OpenMUC modules</div>
 </div>
 <div class="paragraph">
 <p>All modules except for the data manager are optional. Thus by
@@ -731,348 +1076,6 @@ want to create their own individual UI.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_quick_start">3. Quick Start</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This chapter will give you an idea of how OpenMUC works by showing you
-how to run and adjust the demo framework which is part of the OpenMUC
-distribution. OpenMUC requires Java 7 or higher, therefore make sure
-it is installed on your machine.</p>
-</div>
-<div class="sect2">
-<h3 id="_framework_files">3.1. Framework Files</h3>
-<div class="paragraph">
-<p>The folder "framework" contains a configured OpenMUC framework that
-can be used as a basis to create your own customized OpenMUC framework
-for your task. The framework folder contains the following important
-files and folders:</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">felix</dt>
-<dd>
-<p>The main Apache Felix OSGi jar which is run to start OpenMUC.</p>
-</dd>
-<dt class="hdlist1">bin</dt>
-<dd>
-<p>Run scripts for Linux/Unix and Windows.</p>
-</dd>
-<dt class="hdlist1">bundle</dt>
-<dd>
-<p>Contains all bundles that are started by the Felix OSGi
-framework. Note that this folder does not contain all available
-OpenMUC bundles but only a subset for demonstration purposes.</p>
-</dd>
-<dt class="hdlist1">log</dt>
-<dd>
-<p>Log files produced by the running framework.</p>
-</dd>
-<dt class="hdlist1">conf</dt>
-<dd>
-<p>Various configuration files of the framework.</p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_starting_the_demo">3.2. Starting the Demo</h3>
-<div class="paragraph">
-<p>First open a terminal and go to the folder named "framework".</p>
-</div>
-<div class="paragraph">
-<p>To start OpenMUC on Linux run:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>./bin/openmuc start -fg</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>To start OpenMUC on Window run:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>bin\openmuc.bat</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This will start the Apache Felix OSGi framework which in turn starts
-all the bundles located in the "bundle" folder. Among the bundles that
-are started is the Apache Gogo shell. This shell is entered once you
-run OpenMUC.</p>
-</div>
-<div class="paragraph">
-<p>The shell can be used to start, stop, and reload bundles among other
-things. You can stop and exit the OSGi framework any time by typing "ctrl+d"
-or "stop 0".</p>
-</div>
-<div class="paragraph">
-<p>Now type "lb" to list all installed bundles.</p>
-</div>
-<div class="paragraph">
-<p>You will see that among the active bundles are the Simple Demo App,
-the OpenMUC core bundles, two data loggers (ASCII and SlotsDB) as well
-as the CSV driver.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_configuration">3.3. Configuration</h3>
-<div class="paragraph">
-<p>One of the most important configuration files is
-conf/channels.xml. This file tells the OpenMUC Data Manager which data
-it shall sample, listen for, and log. This is done by configuring so
-called channels. Each channel represents a single data point whose
-value can be an integer, double, string or byte array.</p>
-</div>
-<div class="paragraph">
-<p>The demo&#8217;s channels.xml configures among others channels whose values
-are read by the CSV driver. The channels are sampled/read and logged
-every 5 seconds.</p>
-</div>
-<div class="paragraph">
-<p>For more information about the channels.xml see the <a href="#anchor-configuration">configuration</a> chapter.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_simple_demo_app">3.4. Simple Demo App</h3>
-<div class="paragraph">
-<p>The simple demo app demonstrates how you can access channels and
-their records from an application. The app reads data from channels of
-the CSV driver, calculates new values from them and writes them to
-other channels. The app can be used as starting point to create your
-own OpenMUC application.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_webui_walk_through">3.5. WebUI Walk Through</h3>
-<div class="paragraph">
-<p>This section leads you through the framework&#8217;s WebUI.</p>
-</div>
-<div class="paragraph">
-<p>Open a browser (works currently best with Google Chrome) and enter the
-URL "http://localhost:8888". This leads you to the login page. The
-default user is <em>admin</em> and the default password is <em>admin</em> as well.</p>
-</div>
-<div class="paragraph">
-<p>After successful login the OpenMUC Dashboard opens, which provides
-various plugins for configuration and visualization. A full
-description of the plugins can be found in the chapter
-<a href="#anchor-web-ui">Web UI</a>.</p>
-</div>
-<div class="paragraph">
-<p>Let us first look at the Channel Access Tool which provides the
-current value of each channel and also enables you to write
-values. Click on Channel Access Tool to open this plugin. The next
-page lists all available devices which are currently configured in
-OpenMUC. Select the <em>home1</em> and proceed with <em>Access selected</em>.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/webui-channelaccesstool-device-selection.png"><img src="images/webui-channelaccesstool-device-selection.png" alt="webui channelaccesstool device selection" width="60%"></a>
-</div>
-<div class="title">Figure 3. WebUI device selection</div>
-</div>
-<div class="paragraph">
-<p>On the next page you will see the latest records of all channels of
-home1. Each record consists of a data value, a timestamp when it was
-sampled and a quality flag.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/webui-channelaccesstool-channels.png"><img src="images/webui-channelaccesstool-channels.png" alt="webui channelaccesstool channels" width="60%"></a>
-</div>
-<div class="title">Figure 4. WebUI channel access tool</div>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s have look at the <em>Data Plotter</em>. To get to the <em>Data Plotter</em>
-click on <em>Applications</em> next to the OpenMUC logo and select <em>Data
-Plotter</em>.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/webui-dataplotter.png"><img src="images/webui-dataplotter.png" alt="webui dataplotter" width="60%"></a>
-</div>
-<div class="title">Figure 5. WebUI data plotter</div>
-</div>
-<div class="paragraph">
-<p>Select the <em>Live</em> Data Plotter. To view the live data select the channels of your choice and
-click <em>Plot Data</em>.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/webui-dataplotter-live.png"><img src="images/webui-dataplotter-live.png" alt="webui dataplotter live" width="60%"></a>
-</div>
-<div class="title">Figure 6. WebUI live plotter</div>
-</div>
-<div class="sect3">
-<h4 id="_add_a_new_channel">3.5.1. Add a New Channel</h4>
-<div class="paragraph">
-<p>All channels currently defined get their data using the CSV driver
-from the file "csv-driver/home1.csv". That file contains additional
-data. So let us now add a new channel to the OpenMUC configuration
-using the channel scan feature.</p>
-</div>
-<div class="paragraph">
-<p>In the WebUI go to the Channel Configurator. Click the tab
-"Devices". In the row of device "home1" click on the search/scan
-icon. It shows you all the channels available in that device. Once the
-scan has completed a list of available channels is shown. In this
-tutorial we select the channel with address
-"pv_energy_production". Click "add channels".</p>
-</div>
-<div class="paragraph">
-<p>Now the channel overview opens where we can find our selected
-channel. In the last step of the configuration we click on the edit
-icon of the channel and set the parameters <em>logging interval</em> and
-<em>sampling interval</em> to 5000 ms and change the unit to kWh.</p>
-</div>
-<div class="paragraph">
-<p>You can now check that the new channel was added to the
-"conf/channels.xml" file.</p>
-</div>
-<div class="paragraph">
-<p>After submitting the channel configuration we go back to the dashboard
-and open the Channel Access Tool. Here we select our home1 device and
-continue with <em>access selected</em>. Now we able to see the current values
-of the pv_energy_production channel.</p>
-</div>
-<div class="paragraph">
-<p>The logged data can be found in
-<em>openmuc/framework/data/ascii/&lt;currentdate&gt;_5000.dat</em></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_tutorial_simple_m_bus_data_logger">4. Tutorial - Simple M-Bus Data Logger</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><strong>Objective:</strong> You will learn how to create a simple data logger which reads out a M-Bus meter via serial communication. It uses OpenMUC on-board tools so no programming is required.</p>
-</div>
-<div class="paragraph">
-<p><strong>Preparation:</strong> If not already done, your system needs to be prepared once for serial communication.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>sudo apt-get install librxtx-java
-sudo adduser $USER dialout</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Now logout from your system and login again to apply system changes.</p>
-</div>
-<div class="paragraph">
-<p><strong>Step-by-step</strong></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Download OpenMUC and unpack it</p>
-</li>
-<li>
-<p>Open openmuc/framework/conf/bundles.conf.gradle and comment the following lines by //</p>
-<div class="listingblock">
-<div class="content">
-<pre>osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo", version: openmucVersion
-osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Add following lines to make the M-Bus driver and serial communication available</p>
-<div class="listingblock">
-<div class="content">
-<pre>osgibundles group: "org.openmuc.framework" name: "openmuc-driver-mbus", version: openmucVersion
-osgibundles group: "org.openmuc", name: "jrxtx", version: "1.0.1"</pre>
-</div>
-</div>
-</li>
-<li>
-<p>To apply changes navigate to openmuc/framework/bin and run</p>
-<div class="listingblock">
-<div class="content">
-<pre>./openmuc update-bundles</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Start OpenMUC</p>
-<div class="listingblock">
-<div class="content">
-<pre>./openmuc start -fg</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Open a browser and point it to localhost:8888 to view the WebUI of OpenMUC. Login with user <em>admin</em> and password <em>admin</em>.</p>
-</li>
-<li>
-<p>Click on <em>Channel Configurator</em> &gt; <em>Tab Drivers</em> &gt; <em>Add new driver to configuration</em></p>
-</li>
-<li>
-<p>Enter <em>mbus</em> as ID and click Submit</p>
-</li>
-<li>
-<p>Now the M-Bus driver appears under <em>Channel Configurator</em> &gt; <em>Tab Drivers</em>. Click on the search icon</p>
-</li>
-<li>
-<p>Enter the serial port the meter is connected to and provide the baud rate if needed (e.g. /dev/ttyS0 or /dev/ttyS0:2400). See M-Bus driver section for more information.</p>
-</li>
-<li>
-<p>Click on <em>Scan for devices</em>. Now OpenMUC scans all M-Bus addresses, which may take a while</p>
-</li>
-<li>
-<p>Select the desired device from the list and click <em>Add devices</em></p>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/tutorial_mbus_logger_driver_scan.png"><img src="images/tutorial_mbus_logger_driver_scan.png" alt="tutorial mbus logger driver scan" width="400"></a>
-</div>
-<div class="title">Figure 7. WebUI M-Bus device scan</div>
-</div>
-</li>
-<li>
-<p>Now the device is added. If you do not see the search icon next to the device, press F5 to reload the page and navigate to <em>Channel Configurator</em> &gt; <em>Tab Devices</em></p>
-</li>
-<li>
-<p>Click on the search icon and OpenMUC automatically scans all available channels. Select the desired channels and click <em>Add channels</em></p>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/tutorial_mbus_logger_channel_scan.png"><img src="images/tutorial_mbus_logger_channel_scan.png" alt="tutorial mbus logger channel scan" width="400"></a>
-</div>
-<div class="title">Figure 8. WebUI M-Bus channel scan</div>
-</div>
-</li>
-<li>
-<p>Now we need to define a sampling and logging interval for the channels. Click on <em>Channel Configurator</em> &gt; <em>Tab Channels</em> and click on <em>Edit Icon</em> of the desired channel. Write <em>2000</em> in the <em>Sampling Interval</em> and <em>Logging Interval</em> field and click Submit</p>
-</li>
-<li>
-<p>To show actual values of the channel, navigate to <em>Applications</em> &gt; <em>Channel Access Tool</em>, select your device and click <em>Access selected</em></p>
-<div class="imageblock">
-<div class="content">
-<a class="image" href="images/tutorial_mbus_logger_channel_access_tool.png"><img src="images/tutorial_mbus_logger_channel_access_tool.png" alt="tutorial mbus logger channel access tool" width="400"></a>
-</div>
-<div class="title">Figure 9. WebUI channel access tool</div>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p><strong>Tips</strong></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>All logged data are stored in /openmuc/framework/data/ascii/</p>
-</li>
-<li>
-<p>You can also change the configuration by editing /openmuc/framework/conf/channels.xml</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_distribution">5. Distribution</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -1105,7 +1108,7 @@ rebuild OpenMUC using Gradle.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_running_openmuc">6. Running OpenMUC</h2>
+<h2 id="anchor-start-script">6. OpenMUC start script</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>To start OpenMUC on Linux run:</p>
@@ -1184,6 +1187,39 @@ shell using telnet:</p>
 <pre>./bin/openmuc stop</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>To reload a new configuration without restarting:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc reload</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To restart a running OpenMUC (stop/start):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc restart</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To update the bundles in the bundle folder after e.g. changing bundles.conf.gradle
+Before using this the first time see the next point.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc update-bundles</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For building and installing the sources of OpenMUC with updating the bundles:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./bin/openmuc update-bundles -i</pre>
+</div>
+</div>
 <div class="sect2">
 <h3 id="_auto_start_at_boot_time">6.1. Auto-start at Boot Time</h3>
 <div class="paragraph">
@@ -1209,21 +1245,70 @@ script to /etc/init.d/ and edit it to set the OPENMUC_HOME variable.</p>
 <h2 id="_install_a_driver">7. Install a Driver</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When you want to use a new driver you have to copy the corresponding
-jar file from the folder "build/libs-all/" to the "bundle" folder of
-the framework. Many drivers are "fat jars" which include their
+<p>For installing a new driver you have two possible ways.</p>
+</div>
+<div class="sect2">
+<h3 id="_copy_driver">7.1. Copy driver</h3>
+<div class="paragraph">
+<p>Copy the corresponding driver jar file from the folder "build/libs-all/" to the
+"bundle" folder of the framework. Many drivers are "fat jars" which include their
 dependencies. An exception is the RXTX library which cannot be packed
 with the jars.</p>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_use_a_driver_with_serial_communication">7.1. Use a Driver with Serial Communication</h3>
+<h3 id="_editing_bundles_configuration">7.2. Editing bundles configuration</h3>
+<div class="paragraph">
+<p>In /openmuc/framework/conf/bundles.conf.gradle you can find the list of all used
+bundles e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base", version: openmucVersion</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you want to add a new driver to the list, e.g. M-Bus, you can do this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc",           name: "jrxtx",               version: "1.0.1"
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",   version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base",  version: openmucVersion</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Afterwards you have to execute in /openmuc/framework/bin/</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./openmuc update-bundles</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If this is the first time using ./openmuc update-bundles you have to add the parameter -i</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./openmuc update-bundles -i</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_use_a_driver_with_serial_communication">7.3. Use a Driver with Serial Communication</h3>
 <div class="paragraph">
 <p>When you need to use a driver that uses serial communication you have
 to copy the RXTX bundle to the frameworks "bundle" folder.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>cp ../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar ./bundle/</pre>
+<pre>cp ../dependencies/rxtx/jrxtx-1.0.1.jar ./bundle/</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1649,7 +1734,8 @@ need to be the same.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>In example 3 listening instead of sampling is used. This means that the driver reports a new channel value to the data manager when the value has changed for example.</p>
+<p>In example 3 listening instead of sampling is used. This means that the driver
+reports a new channel value to the data manager when the value has changed for example.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example 4: Listening and Logging</div>
@@ -1880,7 +1966,7 @@ BYTEARRAY[n] (n = number of REGISTERS not BYTES, 1 register = 2 bytes!)</p></td>
 </table>
 <div class="paragraph">
 <div class="title">Primary Tables and Channel Address</div>
-<p><span class="image"><a class="image" href="images/driver_modbustcp_address.png"><img src="images/driver_modbustcp_address.png" alt="Driver Modbus Address" width="80%"></a></span></p>
+<p><span class="image"><a class="image" href="../images/driver_modbustcp_address.png"><img src="images/driver_modbustcp_address.png" alt="Driver Modbus Address" width="80%"></a></span></p>
 </div>
 <div class="paragraph">
 <p><strong>Valid Address Parameter Combinations</strong></p>
@@ -3225,6 +3311,114 @@ hh:mm:60 respectively hh:mm:00 the aggregated value is logged.</p>
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_rest_json">9.12. REST/JSON</h3>
+<div class="paragraph">
+<p>Driver to connect an OpenMUC instance with an remote OpenMUC instance with REST.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 21. Configuration Synopsis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">rest</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">http(s)://&lt;address&gt;:&lt;port&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[ct;]&lt;username&gt;:&lt;password&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Channel Address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;channelID&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="ulist">
+<ul>
+<li>
+<p>host_address: the address of the remote OpenMUC eg. 127.0.0.1</p>
+</li>
+<li>
+<p>port: the port of the remote OpenMUC eg. 8888</p>
+</li>
+<li>
+<p>ct: this optional flag defines if the driver should check the remote timestamp, before reading the complete record</p>
+</li>
+<li>
+<p>username: the username of the remote OpenMUC</p>
+</li>
+<li>
+<p>password: the pasword of the remote OpenMUC</p>
+</li>
+<li>
+<p>channelID: the ID of the remote OpenMUC</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Supported features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>read channel</p>
+</li>
+<li>
+<p>write channel</p>
+</li>
+<li>
+<p>scan for all channels</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Not supported features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>scan for devices</p>
+</li>
+<li>
+<p>reading whole devices instead of single channel</p>
+</li>
+<li>
+<p>listening</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="paragraph">
+<p>Connecting to an remote OpenMUC instance (192.168.8.18:8888) and reading the channel "power_grid"
+every 5s if the timestamp has changed.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;driver</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">rest</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;device</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">example_rest_device</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+      <span class="tag">&lt;deviceAddress&gt;</span>http://192.168.8.18:8888<span class="tag">&lt;/deviceAddress&gt;</span>
+      <span class="tag">&lt;settings&gt;</span>ct;admin:admin<span class="tag">&lt;/settings&gt;</span>
+      <span class="tag">&lt;channel</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">power_grid_rest</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="tag">&lt;channelAddress&gt;</span>power_grid<span class="tag">&lt;/channelAddress&gt;</span>
+        <span class="tag">&lt;samplingInterval&gt;</span>5s<span class="tag">&lt;/samplingInterval&gt;</span>
+      <span class="tag">&lt;/channel&gt;</span>
+   <span class="tag">&lt;/device&gt;</span>
+<span class="tag">&lt;/driver&gt;</span></code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -3258,7 +3452,22 @@ hh:mm:60 respectively hh:mm:00 the aggregated value is logged.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_https">10.2. HTTPS</h3>
+<h3 id="_context_root">10.2. Context Root</h3>
+<div class="paragraph">
+<p>The servlet context root of the OpenMUC WebUI can be configured, by setting the <code>org.apache.felix.http.context_path</code>
+system property.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>org.apache.felix.http.context_path=/muc1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This must be a valid path starting with a slash and not ending with a slash (unless it is the root context).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_https">10.3. HTTPS</h3>
 <div class="paragraph">
 <p>You can access the WebUI over https as well:
 <a href="https://localhost:8889" class="bare">https://localhost:8889</a>. To make the framework more secure you could
@@ -3272,7 +3481,9 @@ conf/system.properties file to false.</p>
 <h2 id="id_restful_web_services">11. REST Server</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The openmuc-server-restws bundle manages a RESTful web service to access all registered channels of the framework. The RESTful web service is accessed by the same port as the web interface mentioned in Chapter 2.</p>
+<p>The openmuc-server-restws bundle manages a RESTful web service to access all
+registered channels of the framework. The RESTful web service is accessed by the
+same port as the web interface mentioned in Chapter 2.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -3299,7 +3510,8 @@ The address to access the web service using the provided demo/framework folder i
 </ul>
 </div>
 <div class="paragraph">
-<p>This bundles is already provided by the demo framework. The RESTful web service will start automatically with the framework without additional settings.</p>
+<p>This bundles is already provided by the demo framework. The RESTful web service
+will start automatically with the framework without additional settings.</p>
 </div>
 </div>
 <div class="sect2">
@@ -3374,7 +3586,7 @@ For accessing a channel through Modbus the channel has to be mapped with
 <p>ServerMapping ID: <em>modbus</em></p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 21. serverMapping</caption>
+<caption class="title">Table 22. serverMapping</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3534,7 +3746,7 @@ org.openmuc.framework.server.modbus.master=false</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-02-27 20:19:27 MEZ
+Last updated 2018-07-16 16:10:43 MESZ
 </div>
 </div>
 </body>

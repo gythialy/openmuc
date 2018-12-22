@@ -20,15 +20,15 @@
  */
 package org.openmuc.framework.driver.snmp.implementation;
 
-import java.util.EventObject;
-
 import org.openmuc.framework.driver.snmp.implementation.SnmpDevice.SNMPVersion;
 import org.snmp4j.smi.Address;
+
+import java.util.EventObject;
 
 public class SnmpDiscoveryEvent extends EventObject {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1382183246520560859L;
     private final Address deviceAddress;

@@ -20,27 +20,32 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.LogFileReader;
 
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+
 public class LogFileReaderTestBrokenFile {
 
-    private String fileDate;
-
-    String dateFormat = "yyyyMMdd HH:mm:ss";
     private static final int loggingInterval = 1000; // ms
-    static int loggingTimeOffset = 0; // ms
     private static final String Channel0Name = "power";
-
+    static int loggingTimeOffset = 0; // ms
+    String dateFormat = "yyyyMMdd HH:mm:ss";
     LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "Comment", "W", ValueType.DOUBLE,
             loggingInterval, loggingTimeOffset);
+    private String fileDate;
+
+    @AfterClass
+    public static void tearDown() {
+
+        System.out.println("tearing down");
+        TestSuite.deleteTestFolder();
+    }
 
     @Test
     public void tc200_logfile_does_not_exist() {
@@ -61,18 +66,10 @@ public class LogFileReaderTestBrokenFile {
 
         if (records.size() == expectedRecords) {
             assertTrue(true);
-        }
-        else {
+        } else {
             assertTrue(false);
         }
 
-    }
-
-    @AfterClass
-    public static void tearDown() {
-
-        System.out.println("tearing down");
-        TestSuite.deleteTestFolder();
     }
 
     // @Ignore

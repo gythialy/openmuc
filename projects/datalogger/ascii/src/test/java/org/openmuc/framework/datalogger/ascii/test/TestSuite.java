@@ -20,18 +20,18 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 @RunWith(Suite.class)
-@SuiteClasses({ LogFileReaderTestSingleFile.class, LogFileReaderTestBrokenFile.class,
-        LogFileReaderTestMultipleFiles.class, LogFileWriterTest.class, MiscTests.class })
+@SuiteClasses({LogFileReaderTestSingleFile.class, LogFileReaderTestBrokenFile.class,
+        LogFileReaderTestMultipleFiles.class, LogFileWriterTest.class, MiscTests.class})
 public class TestSuite {
 
     private static final String TESTFOLDER = "test";

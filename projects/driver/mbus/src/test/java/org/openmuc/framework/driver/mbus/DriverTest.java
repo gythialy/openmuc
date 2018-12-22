@@ -1,19 +1,5 @@
 package org.openmuc.framework.driver.mbus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,9 +21,47 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.powermock.api.mockito.PowerMockito.*;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ Driver.class, MBusConnection.class })
+@PrepareForTest({Driver.class, MBusConnection.class})
 public class DriverTest {
+
+    private static void scan(String settings) throws Exception {
+
+        MBusConnection con = mock(MBusConnection.class);
+        PowerMockito.whenNew(MBusConnection.class).withAnyArguments().thenReturn(con);
+        PowerMockito.when(con.read(1)).thenReturn(new VariableDataStructure(null, 0, 0, null, null));
+        PowerMockito.when(con.read(250)).thenThrow(new SerialPortTimeoutException());
+        PowerMockito.when(con.read(anyInt())).thenThrow(new SerialPortTimeoutException());
+
+        Driver mdriver = new Driver();
+        mdriver.interruptDeviceScan();
+        mdriver.scanForDevices(settings, mock(DriverDeviceScanListener.class));
+
+    }
+
+    private static MBusConnection mockNewBuilderCon() throws IOException, InterruptedIOException, Exception {
+        MBusSerialBuilder builder = mock(MBusSerialBuilder.class);
+
+        MBusConnection con = mock(MBusConnection.class);
+        doNothing().when(con).linkReset(Matchers.anyInt());
+        when(con.read(Matchers.anyInt())).thenReturn(null);
+        whenNew(MBusSerialBuilder.class).withAnyArguments().thenReturn(builder);
+        when(builder.setBaudrate(anyInt())).thenReturn(builder);
+        when(builder.setTimeout(anyInt())).thenReturn(builder);
+        when(builder.setParity(any(Parity.class))).thenReturn(builder);
+        when(builder.build()).thenReturn(con);
+
+        return con;
+    }
 
     @Test
     public void testGetDriverInfo() {
@@ -157,6 +181,8 @@ public class DriverTest {
         mdriver.connect("/dev/ttyS100:5", "2400");
     }
 
+    // ******************* SCAN TESTS ********************//
+
     @Test(expected = ConnectionException.class)
     public void testMBusSapReadThrowsTimeoutException() throws Exception {
         Driver mdriver = new Driver();
@@ -179,22 +205,6 @@ public class DriverTest {
         doThrow(new SerialPortTimeoutException()).when(con).read(anyInt());
         doNothing().when(con).linkReset(anyInt());
         mdriver.connect("/dev/ttyS100:5", "2400");
-    }
-
-    // ******************* SCAN TESTS ********************//
-
-    private static void scan(String settings) throws Exception {
-
-        MBusConnection con = mock(MBusConnection.class);
-        PowerMockito.whenNew(MBusConnection.class).withAnyArguments().thenReturn(con);
-        PowerMockito.when(con.read(1)).thenReturn(new VariableDataStructure(null, 0, 0, null, null));
-        PowerMockito.when(con.read(250)).thenThrow(new SerialPortTimeoutException());
-        PowerMockito.when(con.read(anyInt())).thenThrow(new SerialPortTimeoutException());
-
-        Driver mdriver = new Driver();
-        mdriver.interruptDeviceScan();
-        mdriver.scanForDevices(settings, mock(DriverDeviceScanListener.class));
-
     }
 
     @Test
@@ -246,21 +256,6 @@ public class DriverTest {
         assertNotNull(mdriver.connect("/dev/ttyS100:5", "2400"));
         mdriver.scanForDevices("/dev/ttyS100:2400", ddsl);
 
-    }
-
-    private static MBusConnection mockNewBuilderCon() throws IOException, InterruptedIOException, Exception {
-        MBusSerialBuilder builder = mock(MBusSerialBuilder.class);
-
-        MBusConnection con = mock(MBusConnection.class);
-        doNothing().when(con).linkReset(Matchers.anyInt());
-        when(con.read(Matchers.anyInt())).thenReturn(null);
-        whenNew(MBusSerialBuilder.class).withAnyArguments().thenReturn(builder);
-        when(builder.setBaudrate(anyInt())).thenReturn(builder);
-        when(builder.setTimeout(anyInt())).thenReturn(builder);
-        when(builder.setParity(any(Parity.class))).thenReturn(builder);
-        when(builder.build()).thenReturn(con);
-
-        return con;
     }
 
     @Test(expected = ScanException.class)

@@ -1,15 +1,5 @@
 package org.openmuc.framework.driver.modbus.rtutcp.bonino;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.ModbusIOException;
 import com.ghgande.j2mod.modbus.io.BytesInputStream;
@@ -20,56 +10,49 @@ import com.ghgande.j2mod.modbus.msg.ModbusMessage;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.util.ModbusUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author bonino
- * 
- *         https://github.com/dog-gateway/jamod-rtu-over-tcp
- * 
+ * <p>
+ * https://github.com/dog-gateway/jamod-rtu-over-tcp
  */
 public class ModbusRTUTCPTransport implements ModbusTransport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ModbusRTUTCPTransport.class);
-
     public static final String logId = "[ModbusRTUTCPTransport]: ";
-
-    // The input stream from which reading the Modbus frames
-    private DataInputStream inputStream;
-
-    // The output stream to which writing the Modbus frames
-    private DataOutputStream outputStream;
-
-    // The Bytes output stream to use as output buffer for Modbus frames
-    private BytesOutputStream outputBuffer;
-
-    // The BytesInputStream wrapper for the transport input stream
-    private BytesInputStream inputBuffer;
-
-    // The last request sent over the transport ?? useful ??
-    private byte[] lastRequest = null;
-
-    // the socket used by this transport
-    private Socket socket;
-
-    // the read timeout timer
-    private Timer readTimeoutTimer;
-
+    private static final Logger logger = LoggerFactory.getLogger(ModbusRTUTCPTransport.class);
     // the read timout
     private final int readTimeout = 5000; // ms
-
+    private final Socket m_Socket = null;
+    // The input stream from which reading the Modbus frames
+    private DataInputStream inputStream;
+    // The output stream to which writing the Modbus frames
+    private DataOutputStream outputStream;
+    // The Bytes output stream to use as output buffer for Modbus frames
+    private BytesOutputStream outputBuffer;
+    // The BytesInputStream wrapper for the transport input stream
+    private BytesInputStream inputBuffer;
+    // The last request sent over the transport ?? useful ??
+    private byte[] lastRequest = null;
+    // the socket used by this transport
+    private Socket socket;
+    // the read timeout timer
+    private Timer readTimeoutTimer;
     // the timeou flag
     private boolean isTimedOut;
-
     private RTUTCPMasterConnection m_Master = null;
-    private final Socket m_Socket = null;
 
     /**
-     * @param socket
-     *            the client socket to close
-     * 
-     * @throws IOException
-     *             if a I/O exception occurs
-     * 
+     * @param socket the client socket to close
+     * @throws IOException if a I/O exception occurs
      */
     public ModbusRTUTCPTransport(Socket socket) throws IOException {
         // prepare the input and output streams...
@@ -84,11 +67,9 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
     /**
      * Stores the given {@link Socket} instance and prepares the related streams to use them for Modbus RTU over TCP
      * communication.
-     * 
-     * @param socket
-     *            the client socket
-     * @throws IOException
-     *             if a I/O exception occurs
+     *
+     * @param socket the client socket
+     * @throws IOException if a I/O exception occurs
      */
     public void setSocket(Socket socket) throws IOException {
         if (this.socket != null) {
@@ -113,9 +94,8 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
 
     /**
      * writes the given ModbusMessage over the physical transport handled by this object.
-     * 
-     * @param msg
-     *            the {@link ModbusMessage} to be written on the transport.
+     *
+     * @param msg the {@link ModbusMessage} to be written on the transport.
      */
     @Override
     public synchronized void writeMessage(ModbusMessage msg) throws ModbusIOException {
@@ -147,7 +127,7 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
 
                 // write the buffer on the socket
                 this.outputStream.write(rawBuffer, 0, bufferLength); // PDU +
-                                                                     // CRC
+                // CRC
                 this.outputStream.flush();
 
                 if (logger.isTraceEnabled()) {
@@ -413,53 +393,53 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
         int length = 0;
 
         switch (functionCode) {
-        case 0x01:
-        case 0x02:
-        case 0x03:
-        case 0x04:
-        case 0x0C:
-        case 0x11: // report slave ID version and run/stop state
-        case 0x14: // read log entry (60000 memory reference)
-        case 0x15: // write log entry (60000 memory reference)
-        case 0x17: {
-            // get a reference to the inner byte buffer
-            byte inBuffer[] = this.inputBuffer.getBuffer();
-            this.inputStream.read(inBuffer, 2, 1);
-            int dataLength = this.inputBuffer.readUnsignedByte();
-            length = dataLength + 5; // UID+FC+CRC(2bytes)
-            break;
-        }
-        case 0x05:
-        case 0x06:
-        case 0x0B:
-        case 0x0F:
-        case 0x10: {
-            // read status: only the CRC remains after address and
-            // function code
-            length = 6;
-            break;
-        }
-        case 0x07:
-        case 0x08: {
-            length = 3;
-            break;
-        }
-        case 0x16: {
-            length = 8;
-            break;
-        }
-        case 0x18: {
-            // get a reference to the inner byte buffer
-            byte inBuffer[] = this.inputBuffer.getBuffer();
-            this.inputStream.read(inBuffer, 2, 2);
-            length = this.inputBuffer.readUnsignedShort() + 6;// UID+FC+CRC(2bytes)
-            break;
-        }
-        case 0x83: {
-            // error code
-            length = 5;
-            break;
-        }
+            case 0x01:
+            case 0x02:
+            case 0x03:
+            case 0x04:
+            case 0x0C:
+            case 0x11: // report slave ID version and run/stop state
+            case 0x14: // read log entry (60000 memory reference)
+            case 0x15: // write log entry (60000 memory reference)
+            case 0x17: {
+                // get a reference to the inner byte buffer
+                byte inBuffer[] = this.inputBuffer.getBuffer();
+                this.inputStream.read(inBuffer, 2, 1);
+                int dataLength = this.inputBuffer.readUnsignedByte();
+                length = dataLength + 5; // UID+FC+CRC(2bytes)
+                break;
+            }
+            case 0x05:
+            case 0x06:
+            case 0x0B:
+            case 0x0F:
+            case 0x10: {
+                // read status: only the CRC remains after address and
+                // function code
+                length = 6;
+                break;
+            }
+            case 0x07:
+            case 0x08: {
+                length = 3;
+                break;
+            }
+            case 0x16: {
+                length = 8;
+                break;
+            }
+            case 0x18: {
+                // get a reference to the inner byte buffer
+                byte inBuffer[] = this.inputBuffer.getBuffer();
+                this.inputStream.read(inBuffer, 2, 2);
+                length = this.inputBuffer.readUnsignedShort() + 6;// UID+FC+CRC(2bytes)
+                break;
+            }
+            case 0x83: {
+                // error code
+                length = 5;
+                break;
+            }
         }
 
         return length;
@@ -483,7 +463,7 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
     /*
      * private void getResponse(int fn, BytesOutputStream out) throws IOException { int bc = -1, bc2 = -1, bcw = -1; int
      * inpBytes = 0; byte inpBuf[] = new byte[256];
-     * 
+     *
      * try { switch (fn) { case 0x01: case 0x02: case 0x03: case 0x04: case 0x0C: case 0x11: // report slave ID version
      * and run/stop state case 0x14: // read log entry (60000 memory reference) case 0x15: // write log entry (60000
      * memory reference) case 0x17: // read the byte count; bc = inputStream.read(); out.write(bc); // now get the

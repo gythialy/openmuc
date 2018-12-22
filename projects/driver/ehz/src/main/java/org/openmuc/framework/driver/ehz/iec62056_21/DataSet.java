@@ -39,8 +39,7 @@ public class DataSet {
 
         if (separator == -1) {
             value = dataSetStr.substring(1, dataSetStr.length() - 2);
-        }
-        else {
+        } else {
             value = dataSetStr.substring(1, separator);
             unit = dataSetStr.substring(separator + 1, dataSetStr.length() - 1);
         }

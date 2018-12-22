@@ -27,14 +27,15 @@ public class RestUserConfig {
     private final String id;
     @SerializedName("password")
     private final String pass;
-    private String oldPasswd;
     private final String[] groups;
     private final String description;
+    @SerializedName("oldPassword")
+    private String oldPasswd;
 
     public RestUserConfig(String id) {
         this.id = id;
         this.pass = "*****";
-        this.groups = new String[] { "" };
+        this.groups = new String[]{""};
         this.description = "";
     }
 
@@ -53,9 +54,8 @@ public class RestUserConfig {
     public String[] getGroups() {
         if (groups != null) {
             return groups.clone();
-        }
-        else {
-            return new String[] {};
+        } else {
+            return new String[]{};
         }
     }
 

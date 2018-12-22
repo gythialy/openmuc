@@ -1,24 +1,24 @@
 package org.openmuc.framework.driver.dlms;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import javax.xml.bind.DatatypeConverter;
-
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.dlms.settings.DeviceAddress;
 import org.openmuc.framework.driver.dlms.settings.DeviceSettings;
 import org.openmuc.framework.driver.spi.ConnectionException;
-import org.openmuc.jdlms.AuthenticationMechanism;
-import org.openmuc.jdlms.ConnectionBuilder;
-import org.openmuc.jdlms.DlmsConnection;
-import org.openmuc.jdlms.SecuritySuite;
+import org.openmuc.jdlms.*;
 import org.openmuc.jdlms.SecuritySuite.EncryptionMechanism;
-import org.openmuc.jdlms.SerialConnectionBuilder;
-import org.openmuc.jdlms.TcpConnectionBuilder;
 import org.openmuc.jdlms.settings.client.ReferencingMethod;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 class Connector {
+
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private Connector() {
+    }
 
     public static DlmsConnection buildDlmsConection(DeviceAddress deviceAddress, DeviceSettings deviceSettings)
             throws ArgumentSyntaxException, ConnectionException {
@@ -46,34 +46,32 @@ class Connector {
             throws ArgumentSyntaxException {
 
         switch (deviceAddress.getConnectionType().toLowerCase()) {
-        case "tcp":
-            return newTcpConectionBuilderFor(deviceAddress, deviceSettings);
+            case "tcp":
+                return newTcpConectionBuilderFor(deviceAddress, deviceSettings);
 
-        case "serial":
-            return newSerialConectionBuilderFor(deviceAddress);
+            case "serial":
+                return newSerialConectionBuilderFor(deviceAddress);
 
-        default:
-            throw new ArgumentSyntaxException("Only TCP and Serial are supported connection types.");
+            default:
+                throw new ArgumentSyntaxException("Only TCP and Serial are supported connection types.");
         }
     }
 
     private static ReferencingMethod extractReferencingMethod(DeviceSettings deviceSettings) {
         if (deviceSettings.useSn()) {
             return ReferencingMethod.SHORT;
-        }
-        else {
+        } else {
             return ReferencingMethod.LOGICAL;
         }
     }
 
     private static ConnectionBuilder<TcpConnectionBuilder> newTcpConectionBuilderFor(DeviceAddress deviceAddress,
-            DeviceSettings deviceSettings) {
+                                                                                     DeviceSettings deviceSettings) {
         TcpConnectionBuilder tcpConnectionBuilder = new TcpConnectionBuilder(deviceAddress.getHostAddress())
                 .setPort(deviceAddress.getPort());
         if (deviceAddress.useHdlc()) {
             tcpConnectionBuilder.useHdlc();
-        }
-        else {
+        } else {
             tcpConnectionBuilder.useWrapper();
         }
         return tcpConnectionBuilder;
@@ -87,8 +85,7 @@ class Connector {
 
         if (deviceAddress.enableBaudRateHandshake()) {
             serialConnectionBuilder.enableHandshake();
-        }
-        else {
+        } else {
             serialConnectionBuilder.disableHandshake();
         }
         return serialConnectionBuilder;
@@ -111,7 +108,7 @@ class Connector {
                     "The given Authentication Mechanism " + deviceSettings.getEncryptionMechanism() + " is unknown.");
         }
         byte[] encryptionKeyBytes = null;
-        if ((encryptionMechanism == EncryptionMechanism.AES_GMC_128)
+        if ((encryptionMechanism == EncryptionMechanism.AES_GCM_128)
                 || authenticationMechanism == AuthenticationMechanism.HLS5_GMAC) {
             encryptionKeyBytes = deviceSettings.getEncryptionKey();
         }
@@ -130,20 +127,19 @@ class Connector {
     }
 
     private static byte[] extractAuthKey(DeviceSettings deviceSettings, EncryptionMechanism encryptionMechanism,
-            AuthenticationMechanism authenticationMechanism) {
-        boolean hlsAuth = encryptionMechanism == EncryptionMechanism.AES_GMC_128
+                                         AuthenticationMechanism authenticationMechanism) {
+        boolean hlsAuth = encryptionMechanism == EncryptionMechanism.AES_GCM_128
                 || authenticationMechanism == AuthenticationMechanism.HLS5_GMAC;
 
         if (hlsAuth) {
             return deviceSettings.getAuthenticationKey();
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     private static byte[] extractPassword(DeviceSettings deviceSettings,
-            AuthenticationMechanism authenticationMechanism) {
+                                          AuthenticationMechanism authenticationMechanism) {
         if (authenticationMechanism != AuthenticationMechanism.LOW) {
             return null;
         }
@@ -151,17 +147,10 @@ class Connector {
         if (deviceSettings.getPassword().startsWith("0x")) {
             String hexStr = deviceSettings.getPassword().substring(2);
             return DatatypeConverter.parseHexBinary(hexStr);
-        }
-        else {
+        } else {
             return deviceSettings.getPassword().getBytes(StandardCharsets.US_ASCII);
         }
 
-    }
-
-    /**
-     * Don't let anyone instantiate this class.
-     */
-    private Connector() {
     }
 
 }

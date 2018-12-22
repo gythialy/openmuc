@@ -25,9 +25,8 @@ import org.openmuc.framework.dataaccess.Channel;
 
 /**
  * Class that contains the mapping between a server-address/configuration and channel.
- * 
- * @author sfey
  *
+ * @author sfey
  */
 public class ServerMappingContainer {
     private final Channel channel;
@@ -40,7 +39,7 @@ public class ServerMappingContainer {
 
     /**
      * The serverMapping that the channel should be mapped to.
-     * 
+     *
      * @return the serverAddress
      */
     public ServerMapping getServerMapping() {
@@ -49,7 +48,7 @@ public class ServerMappingContainer {
 
     /**
      * The mapped Channel
-     * 
+     *
      * @return the channel
      */
     public Channel getChannel() {

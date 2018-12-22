@@ -13,6 +13,86 @@ public class ChannelAddress extends GenericSetting {
     // protected String command = "";
     protected boolean select = false;
 
+    public ChannelAddress(String channelAddress) throws ArgumentSyntaxException {
+        parseFields(channelAddress, Option.class);
+    }
+
+    /**
+     * Type Identification
+     *
+     * @return type id as integer
+     */
+    public int typeId() {
+        return type_id;
+    }
+
+    /**
+     * Information Object Address
+     *
+     * @return IOA as integer
+     */
+    public int ioa() {
+        return ioa;
+    }
+
+    /**
+     * The common address of device
+     *
+     * @return the comman address as integer
+     */
+    public int commonAddress() {
+        return common_address;
+    }
+
+    /**
+     * Meanings if boolean is TRUE<br>
+     * v (value) / ts (timestamp) / iv (in/valid) / nt (not topical) / sb (substituted) / bl (blocked) / ov (overflow) /
+     * ei (elapsed time invalid) / ca (counter was adjusted since last reading) / cy (counter overflow occurred in the
+     * corresponding integration period)
+     *
+     * @return the data type as string
+     */
+    public String dataType() {
+        return data_type;
+    }
+
+    /**
+     * Optional: only needed if VARIABLE STRUCTURE QUALIFIER of APSDU is 1
+     *
+     * @return the index as integer
+     */
+    public int index() {
+        return index;
+    }
+
+    /**
+     * Optional: Take multiple IOAs or indices to one value. Only few data types e.g. Binary Types.
+     *
+     * @return the multiple value as integer
+     */
+    public int multiple() {
+        return multiple;
+    }
+
+    /**
+     * Optional: Qualifier execute/select<br>
+     * Default id false for execute
+     *
+     * @return true for select and false for execute
+     */
+    public boolean select() {
+        return select;
+    }
+
+    // /**
+    // * Optional: command type
+    // *
+    // * @return the command type
+    // */
+    // public String command() {
+    // return command;
+    // }
+
     protected static enum Option implements OptionI {
         COMMON_ADDRESS("ca", Integer.class, true),
         TYPE_ID("t", Integer.class, true),
@@ -47,86 +127,6 @@ public class ChannelAddress extends GenericSetting {
         public boolean mandatory() {
             return this.mandatory;
         }
-    }
-
-    public ChannelAddress(String channelAddress) throws ArgumentSyntaxException {
-        parseFields(channelAddress, Option.class);
-    }
-
-    /**
-     * Type Identification
-     * 
-     * @return type id as integer
-     */
-    public int typeId() {
-        return type_id;
-    }
-
-    /**
-     * Information Object Address
-     *
-     * @return IOA as integer
-     */
-    public int ioa() {
-        return ioa;
-    }
-
-    /**
-     * The common address of device
-     * 
-     * @return the comman address as integer
-     */
-    public int commonAddress() {
-        return common_address;
-    }
-
-    /**
-     * Meanings if boolean is TRUE<br>
-     * v (value) / ts (timestamp) / iv (in/valid) / nt (not topical) / sb (substituted) / bl (blocked) / ov (overflow) /
-     * ei (elapsed time invalid) / ca (counter was adjusted since last reading) / cy (counter overflow occurred in the
-     * corresponding integration period)
-     * 
-     * @return the data type as string
-     */
-    public String dataType() {
-        return data_type;
-    }
-
-    /**
-     * Optional: only needed if VARIABLE STRUCTURE QUALIFIER of APSDU is 1
-     * 
-     * @return the index as integer
-     */
-    public int index() {
-        return index;
-    }
-
-    /**
-     * Optional: Take multiple IOAs or indices to one value. Only few data types e.g. Binary Types.
-     * 
-     * @return the multiple value as integer
-     */
-    public int multiple() {
-        return multiple;
-    }
-
-    // /**
-    // * Optional: command type
-    // *
-    // * @return the command type
-    // */
-    // public String command() {
-    // return command;
-    // }
-
-    /**
-     * Optional: Qualifier execute/select<br>
-     * Default id false for execute
-     * 
-     * @return true for select and false for execute
-     */
-    public boolean select() {
-        return select;
     }
 
 }

@@ -1,32 +1,18 @@
 package org.openmuc.framework.driver.aggregator.types;
 
-import java.util.List;
-
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.driver.aggregator.AggregationException;
 import org.openmuc.framework.driver.aggregator.AggregatorChannel;
 import org.openmuc.framework.driver.aggregator.ChannelAddress;
 
+import java.util.List;
+
 public class AverageAggregation extends AggregatorChannel {
 
     public AverageAggregation(ChannelAddress simpleAddress, DataAccessService dataAccessService)
             throws AggregationException {
         super(simpleAddress, dataAccessService);
-    }
-
-    @Override
-    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
-        try {
-            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-            return calcAvgOf(recordList);
-
-        } catch (AggregationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AggregationException(e.getMessage());
-        }
-
     }
 
     /**
@@ -45,6 +31,20 @@ public class AverageAggregation extends AggregatorChannel {
             sum += record.getValue().asDouble();
         }
         return sum;
+    }
+
+    @Override
+    public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
+        try {
+            List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
+            return calcAvgOf(recordList);
+
+        } catch (AggregationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AggregationException(e.getMessage());
+        }
+
     }
 
 }

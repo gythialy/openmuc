@@ -1,16 +1,16 @@
-(function(){
+(function () {
 
-	var injectParams = [];
-	
-	var ChannelConfiguratorTabsDirective = function() {
-		return {
-			restrict: 'E',
-			templateUrl: 'channelconfigurator/html/channelConfiguratorTabs.html',
-		};
-	};
+    var injectParams = [];
 
-	ChannelConfiguratorTabsDirective.$inject = injectParams;
+    var ChannelConfiguratorTabsDirective = function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'channelconfigurator/html/channelConfiguratorTabs.html',
+        };
+    };
 
-	angular.module('openmuc.channels').directive('channelConfiguratorTabs', ChannelConfiguratorTabsDirective);
-	
+    ChannelConfiguratorTabsDirective.$inject = injectParams;
+
+    angular.module('openmuc.channels').directive('channelConfiguratorTabs', ChannelConfiguratorTabsDirective);
+
 })();

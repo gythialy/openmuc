@@ -189,8 +189,16 @@ start_openmuc() {
     echo "done"
 }
 
+find_gradle() {
+    if hash gradle 2>/dev/null; then
+        GRADLE="gradle"
+    else
+        GRADLE=$OPENMUC_HOME"/../gradlew"
+    fi
+}
 
 PID_FILE=$OPENMUC_HOME/log/openmuc.pid
+find_gradle
 
 case "$1" in
     start)
@@ -207,9 +215,9 @@ case "$1" in
     update-bundles)
         if [ "$2" = "-i" ]
         then
-            gradle -p ../ install
+            eval $GRADLE -p ../ install
         fi
-        gradle -b conf/bundles.conf.gradle updateBundles
+        eval $GRADLE -b conf/bundles.conf.gradle updateBundles
         ;;
     remote-shell)
         echo "Using netcat to connect to remote shell at 127.0.0.1:6666"
