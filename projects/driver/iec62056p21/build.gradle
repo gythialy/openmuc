@@ -1,7 +1,10 @@
 
+def projectName = "OpenMUC Driver - IEC 62056-21"
+def projectDescription = "IEC 62056-21 driver for the OpenMUC framework."
+
 configurations.create('embed')
 
-def j62056version = "1.2"
+def j62056version = "2.1.0"
 
 dependencies {
   compile project(':openmuc-core-spi')
@@ -12,9 +15,9 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Driver - IEC 62056-21 Mode C"
+    name = projectName
     instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
-    instruction 'Import-Package', '!org.openmuc.j62056*,gnu.io,*' + jarDefaultImportPackageVersion
+    instruction 'Import-Package', '!org.openmuc.j62056*,org.openmuc.jrxtx,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
   }
 }
@@ -22,5 +25,16 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

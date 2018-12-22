@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,21 +27,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServletLib {
 
-    protected final static int PATH_ARRAY_NR = 0;
-    protected final static int QUERRY_ARRAY_NR = 1;
+    private static final String COULD_NOT_SEND_HTTP_ERROR_MESSAGE = "Could not send HTTP Error message.";
+
+    private static final Logger logger = LoggerFactory.getLogger(ServletLib.class);
+
+    protected static final int PATH_ARRAY_NR = 0;
+    protected static final int QUERRY_ARRAY_NR = 1;
 
     protected static String buildString(BufferedReader br) {
         StringBuilder text = new StringBuilder();
-        String line;
         try {
+            String line;
             while ((line = br.readLine()) != null) {
                 text.append(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("", e);
         }
         return text.toString();
     }
@@ -60,12 +65,10 @@ public class ServletLib {
      */
     protected static void sendHTTPErrorAndLogWarn(HttpServletResponse response, int errorCode, Logger logger,
             String... msg) {
-
         try {
             response.sendError(errorCode, msg[0]);
         } catch (IOException e) {
-            logger.error("Could not send HTTP Error message.");
-            e.printStackTrace();
+            logger.error(COULD_NOT_SEND_HTTP_ERROR_MESSAGE, e);
         }
         StringBuilder warnMessage = new StringBuilder();
         for (String m : msg) {
@@ -74,26 +77,15 @@ public class ServletLib {
         logger.warn(warnMessage.toString());
     }
 
-    /**
+    /*
      * Only the first String will be sended over HTTP response.
-     * 
-     * @param response
-     *            HttpServletResponse response
-     * @param errorCode
-     *            error code
-     * @param logger
-     *            logger
-     * @param msg
-     *            message array
      */
     protected static void sendHTTPErrorAndLogDebug(HttpServletResponse response, int errorCode, Logger logger,
             String... msg) {
-
         try {
             response.sendError(errorCode, msg[0]);
         } catch (IOException e) {
-            logger.error("Could not send HTTP Error message.");
-            e.printStackTrace();
+            logger.error(COULD_NOT_SEND_HTTP_ERROR_MESSAGE, e);
         }
         StringBuilder warnMessage = new StringBuilder();
         for (String m : msg) {
@@ -102,21 +94,11 @@ public class ServletLib {
         logger.debug(warnMessage.toString());
     }
 
-    /**
+    /*
      * Logger and HTTP response are the same message.
-     * 
-     * @param response
-     *            HttpServletResponse response
-     * @param errorCode
-     *            error code
-     * @param logger
-     *            logger
-     * @param msg
-     *            message array
      */
     protected static void sendHTTPErrorAndLogErr(HttpServletResponse response, int errorCode, Logger logger,
             String... msg) {
-
         try {
             StringBuilder sbErrMessage = new StringBuilder();
             for (String m : msg) {
@@ -126,31 +108,24 @@ public class ServletLib {
             response.sendError(errorCode, errMessage);
             logger.error(errMessage);
         } catch (IOException e) {
-            logger.error("Could not send HTTP Error message.");
-            e.printStackTrace();
+            logger.error(COULD_NOT_SEND_HTTP_ERROR_MESSAGE, e);
         }
 
     }
 
     protected static String getJsonText(HttpServletRequest request) throws IOException {
-
-        String jsonText = "";
-        jsonText = ServletLib.buildString(request.getReader());
-        return jsonText;
+        return ServletLib.buildString(request.getReader());
     }
 
     protected static String[] getPathInfoArray(String pathInfo) {
-
-        String returnValue[];
-
         if (pathInfo.length() > 1) {
-
-            pathInfo = pathInfo.replaceFirst("/", "");
-            returnValue = pathInfo.split("/");
+            return pathInfo.replaceFirst("/", "").split("/");
         }
         else {
-            returnValue = new String[] { "/" };
+            return new String[] { "/" };
         }
-        return returnValue;
+    }
+
+    private ServletLib() {
     }
 }

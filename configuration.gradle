@@ -1,7 +1,7 @@
 
 project.ext {
 
-  cfgVersion = "0.16.0"
+  cfgVersion = "0.17.0"
   
   cfgGroup = "org.openmuc.framework"
 
@@ -9,7 +9,7 @@ project.ext {
 
   cfgCopyToRoot = true
 
-  cfgSignPom = false
+  cfgSignPom = true
 
   cfgRepository = project.properties.sonatypeRepository
 
@@ -21,7 +21,7 @@ project.ext {
 
   javaProjects = subprojects
   
-  jarDefaultImportPackageVersion=";version=0"
+  jarDefaultImportPackageVersion = ";version=0"
 
   distributionProjects = javaProjects.findAll {
     it.getPath() == ":openmuc-app-simpledemo" ||
@@ -44,6 +44,7 @@ project.ext {
     it.getPath() == ":openmuc-driver-snmp" ||
     it.getPath() == ":openmuc-driver-wmbus" ||
     it.getPath() == ":openmuc-server-restws" ||
+    it.getPath() == ":openmuc-server-modbus" ||
     it.getPath() == ":openmuc-webui-base" ||
     it.getPath() == ":openmuc-webui-channelaccesstool" ||
     it.getPath() == ":openmuc-webui-channelconfigurator" ||
@@ -67,16 +68,34 @@ project.ext {
 configure(javaProjects) {
   apply plugin: "java"
   apply plugin: "maven"
+
+
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        pom.project {
+          licenses {
+            license {
+              name "GNU General Public License"
+              url "http://www.gnu.org/copyleft/gpl-3.0.html"
+              distribution "repo"
+            }
+          }
+        }
+      }
+    }
+  }
+
 }
 
 task updateBundles(type:Exec) {
   dependsOn(distributionProjects.install)
-   commandLine "./framework/bin/openmuc", "update-bundles"
+  commandLine "./framework/bin/openmuc", "update-bundles"
 }
 
 tasks.withType(Tar) {
 
-//  dependsOn(updateBundles)
+  dependsOn(updateBundles)
   
   into(project.name) {
 
@@ -84,7 +103,7 @@ tasks.withType(Tar) {
       include "build.gradle"
       include "configuration.gradle"
       include "license/**"
-      include "doc/CHANGELOG.txt"
+//      include "doc/CHANGELOG.txt"
       include "gradle/wrapper/**"
       include "gradlew"
       include "gradlew.bat"
@@ -96,6 +115,7 @@ tasks.withType(Tar) {
       include "framework/bundle/**"
       include "framework/conf/**"
       include "framework/bin/"
+      include "framework/media/README.txt/"
       include "framework/log/README.txt"
       include "framework/dependencies/**"
       include "framework/csv-driver/**"

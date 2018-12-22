@@ -24,7 +24,7 @@
 	                                        'channelconfigurator/js/drivers/driverScanController.js', 
 	                                        'channelconfigurator/js/drivers/driversDirective.js',
 	                                        'channelconfigurator/js/channels/channelConfiguratorTabsDirective.js',
-	                                        'openmuc/js/libs/checklistmodel/checklist-model.js']
+	                                        'openmuc/js/libs/checklistmodel/checklist-model.min.js']
 	                            }
 	                        )
 	                    }
@@ -87,7 +87,7 @@
 	                                name: "openmuc.drivers",
 	                                files: ['channelconfigurator/js/devices/devicesService.js',
 	                                        'channelconfigurator/js/devices/deviceDataService.js',
-	                                        'openmuc/js/libs/checklistmodel/checklist-model.js']
+	                                        'openmuc/js/libs/checklistmodel/checklist-model.min.js']
 	                            }
 	                        )
 	                    }
@@ -148,7 +148,7 @@
 	                                files: ['channelconfigurator/js/devices/deviceScanController.js',
 	                                        'channelconfigurator/js/channels/channelsService.js',
 	                                        'channelconfigurator/js/channels/channelDataService.js',
-	                                        'openmuc/js/libs/checklistmodel/checklist-model.js']
+	                                        'openmuc/js/libs/checklistmodel/checklist-model.min.js']
 	                            }
 	                        )
 	                    }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -43,9 +43,9 @@ public class KnxDriver implements DriverService {
     public static final String ADDRESS_SCHEME_KNXIP = "knxip";
     private static Logger logger = LoggerFactory.getLogger(KnxDriver.class);
 
-    final static int timeout = 10000;
+    static final int timeout = 10000;
 
-    private final static DriverInfo info = new DriverInfo(
+    private static final DriverInfo info = new DriverInfo(
             // id*/
             "knx",
             // description
@@ -80,10 +80,12 @@ public class KnxDriver implements DriverService {
 
         String[] args = null;
         logger.debug("settings = " + settings);
-        if (settings != null && !settings.isEmpty() && settings.length() == 2) {
+        if (settings != null && !settings.isEmpty()) {
             args = settings.split(";");
-            logger.debug("args[0] = " + args[0]);
-            logger.debug("args[1] = " + args[1]);
+            if (settings.length() == 2) {
+                logger.debug("args[0] = " + args[0]);
+                logger.debug("args[1] = " + args[1]);
+            }
         }
 
         if (args != null && args.length > 0) {

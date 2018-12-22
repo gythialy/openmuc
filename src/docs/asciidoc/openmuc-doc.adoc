@@ -69,7 +69,7 @@ channel configuration holds the following information:
 --
 
 	     .. communication parameters that the drivers require
-	     
+
 	     .. when to sample new data from connected devices
 
 	     .. when to send sampled data to existing data logger(s)
@@ -127,7 +127,7 @@ mostly for configuration and testing purposes. Most companies will
 want to create their own individual UI.
 
 
-    
+
 
 
 
@@ -148,7 +148,7 @@ files and folders:
 felix::
 
     The main Apache Felix OSGi jar which is run to start OpenMUC.
-    
+
 bin::
 
     Run scripts for Linux/Unix and Windows.
@@ -167,24 +167,24 @@ conf::
 
     Various configuration files of the framework.
 
-    
-    
+
+
 === Starting the Demo
 
 First open a terminal and go to the folder named "framework".
-    
+
 To start OpenMUC on Linux run:
-        
+
 ----
 ./bin/openmuc start -fg
 ----
 
 To start OpenMUC on Window run:
-    
+
 ----
 bin\openmuc.bat
 ----
-    
+
 This will start the Apache Felix OSGi framework which in turn starts
 all the bundles located in the "bundle" folder. Among the bundles that
 are started is the Apache Gogo shell. This shell is entered once you
@@ -223,9 +223,9 @@ the CSV driver, calculates new values from them and writes them to
 other channels. The app can be used as starting point to create your
 own OpenMUC application.
 
-        
+
 === WebUI Walk Through
-    
+
 This section leads you through the framework's WebUI.
 
 Open a browser (works currently best with Google Chrome) and enter the
@@ -245,7 +245,7 @@ OpenMUC. Select the _home1_ and proceed with _Access selected_.
 
 :img-file: webui-channelaccesstool-device-selection.png
 image::{img-file}[title="WebUI device selection",width={width60},link="{imagesdir}/{img-file}"]
-    
+
 On the next page you will see the latest records of all channels of
 home1. Each record consists of a data value, a timestamp when it was
 sampled and a quality flag.
@@ -298,6 +298,86 @@ The logged data can be found in
 _openmuc/framework/data/ascii/<currentdate>_5000.dat_
 
 
+== Tutorial - Simple M-Bus Data Logger
+
+*Objective:* You will learn how to create a simple data logger which reads out a M-Bus meter via serial communication. It uses OpenMUC on-board tools so no programming is required.
+
+*Preparation:* If not already done, your system needs to be prepared once for serial communication.
+
+----
+sudo apt-get install librxtx-java
+sudo adduser $USER dialout
+----
+
+Now logout from your system and login again to apply system changes.
+
+*Step-by-step*
+
+. Download OpenMUC and unpack it
+
+. Open openmuc/framework/conf/bundles.conf.gradle and comment the following lines by //
++
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo", version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+----
+
+. Add following lines to make the M-Bus driver and serial communication available
++
+----
+osgibundles group: "org.openmuc.framework" name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc", name: "jrxtx", version: "1.0.1"
+----
+
+. To apply changes navigate to openmuc/framework/bin and run
++
+----
+./openmuc update-bundles
+----
+
+. Start OpenMUC
++
+----
+./openmuc start -fg
+----
+
+. Open a browser and point it to localhost:8888 to view the WebUI of OpenMUC. Login with user _admin_ and password _admin_.
+
+. Click on _Channel Configurator_ > _Tab Drivers_ > _Add new driver to configuration_
+
+. Enter _mbus_ as ID and click Submit
+
+. Now the M-Bus driver appears under _Channel Configurator_ > _Tab Drivers_. Click on the search icon
+
+. Enter the serial port the meter is connected to and provide the baud rate if needed (e.g. /dev/ttyS0 or /dev/ttyS0:2400). See M-Bus driver section for more information.
+
+. Click on _Scan for devices_. Now OpenMUC scans all M-Bus addresses, which may take a while
+
+. Select the desired device from the list and click _Add devices_
++
+:img-file: tutorial_mbus_logger_driver_scan.png
+image::{img-file}[title="WebUI M-Bus device scan",width=400,link="{imagesdir}/{img-file}"]
+
+. Now the device is added. If you do not see the search icon next to the device, press F5 to reload the page and navigate to _Channel Configurator_ > _Tab Devices_
+
+. Click on the search icon and OpenMUC automatically scans all available channels. Select the desired channels and click _Add channels_
++
+:img-file: tutorial_mbus_logger_channel_scan.png
+image::{img-file}[title="WebUI M-Bus channel scan",width=400,link="{imagesdir}/{img-file}"]
+
+. Now we need to define a sampling and logging interval for the channels. Click on _Channel Configurator_ > _Tab Channels_ and click on _Edit Icon_ of the desired channel. Write _2000_ in the _Sampling Interval_ and _Logging Interval_ field and click Submit
+
+. To show actual values of the channel, navigate to _Applications_ > _Channel Access Tool_, select your device and click _Access selected_
++
+:img-file: tutorial_mbus_logger_channel_access_tool.png
+image::{img-file}[title="WebUI channel access tool",width=400,link="{imagesdir}/{img-file}"]
+
+*Tips*
+
+* All logged data are stored in /openmuc/framework/data/ascii/
+* You can also change the configuration by editing /openmuc/framework/conf/channels.xml
+
+
 == Distribution
 
 The distribution contains the following important files and folders:
@@ -322,24 +402,24 @@ framework::
 
     A ready to use OpenMUC demo framework that is introduced next.
 
-    
+
 == Running OpenMUC
 
 To start OpenMUC on Linux run:
-        
+
 ----
 ./bin/openmuc start
 ----
 
 This runs OpenMUC as a background process. If you want to run OpenMUC
 in the foreground run:
-    
+
 ----
 ./bin/openmuc start -fg
 ----
-    
+
 To start OpenMUC under Window run:
-    
+
 ----
 bin\openmuc.bat
 ----
@@ -363,7 +443,8 @@ shell. From the shell you can start, stop and reload bundles among
 many other things. To quit the shell and stop the framework press
 ctrl+d or enter "stop 0".
 
-If you ran OpenMUC as a background process you can access the Gogo shell using the telnet:
+If OpenMUC was started as a background process you can access the Gogo
+shell using telnet:
 
 ----
 netcat 127.0.0.1 6666
@@ -383,14 +464,34 @@ To stop OpenMUC run:
 ./bin/openmuc stop
 ----
 
+=== Auto-start at Boot Time
+
+On Debian based Linux distributions it is easy to configure automatic
+start of OpenMUC at boot time. As root execute the following commands:
+
+----
+ln -s /path/to/openmuc/bin/openmuc /etc/init.d/openmuc
+update-rc.d openmuc defaults
+----
+
+The above solution will not work if the openmuc start script is
+located on a partion that is not yet mounted at the time the boot
+process attempts to open it. In this case you need copy the start
+script to /etc/init.d/ and edit it to set the OPENMUC_HOME variable.
+
 == Install a Driver
 
-When you want to use a new driver you have to copy the corresponding jar file from the folder "build/libs-all/" to the "bundle" folder of the framework. Many drivers are "fat jars" which include their dependencies. An exception is the RXTX library which cannot be packed with the jars.
+When you want to use a new driver you have to copy the corresponding
+jar file from the folder "build/libs-all/" to the "bundle" folder of
+the framework. Many drivers are "fat jars" which include their
+dependencies. An exception is the RXTX library which cannot be packed
+with the jars.
 
 
 === Use a Driver with Serial Communication
 
-When you need to use a driver that uses serial communication you have to copy the RXTX bundle to the frameworks "bundle" folder.
+When you need to use a driver that uses serial communication you have
+to copy the RXTX bundle to the frameworks "bundle" folder.
 
 ----
 cp ../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar ./bundle/
@@ -402,12 +503,14 @@ Additionally you need to install librxtx-java:
 sudo apt-get install librxtx-java
 ----
 
-The serial ports /dev/tty* are only accessible to members belonging to the group dialout. We therefore have to add our user to that group. E.g. using:
+The serial ports /dev/tty* are only accessible to members belonging to
+the group dialout. We therefore have to add our user to that
+group. E.g. using:
 
 ----
 sudo adduser <yourUserName> dialout
 ----
-        
+
 
 
 == Devices and Channels
@@ -422,10 +525,10 @@ of data point. The following picture illustrates the channel concept.
 .OpenMUCs Channel Concept
 image:openmuc_concept.png[width={width60}, alt="OpenMUC channel concept", link="images/openmuc_concept.png"]
 
-        
+
 [[anchor-configuration]]
 === Configuration
-    
+
 The *conf/channels.xml* file is the main configuration file for
 OpenMUC. It tells the OpenMUC framework which channels it should log
 and sample. It contains a hierarchical structure of drivers, devices
@@ -439,26 +542,100 @@ device and channel options are explained afterwards.
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
-	<logger>loggerId</logger>   
+	<logger>loggerId</logger>
 
 	<driver id="driver_x">
 		<!-- driver options -->
 		<device>
 			<!-- device options -->
 			<channel>
-				<!-- channel options -->	    
+				<!-- channel options -->
 			</channel>
 			<channel>
-				<!-- channel options -->	                    
+				<!-- channel options -->
 			</channel>
 		</device>
 	</driver>
 </configuration>
 ----
 
+.*Driver options*
+[width="100%",cols="2,1,1,1,4",options="header"]
+|=========================================================
+|Options | Mandatory | Values | Default | Description
+
+|id| yes | _string_ | - | Id of the driver
+
+|samplingTimeout| no | time* | 0 | Default time waited for a read operation to complete if the device doesn't set a samplingTimeout on its own.
+
+|connectRetryInterval| no | time* | 60s | Default time waited until a failed connection attempt is repeated.
+
+|disabled| no | _boolean_| false | While disabled, no connections to devices on this driver are established at all and all channels of these devices stop being sampled and logged.
+|=========================================================
+
+.*Device options*
+
+[width="100%",cols="2,1,1,1,4",options="header"]
+|=========================================================
+|Options | Mandatory | Values | Default | Description
+
+|id| no | _string_ | - | ID of the device.
+
+|deviceAddress| yes | _string_ | - | Address for the driver to uniquely identify the device. Syntax of this address is up to the driver implementation.
+
+|description| no | _string_ | - | Description of the device.
+
+|settings| no | _string_ | - | Additional settings for the driver. Syntax is up to the driver implementation.
+
+|samplingTimeout| no | time* | 0 | Time waited for a read operation to complete. Overwrites samplingTimeout of Driver.
+
+|connectRetryInterval| no | time* | 60s | Time waited until a failed connection attempt is repeated.
+
+|disabled| no | _boolean_ | false | While disabled, no connection of this device is established and all channels of this device stop being sampled and logged.
+|=========================================================
+
+.*Channel options*
+
+[width="100%",cols="2,1,1,1,4",options="header"]
+|=========================================================
+|Options | Mandatory | Values | Default | Description
+
+|id| yes | _string_ | - | Globally unique identifier. Used by data logger implementations. The OpenMUC framework automatically generates an id if none is provided.
+
+|description| no | _string_ | - | Description of the channel.
+
+|channelAddress| yes | _string_ | - | The channelAddress is driver specific and contains the necessary parameters for the driver to access.
+
+|valueType| no | DOUBLE  FLOAT  LONG  INTEGER  SHORT  BYTE  BOOLEAN  BYTE_ARRAY STRING| DOUBLE | Data type of the channel. Used on data logger. Driver implementation do NOT receive this settings!
+|valueType Attribute: _length_| no | _integer_ | 10 | The attribute _length_ is only used if valueType is BYTE_ARRAY or STRING. Determines the maximum length of the byte array or string.
+
+|scalingFactor| no | _double_ | 1 | Is used to scale a value read by a driver or set by an application. The value read by an driver is multiplied with the scalingFactor and a value set by an application is divided by the scalingFactor. Possible values are e.g.: 1.0 4.94147E-9 -2.4
+
+|valueOffset| no | _double_ | 0 | Is used to offset a value read by a driver or set by an application. The offset is added to a value read by a driver and subtracted from a value set by an application.
+
+|unit| no | _string_ | - | Physical unit of this channel. For information only (info can be accessed by an app or driver)
+
+|loggingInterval| no | time* | - | Time difference until this channel is logged again. -1 or omitting loggingInterval disables logging.
+
+|loggingTimeOffset| no | time* | 0 |
+
+|listening| no | _boolean_ | false | Determines if this channel shall passively listen for incoming value changes from the driver.
+
+|samplingInterval| no | time* | - | Time interval between two attempts to read this channel. -1 or omitting samlingOffset disables sampling on this channel.
+
+|samplingTimeOffset| no | time* | 0 |
+
+|samplingGroup| no | _string_ | - | For grouping channels. All channels with the same samplingGroup and same samplingInterval are in one group. The purpous of samplingGroups is to improve the drivers performance - if possible.
+
+|disabled| no | _boolean_ | false | If a channel is disabled, all sampling and logging actions of this channel are stopped.
+|=========================================================
+*$$*$$time: integer with suffix (ms, s, m, h) like: 300ms, 2s.*
+
+NOTE: *if you don't use a suffix, then ms is automatically used*
+
 
 The available driver settings, device settings and channel settings
-can be found in the
+can also be found in the
 link:https://www.openmuc.org/openmuc/javadoc/[Javadoc] of
 DriverConfig.java, DeviceConfig.java and ChannelConfig.java
 respectively.
@@ -479,7 +656,7 @@ evaluated.
 This configuration only affects reading of already logged
 values. Channels are still logged by all available loggers.
 
-=== Sampling, Listening and Logging 
+=== Sampling, Listening and Logging
 
 * *sampling* is when the data manager frequently asks a driver to
    retrieve a channel value.
@@ -499,8 +676,8 @@ three settings.
 ----
 <channel>
 	<id>channel1</id>
-	<channelAddress>dummy/channel/address/1</channelAddress>        
-	<samplingInterval>4s</samplingInterval>     
+	<channelAddress>dummy/channel/address/1</channelAddress>
+	<samplingInterval>4s</samplingInterval>
 </channel>
 ----
 
@@ -513,9 +690,9 @@ driver.
 ----
 <channel>
 	<id>channel2</id>
-	<channelAddress>dummy/channel/address/2</channelAddress>        
-	<samplingInterval>4s</samplingInterval>   
-	<loggingInterval>8s</loggingInterval>  
+	<channelAddress>dummy/channel/address/2</channelAddress>
+	<samplingInterval>4s</samplingInterval>
+	<loggingInterval>8s</loggingInterval>
 </channel>
 ----
 
@@ -531,8 +708,8 @@ need to be the same.
 ----
 <channel>
 	<id>channel3</id>
-	<channelAddress>dummy/channel/address/3</channelAddress>        
-	<listening>true</listening>    
+	<channelAddress>dummy/channel/address/3</channelAddress>
+	<listening>true</listening>
 </channel>
 ----
 In example 3 listening instead of sampling is used. This means that the driver reports a new channel value to the data manager when the value has changed for example.
@@ -542,27 +719,27 @@ In example 3 listening instead of sampling is used. This means that the driver r
 ----
  <channel>
 	<id>channel4</id>
-	<channelAddress>dummy/channel/address/4</channelAddress>        
-	<listening>true</listening>   
-	<loggingInterval>8s</loggingInterval>   
-</channel>   
+	<channelAddress>dummy/channel/address/4</channelAddress>
+	<listening>true</listening>
+	<loggingInterval>8s</loggingInterval>
+</channel>
 ----
 Example 4 extends example 3 by an additional logging.
 
 IMPORTANT: When listening is true and additional a sampling interval is defined then the sampling is ignored.
-            
+
 
 
 include::sections/drivers.txt[]
 
 
 
-        
-    
+
+
 [[anchor-web-ui]]
 == The WebUI
 
-=== Plugins 
+=== Plugins
 
 Plotter::
 
@@ -570,8 +747,8 @@ Plugin which provides plotter for visualisation of current and historical data
 
 Channel Access Tool::
 
-Plugin to show current values of selected channels. Provides possibility to set values. 
- 
+Plugin to show current values of selected channels. Provides possibility to set values.
+
 Channel Configurator::
 
 Plugin for channel configuration e.g. channel name, sampling interval, logging interval
@@ -582,7 +759,7 @@ Plugin which allows to embed media files into OpenMUC's WebUI
 
 User Configurator::
 
-Plugin for user configuration 
+Plugin for user configuration
 
 === HTTPS
 
@@ -646,7 +823,7 @@ channel objects encoded in JSON using this structure:
 		"record" : channel1_record /*current record. see Record JSON*/
 	},
 	{
-		"id" : channel2_id,  
+		"id" : channel2_id,
 		"record" : channel2_record
 	}
 	...
@@ -661,8 +838,78 @@ If HTTPS is used to access the REST server then HTTP basic
 authentication is required. The login credentials are the same as the
 one used to log into the web interface of the OpenMUC Framework.
 
+[[id_modbus_service]]
+== Modbus Server
+The modus service allows you to access to a OpenMUC channel by ModbusTCP protocol.
+For accessing a channel through Modbus the channel has to be mapped with
+_serverMapping_ and the Modbus Server bundle has to copied in the bundle folder.
 
+ServerMapping ID: _modbus_
 
+.serverMapping
+
+[width="100%",cols="1,^v,^v,^v,^v,^v,^v,^v",options="header"]
+|=========================================================
+| Primary Table | BOOLEAN |	SHORT	| INT |	FLOAT	| DOUBLE | LONG | BYTEARRAY[n]
+
+| INPUT_REGISTER | x | x | x | x | x | x | -
+| HOLDING_REGISTERS | x | x | x | x | x | x | -
+|=========================================================
+DISCRETE_INPUTS and COIL are not supported yet.
+
+.Server Settings
+Server settings are done in the _system.properties_.
+
+If you run ModbusTCP Server without root-privileges you have to allow Felix to
+bind Port 502 with setcap.
+
+.Console e.g. bash
+----
+setcap 'cap_net_bind_service=+ep' /path/to/program
+----
+
+=== Example ===
+.channels.xml
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+
+  <driver id="virtual">
+    <device id="sample_device">
+
+      <channel id="sample_channel_1">
+        <serverMapping id="modbus">HOLDING_REGISTERS:1000:INTEGER</serverMapping>
+        <valueType>INTEGER</valueType>
+      </channel>
+
+      <channel id="sample_channel_2">
+        <serverMapping id="modbus">HOLDING_REGISTERS:1002:BOOLEAN</serverMapping>
+        <valueType>BOOLEAN</valueType>
+      </channel>
+
+      <channel id="sample_channel_3">
+        <serverMapping id="modbus">INPUT_REGISTERS:1000:DOUBLE</serverMapping>
+      </channel>
+
+      <channel id="sample_channel_4">
+        <serverMapping id="modbus">INPUT_REGISTERS:1004:LONG</serverMapping>
+        <valueType>LONG</valueType>
+      </channel>
+
+    </device>
+  </driver>
+
+</configuration>
+----
+
+.system.properties
+----
+org.openmuc.framework.server.modbus.address=127.0.0.1
+org.openmuc.framework.server.modbus.port=5502
+org.openmuc.framework.server.modbus.unitId=1
+org.openmuc.framework.server.modbus.master=false
+----
 
 == Authors
 

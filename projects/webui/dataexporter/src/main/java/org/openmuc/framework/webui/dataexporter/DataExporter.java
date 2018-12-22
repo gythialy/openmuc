@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,19 +20,11 @@
  */
 package org.openmuc.framework.webui.dataexporter;
 
-import java.util.Hashtable;
-
 import org.openmuc.framework.webui.spi.WebUiPluginService;
-import org.osgi.framework.Bundle;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
 
-public final class DataExporter implements WebUiPluginService {
-
-    private Bundle bundle;
-
-    protected void activate(ComponentContext context) {
-        bundle = context.getBundleContext().getBundle();
-    }
+@Component(service = WebUiPluginService.class)
+public final class DataExporter extends WebUiPluginService {
 
     @Override
     public String getAlias() {
@@ -42,23 +34,6 @@ public final class DataExporter implements WebUiPluginService {
     @Override
     public String getName() {
         return "Data Exporter";
-    }
-
-    @Override
-    public Hashtable<String, String> getResources() {
-        Hashtable<String, String> resources = new Hashtable<>();
-
-        resources.put("html", "html");
-        resources.put("css", "css");
-        resources.put("js", "js");
-        resources.put("images", "images");
-
-        return resources;
-    }
-
-    @Override
-    public Bundle getContextBundle() {
-        return bundle;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,31 +23,31 @@ package org.openmuc.framework.driver.ehz.iec62056_21;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
+import org.openmuc.jrxtx.DataBits;
+import org.openmuc.jrxtx.Parity;
+import org.openmuc.jrxtx.SerialPort;
+import org.openmuc.jrxtx.SerialPortBuilder;
+import org.openmuc.jrxtx.StopBits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.UnsupportedCommOperationException;
 
 public class IecReceiver {
 
     private static Logger logger = LoggerFactory.getLogger(IecReceiver.class);
-    // public final static int PROTOCOL_NORMAL = 0;
-    // public final static int PROTOCOL_SECONDARY = 1;
-    // public final static int PROTOCOL_HDLC = 2;
+    // public static final int PROTOCOL_NORMAL = 0;
+    // public static final int PROTOCOL_SECONDARY = 1;
+    // public static final int PROTOCOL_HDLC = 2;
     //
-    // public final static int MODE_DATA_READOUT = 0;
-    // public final static int MODE_PROGRAMMING = 1;
-    // public final static int MODE_BINARY_HDLC = 2;,
+    // public static final int MODE_DATA_READOUT = 0;
+    // public static final int MODE_PROGRAMMING = 1;
+    // public static final int MODE_BINARY_HDLC = 2;,
 
-    private CommPortIdentifier portId;
     private SerialPort serialPort;
     private final byte[] msgBuffer = new byte[10000];
     private final byte[] inputBuffer = new byte[2000];
-    private DataInputStream inStream;
+    private final DataInputStream inStream;
 
     private class Timeout extends Thread {
         private final long time;
@@ -73,28 +73,23 @@ public class IecReceiver {
         }
     }
 
-    public IecReceiver(String iface) throws Exception {
+    public IecReceiver(String iface) throws IOException {
+        this.serialPort = SerialPortBuilder.newBuilder(iface)
+                .setBaudRate(9600)
+                .setDataBits(DataBits.DATABITS_7)
+                .setStopBits(StopBits.STOPBITS_1)
+                .setParity(Parity.EVEN)
+                .build();
+
+        inStream = new DataInputStream(serialPort.getInputStream());
+
+        if (inStream.available() > 0) {
+            inStream.skip(inStream.available());
+        }
         try {
-            portId = CommPortIdentifier.getPortIdentifier(iface);
-            serialPort = (SerialPort) portId.open("ehz_connector", 2000);
-
-            serialPort.setSerialPortParams(9600, SerialPort.DATABITS_7, SerialPort.STOPBITS_1, SerialPort.PARITY_EVEN);
-
-            inStream = new DataInputStream(serialPort.getInputStream());
-
-            if (inStream.available() > 0) {
-                inStream.read(inputBuffer);
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
-        } catch (PortInUseException e) {
-            throw new Exception("Port " + iface + " in use!");
-        } catch (UnsupportedCommOperationException e) {
-            throw new Exception("Error setting communication parameters!");
-        } catch (IOException e) {
-            throw new Exception("Cannot catch output stream!");
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
     }
@@ -114,7 +109,7 @@ public class IecReceiver {
 
                 for (int i = 0; i < read; i++) {
                     byte input = inputBuffer[i];
-                    if (input == '/' && !start) {
+                    if (!start && input == '/') {
                         start = true;
                         bufferIndex = 0;
                     }
@@ -132,11 +127,12 @@ public class IecReceiver {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         } while (!time.isEnd());
 
         if (time.isEnd()) {
-            throw new IOException("Timeout");
+            throw new InterruptedIOException("Timeout");
         }
 
         byte[] frame = new byte[bufferIndex];
@@ -150,16 +146,20 @@ public class IecReceiver {
 
     public void changeBaudrate(int baudrate) {
         try {
-            logger.debug("Change baudrate to: " + baudrate);
-            serialPort.setSerialPortParams(baudrate, SerialPort.DATABITS_7, SerialPort.STOPBITS_1,
-                    SerialPort.PARITY_EVEN);
-        } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug("Change baudrate to: {}.", baudrate);
+
+            this.serialPort.setBaudRate(baudrate);
+        } catch (IOException e) {
+            logger.warn("Failed to change the baud rate.", e);
         }
     }
 
     public void close() {
-        serialPort.close();
+        try {
+            serialPort.close();
+        } catch (IOException e) {
+            logger.warn("Failed to close the serial port properly.", e);
+        }
         serialPort = null;
     }
 

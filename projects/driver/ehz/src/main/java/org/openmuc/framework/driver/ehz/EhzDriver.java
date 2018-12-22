@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,7 +23,6 @@ package org.openmuc.framework.driver.ehz;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DeviceScanInfo;
@@ -34,29 +33,32 @@ import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
+import org.openmuc.jrxtx.SerialPortBuilder;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gnu.io.CommPortIdentifier;
-
 @Component
 public class EhzDriver implements DriverService {
+
+    public static final String ID = "ehz";
 
     private static Logger logger = LoggerFactory.getLogger(EhzDriver.class);
 
     private static final String ADDR_IEC = "iec";
     private static final String ADDR_SML = "sml";
 
-    private final static DriverInfo info = new DriverInfo("ehz", // id
+    private boolean interruptScan = false;
+
+    private static final DriverInfo info = new DriverInfo(ID,
             // description
             "Driver for IEC 62056-21 and SML.",
             // device address
-            "N.A.",
+            "iec://<serial_device> or sml://<serial_device> e.g.: sml:///dev/ttyUSB0 or sml://COM3",
             // parameters
             "N.A.",
             // channel address
-            "N.A.",
+            "e.g.: 0100010800FF",
             // device scan settings
             "N.A.");
 
@@ -69,68 +71,105 @@ public class EhzDriver implements DriverService {
     public void scanForDevices(String settings, DriverDeviceScanListener listener)
             throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
 
-        Enumeration<?> ports = CommPortIdentifier.getPortIdentifiers();
-        while (ports.hasMoreElements()) {
-            CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
-            String serialPort = port.getName();
-            logger.trace("searching for device at " + serialPort);
-            URI deviceAddress = null;
-            GeneralConnection connection = null;
+        String[] serialPortNames = SerialPortBuilder.getSerialPortNames();
+
+        double i = 0;
+        int progress = 0;
+        int numberOfPorts = serialPortNames.length;
+        interruptScan = false;
+
+        listener.scanProgressUpdate(progress);
+
+        for (String spName : serialPortNames) {
+            logger.trace("Searching for device at {}", spName);
+            URI deviceAddress;
+            try {
+                deviceAddress = checkForIEC(spName);
+            } catch (ConnectionException | URISyntaxException e) {
+                logger.trace("{} is no IEC 62056-21 device", spName);
+                continue;
+            }
+            addDevice(listener, spName, deviceAddress);
+
+            if (interruptScan) {
+                return;
+            }
+
             if (deviceAddress == null) {
-                try {
-                    connection = new IecConnection(serialPort, 2000);
-                    if (connection.isWorking()) {
-                        logger.info("found iec device at " + serialPort);
-                        deviceAddress = new URI(ADDR_IEC + "://" + serialPort);
-                    }
-                    connection.close();
-                } catch (Exception e) {
-                    logger.trace(serialPort + " is no iec device");
-                }
+                updateProgress(listener, i + 0.5, numberOfPorts);
+                deviceAddress = checkForSML(spName, deviceAddress);
             }
-            if (deviceAddress == null) {
-                try {
-                    connection = new SmlConnection(serialPort);
-                    if (connection.isWorking()) {
-                        logger.info("found sml device at " + serialPort);
-                        deviceAddress = new URI(ADDR_SML + "://" + serialPort);
-                    }
-                    connection.close();
-                } catch (Exception e) {
-                    logger.trace(serialPort + " is no sml device");
-                }
+            addDevice(listener, spName, deviceAddress);
+
+            if (interruptScan) {
+                return;
             }
-            if (deviceAddress != null) {
-                listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", ""));
-            }
-            else {
-                logger.info("no ehz device found at " + serialPort);
-            }
+            updateProgress(listener, ++i, numberOfPorts);
         }
+    }
+
+    private void updateProgress(DriverDeviceScanListener listener, double i, int numberOfPorts) {
+        int progress = (int) (i * 100) / numberOfPorts;
+        listener.scanProgressUpdate(progress);
+    }
+
+    private void addDevice(DriverDeviceScanListener listener, String spName, URI deviceAddress) {
+        if (deviceAddress != null) {
+            listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), "", ""));
+        }
+        else {
+            logger.info("No ehz device found at {}", spName);
+        }
+    }
+
+    private URI checkForSML(String spName, URI deviceAddress) {
+        GeneralConnection connection;
+        try {
+            connection = new SmlConnection(spName);
+            if (connection.works()) {
+                logger.info("Found sml device at {}", spName);
+                deviceAddress = new URI(ADDR_SML + "://" + spName);
+            }
+            connection.disconnect();
+        } catch (ConnectionException | URISyntaxException e) {
+            logger.trace("{} is no SML device", spName);
+        }
+        return deviceAddress;
+    }
+
+    private URI checkForIEC(String spName) throws ConnectionException, URISyntaxException {
+        URI deviceAddress = null;
+        GeneralConnection connection = new IecConnection(spName, 2000);
+        if (connection.works()) {
+            logger.info("Found iec device at {}", spName);
+            deviceAddress = new URI(ADDR_IEC + "://" + spName);
+        }
+        connection.disconnect();
+
+        return deviceAddress;
     }
 
     @Override
     public void interruptDeviceScan() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-
+        interruptScan = true;
     }
 
     @Override
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
-        logger.trace("trying to connect to " + deviceAddress);
+        logger.trace("Trying to connect to {}", deviceAddress);
         try {
             URI device = new URI(deviceAddress);
 
             if (device.getScheme().equals(ADDR_IEC)) {
-                logger.trace("connecting to iec device");
-                return new IecConnection(device.getPath(), GeneralConnection.timeout);
+                logger.trace("Connecting to iec device");
+                return new IecConnection(device.getPath(), GeneralConnection.TIMEOUT);
             }
             else if (device.getScheme().equals(ADDR_SML)) {
-                logger.trace("connecting to sml device");
+                logger.trace("Connecting to sml device");
                 return new SmlConnection(device.getPath());
             }
-            throw new ConnectionException("unrecognized address scheme " + device.getScheme());
+            throw new ConnectionException("Unrecognized address scheme " + device.getScheme());
         } catch (URISyntaxException e) {
             throw new ConnectionException(e);
         }

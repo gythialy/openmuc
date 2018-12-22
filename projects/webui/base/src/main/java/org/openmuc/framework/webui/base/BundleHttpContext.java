@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,15 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BundleHttpContext implements HttpContext {
 
     Bundle contextBundle;
     AuthenticationService authService;
-
-    private final static Logger logger = LoggerFactory.getLogger(BundleHttpContext.class);
 
     public BundleHttpContext(Bundle contextBundle, AuthenticationService authService) {
         this.contextBundle = contextBundle;
@@ -48,17 +44,6 @@ public class BundleHttpContext implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // if (!request.getScheme().equals("https")) {
-        // response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        // return false;
-        // }
-
-        // if (!authenticated(request)) {
-        // response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
-        // response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        // return false;
-        // }
-
         return true;
     }
 

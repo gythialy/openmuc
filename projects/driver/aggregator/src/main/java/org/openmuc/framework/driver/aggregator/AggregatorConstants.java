@@ -18,4 +18,9 @@ public class AggregatorConstants {
     public static final String AGGREGATION_TYPE_DIFF = "DIFF";
     public static final String AGGREGATION_TYPE_PULS_ENERGY = "PULS_ENERGY";
 
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private AggregatorConstants() {
+    }
 }

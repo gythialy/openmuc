@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,16 +28,21 @@ import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.ShortValue;
 import org.openmuc.framework.data.Value;
+import org.openmuc.framework.driver.modbus.util.DatatypeConversion;
+import org.openmuc.framework.driver.modbus.util.DatatypeConversion.EndianInput;
 
-import net.wimpi.modbus.procimg.InputRegister;
-import net.wimpi.modbus.procimg.Register;
-import net.wimpi.modbus.procimg.SimpleRegister;
-import net.wimpi.modbus.util.BitVector;
-import net.wimpi.modbus.util.ModbusUtil;
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
+import com.ghgande.j2mod.modbus.util.BitVector;
+import com.ghgande.j2mod.modbus.util.ModbusUtil;
 
 public class ModbusDriverUtil {
 
-    public Value getBitVectorsValue(BitVector bitVector) {
+    private ModbusDriverUtil() {
+    }
+
+    public static Value getBitVectorsValue(BitVector bitVector) {
 
         Value readValue;
         if (bitVector.size() == 1) {
@@ -50,7 +55,7 @@ public class ModbusDriverUtil {
         return readValue;
     }
 
-    public BitVector getBitVectorFromByteArray(Value value) {
+    public static BitVector getBitVectorFromByteArray(Value value) {
         BitVector bv = new BitVector(value.asByteArray().length * 8);
         bv.setBytes(value.asByteArray());
         return bv;
@@ -65,16 +70,50 @@ public class ModbusDriverUtil {
      *            Edatatype
      * @return the corresponding Value Object
      */
-    public Value getRegistersValue(InputRegister[] registers, EDatatype datatype) {
-        Value registerValue = null;
+
+    public static Value getRegistersValue(InputRegister[] registers, EDatatype datatype) {
         byte[] registerAsByteArray = inputRegisterToByteArray(registers);
+        return getValueFromByteArray(registerAsByteArray, datatype);
+    }
+
+    public static Value getValueFromByteArray(byte[] registerAsByteArray, EDatatype datatype) {
+
+        Value registerValue = null;
 
         switch (datatype) {
+        // case INT8:
+        // int int8 = DatatypeConversion.bytes_To_SignedInt8(registerAsByteArray);
+        // registerValue = new IntValue(int8);
+        // break;
         case SHORT:
+        case INT16:
             registerValue = new ShortValue(ModbusUtil.registerToShort(registerAsByteArray));
             break;
-        case INT:
+        case INT32:
             registerValue = new IntValue(ModbusUtil.registersToInt(registerAsByteArray));
+
+            break;
+        // case INT64:
+        // registerValue = new LongValue(ModbusUtil.registersToLong(registerAsByteArray));
+        // break;
+
+        // case UINT8:
+        // // TODO might need both: big/little endian support in settings
+        // int uint8 = DatatypeConversion.bytes_To_UnsignedInt8(registerAsByteArray, 0);
+        // registerValue = new IntValue(uint8);
+        // break;
+        case UINT16:
+            // TODO might need both: big/little endian support in settings
+            // int uint16 = DatatypeConversion.bytes_To_UnsignedInt16(registerAsByteArray,
+            // EndianInput.BYTES_ARE_BIG_ENDIAN);
+            // registerValue = new IntValue(uint16);
+            registerValue = new IntValue(ModbusUtil.registerToUnsignedShort(registerAsByteArray));
+            break;
+        case UINT32:
+            // TODO might need both: big/little endian support in settings
+            long uint32 = DatatypeConversion.bytes_To_UnsignedInt32(registerAsByteArray,
+                    EndianInput.BYTES_ARE_BIG_ENDIAN);
+            registerValue = new LongValue(uint32);
             break;
         case FLOAT:
             registerValue = new FloatValue(ModbusUtil.registersToFloat(registerAsByteArray));
@@ -88,29 +127,45 @@ public class ModbusDriverUtil {
         case BYTEARRAY:
             registerValue = new ByteArrayValue(registerAsByteArray);
             break;
-        case BYTE_HIGH:
-            registerValue = new IntValue(registerAsByteArray[1] & 0xFF);
+        case BYTEARRAYLONG:
+            registerValue = new LongValue(
+                    DatatypeConversion.bytes_To_SignedInt64(registerAsByteArray, EndianInput.BYTES_ARE_LITTLE_ENDIAN));
             break;
-        case BYTE_LOW:
-            registerValue = new IntValue(registerAsByteArray[0] & 0xFF);
-            break;
+        // case BYTE_HIGH:
+        // registerValue = new IntValue(registerAsByteArray[1] & 0xFF);
+        // break;
+        // case BYTE_LOW:
+        // registerValue = new IntValue(registerAsByteArray[0] & 0xFF);
+        // break;
         default:
             throw new RuntimeException("Datatype " + datatype.toString() + " not supported yet");
         }
+
         return registerValue;
     }
 
-    public Register[] valueToRegisters(Value value, EDatatype datatype) {
+    public static Register[] valueToRegisters(Value value, EDatatype datatype) {
 
         Register[] registers;
 
         switch (datatype) {
 
         case SHORT:
+        case INT16:
             registers = byteArrayToRegister(ModbusUtil.shortToRegister(value.asShort()));
             break;
-        case INT:
+        case INT32:
             registers = byteArrayToRegister(ModbusUtil.intToRegisters(value.asInt()));
+            break;
+        case UINT16:
+            byte[] registerBytesUint16 = DatatypeConversion.unsingedInt16_To_Bytes(value.asInt(),
+                    DatatypeConversion.EndianOutput.BYTES_AS_BIG_ENDIAN);
+            registers = byteArrayToRegister(registerBytesUint16);
+            break;
+        case UINT32:
+            byte[] registerBytesUint32 = DatatypeConversion.unsingedInt32_To_Bytes(value.asLong(),
+                    DatatypeConversion.EndianOutput.BYTES_AS_BIG_ENDIAN);
+            registers = byteArrayToRegister(registerBytesUint32);
             break;
         case DOUBLE:
             registers = byteArrayToRegister(ModbusUtil.doubleToRegisters(value.asDouble()));
@@ -124,8 +179,8 @@ public class ModbusDriverUtil {
         case BYTEARRAY:
             registers = byteArrayToRegister(value.asByteArray());
             break;
-        case BYTE_HIGH:
-        case BYTE_LOW:
+        // case BYTE_HIGH:
+        // case BYTE_LOW:
         default:
             throw new RuntimeException("Datatype " + datatype.toString() + " not supported yet");
         }
@@ -140,18 +195,19 @@ public class ModbusDriverUtil {
      *            inputRegister array
      * @return the InputRegister[] as byte[]
      */
-    private byte[] inputRegisterToByteArray(InputRegister[] inputRegister) {
+    private static byte[] inputRegisterToByteArray(InputRegister[] inputRegister) {
         byte[] registerAsBytes = new byte[inputRegister.length * 2]; // one register = 2 bytes
+        byte inputRegisterByteLength = 2;
         for (int i = 0; i < inputRegister.length; i++) {
-            System.arraycopy(inputRegister[i].toBytes(), 0, registerAsBytes, i * inputRegister[0].toBytes().length,
-                    inputRegister[i].toBytes().length);
+            System.arraycopy(inputRegister[i].toBytes(), 0, registerAsBytes, i * inputRegisterByteLength,
+                    inputRegisterByteLength);
         }
         return registerAsBytes;
     }
 
     // TODO check byte order e.g. is an Integer!
     // TODO only works for even byteArray.length!
-    private Register[] byteArrayToRegister(byte[] byteArray) throws RuntimeException {
+    private static Register[] byteArrayToRegister(byte[] byteArray) throws RuntimeException {
 
         // TODO byteArray might has a odd number of bytes...
         SimpleRegister[] register;
@@ -166,7 +222,7 @@ public class ModbusDriverUtil {
             }
         }
         else {
-            throw new RuntimeException("conversion vom byteArray to Register is not working for odd number of bytes");
+            throw new RuntimeException("conversion from byteArray to Register is not working for odd number of bytes");
         }
         return register;
     }

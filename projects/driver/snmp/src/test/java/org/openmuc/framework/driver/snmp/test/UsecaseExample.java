@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -42,7 +42,7 @@ public class UsecaseExample {
 
             SnmpDriver snmpDriver = new SnmpDriver();
             // SNMPVersion=V2c:COMMUNITY=root:SECURITYNAME=root:AUTHENTICATIONPASSPHRASE=adminadmin:PRIVACYPASSPHRASE=adminadmin
-            String settings = SnmpDriverSettingVariableNames.SNMPVersion + "=" + SNMPVersion.V2c + ":"
+            String settings = SnmpDriverSettingVariableNames.SNMP_VERSION + "=" + SNMPVersion.V2c + ":"
                     + SnmpDriverSettingVariableNames.USERNAME + "=root:" + SnmpDriverSettingVariableNames.SECURITYNAME
                     + "=root:" + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=adminadmin:"
                     + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=adminadmin";

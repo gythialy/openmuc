@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 public final class StartListeningTask extends DeviceTask implements ConnectedTask {
 
-    private final static Logger logger = LoggerFactory.getLogger(StartListeningTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(StartListeningTask.class);
 
     List<ChannelRecordContainerImpl> selectedChannels;
 
@@ -49,19 +49,19 @@ public final class StartListeningTask extends DeviceTask implements ConnectedTas
         try {
             device.connection.startListening((List<ChannelRecordContainer>) ((List<?>) selectedChannels), dataManager);
         } catch (UnsupportedOperationException e) {
-            for (ChannelRecordContainer channelRecordContainer : selectedChannels) {
-                ((ChannelRecordContainerImpl) channelRecordContainer).channel.setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
+            for (ChannelRecordContainerImpl chRecContainer : selectedChannels) {
+                chRecContainer.getChannel().setFlag(Flag.ACCESS_METHOD_NOT_SUPPORTED);
             }
         } catch (ConnectionException e) {
             // Connection to device lost. Signal to device instance and end task
             // without notifying DataManager
-            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.id,
+            logger.warn("Connection to device {} lost because {}. Trying to reconnect...", device.deviceConfig.getId(),
                     e.getMessage());
             device.disconnectedSignal();
             return;
         } catch (Exception e) {
-            logger.error("unexpected exception by startListeningFor funtion of driver: "
-                    + device.deviceConfig.driverParent.id, e);
+            logger.error("unexpected exception by startListeningFor function of driver: "
+                    + device.deviceConfig.driverParent.getId(), e);
             // TODO set flag?
         }
 

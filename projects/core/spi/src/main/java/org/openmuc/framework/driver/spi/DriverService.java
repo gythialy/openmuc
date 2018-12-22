@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -56,7 +56,7 @@ public interface DriverService {
      * 
      * @return the driver information
      */
-    public DriverInfo getInfo();
+    DriverInfo getInfo();
 
     /**
      * Scans for available devices. Once a device is found it is reported as soon as possible to the DeviceScanListener
@@ -78,7 +78,7 @@ public interface DriverService {
      * @throws ScanInterruptedException
      *             if the scan was interrupted through a call of <code>interruptDeviceScan()</code> before it was done.
      */
-    public void scanForDevices(String settings, DriverDeviceScanListener listener)
+    void scanForDevices(String settings, DriverDeviceScanListener listener)
             throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException;
 
     /**
@@ -91,7 +91,7 @@ public interface DriverService {
      * @throws UnsupportedOperationException
      *             if the method is not implemented by the driver
      */
-    public void interruptDeviceScan() throws UnsupportedOperationException;
+    void interruptDeviceScan() throws UnsupportedOperationException;
 
     /**
      * Attempts to connect to the given communication device using the given settings. The resulting connection shall be
@@ -114,7 +114,6 @@ public interface DriverService {
      * @throws ConnectionException
      *             if the connection attempt fails.
      */
-    public Connection connect(String deviceAddress, String settings)
-            throws ArgumentSyntaxException, ConnectionException;
+    Connection connect(String deviceAddress, String settings) throws ArgumentSyntaxException, ConnectionException;
 
 }

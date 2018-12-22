@@ -1,21 +1,17 @@
 
+def projectName = "OpenMUC Driver - DLMS/COSEM"
+def projectDescription = "DLMS/COSEM driver for the OpenMUC framework."
+
 configurations.create('embed')
 
-def jdlmsversion = "0.9.1-SNAPSHOT"
-def jasn1version = "1.4"
-
-repositories {
-  flatDir {
-    dirs 'dependencies/jdlms', rootDir.getPath() + "/dependencies/jdlms"
-  }
-}
-
+def jdlmsversion = "1.5.3"
+def jasn1version = "1.9.0"
 
 dependencies {
   compile project(':openmuc-core-spi')
-  compile group: 'org.openmuc.jdlms', name: 'jdlms', version: jdlmsversion
+  compile group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
   
-  embed group: 'org.openmuc.jdlms', name: 'jdlms', version: jdlmsversion
+  embed group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
   embed group: 'org.openmuc', name: 'jasn1', version: jasn1version
 }
 
@@ -24,12 +20,23 @@ jar {
     name = "OpenMUC Driver - DLMS/COSEM"
     instruction 'Bundle-ClassPath', '.,lib/jdlms-' + jdlmsversion + '.jar, lib/jasn1-' + jasn1version + '.jar' 
     instruction 'Export-Package', ''
-    instruction 'Import-Package', '!org.openmuc.jdlms*,!org.openmuc.jasn1*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
+    instruction 'Import-Package', '!org.openmuc.jdlms*,!org.openmuc.jasn1*,gnu.io,javax.net;resolution:=optional,*' + jarDefaultImportPackageVersion
   }
 }
 
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

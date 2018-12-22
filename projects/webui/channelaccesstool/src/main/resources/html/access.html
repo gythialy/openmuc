@@ -10,27 +10,36 @@
 	      <tr>
 	        <th>{{'CHANNEL_ACCESS_TOOL_CHANNEL_ID' | translate}}</th>
 	        <th>{{'LATEST_RECORD' | translate}}</th>
-	        <th>{{'WRITE' | translate}}</th>
+	        <th><label for="value-input">{{'WRITE' | translate}}</label></th>
 	        <th>{{'DESCRIPTION' | translate}}</th>
 	      </tr>
 	    </thead>
-	    <tr ng-repeat="channel in device.channels">
+	    <tr ng-repeat="channel in channelsMapAsArray(device.channels)">
 	      <td>{{channel.id}}</td>
 	      <td>
 	        <div>
-	          <b>{{'VALUE' | translate}}:</b> {{channel.records.value | intArrayToHexArray}} <span> {{channel.data.unit}}</span>
+				<b>{{'VALUE' | translate}}:</b> {{channel.records.value | intArrayToHexArray}} <span> {{channel.data.unit}}</span>
 	        </div>
 	        <div>
-	          <b>{{'TIME' | translate}}:</b> {{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss a'}}
+				<b>{{'TIME' | translate}}:</b> {{channel.records.timestamp | date:'dd/MM/yyyy, HH:mm:ss a'}}
 	        </div>
 	        <div>
-	          <b>{{'FLAG' | translate}}:</b> {{channel.records.flag}}
+				<b>{{'FLAG' | translate}}:</b> {{channel.records.flag}}
 	        </div>
 	      </td>
 	      <td>
-	        <form class="form-inline" ng-submit="writeValue()">
-	          <input type="text" class="form-control" ng-model="channel.newValue" />
-	          <input type="submit" class="btn btn-default" value="{{'WRITE_VALUE' | translate}}" />
+	        <form class="form-inline">
+				<input id="value-input" type="text" class="form-control" ng-model="channel.newValue" />
+				<input type="submit"
+					   ng-click="setNewValue(channel, true)"
+					   class="btn btn-default" value="{{'WRITE_VALUE' | translate}}"
+					   data-title="{{'WRITE_VALUE_DESCRIPTION' | translate}}"
+					   bs-tooltip />
+				<input type="submit"
+					   ng-click="setNewValue(channel, false)"
+					   class="btn btn-default" value="{{'SET_RECORD' | translate}}"
+					   data-title="{{'SET_RECORD_DESCRIPTION' | translate}}"
+					   bs-tooltip />
 	        </form>
 	      </td>
 	      <td>{{device.data.description}}</td>

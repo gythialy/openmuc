@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,17 +27,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.webui.spi.WebUiPluginService;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Component
 public final class WebUiBase {
 
-    private final static Logger logger = LoggerFactory.getLogger(WebUiBase.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebUiBase.class);
 
     final Map<String, WebUiPluginService> pluginsByAlias = new ConcurrentHashMap<>();
-    private volatile HttpService httpService;
+
+    @Reference
+    private HttpService httpService;
+
+    @Reference
     private AuthenticationService authService;
 
     private volatile WebUiBaseServlet servlet;
@@ -85,14 +94,7 @@ public final class WebUiBase {
         httpService.unregister("/");
     }
 
-    protected void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
-    }
-
-    protected void unsetHttpService(HttpService httpService) {
-        this.httpService = null;
-    }
-
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void setWebUiPluginService(WebUiPluginService uiPlugin) {
 
         synchronized (pluginsByAlias) {
@@ -108,14 +110,6 @@ public final class WebUiBase {
         unregisterResources(uiPlugin);
         pluginsByAlias.remove(uiPlugin.getAlias());
         logger.info("WebUI plugin deregistered: " + uiPlugin.getName());
-    }
-
-    protected void setAuthenticationService(AuthenticationService authService) {
-        this.authService = authService;
-    }
-
-    protected void unsetAuthenticationService(AuthenticationService authService) {
-        this.authService = null;
     }
 
     private void registerResources(WebUiPluginService plugin) {

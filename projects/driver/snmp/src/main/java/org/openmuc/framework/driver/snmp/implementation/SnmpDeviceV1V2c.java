@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,6 +26,8 @@ import java.util.Vector;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.snmp.SnmpDriver.SnmpDriverSettingVariableNames;
 import org.openmuc.framework.driver.spi.ConnectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
@@ -42,12 +44,9 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-/**
- * 
- * @author Mehran Shakeri
- * 
- */
 public class SnmpDeviceV1V2c extends SnmpDevice {
+
+    private static final Logger logger = LoggerFactory.getLogger(SnmpDeviceV1V2c.class);
 
     private int snmpVersion;
 
@@ -148,10 +147,8 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
     }
 
     public String getSettings() {
-        String settings = SnmpDriverSettingVariableNames.SNMPVersion.toString() + "="
+        return SnmpDriverSettingVariableNames.SNMP_VERSION.toString() + "="
                 + getSnmpVersionFromSnmpConstantsValue(snmpVersion) + ":COMMUNITY=" + authenticationPassphrase;
-
-        return settings;
     }
 
     public Object getConnectionHandle() {
@@ -254,7 +251,7 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
             } // end of IP loop
 
         } catch (IOException e1) {
-            e1.printStackTrace();
+            logger.error("", e1);
         }
 
     }

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class DeviceAddress extends GenericSetting {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceAddress.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeviceAddress.class);
 
     protected int common_address = 1;
     protected InetAddress host_address = null;

@@ -12,8 +12,8 @@
     			dataType: 'json',
         		url: url,
         		headers: {
-        			'Authorization': RestServerAuthService.getAuthHash(),
-        		},
+        			'Authorization': RestServerAuthService.getAuthHash()
+        		}
             };
 
     		return $http(req).then(function(response){

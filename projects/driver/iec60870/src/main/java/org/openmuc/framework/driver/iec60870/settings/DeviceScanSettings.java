@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class DeviceScanSettings extends GenericSetting {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceScanSettings.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeviceScanSettings.class);
 
     protected InetAddress host_address = null;
     protected int port = 2404;

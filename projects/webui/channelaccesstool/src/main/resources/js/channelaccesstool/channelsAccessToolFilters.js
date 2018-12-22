@@ -3,17 +3,13 @@
 	var injectParams = [];
 		
 	var intArrayToHexArray = function() {
-	    return function(input) {
-	    	if ($.isArray(input)) {
-	    		var values = [];
-	    		$.each(input, function(i, value) {
-	    			values.push(value.toString(16).toUpperCase());
-	    		});
-	    		return values;
-	    	} else {
-	    		return input;
-	    	}
-	    };
+	    return (input) => {
+	    	if (!Array.isArray(input)) {
+				return input;
+			}
+
+			return '[' + input.map(v => Number(v).toString(16).toUpperCase()).join(', ') + ']'
+		};
 	};
 
 	intArrayToHexArray.$inject = injectParams;

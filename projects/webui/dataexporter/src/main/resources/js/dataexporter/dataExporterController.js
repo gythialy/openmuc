@@ -10,6 +10,7 @@
 		$scope.startDate = new Date();
 		$scope.startDate.setHours(0, 0, 0, 0);
 		$scope.endDate = new Date();
+		$scope.timeFormat = 1;
 		
 		$scope.disableExport = true;
 		
@@ -33,7 +34,32 @@
 				
 				/* extract all timestamps */
 				$.each(data, function(i, channels) {
-					timestamps = $.unique($.merge(timestamps, channels[0]));
+                    switch($scope.timeFormat) {
+                        case 1:
+                            timestamps = $.unique($.merge(timestamps, channels[0]));
+                            break;
+                        case 2:
+                            // TODO; Unix Timestamp
+                        case 3:
+                            // TODO: Human Readable Timestamp
+                            // var a = new Date(TIMESTAMP);
+                            // var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                            // var year = a.getFullYear();
+                            // var month = months[a.getMonth()];
+                            // var date = a.getDate();
+                            // var hour = a.getHours();
+                            // var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
+                            // var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();
+                            // var time = year + ' ' + month + ' ' + date + ' ' + hour + ':' + min + ':' + sec ;
+                            // timestamps = $.unique($.merge(timestamps, channels[0]));
+                            break;
+                        case 4:
+                            // TODO: Human Readable Timestamp + Unix Timestamp
+                            beak;
+                        default:
+                            timestamps = $.unique($.merge(timestamps, channels[0]));
+                    }
+					
 				});
 				
 				$.each(timestamps, function(i, timestamp) {
@@ -54,7 +80,20 @@
 		};
 		
 		$scope.getHeader = function() {
-			var header = ["Timestamp"];
+			switch($scope.timeFormat) {
+				case 1:
+				case 2:
+					var header = ["Timestamp"];
+					break;
+				case 3:
+					var header = ["Date"];
+					break;
+				case 4:
+					var header = ["Timestamp", "Date"];
+					beak;
+				default:
+					var header = ["Timestamp"];
+			}
 
 			$.each($scope.selectedChannels, function(i, channel) {
 				header.push(channel);

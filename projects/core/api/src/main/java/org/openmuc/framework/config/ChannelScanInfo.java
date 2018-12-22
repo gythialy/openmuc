@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -44,7 +44,7 @@ public class ChannelScanInfo {
 
     public ChannelScanInfo(String channelAddress, String description, ValueType valueType, Integer valueTypeLength,
             Boolean readable, Boolean writable, String metaData) {
-        if (channelAddress == null || channelAddress.equals("")) {
+        if (channelAddress == null || channelAddress.isEmpty()) {
             throw new IllegalArgumentException("Channel Address may not be empty.");
         }
         this.channelAddress = channelAddress;

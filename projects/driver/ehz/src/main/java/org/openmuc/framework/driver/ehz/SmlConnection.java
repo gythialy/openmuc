@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-17 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,184 +22,252 @@
 package org.openmuc.framework.driver.ehz;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.jrxtx.DataBits;
+import org.openmuc.jrxtx.FlowControl;
+import org.openmuc.jrxtx.Parity;
+import org.openmuc.jrxtx.SerialPort;
+import org.openmuc.jrxtx.SerialPortBuilder;
+import org.openmuc.jrxtx.StopBits;
 import org.openmuc.jsml.structures.ASNObject;
+import org.openmuc.jsml.structures.EMessageBody;
 import org.openmuc.jsml.structures.Integer16;
 import org.openmuc.jsml.structures.Integer32;
 import org.openmuc.jsml.structures.Integer64;
 import org.openmuc.jsml.structures.Integer8;
-import org.openmuc.jsml.structures.SML_File;
-import org.openmuc.jsml.structures.SML_GetListRes;
-import org.openmuc.jsml.structures.SML_ListEntry;
-import org.openmuc.jsml.structures.SML_Message;
-import org.openmuc.jsml.structures.SML_MessageBody;
+import org.openmuc.jsml.structures.OctetString;
+import org.openmuc.jsml.structures.SmlFile;
+import org.openmuc.jsml.structures.SmlListEntry;
+import org.openmuc.jsml.structures.SmlMessage;
 import org.openmuc.jsml.structures.Unsigned16;
 import org.openmuc.jsml.structures.Unsigned32;
 import org.openmuc.jsml.structures.Unsigned64;
 import org.openmuc.jsml.structures.Unsigned8;
-import org.openmuc.jsml.tl.SML_SerialReceiver;
+import org.openmuc.jsml.structures.responses.SmlGetListRes;
+import org.openmuc.jsml.transport.SerialReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
-
-/**
- * @author Frederic Robra
- * 
- */
 public class SmlConnection extends GeneralConnection {
 
-    private final SML_SerialReceiver receiver;
-    private String serverID;
+    private static Logger logger = LoggerFactory.getLogger(GeneralConnection.class);
 
-    public SmlConnection(String deviceAddress) throws ConnectionException {
-        name = "SML - " + deviceAddress + " - ";
-        receiver = new SML_SerialReceiver();
+    private final SerialReceiver receiver;
+    private final SerialPort serialPort;
+
+    // TODO serverId is never used..
+    private String serverId;
+
+    private final ExecutorService threadExecutor;
+
+    private ListenerTask listenerTask;
+
+    public SmlConnection(String serialPortName) throws ConnectionException {
         try {
-            receiver.setupComPort(deviceAddress);
+            this.serialPort = setupSerialPort(serialPortName);
+            this.receiver = new SerialReceiver(serialPort);
         } catch (IOException e) {
-            throw new ConnectionException();
-        } catch (PortInUseException e) {
-            throw new ConnectionException("Port in use");
-        } catch (UnsupportedCommOperationException e) {
-            throw new ConnectionException("Unsupported comm operation");
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmuc.framework.driver.ehz.Connection#close()
-     */
-    @Override
-    public void close() {
-        try {
-            receiver.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmuc.framework.driver.ehz.Connection#read(java.util.List, int)
-     */
-    @Override
-    public void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
-        logger.trace(name + "reading channels");
-        try {
-            long timestamp = System.currentTimeMillis();
-            SML_ListEntry[] list = getSML_ListEntries();
-
-            Map<String, Double> values = new LinkedHashMap<>();
-            for (SML_ListEntry entry : list) {
-                String address = getAddress(entry.getObjName().getOctetString());
-                double value = getValue(entry);
-                values.put(address, value);
-                logger.trace(name + address + " = " + value);
-            }
-
-            handleChannelRecordContainer(containers, values, timestamp);
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.error(name + "read failed");
-            close();
             throw new ConnectionException(e);
         }
+
+        this.threadExecutor = Executors.newSingleThreadExecutor();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmuc.framework.driver.ehz.Connection#listChannels(int)
-     */
     @Override
-    public List<ChannelScanInfo> listChannels(int timeout) {
+    public void disconnect() {
+        if (this.listenerTask != null) {
+            this.listenerTask.stopListening();
+        }
+        this.threadExecutor.shutdown();
+
+        try {
+            if (receiver != null) {
+                receiver.closeStream();
+            }
+            if (!serialPort.isClosed()) {
+                serialPort.close();
+            }
+        } catch (IOException e) {
+            logger.warn("Error, while closing serial port.", e);
+        }
+    }
+
+    @Override
+    public void startListening(final List<ChannelRecordContainer> containers, final RecordsReceivedListener listener)
+            throws ConnectionException {
+        logger.trace("starting scan");
+
+        this.listenerTask = new ListenerTask(containers, listener);
+        this.threadExecutor.execute(listenerTask);
+    }
+
+    private class ListenerTask implements Runnable {
+
+        private final List<ChannelRecordContainer> containers;
+        private final RecordsReceivedListener listener;
+        private boolean stopListening;
+
+        public ListenerTask(List<ChannelRecordContainer> containers, RecordsReceivedListener listener) {
+            this.containers = containers;
+            this.listener = listener;
+            this.stopListening = false;
+
+        }
+
+        @Override
+        public void run() {
+
+            while (!this.stopListening) {
+                try {
+                    long timestamp = System.currentTimeMillis();
+                    SmlListEntry[] smlListEntries = retrieveSmlListEntries();
+
+                    addEntriesToContainers(containers, timestamp, smlListEntries);
+                    listener.newRecords(containers);
+                } catch (InterruptedIOException e) {
+                } catch (IOException e) {
+                    listener.connectionInterrupted("ehz", SmlConnection.this);
+                }
+            }
+
+        }
+
+        public void stopListening() {
+            this.stopListening = true;
+        }
+
+    }
+
+    @Override
+    public void read(List<ChannelRecordContainer> containers, int timeout) throws ConnectionException {
+        logger.trace("reading channels");
+        final long timestamp = System.currentTimeMillis();
+        SmlListEntry[] list;
+        try {
+            list = retrieveSmlListEntries();
+        } catch (IOException e) {
+            logger.error("read failed", e);
+            disconnect();
+            throw new ConnectionException(e);
+        }
+
+        addEntriesToContainers(containers, timestamp, list);
+    }
+
+    private static void addEntriesToContainers(List<ChannelRecordContainer> containers, final long timestamp,
+            SmlListEntry[] smlEntries) {
+        Map<String, Value> values = new LinkedHashMap<>();
+        for (SmlListEntry entry : smlEntries) {
+            String address = convertBytesToHexString(entry.getObjName().getValue());
+            ValueContainer valueContainer = extractValueOf(entry);
+            values.put(address, valueContainer.value);
+
+            logger.trace("{} = {}", address, valueContainer.value);
+        }
+
+        GeneralConnection.handleChannelRecordContainer(containers, values, timestamp);
+    }
+
+    @Override
+    public List<ChannelScanInfo> scanForChannels(int timeout) {
         List<ChannelScanInfo> channelInfos = new LinkedList<>();
 
-        logger.debug(name + "scanning channels");
+        logger.debug("scanning channels");
         try {
-            SML_ListEntry[] list = getSML_ListEntries();
-            for (SML_ListEntry entry : list) {
-                String channelAddress = getAddress(entry.getObjName().getOctetString());
-                String description = "Current value: " + getValue(entry); // TODO entry.getUnit();
-                ValueType valueType = ValueType.DOUBLE;
-                Integer valueTypeLength = null;
-                Boolean readable = true;
-                Boolean writable = false;
-                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress, description, valueType,
-                        valueTypeLength, readable, writable);
+            SmlListEntry[] list = retrieveSmlListEntries();
+            for (SmlListEntry entry : list) {
+                ChannelScanInfo channelInfo = convertEntryToScanInfo(entry);
                 channelInfos.add(channelInfo);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            logger.error(name + "read failed");
+            logger.error("scan for channels failed", e);
         }
         return channelInfos;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmuc.framework.driver.ehz.Connection#isWorking()
-     */
+    private static ChannelScanInfo convertEntryToScanInfo(SmlListEntry entry) {
+        String channelAddress = convertBytesToHexString(entry.getObjName().getValue());
+        ValueContainer valueContainer = extractValueOf(entry);
+        Value value = valueContainer.value;
+        String description = MessageFormat.format("Current value: {0} {1}", value, entry.getUnit());
+        ValueType valueType = valueContainer.valueType;
+        Integer valueTypeLength = null;
+
+        if (value != null) {
+            if (valueType == ValueType.STRING) {
+                String stringValue = value.asString();
+                valueTypeLength = stringValue.length();
+            }
+            else if (valueType == ValueType.BYTE_ARRAY) {
+                byte[] byteValue = value.asByteArray();
+                valueTypeLength = byteValue.length;
+            }
+        }
+
+        boolean readable = true;
+        boolean writable = false;
+        return new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength, readable, writable);
+    }
+
     @Override
-    public boolean isWorking() {
+    public boolean works() {
         try {
-            getSML_ListEntries();
+            retrieveSmlListEntries();
             return true;
         } catch (IOException e) {
             return false;
         }
     }
 
-    private SML_ListEntry[] getSML_ListEntries() throws IOException {
-        SML_File smlFile = receiver.getSMLFile();
+    private synchronized SmlListEntry[] retrieveSmlListEntries() throws IOException {
+        SmlFile smlFile = receiver.getSMLFile();
 
-        List<SML_Message> messages = smlFile.getMessages();
+        List<SmlMessage> messages = smlFile.getMessages();
 
-        SML_ListEntry[] list = null;
+        for (SmlMessage message : messages) {
+            EMessageBody tag = message.getMessageBody().getTag();
 
-        for (SML_Message message : messages) {
-            int tag = message.getMessageBody().getTag().getVal();
-
-            if (tag == SML_MessageBody.GetListResponse) {
-                SML_GetListRes resp = (SML_GetListRes) message.getMessageBody().getChoice();
-
-                if (serverID == null) {
-                    serverID = "";
-                    for (Byte b : resp.getServerId().getOctetString()) {
-                        serverID += Integer.toString((b & 0xff) + 0x100, 16).substring(1);
-                    }
-                    serverID = serverID.toUpperCase();
-                }
-
-                list = resp.getValList().getValListEntry();
-                break;
+            if (tag != EMessageBody.GET_LIST_RESPONSE) {
+                continue;
             }
+
+            SmlGetListRes getListResult = (SmlGetListRes) message.getMessageBody().getChoice();
+
+            if (serverId == null) {
+                serverId = convertBytesToHexString(getListResult.getServerId().getValue());
+            }
+
+            return getListResult.getValList().getValListEntry();
         }
-        return list;
+
+        return null;
     }
 
-    private String getAddress(byte[] data) {
-        StringBuilder address = new StringBuilder(data.length * 2);
-        for (byte b : data) {
-            address.append(String.format("%x", b));
-        }
-        return address.toString();
+    private static String convertBytesToHexString(byte[] data) {
+        return DatatypeConverter.printHexBinary(data);
     }
 
-    // TODO return OpenMUC value
-    private double getValue(SML_ListEntry entry) {
+    private static ValueContainer extractValueOf(SmlListEntry entry) {
         double value = 0;
+        ValueType valueType = ValueType.DOUBLE;
 
         ASNObject obj = entry.getValue().getChoice();
         if (obj.getClass().equals(Integer64.class)) {
@@ -234,12 +302,39 @@ public class SmlConnection extends GeneralConnection {
             Unsigned8 val = (Unsigned8) obj;
             value = val.getVal();
         }
+        else if (obj.getClass().equals(OctetString.class)) {
+            OctetString val = (OctetString) obj;
+            return new ValueContainer(new StringValue(new String(val.getValue())), ValueType.STRING);
+        }
         else {
-            return Double.NaN;
+            return new ValueContainer(new DoubleValue(Double.NaN), valueType);
         }
 
         byte scaler = entry.getScaler().getVal();
-        return value * Math.pow(10, scaler);
+        double scaledValue = value * Math.pow(10, scaler);
+
+        return new ValueContainer(new DoubleValue(scaledValue), valueType);
+    }
+
+    private static SerialPort setupSerialPort(String serialPortName) throws IOException {
+        SerialPortBuilder serialPortBuilder = SerialPortBuilder.newBuilder(serialPortName);
+        serialPortBuilder.setBaudRate(9600)
+                .setDataBits(DataBits.DATABITS_8)
+                .setStopBits(StopBits.STOPBITS_1)
+                .setParity(Parity.NONE)
+                .setFlowControl(FlowControl.RTS_CTS);
+
+        return serialPortBuilder.build();
+    }
+
+    private static class ValueContainer {
+        private final Value value;
+        private final ValueType valueType;
+
+        public ValueContainer(Value value, ValueType valueType) {
+            this.value = value;
+            this.valueType = valueType;
+        }
     }
 
 }

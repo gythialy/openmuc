@@ -6,7 +6,10 @@ public class ChannelAddress {
 
     private final String sourceChannelId;
     private final String aggregationType;
-    private final double quality; // Range: 0.0 .. 1.0.
+    /*
+     * Range: [0, 1]
+     */
+    private final double quality;
     private final ChannelRecordContainer container;
 
     public ChannelAddress(ChannelRecordContainer container, String sourceChannelId, String aggregationType,

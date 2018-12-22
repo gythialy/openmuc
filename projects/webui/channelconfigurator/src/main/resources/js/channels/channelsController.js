@@ -13,41 +13,40 @@
         });
 
 		$scope.drivers = [];
-		
 		DriversService.getDrivers().then(function(drivers){
 			$scope.drivers = drivers;
 
-			$.each($scope.drivers, function(i, driver) {
-				DevicesService.getDevices(driver).then(function(devices){
-					$scope.drivers[i]['devices'] = devices;
-					
-					$.each(devices, function(j, device) {
-						ChannelsService.getChannels(device).then(function(channels){
-							$scope.drivers[i]['devices'][j]['channels'] = channels;
-						});
+			$scope.drivers.forEach((driver) => {
+				DevicesService.getDevices(driver).then((devices) => {
+					driver.devices = devices;
+
+					devices.forEach((device) => {
+						ChannelsService.getChannels(device).then((channels) => device.channels = channels);
 					});
-					
+
 				});
 			});
 		});
 
 		$scope.deleteChannel = function(channelId) {
-			if (confirm($scope.confirmMessage + " " + channelId + "?") == true) {
-				ChannelsService.destroy(channelId).then(function(data) {
-					$.each($scope.drivers, function(i, driver) {
-						$.each(driver['devices'], function(j, device) {
-							ChannelsService.getChannels(device).then(function(channels){
-								$scope.drivers[i]['devices'][j]['channels'] = channels;
-							});
+			if (!confirm($scope.confirmMessage + ' ' + channelId + '?')) {
+				return;
+			}
+
+			ChannelsService.destroy(channelId).then((data) => {
+				$scope.drivers.forEach((driver) => {
+					driver.devices.forEach((device) => {
+						ChannelsService.getChannels(device).then((channels) => {
+							device.channels = channels;
 						});
 					});
-
-					$alert({content: $scope.channelOKText, type: 'success'});
-					return $state.go('channelconfigurator.channels.index');
 				});
-			}
+
+				$alert({content: $scope.channelOKText, type: 'success'});
+				return $state.go('channelconfigurator.channels.index');
+			});
 		};
-		
+
 	};
 
 	ChannelsController.$inject = injectParams;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -77,17 +77,18 @@ public class AggregatorUtil {
      * @throws AggregationException
      *             on error
      */
-    public static Record getLastRecordOfList(List<Record> recordList) throws AggregationException {
-
+    public static Record findLastRecordIn(List<Record> recordList) throws AggregationException {
         if (recordList.isEmpty()) {
-            throw new AggregationException("Empty record list.");
+            throw new AggregationException("Record list is empty.");
         }
-        else if (recordList.size() == 1) {
-            // only one record in list which is automatically the last one.
-            return recordList.get(0);
-        }
-        else {
-            return recordList.get(recordList.size() - 1);
-        }
+
+        return recordList.get(recordList.size() - 1);
+    }
+
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private AggregatorUtil() {
+
     }
 }

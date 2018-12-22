@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,7 +30,6 @@ import org.openmuc.framework.config.DeviceConfig;
 import org.openmuc.framework.config.DriverConfig;
 import org.openmuc.framework.config.IdCollisionException;
 import org.openmuc.framework.config.ParseException;
-import org.openmuc.framework.config.RootConfig;
 import org.openmuc.framework.driver.spi.DriverService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,8 +69,8 @@ public final class DriverConfigImpl implements DriverConfig {
         if (rootConfigParent.driverConfigsById.containsKey(id)) {
             throw new IdCollisionException("Collision with the driver ID:" + id);
         }
-        rootConfigParent.driverConfigsById.put(id, rootConfigParent.driverConfigsById.remove(this.id));
-
+        this.rootConfigParent.driverConfigsById.remove(this.id);
+        this.rootConfigParent.driverConfigsById.put(id, this);
         this.id = id;
     }
 
@@ -154,7 +153,7 @@ public final class DriverConfigImpl implements DriverConfig {
         rootConfigParent = null;
     }
 
-    static void addDriverFromDomNode(Node driverConfigNode, RootConfig parentConfig) throws ParseException {
+    static void addDriverFromDomNode(Node driverConfigNode, RootConfigImpl parentConfig) throws ParseException {
 
         String id = ChannelConfigImpl.getAttributeValue(driverConfigNode, "id");
         if (id == null) {
@@ -163,11 +162,15 @@ public final class DriverConfigImpl implements DriverConfig {
 
         DriverConfigImpl config;
         try {
-            config = (DriverConfigImpl) parentConfig.addDriver(id);
-        } catch (Exception e) {
+            config = parentConfig.addDriver(id);
+        } catch (IdCollisionException e) {
             throw new ParseException(e);
         }
 
+        parseDiverNode(driverConfigNode, config);
+    }
+
+    private static void parseDiverNode(Node driverConfigNode, DriverConfigImpl config) throws ParseException {
         NodeList driverChildren = driverConfigNode.getChildNodes();
 
         try {
@@ -175,31 +178,27 @@ public final class DriverConfigImpl implements DriverConfig {
                 Node childNode = driverChildren.item(j);
                 String childName = childNode.getNodeName();
 
-                if (childName.equals("#text")) {
+                switch (childName) {
+                case "#text":
                     continue;
-                }
-                else if (childName.equals("device")) {
+
+                case "device":
                     DeviceConfigImpl.addDeviceFromDomNode(childNode, config);
-                }
-                else if (childName.equals("samplingTimeout")) {
+                    break;
+
+                case "samplingTimeout":
                     config.setSamplingTimeout(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
-                }
-                else if (childName.equals("connectRetryInterval")) {
+                    break;
+
+                case "connectRetryInterval":
                     config.setConnectRetryInterval(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
-                }
-                else if (childName.equals("disabled")) {
-                    String disabledString = childNode.getTextContent().toLowerCase();
-                    if (disabledString.equals("true")) {
-                        config.disabled = true;
-                    }
-                    else if (disabledString.equals("false")) {
-                        config.disabled = false;
-                    }
-                    else {
-                        throw new ParseException("\"disabled\" tag contains neither \"true\" nor \"false\"");
-                    }
-                }
-                else {
+                    break;
+
+                case "disabled":
+                    String disabledString = childNode.getTextContent();
+                    config.disabled = Boolean.parseBoolean(disabledString);
+                    break;
+                default:
                     throw new ParseException("found unknown tag:" + childName);
                 }
 
@@ -229,12 +228,7 @@ public final class DriverConfigImpl implements DriverConfig {
 
         if (disabled != null) {
             childElement = document.createElement("disabled");
-            if (disabled) {
-                childElement.setTextContent("true");
-            }
-            else {
-                childElement.setTextContent("false");
-            }
+            childElement.setTextContent(disabled.toString());
             parentElement.appendChild(childElement);
         }
 
@@ -253,7 +247,7 @@ public final class DriverConfigImpl implements DriverConfig {
         configClone.disabled = disabled;
 
         for (DeviceConfigImpl deviceConfig : deviceConfigsById.values()) {
-            configClone.deviceConfigsById.put(deviceConfig.id, deviceConfig.clone(configClone));
+            configClone.deviceConfigsById.put(deviceConfig.getId(), deviceConfig.clone(configClone));
         }
         return configClone;
     }
@@ -283,7 +277,7 @@ public final class DriverConfigImpl implements DriverConfig {
         }
 
         for (DeviceConfigImpl deviceConfig : deviceConfigsById.values()) {
-            configClone.deviceConfigsById.put(deviceConfig.id, deviceConfig.cloneWithDefaults(configClone));
+            configClone.deviceConfigsById.put(deviceConfig.getId(), deviceConfig.cloneWithDefaults(configClone));
         }
         return configClone;
     }

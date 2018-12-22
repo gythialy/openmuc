@@ -1,4 +1,8 @@
 
+def projectName = "OpenMUC WebUI - Data Exporter"
+def projectDescription = "Data Exporter plug-in for the WebUI of the OpenMUC framework."
+
+
 dependencies {
   compile project(':openmuc-core-api')
   compile project(':openmuc-webui-spi')
@@ -6,8 +10,18 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC WebUI - Data Exporter"
+    name = projectName
     instruction 'Export-Package', ''
-    instruction 'Service-Component', 'OSGI-INF/components.xml'
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

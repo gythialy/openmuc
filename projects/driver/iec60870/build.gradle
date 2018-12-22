@@ -1,7 +1,10 @@
 
+def projectName = "OpenMUC Driver - IEC 60870-104"
+def projectDescription = "IEC 60870-104 driver for the OpenMUC framework."
+
 configurations.create('embed')
 
-def j60870version = "1.1.0"
+def j60870version = "1.2.1"
 
 dependencies {
   compile project(':openmuc-core-spi')
@@ -12,7 +15,7 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Driver - IEC 60870-104"
+    name = projectName
     instruction 'Bundle-ClassPath', '.,lib/j60870-' + j60870version + '.jar'
     instruction 'Import-Package', '!org.openmuc.j60870*,javax.net,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
@@ -22,5 +25,16 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

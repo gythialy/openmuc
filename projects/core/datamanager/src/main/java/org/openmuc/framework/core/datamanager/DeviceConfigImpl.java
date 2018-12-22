@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,24 +38,40 @@ import org.w3c.dom.NodeList;
 
 public final class DeviceConfigImpl implements DeviceConfig {
 
-    String id;
-    String description = null;
-    String deviceAddress = null;
-    String settings = null;
+    private String id;
+    private String description;
+    private String deviceAddress;
+    private String settings;
 
-    Integer samplingTimeout = null;
-    Integer connectRetryInterval = null;
-    Boolean disabled = null;
+    private Integer samplingTimeout;
+    private Integer connectRetryInterval;
+    private Boolean disabled;
 
-    Device device = null;
+    Device device;
 
     final HashMap<String, ChannelConfigImpl> channelConfigsById = new LinkedHashMap<>();
 
     DriverConfigImpl driverParent;
 
-    DeviceConfigImpl(String id, DriverConfigImpl driverParent) {
+    public DeviceConfigImpl(String id, DriverConfigImpl driverParent) {
         this.id = id;
         this.driverParent = driverParent;
+    }
+
+    DeviceConfigImpl clone(DriverConfigImpl clonedParentConfig) {
+        DeviceConfigImpl configClone = new DeviceConfigImpl(id, clonedParentConfig);
+
+        configClone.description = description;
+        configClone.deviceAddress = deviceAddress;
+        configClone.settings = settings;
+        configClone.samplingTimeout = samplingTimeout;
+        configClone.connectRetryInterval = connectRetryInterval;
+        configClone.disabled = disabled;
+
+        for (ChannelConfigImpl channelConfig : channelConfigsById.values()) {
+            configClone.channelConfigsById.put(channelConfig.getId(), channelConfig.clone(configClone));
+        }
+        return configClone;
     }
 
     @Override
@@ -242,16 +258,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
                     config.setConnectRetryInterval(ChannelConfigImpl.timeStringToMillis(childNode.getTextContent()));
                 }
                 else if (childName.equals("disabled")) {
-                    String disabledString = childNode.getTextContent().toLowerCase();
-                    if (disabledString.equals("true")) {
-                        config.disabled = true;
-                    }
-                    else if (disabledString.equals("false")) {
-                        config.disabled = false;
-                    }
-                    else {
-                        throw new ParseException("\"disabled\" tag contains neither \"true\" nor \"false\"");
-                    }
+                    config.disabled = Boolean.parseBoolean(childNode.getTextContent());
                 }
                 else {
                     throw new ParseException("found unknown tag:" + childName);
@@ -317,22 +324,6 @@ public final class DeviceConfigImpl implements DeviceConfig {
         return parentElement;
     }
 
-    DeviceConfigImpl clone(DriverConfigImpl clonedParentConfig) {
-        DeviceConfigImpl configClone = new DeviceConfigImpl(id, clonedParentConfig);
-
-        configClone.description = description;
-        configClone.deviceAddress = deviceAddress;
-        configClone.settings = settings;
-        configClone.samplingTimeout = samplingTimeout;
-        configClone.connectRetryInterval = connectRetryInterval;
-        configClone.disabled = disabled;
-
-        for (ChannelConfigImpl channelConfig : channelConfigsById.values()) {
-            configClone.channelConfigsById.put(channelConfig.id, channelConfig.clone(configClone));
-        }
-        return configClone;
-    }
-
     DeviceConfigImpl cloneWithDefaults(DriverConfigImpl clonedParentConfig) {
 
         DeviceConfigImpl configClone = new DeviceConfigImpl(id, clonedParentConfig);
@@ -380,7 +371,7 @@ public final class DeviceConfigImpl implements DeviceConfig {
         }
 
         for (ChannelConfigImpl channelConfig : channelConfigsById.values()) {
-            configClone.channelConfigsById.put(channelConfig.id, channelConfig.cloneWithDefaults(configClone));
+            configClone.channelConfigsById.put(channelConfig.getId(), channelConfig.cloneWithDefaults(configClone));
         }
         return configClone;
     }

@@ -1,4 +1,4 @@
-<form name="channelForm" class="form-horizontal" ng-submit="saveChannel()" novalidate>
+<form name="channelForm" class="form-horizontal" ng-init="getDriverInfo()" ng-submit="saveChannel()" novalidate>
   <fieldset>
     <legend>{{'CHANNEL_CONFIGURATION' | translate}}:</legend>
     
@@ -37,7 +37,7 @@
       </label>
       <div class="col-sm-6">
         <input type="text" class="form-control" id="address" name="address" ng-model="channel.configs.channelAddress" >
-        <p class="help-block">N.A. **</p>
+        <p class="help-block">{{driverInfo.channelAddressSyntax}} </p>
       </div>    
     </div>
 
@@ -47,7 +47,7 @@
         {{'CHANNEL_VALUE_TYPE' | translate}}
       </label>
       <div class="col-sm-6">
-        <select class="form-control" id="value_type" name="valueType" name="valueType" ng-model="channel.configs.valueType" >
+        <select class="form-control" id="value_type" name="valueType" ng-model="channel.configs.valueType" >
           <option></option>
           <option value="DOUBLE">DOUBLE</option>
           <option value="FLOAT">FLOAT</option>
@@ -83,7 +83,7 @@
         {{'CHANNEL_SCALING_FACTOR' | translate}}
       </label>
       <div class="col-sm-6">
-        <input type="text" class="form-control" id="scalingFactor" name="scalingFactor" ng-model="channel.configs.scalingFactor" ng-pattern="/^[0-9]{1,10}$/">
+        <input type="text" class="form-control" id="scalingFactor" name="scalingFactor" ng-model="channel.configs.scalingFactor" ng-pattern="/^[0-9]{1,10}(\.[0-9]+)?$/">
         <div class="form-error-container" ng-show="(channelForm.scalingFactor.$dirty && channelForm.scalingFactor.$invalid) || (channelForm.submitted && channelForm.scalingFactor.$invalid)">
           <div class="form-error-message" ng-show="channelForm.scalingFactor.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
         </div>                                
@@ -97,7 +97,7 @@
         {{'CHANNEL_VALUE_OFFSET' | translate}}
       </label>
       <div class="col-sm-6">
-        <input type="text" class="form-control" id="valueOffset" name="valueOffset" ng-model="channel.configs.valueOffset" ng-pattern="/^[0-9]{1,10}$/">
+        <input type="text" class="form-control" id="valueOffset" name="valueOffset" ng-model="channel.configs.valueOffset" ng-pattern="/^[0-9]{1,10}(\.[0-9]+)?$/">
         <div class="form-error-container" ng-show="(channelForm.valueOffset.$dirty && channelForm.valueOffset.$invalid) || (channelForm.submitted && channelForm.valueOffset.$invalid)">
           <div class="form-error-message" ng-show="channelForm.valueOffset.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
         </div>                        

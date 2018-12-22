@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -33,13 +33,14 @@ import org.slf4j.LoggerFactory;
 
 public class ControlsServlet extends GenericServlet {
 
+    private static final String REQUESTED_REST_PATH_IS_NOT_AVAILABLE = "Requested rest path is not available.";
+    private static final String APPLICATION_JSON = "application/json";
     private static final long serialVersionUID = -5635380730045771853L;
-    private final static Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -58,7 +59,7 @@ public class ControlsServlet extends GenericServlet {
                 }
                 else {
                     ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                            "Requested rest path is not available.", " Path Info = ", request.getPathInfo());
+                            REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Path Info = ", request.getPathInfo());
                 }
 
             }
@@ -68,8 +69,7 @@ public class ControlsServlet extends GenericServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -82,15 +82,14 @@ public class ControlsServlet extends GenericServlet {
             }
             else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                        "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                        REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
         }
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -103,7 +102,7 @@ public class ControlsServlet extends GenericServlet {
             }
             else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                        "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                        REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
         }
     }
@@ -112,7 +111,7 @@ public class ControlsServlet extends GenericServlet {
     public void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString != null) {
@@ -126,13 +125,13 @@ public class ControlsServlet extends GenericServlet {
             }
             else {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                        "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                        REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
             }
 
         }
         else {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
-                    "Requested rest path is not available.", " Rest Path = ", request.getPathInfo());
+                    REQUESTED_REST_PATH_IS_NOT_AVAILABLE, " Rest Path = ", request.getPathInfo());
         }
     }
 

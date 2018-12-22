@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -34,13 +34,16 @@ public class Const {
     public static final String ALIAS_DRIVERS = "/rest/drivers";
     public static final String ALIAS_USERS = "/rest/users";
     public static final String ALIAS_CONTROLS = "/rest/controlls";
+    public static final String ALIAS_CONNECT = "/rest/connect";
 
     public static final String RUNNING = "running";
     public static final String STATE = "state";
     public static final String RECORD = "record";
     public static final String LATESTRECORD = "latestRecord";
     public static final String ID = "id";
+    public static final String TIMESTAMP = "timestamp";
     public static final String FLAG = "flag";
+    public static final String VALUE_STRING = "value";
     public static final String CONFIGS = "configs";
     public static final String INFOS = "infos";
     public static final String SCAN = "scan";
@@ -54,12 +57,14 @@ public class Const {
     public static final String WRITEABLE = "writeable";
     public static final String METADATA = "metadata";
     public static final String CHANNELADDRESS = "channelAddress";
-    public static final String VALUETYPE = "type";
+    public static final String VALUETYPE = "valueType";
     public static final String VALUETYPELENGTH = "valueTypeLength";
     public static final String GROUPS = "groups";
 
     public static final String DEVICE = "device";
+    public static final String DEVICE_ID = "deviceId";
     public static final String DRIVER = "driver";
+    public static final String DRIVER_ID = "driverId";
     public static final String SCAN_PROGRESS_INFO = "scanProgressInfo";
     public static final String SCAN_PROGRESS = "scanProgress";
     public static final String SCAN_FINISHED = "scanFinished";

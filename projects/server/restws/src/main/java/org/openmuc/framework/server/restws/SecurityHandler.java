@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -43,13 +43,12 @@ public class SecurityHandler implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (request.getScheme().equals("https")) {
-            if (!authenticated(request)) {
-                response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                return false;
-            }
+        if (!authenticated(request)) {
+            response.setHeader("WWW-Authenticate", "BASIC realm=\"private area\"");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
         }
+
         return true;
     }
 
@@ -58,7 +57,12 @@ public class SecurityHandler implements HttpContext {
         if (authzHeader == null) {
             return false;
         }
-        String usernameAndPassword = new String(DatatypeConverter.parseBase64Binary(authzHeader.substring(6)));
+        String usernameAndPassword;
+        try {
+            usernameAndPassword = new String(DatatypeConverter.parseBase64Binary(authzHeader.substring(6)));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
 
         int userNameIndex = usernameAndPassword.indexOf(':');
         String username = usernameAndPassword.substring(0, userNameIndex);

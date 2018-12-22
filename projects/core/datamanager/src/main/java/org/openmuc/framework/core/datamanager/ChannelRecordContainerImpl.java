@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,28 +23,25 @@ package org.openmuc.framework.core.datamanager;
 
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
-import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
 public final class ChannelRecordContainerImpl implements ChannelRecordContainer {
 
-    private static final Record DEFAULT_RECORD = new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
+    private static final Record defaulRecord = new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
 
-    ChannelImpl channel;
-    Record record = DEFAULT_RECORD;
-    Object channelHandle;
-    String channelAddress;
+    private final ChannelImpl channel;
+    private Record record;
+    private Object channelHandle;
+    private final String channelAddress;
 
     public ChannelRecordContainerImpl(ChannelImpl channel) {
-        this.channel = channel;
-        channelAddress = channel.config.channelAddress;
-        channelHandle = channel.handle;
+        this(channel, defaulRecord);
     }
 
     private ChannelRecordContainerImpl(ChannelImpl channel, Record record) {
         this.channel = channel;
-        channelAddress = channel.config.channelAddress;
-        channelHandle = channel.handle;
+        this.channelAddress = channel.config.getChannelAddress();
+        this.channelHandle = channel.handle;
         this.record = record;
     }
 
@@ -74,7 +71,7 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     }
 
     @Override
-    public Channel getChannel() {
+    public ChannelImpl getChannel() {
         return channel;
     }
 

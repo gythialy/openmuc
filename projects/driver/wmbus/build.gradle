@@ -1,7 +1,11 @@
 
+def projectName = 'OpenMUC Driver - wM-Bus'
+def projectDescription = 'M-Bus wireless driver for the OpenMUC framework.'
+
 configurations.create('embed')
 
-def jmbusversion = "2.2.2"
+def jmbusversion = '3.0.1'
+def jrxtxversion = '1.0.0'
 
 dependencies {
 
@@ -13,8 +17,8 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Driver - wM-Bus"
-    instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar'
+    name = projectName
+    instruction 'Bundle-ClassPath', '.,lib/jmbus-' + jmbusversion + '.jar,lib/jrxtx-' + jrxtxversion + '.jar'
     instruction 'Import-Package', '!org.openmuc.jmbus*,gnu.io,javax.crypto,javax.crypto.spec,*' + jarDefaultImportPackageVersion
     instruction 'Export-Package', ''
   }
@@ -23,5 +27,16 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

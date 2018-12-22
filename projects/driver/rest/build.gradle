@@ -1,10 +1,15 @@
+
+def projectName = "OpenMUC Driver - REST"
+def projectDescription = "REST driver for the OpenMUC framework."
+
 configurations.create('embed')
 
-def commonscodecversion = "1.10"
-def gsonversion = "2.7"
+def commonscodecversion = "1.11"
+def gsonversion = "2.8.2"
 
 dependencies {
   compile project(':openmuc-core-spi')
+  compile project(':openmuc-core-api')
   compile group: 'org.apache.felix', name: 'javax.servlet', version: '1.0.0'
   compile group: 'commons-codec', name: 'commons-codec', version: commonscodecversion
   embed group: 'commons-codec', name: 'commons-codec', version: commonscodecversion
@@ -14,7 +19,7 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Driver - REST"
+    name = projectName
     instruction 'Import-Package', '!org.apache.commons.codec*,!com.google.gson.*,*' + jarDefaultImportPackageVersion
     instruction 'Bundle-Classpath', '.,lib/gson-' + gsonversion + '.jar,lib/commons-codec-' + commonscodecversion + '.jar'
     instruction 'Export-Package', ''
@@ -24,6 +29,17 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }
 

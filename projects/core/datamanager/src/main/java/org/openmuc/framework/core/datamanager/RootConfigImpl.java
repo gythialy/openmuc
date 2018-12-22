@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -53,8 +53,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
-public final class RootConfigImpl implements RootConfig {
+final class RootConfigImpl implements RootConfig {
 
     private String dataLogSource = null;
 
@@ -75,24 +76,19 @@ public final class RootConfigImpl implements RootConfig {
         dataLogSource = source;
     }
 
-    static RootConfigImpl createFromFile(File configFile) throws ParseException, FileNotFoundException {
+    public static RootConfigImpl createFromFile(File configFile) throws ParseException, FileNotFoundException {
         if (configFile == null) {
             throw new NullPointerException("configFileName is null or the empty string.");
         }
 
         if (!configFile.exists()) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("Confifg file not found.");
         }
 
         DocumentBuilderFactory docBFac = DocumentBuilderFactory.newInstance();
         docBFac.setIgnoringComments(true);
 
-        Document doc;
-        try {
-            doc = docBFac.newDocumentBuilder().parse(configFile);
-        } catch (Exception e) {
-            throw new ParseException(e);
-        }
+        Document doc = parseDocument(configFile, docBFac);
 
         Node rootNode = doc.getDocumentElement();
 
@@ -100,29 +96,39 @@ public final class RootConfigImpl implements RootConfig {
             throw new ParseException("root node in configuration is not of type \"configuration\"");
         }
 
-        return getRootConfigFromDomNode(rootNode);
+        return loadRootConfigFrom(rootNode);
 
     }
 
-    static RootConfigImpl getRootConfigFromDomNode(Node rootConfigNode) throws ParseException {
+    private static Document parseDocument(File configFile, DocumentBuilderFactory docBFac) throws ParseException {
+        try {
+            return docBFac.newDocumentBuilder().parse(configFile);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new ParseException(e);
+        }
+    }
+
+    private static RootConfigImpl loadRootConfigFrom(Node domNode) throws ParseException {
 
         RootConfigImpl rootConfig = new RootConfigImpl();
 
-        NodeList rootConfigChildren = rootConfigNode.getChildNodes();
+        NodeList rootConfigChildren = domNode.getChildNodes();
 
         for (int i = 0; i < rootConfigChildren.getLength(); i++) {
             Node childNode = rootConfigChildren.item(i);
             String childName = childNode.getNodeName();
-            if (childName.equals("#text")) {
+            switch (childName) {
+
+            case "#text":
                 continue;
-            }
-            else if (childName.equals("driver")) {
+
+            case "driver":
                 DriverConfigImpl.addDriverFromDomNode(childNode, rootConfig);
-            }
-            else if (childName.equals("dataLogSource")) {
+                break;
+            case "dataLogSource":
                 rootConfig.dataLogSource = childNode.getTextContent();
-            }
-            else {
+                break;
+            default:
                 throw new ParseException("found unknown tag:" + childName);
             }
         }
@@ -130,7 +136,7 @@ public final class RootConfigImpl implements RootConfig {
         return rootConfig;
     }
 
-    void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException,
+    public void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException,
             ParserConfigurationException, TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -147,7 +153,7 @@ public final class RootConfigImpl implements RootConfig {
 
     }
 
-    Element getDomElement(Document document) {
+    private Element getDomElement(Document document) {
         Element rootConfigElement = document.createElement("configuration");
 
         if (dataLogSource != null) {
@@ -173,15 +179,16 @@ public final class RootConfigImpl implements RootConfig {
     }
 
     @Override
-    public DriverConfig addDriver(String id) throws IdCollisionException {
+    public DriverConfigImpl addDriver(String id) throws IdCollisionException {
         if (id == null) {
-            throw new IllegalArgumentException("The driver ID may not be null");
+            throw new IllegalArgumentException("The driver ID may not be null.");
         }
         ChannelConfigImpl.checkIdSyntax(id);
 
         if (driverConfigsById.containsKey(id)) {
-            throw new IdCollisionException("Collision with the driver ID:" + id);
+            throw new IdCollisionException("Collision with the driver ID: " + id);
         }
+
         DriverConfigImpl driverConfig = new DriverConfigImpl(id, this);
         driverConfigsById.put(id, driverConfig);
         return driverConfig;
@@ -209,17 +216,17 @@ public final class RootConfigImpl implements RootConfig {
                 .unmodifiableCollection(driverConfigsById.values());
     }
 
-    @Override
-    protected RootConfigImpl clone() {
-        RootConfigImpl configClone = new RootConfigImpl();
-        configClone.dataLogSource = dataLogSource;
-        for (DriverConfigImpl driverConfig : driverConfigsById.values()) {
-            configClone.addDriver(driverConfig.clone(configClone));
-        }
-        return configClone;
+    public RootConfigImpl() {
     }
 
-    RootConfigImpl cloneWithDefaults() {
+    public RootConfigImpl(RootConfigImpl other) {
+        this.dataLogSource = other.dataLogSource;
+        for (DriverConfigImpl driverConfig : other.driverConfigsById.values()) {
+            addDriver(driverConfig.clone(this));
+        }
+    }
+
+    public RootConfigImpl cloneWithDefaults() {
         RootConfigImpl configClone = new RootConfigImpl();
         if (dataLogSource != null) {
             configClone.dataLogSource = dataLogSource;

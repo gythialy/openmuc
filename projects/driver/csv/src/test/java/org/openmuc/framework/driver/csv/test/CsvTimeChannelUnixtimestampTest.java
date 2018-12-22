@@ -6,8 +6,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openmuc.framework.driver.csv.CsvException;
-import org.openmuc.framework.driver.csv.channel.CsvChannelImplUnixtimestamp;
+import org.openmuc.framework.driver.csv.channel.CsvChannelUnixtimestamp;
+import org.openmuc.framework.driver.csv.exceptions.CsvException;
 import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
 import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class CsvTimeChannelUnixtimestampTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(CsvTimeChannelUnixtimestampTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvTimeChannelUnixtimestampTest.class);
 
     static List<String> data;
     static long[] timestamps;
@@ -42,7 +42,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadNextValueInbetween() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, false, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, false, timestamps);
 
         value = channel.readValue(OFFSET + 6000l);
         Assert.assertTrue(String.valueOf(value).equals("5.0"));
@@ -54,7 +54,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadNextValueStart() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, false, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, false, timestamps);
 
         value = channel.readValue(OFFSET);
         Assert.assertTrue(String.valueOf(value).equals("0.0"));
@@ -66,7 +66,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadNextValueEndNoRewind() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, false, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, false, timestamps);
 
         value = channel.readValue(OFFSET + 20000);
         Assert.assertTrue(String.valueOf(value).equals("20.0"));
@@ -86,7 +86,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadNextValueEndWithRewind() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, true, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, true, timestamps);
 
         value = channel.readValue(OFFSET + 20000);
         Assert.assertTrue(String.valueOf(value).equals("20.0"));
@@ -101,7 +101,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadT1BeforeT2Valid() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, false, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, false, timestamps);
 
         try {
             value = channel.readValue(OFFSET - 5000l);
@@ -118,7 +118,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadT1ValidT2BeforeDisabledRewind() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, false, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, false, timestamps);
 
         value = channel.readValue(OFFSET);
         Assert.assertTrue(String.valueOf(value).equals("0.0"));
@@ -135,7 +135,7 @@ public class CsvTimeChannelUnixtimestampTest {
     @Test
     public void testReadT1ValidT2BeforeEnabledRewind() throws CsvException {
 
-        CsvChannelImplUnixtimestamp channel = new CsvChannelImplUnixtimestamp(data, true, timestamps);
+        CsvChannelUnixtimestamp channel = new CsvChannelUnixtimestamp(data, true, timestamps);
 
         value = channel.readValue(OFFSET);
         Assert.assertTrue(String.valueOf(value).equals("0.0"));

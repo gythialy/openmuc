@@ -1,4 +1,6 @@
 
+def projectName = "OpenMUC Data Logger - ASCII"
+
 dependencies {
   compile project(':openmuc-core-spi')
   compile project(':openmuc-core-datamanager')
@@ -6,7 +8,18 @@ dependencies {
 
 jar {
   manifest {
-    name = "OpenMUC Data Logger - ASCII"
+    name = projectName
     instruction 'Export-Package', ''
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description "ASCII data logger for the OpenMUC framework."
+      }
+    }
   }
 }

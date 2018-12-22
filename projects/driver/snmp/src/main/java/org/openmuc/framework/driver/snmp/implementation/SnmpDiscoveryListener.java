@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,9 +23,6 @@ package org.openmuc.framework.driver.snmp.implementation;
 /**
  * In order to receive SNMP scanner result, this listener must be implemented. In case of finding new device,
  * onNewDeviceFound method will be called. Respective actions must be implemented in this callback function.
- * 
- * @author Mehran Shakeri
- * 
  */
 public interface SnmpDiscoveryListener {
 

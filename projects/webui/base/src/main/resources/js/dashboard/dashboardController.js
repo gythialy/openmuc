@@ -17,8 +17,7 @@
 
 		AvailableAppsService.getAll().then(function(response){
 			$scope.availableApps = response;
-
-			$.each(response, function(index, value) {
+			angular.forEach(response, function(index, value){
 				appsAliases.push(value.alias);
 			});
 		}, function(error) {

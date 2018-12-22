@@ -1,19 +1,25 @@
+
+def projectName = 'OpenMUC Driver - eHZ'
+def projectDescription = 'eHZ driver for the OpenMUC framework.'
+
 configurations.create('embed')
 
-def jsmlversion = "1.0.17"
+def jsmlversion = '1.1.1'
+def jrxtxversion = '1.0.0'
 
 dependencies {
   compile project(':openmuc-core-spi')
-  compile files('../../../dependencies/rxtx/rxtxcomm_api-2.2pre2.jar')
   
   compile group: 'org.openmuc', name: 'jsml', version: jsmlversion
   embed group: 'org.openmuc', name: 'jsml', version: jsmlversion
+  
+  embed group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
 }
 
 jar {
   manifest {
-    name = "OpenMUC Driver - eHZ"
-    instruction 'Bundle-ClassPath', '.,lib/jsml-' + jsmlversion + '.jar'
+    name = projectName
+    instruction 'Bundle-ClassPath', '.,lib/jsml-' + jsmlversion + '.jar,lib/jrxtx-' + jrxtxversion + '.jar'
     instruction 'Import-Package', '!org.openmuc.jsml*,*' + jarDefaultImportPackageVersion 
     instruction 'Export-Package', ''
   }
@@ -22,5 +28,16 @@ jar {
 jar {
   into('lib') {
     from configurations.embed
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        description projectDescription
+      }
+    }
   }
 }

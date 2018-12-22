@@ -16,21 +16,25 @@ The Modbus driver supports RTU, TCP and RTU over TCP.
 [{driver_table_op}, cols="1,1,2,1"]
 |=========================================================
 || *TCP* (ethernet) | *RTU* (serial) | *RTUTCP* (serial over ethernet)
-|ID 3+| modbus 
+|ID 3+| modbus
 |Device Address | <ip>[:<port>] | <serial port> | <ip>[:<port>]
-|Settings | <type> | <type>:<encoding>:<baudrate>:<databits>:<parity>:<stopbits>:<echo>:<flowControlIn>:<flowControlOut> | <type>
-|Channel Address 3+| <UnitId>:<PrimaryTable>:<Address>:<Datatyp> 
+|Settings | <type> | <type>:<encoding>:<baudrate>:<databits>:<parity>:<stopbits>:
+<echo>:<flowControlIn>:<flowControlOut> | <type>
+|Channel Address 3+| <UnitId>:<PrimaryTable>:<Address>:<Datatyp>
 |=========================================================
 
 *DeviceAddress*
 
 *For TCP and RTUTCP* +
-The DeviceAddress is specified by an IP address and an optional port. If no port is specified, the driver uses the modbus default port 502.
+The DeviceAddress is specified by an IP address and an optional port. If no port
+ is specified, the driver uses the modbus default port 502.
 
 *For RTU:* +
-The DeviceAddress is specified by a serial port like /dev/ttyS0. 
+The DeviceAddress is specified by a serial port like /dev/ttyS0.
 
-NOTE: The driver uses the jamod library which itself uses the rxtx library for serial communication. Therefor the librxtx-java package needs to be installed on the system. Furthermore the user needs to be in the groups dialout and plugdev
+NOTE: The driver uses the jamod library which itself uses the rxtx library for
+serial communication. Therefor the librxtx-java package needs to be installed on
+the system. Furthermore the user needs to be in the groups dialout and plugdev
 
 *Settings*
 
@@ -39,7 +43,7 @@ NOTE: The driver uses the jamod library which itself uses the rxtx library for s
 |=========================================================
 |Config | Description/ Values
 |<type> | RTU\|TCP\|RTUTCP
-|<encoding> | SERIAL_ENCODING_RTU 
+|<encoding> | SERIAL_ENCODING_RTU
 |<baudrate>| Integer value: e.g.: 2400, 9600, 115200
 |<databits>| DATABITS_5, DATABITS_6, DATABITS_7, DATABITS_8
 |<parity>| PARITY_EVEN, PARITY_MARK, PARITY_NONE, PARITY_ODD, PARITY_SPACE
@@ -53,43 +57,62 @@ NOTE: The driver uses the jamod library which itself uses the rxtx library for s
 
 [source, xml]
 ----
-<channelAddress>
+<settings>
 RTU:SERIAL_ENCODING_RTU:38400:DATABITS_8:PARITY_NONE:STOPBITS_1 :ECHO_FALSE:FLOWCONTROL_NONE:FLOWCONTROL_NONE
-</channelAddress>
+</settings>
 ----
 
 *ChannelAddress*
 
-The ChannelAddress consists of four parts: UnitId, PrimaryTable, Address and Datatyp which are explained in detail in the following table.
+The ChannelAddress consists of four parts: UnitId, PrimaryTable, Address and
+Datatyp which are explained in detail in the following table.
 
 .Parameter Description
 [{driver_table_op}, cols="1,4"]
 |=========================================================
 | Parameter | Description
 | UnitId | In homogenious architecture (when just MODBUS TCP/IP is used) +
-On TCP/IP, the MODBUS server is addressed by its IP address; therefore, the MODBUS Unit Identifier is useless. The value 255 (0xFF) has to be used.
+On TCP/IP, the MODBUS server is addressed by its IP address; therefore, the MODBUS
+Unit Identifier is useless. The value 255 (0xFF) has to be used.
 
 In heterogeneous architecture (when using MODBUS TCP/IP and MODBUS serial or MODBUS+) +
-This field is used for routing purpose when addressing a device on a MODBUS+ or MODBUS serial line sub-network. In that case, the “Unit Identifier” carries the MODBUS slave address of the remote device. The MODBUS slave device addresses on serial line are assigned from 1 to 247 (decimal). Address 0 is used as broadcast address.
+This field is used for routing purpose when addressing a device on a MODBUS+ or
+MODBUS serial line sub-network. In that case, the “Unit Identifier” carries the MODBUS slave address of the remote device. The MODBUS slave device addresses on serial line are assigned from 1 to 247 (decimal). Address 0 is used as broadcast address.
 
-Note: Some MODBUS devices act like a bridge or a gateway and require the UnitId even if they are accessed through TCP/IP. One of those devices is the Janitza UMG. To access data from the Janitza the UnitId has to be 1.  
+Note: Some MODBUS devices act like a bridge or a gateway and require the UnitId
+even if they are accessed through TCP/IP. One of those devices is the Janitza
+UMG. To access data from the Janitza the UnitId has to be 1.
 
-| PrimaryTable | PrimaryTable defines the which part of the device memory should be accessed.
+| PrimaryTable | PrimaryTable defines the which part of the device memory should
+be accessed.
 Valid values: COILS, DISCRETE_INPUTS, INPUT_REGISTERS, HOLDING_REGISTERS
 
 | Address | Address of the channel/register. Decimal integer value - not hex!
 
-| Datatyp | Valid values:
-BOOLEAN, SHORT, INT, FLOAT, DOUBLE, LONG, BYTEARRAY[n] (n = number of REGISTERS not BYTES, 1 Register = 2 Bytes!)
-
+| Datatyp | Valid values: +
+BOOLEAN  (1 bit) +
+INT16    (1 register/word, 2 bytes) +
+UINT16   (1 register/word, 2 bytes) +
+INT32    (2 registers/words, 4 bytes) +
+UINT32   (2 registers/words, 4 bytes) +
+LONG     (4 registers/words, 8 bytes) +
+FLOAT    (2 registers/words, 4 bytes) +
+DOUBLE   (4 registers/words, 8 bytes) +
+BYTEARRAY[n] (n = number of REGISTERS not BYTES, 1 register = 2 bytes!)
 |=========================================================
 
 .Primary Tables and Channel Address
-image:driver_modbustcp_address.png[width={width80}, alt="Driver Modbus Address",link="../images/driver_modbustcp_address.png"]
+image:driver_modbustcp_address.png[width={width80}, alt="Driver Modbus Address",
+link="../images/driver_modbustcp_address.png"]
 
 *Valid Address Parameter Combinations*
 
-Since COILS and DISCRETE_INPUTS are used for bit access, only the data type BOOLEAN makes sense in combinations with of one of these. INPUT_REGISTERS and HOLDING_REGISTERS are used for register access. There is also a difference between reading and writing. Only COILS and HOLDING_REGISTERS are readable and writable. DISCRETE_INPUTS and INPUT_REGISTERS are read only. The following table gives an overview of valid parameter combinations of PrimaryTable and Datatyp.
+Since COILS and DISCRETE_INPUTS are used for bit access, only the data type BOOLEAN
+makes sense in combinations with of one of these. INPUT_REGISTERS and HOLDING_REGISTERS
+are used for register access. There is also a difference between reading and writing.
+Only COILS and HOLDING_REGISTERS are readable and writable.
+DISCRETE_INPUTS and INPUT_REGISTERS are read only. The following table gives an
+overview of valid parameter combinations of PrimaryTable and Datatyp.
 
 //:vcols: "^v,^v,^v,^v,^v,^v,^v,^v"
 
@@ -99,40 +122,43 @@ Since COILS and DISCRETE_INPUTS are used for bit access, only the data type BOOL
 [{driver_table_op}, cols="^v,^v,^v,^v,^v,^v,^v,^v"]
 |=========================================================
 | Primary Table     | BOOLEAN | SHORT | INT | FLOAT | DOUBLE | LONG | BYTEARRAY[n]
-| COILS 	    | x | - | - | - | - | - | -  
-| DISCRETE_INPUTS   | x | - | - | - | - | - | -  
-| INPUT_REGISTERS   | - | x | x | x | x | x | x  
-| HOLDING_REGISTERS | - | x | x | x | x | x | x   
+| COILS 	    | x | - | - | - | - | - | -
+| DISCRETE_INPUTS   | x | - | - | - | - | - | -
+| INPUT_REGISTERS   | - | x | x | x | x | x | x
+| HOLDING_REGISTERS | - | x | x | x | x | x | x
 |=========================================================
 
 .Valid Address Parameters for writing a channel
 [{driver_table_op}, cols="^v,^v,^v,^v,^v,^v,^v,^v"]
 |=========================================================
 | Primary Table | BOOLEAN | SHORT | INT | FLOAT | DOUBLE | LONG | BYTEARRAY[n]
-| COILS | x | - | - | - | - | - | -  
-| DISCRETE_INPUTS | - | - | - | - | - | - | -  
-| INPUT_REGISTERS | - | - | - | - | - | - | -  
-| HOLDING_REGISTERS | - | x | x | x | x | x | x   
+| COILS | x | - | - | - | - | - | -
+| DISCRETE_INPUTS | - | - | - | - | - | - | -
+| INPUT_REGISTERS | - | - | - | - | - | - | -
+| HOLDING_REGISTERS | - | x | x | x | x | x | x
 |=========================================================
 
 .Examples for valid addresses
 [source, xml]
 ----
 <channelAddress>255:INPUT_REGISTERS:100:SHORT</channelAddress>
-<channelAddress>255:COILS:412:BOOLEAN</channelAddress> 
+<channelAddress>255:COILS:412:BOOLEAN</channelAddress>
 ----
 
 .Examples for invalid addresses
 [source, xml]
 ----
-<channelAddress>255:INPUT_REGISTERS:100:BOOLEAN</channelAddress> (BOOLEAN doesn't go with INPUT_REGISTERS)
+<channelAddress>255:INPUT_REGISTERS:100:BOOLEAN</channelAddress> (BOOLEAN doesn't
+go with INPUT_REGISTERS)
 <channelAddress>255:COILS:412:LONG</channelAddress> (LONG does not go with COILS)
 ----
 
 *Function Codes* (more detailed information about how the driver works)
 
-The driver is based on the Java Modbus Library (http://jamod.sourceforge.net[jamod]) which provides read and write access via modbus.
-Following table shows which modbus function code is used to access the data of the channel.
+The driver is based on the Java Modbus Library (http://jamod.sourceforge.net[jamod])
+which provides read and write access via modbus.
+Following table shows which modbus function code is used to access the data of
+the channel.
 
 .Relation between function code and channel address
 [{driver_table_op}, cols="1,1,1,1,1"]
@@ -152,14 +178,21 @@ Following table shows which modbus function code is used to access the data of t
 
 [source,xml]
 ----
-<channelAddress>255:INPUT_REGISTERS:100:SHORT</channelAddress> will be accessed via function code 4.
+<channelAddress>255:INPUT_REGISTERS:100:SHORT</channelAddress> will be accessed
+via function code 4.
 ----
 
 ==== Modbus TCP and Wago
 
-NOTE: Till now the driver has been tested with some modules of the Wago 750 Series with the Fieldbus-Coupler 750-342
+NOTE: Till now the driver has been tested with some modules of the Wago 750 Series
+with the Fieldbus-Coupler 750-342
 
-If you want to use the Modbus TCP driver for accessing a Wago device you first need to know how the process image is build. From the process image you can derive the register addresses of your Wago modules (AO, AI, DO, DI). You find detailed information about the process image in http://www.wago.com/wagoweb/documentation/750/eng_manu/coupler_controller/m07500342_00000000_0en.pdf[WAGO 750-342 Manual] on page 46 and 47.
+If you want to use the Modbus TCP driver for accessing a Wago device you first
+need to know how the process image is build. From the process image you can
+derive the register addresses of your Wago modules (AO, AI, DO, DI). You find
+detailed information about the process image in
+http://www.wago.com/wagoweb/documentation/750/eng_manu/coupler_controller/m07500342_00000000_0en.pdf[WAGO 750-342 Manual]
+on page 46 and 47.
 
 The following Examples are based on figure <<wago>> +
 
@@ -174,12 +207,14 @@ The following Examples are based on figure <<wago>> +
 
 [source,xml]
 ----
-<channelAddress>255:DISCRETE_INPUTS:3:BOOLEAN</channelAddress> 
+<channelAddress>255:DISCRETE_INPUTS:3:BOOLEAN</channelAddress>
 ----
 
 *Example 3: Write AO 1 from first (left) 550-module (Register Address 0x0000/0x0200)* +
 
-For writing only the +0x0200 addresses should be used! Since the driver accepts only a decimal channelAddress 0x0200 must be converted to decimal. The resulting address would be:
+For writing only the +0x0200 addresses should be used! Since the driver accepts
+only a decimal channelAddress 0x0200 must be converted to decimal. The resulting
+address would be:
 
 [source,xml]
 ----
@@ -187,7 +222,9 @@ For writing only the +0x0200 addresses should be used! Since the driver accepts 
 ----
 
 *Example 4: Write DO 2 from 501-module (Register Address 0x0000/0x0201)* +
-For writing only the +0x0200 addresses should be used! Since the driver accepts only a decimal channelAddress 0x0201 must be converted to decimal. The resulting address would be:
+For writing only the +0x0200 addresses should be used! Since the driver accepts
+only a decimal channelAddress 0x0201 must be converted to decimal. The resulting
+address would be:
 
 [source,xml]
 ----
@@ -204,7 +241,8 @@ For writing only the +0x0200 addresses should be used! Since the driver accepts 
 
 [[wago]]
 .Wago 750-342 Process Image
-image:modbus_wago_process_image.png[width={width80}, alt="Driver Modbus Wago process", link="images/modbus_wago_process_image.png"]
+image:modbus_wago_process_image.png[width={width80}, alt="Driver Modbus Wago process",
+link="images/modbus_wago_process_image.png"]
 
 
 :config_table: {driver_table_op}, cols="1,20"
@@ -224,15 +262,20 @@ M-Bus is communication protocol to read out meters.
 
 *Device Address*
 
-<serial_port> - The serial port should be given that connects to the M-Bus converter. (e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).
+<serial_port> - The serial port should be given that connects to the M-Bus converter.
+(e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).
 
-<mbus_address> - The mbus adress can either be the the primary address or secondary address of the meter. The primary address is specified as integer (e.g. 1 for primary address 1) whereas the secondary address consits of 8 bytes that should be specified in hexadecimal form. (e.g. e30456a6b72e3e4e)
+<mbus_address> - The mbus adress can either be the the primary address or secondary
+address of the meter. The primary address is specified as integer
+(e.g. 1 for primary address 1) whereas the secondary address consits of 8 bytes
+that should be specified in hexadecimal form. (e.g. e30456a6b72e3e4e)
 
 *Settings*
 
 <baudrate> - If left empty the default is used: "2400"
 
-<timeout> - Defines the read timeout in ms. Default is 2500 ms. Example: t5000 for timeout of 5 seconds
+<timeout> - Defines the read timeout in ms. Default is 2500 ms. Example: t5000
+for timeout of 5 seconds
 
 *Channel Address*
 
@@ -253,13 +296,16 @@ Wireless M-Bus is communication protocol to read out meters and sensors.
 
 *Device Address*
 
-<serial_port> - The serial port used for communication. Examples are /dev/ttyS0 (Linux) or COM1 (Windows)
+<serial_port> - The serial port used for communication. Examples are /dev/ttyS0
+(Linux) or COM1 (Windows)
 
-<secondary_address> - The secondary address consists of 8 bytes that should be specified in hexadecimal form. (e.g. e30456a6b72e3e4e)
+<secondary_address> - The secondary address consists of 8 bytes that should be
+specified in hexadecimal form. (e.g. e30456a6b72e3e4e)
 
 *Settings*
 
-<transceiver> - The transceiver being used. It can be 'amber' or 'rc' for modules from RadioCrafts.
+<transceiver> - The transceiver being used. It can be 'amber' or 'rc' for modules
+from RadioCrafts.
 
 <mode> - The wM-Bus mode can be S or T.
 
@@ -270,9 +316,60 @@ Wireless M-Bus is communication protocol to read out meters and sensors.
 Shall be of the format <dib>:<vib> in a hexadecimal string format (e.g. 04:03 or 02:fd48)
 
 
+=== IEC 60870-5-104
+
+IEC 60870-5-104 is an international communication standard for telecontrol.
+The IEC 60870-5-104 driver uses the library from the j60870 project. +
+The driver is able to send general interrogation commands for sampling. For writing
+almost all commands are possible.
+
+[{config_table}]
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | iec60870
+|Device Address |  [ca=<common_address>] [;p=<port>] [;h=<host_address>]
+|Settings | [mft=<message_fragment_timeout>] [;cfl=<cot_field_length>]
+[;cafl=<common_address_field_length>] [;ifl=<ioa_field_length>]
+ [;mtnar=<max_time_no_ack_received>] [;mtnas=<max_time_no_ack_sent>]
+ [;mit=<max_idle_time>] [;mupr=<max_unconfirmed_ipdus_received>]
+  [;sct=<stardt_con_timeout>]
+|Channel Address | ca=<common_address>; t=<type_id>; ioa=<ioa>
+[;dt=<data_type>] [;i=<index>] [;m=<multiple>]
+|=========================================================
+
+All options are separated by a semicolon.
+
+*Channel Address*
+
+Mandatory options are _Common Address_, _Type ID_ and _Information Object Address_.
+
+It is possible to get a single value of a Sequence Information Element, for this
+you can define _Index_ of the needed element. The first element is 0, the second 1, ...
+
+For reading values which are divided in multiple elements it can be defined how many
+elements should be read as one. e.g. _i=0;m=4_ says it reads from the first element
+up to the fourth element, of a sequence. This is only allowed for _Binary State Information_.
+
+With the option _Data Type_ it is possible to get a single quality flag.
+
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+| Data Type | Description
+| v | value (default)
+| ts |timestamp
+| iv | in/valid
+| nt | not topical
+| sb | substituted
+| bl | blocked
+| ov | overflow
+| ei | elapsed time invalid
+| ca | counter was adjusted since last reading
+| cy | counter overflow occurred in the
+|=========================================================
+
 === IEC 61850
 
-IEC 61850 is an international communication standard used mostly for 
+IEC 61850 is an international communication standard used mostly for
 substation automation and controlling distributed energy resources
 (DER). The IEC 61850 driver uses the client library from the
 OpenIEC61850 project.
@@ -313,58 +410,119 @@ The IEC 62056 part 21 driver can be used to read out meter via optical interface
 |=========================================================
 |ID | iec62056p21
 |Device Address | <serial_port>
-|Settings |  
+|Settings | [-d <baud_rate_change_delay>] [-t <timeout>] [-r <number_of_read_retries>]
+[-bd <initial_baud_rate>] [-a <device_address>] [-fbd] [-rsc <request_message_start_character>]
 |Channel Address | <data_set_id>
 |=========================================================
 
 *Device Address*
 
-<serial_port> - The serial port should be given that connects to the M-Bus converter. (e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).
+<serial_port> - The serial port should be given that connects to the M-Bus converter.
+(e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).
+
+*Settings*
+
+_Baud rate change delay_ _-d_ sets the waiting time in milliseconds between a
+baud rate change default is 0. +
+_Timeout_ _-t_ sets the response timeout in milliseconds, default is 2000. +
+_Number of read retries_ _-r_  defines the maximum of read retries, default is 0. +
+_Baud rate_ _-bd_ sets a initial baud rate e.g. for devices with modem configuration,
+default is 300. +
+_Device address_ _-a_ is mostly needed for devices with RS485, default is no device address. +
+_Fixed baud rate_ _-fbd_ activates fixed baud rate, default is deactivated. +
+_Request message start character_ _-rsc_ is used for manufacture specific request
+messages. With this option you can change the default start character. +
+_Read standard_ _-rs_ reads the standard message and the manufacture specific message.
+This options has only an affect if the _Request message start character_ is changed.
 
 *Channel Address*
 
-<data_set_id> - Id of the data set. It is usually an OBIS code of the format A-B:C.D.E*F or on older EDIS code of the format C.D.E.that specifies exactly what the value of this data set represents.
+<data_set_id> - Id of the data set. It is usually an OBIS code of the format
+A-B:C.D.E*F or on older EDIS code of the format C.D.E.that specifies exactly what
+the value of this data set represents.
 
 
 === DLMS/COSEM
 
-DLMS/COSEM is a international standardized protocol used mostly to communicate with smart meter devices. The DLMS/COSEM driver uses the client library developed by the jDLMS project. Currently, the DLMS/COSEM driver supports communication via HDLC and TCP/IP using Logical Name Referencing to retrieve values from the device.
+DLMS/COSEM is a international standardized protocol used mostly to communicate
+with smart meter devices. The DLMS/COSEM driver uses the client library developed
+by the jDLMS project. Currently, the DLMS/COSEM driver supports communication via
+HDLC and TCP/IP using Logical Name Referencing to retrieve values from the device.
 
 *Dependencies:* rxtxcomm_api-2.1.7.jar (optional)
 
 [{driver_table_op}, cols="1,4"]
 |=========================================================
 |ID | dlms
-|Device Address | hdlc:<serial-port>[:<server-physical-port>]:<server-logical>:<client-logical> +
-                  tcp:<server-ip>[:<server-port>]:<server-logical>:<client-logical> +
-
+|Device Address |  t=<serial/tcp> [;h=<inet_address>] [;p=<int>] [;hdlc=<boolean>] +
+                  [;sp=<sp>] [;bd=<int>] [;d=<d>] [;eh=<eh>] [;iec=<iec>] [;pd=<pd>] +
 |Settings |   [SendDisconnect=<disconnect>];[UseHandshake=<handshake>];[..]
-|Channel Address |   <class-id>/<reference-id>/<attribute-id>
+[ld=<int>] [;cid=<cid>] [;sn=<sn>] [;emech=<emech>] [;amech=<amech>] +
+ [;ekey=<ekey>] [;akey=<akey>] [;pass=<pass>] [;cl=<cl>] [;rt=<rt>] [;mid=<mid>] [;did=<did>]
+|Channel Address |   <class-id>/<reference-id>/<attribute-id>[;t=<data_object_type>]
 |=========================================================
 
-*Interface Address*
+*Device Address*
 
-The interface address consists of all elements the driver needs to uniquely identify and address a physical smart meter and format depends on the used protocol. Refer to the following table for the format of the interface address.
+The interface address consists of all elements the driver needs to uniquely
+identify and address a physical smart meter and format depends on the used protocol.
+Refer to the following table for the format of the interface address.
 
-[{driver_table_op},cols="1,5,5"]
+.Device Address connection type
+[{driver_table_op},cols="1,1,1,1,1,5"]
 |=========================================================
-| Protocol | Physical-Connection | Example
-| hdlc | <serial-port>[:<physical-device-id>] | hdlc:ttyUSB0 or hdlc:ttyUSB0:16
-| tcp | <server-ip>[:<server-port>] | tcp:16:192.168.200.25 or tcp:16:192.168.200.25:4059
+| Option | Value        | Mandatory | _serial/tcp_ | default | Description
+| t      | _serial/tcp_ | _true_    | -            | -       | Connection type
+| sp     | _string_     | _false_   | _serial_     | -       | serial port e.g. sp=ttyS0 or sp=COM1
+| bd     | _integer_    | _false_   | _serial_     | 9600    | Baud rate
+| h      | _integer_    | _false_   | _tcp_        | -       | Host name e.g. h=127.0.0.1
+| p      | _integer_    | _false_   | _tcp_        | 4059    | Port
+| hdlc   | _boolean_    | _false_   | _both_       | false   | Uses HDLC if true
+| d      | _integer_    | _false_   | _both_       | 0       | Baud rate change delay in milliseconds
+| eh     | _flag_       | _false_   | _both_       | false   | Use initial handshake to negotiate baud rate
+| iec    | _string_     | _false_   | _both_       | -       | IEC 21 address
+| pd     | _integer_    | _false_   | _both_       | 0       | Physical Device Address
 |=========================================================
+
+.Example
+Serial with HDLC on serial port ttyUSB0 an 9600 baud: +
+_t=serial;sp=ttyUSB0;bd=9600;hdlc=true_
+
+TCP with HDLC to host 192.168.85.99 on port 5081: +
+_t=tcp;h=192.168.85.99;p=5081;hdlc=true_
 
 *Settings*
 
-Settings are separated by a semi-colon. The available settings are determined by the used protocol, defined as first parameter of the device address. All possible settings with a short description and default values are listed in the following table.
+Settings are separated by a semi-colon. The available settings are determined by
+the used protocol, defined as first parameter of the device address. All possible
+settings with a short description and default values are listed in the following
+table.
 
-[{driver_table_op},cols="2,1,1,1,5"]
+.Settings
+[{driver_table_op},cols="1,1,1,1,5"]
 |=========================================================
-| Options | Protocol | Values | Default | Description
-| PW | all | string | | Authorization password to access the smart meter device
-| SendDisconnect | all | _true/false_ | true | Send a disconnect message at DLMS layer on disconnecting from device. Set this flag to false if the remote device is expecting the disconnect message at a lower layer (like HDLC)
-| UseHandshake | HDLC | _true/false_ | true | Use initial handshake to negotiate baud rate
-| Baudrate | HDLC | _integer_ | | Maximum supported baud rate (0 = no maximum). If UseHandshake = false, this value will be used to communicate with the device and _has_ to be set
-| ForceSingle | all | _true/false_ | false | Forces every attribute to be requested individually. This option has to be enabled to support Kamstrup 382 smart meter devices
+| Option | Value       | Mandatory | Default | Description
+| ld     | _integer_   | _false_   | 1       | Logical Device Address
+| cid    | _integer_   | _false_   | 16      | Client ID
+| sn     | _boolean_   | _false_   | false   | use SN referencing
+| emech  | _integer_   | _false_   | -1      | Encryption Mechanism
+| amech  | _integer_   | _false_   | 0       | Authentication Mechanism
+| ekey   | _hex_value_ | _false_   | -       | Encryption Key
+| akey   | _hex_value_ | _false_   | -       | Authentication Key
+| pass   | _string_    | _false_   | -       | Authorization password to access the smart meter device
+| cl     | _integer_   | _false_   | 16      | Challenge Length
+| rt     | _integer_   | _false_   | 20000   | Response Timeout
+| mid    | _string_    | _false_   | MMM     | Manufacturer Id
+| did    | _long_      | _false_   | 1       | Device Id
+|=========================================================
+
+
+.Device Address additional options
+[{driver_table_op},cols="1,1,1,1,5"]
+|=========================================================
+| Option | Value    | Mandatory | default | Description
+| a      | _string_ | _true_    | -       | Address in logical name format <Interface_Class_ID>/<Instance_ID>/<Object_Attribute_ID>
+| t      | _string_ | _false_   | -       | Data Object Type
 |=========================================================
 
 === KNX
@@ -378,7 +536,7 @@ BUS. The driver uses the calimero library.
 [{driver_table_op}, cols="1,4"]
 |=========================================================
 |ID | knx
-|Device Address | knxip://<host_ip>[:<port>] knxip://<device_ip>[:<port>]  
+|Device Address | knxip://<host_ip>[:<port>] knxip://<device_ip>[:<port>]
 |Settings | [Address=<Individual KNX address (e. g. 2.6.52)>];[SerialNumber=<Serial number>]
 |Channel Address |   <Group Adress>:<DPT_ID>
 |=========================================================
@@ -389,7 +547,10 @@ The device address consists of the host IP and the IP of the KNX tunnel or route
 
 *Channel Address*
 
-The channel address consist of the group address you want to monitor and the corresponding data point ID. A data point consists of a main number and a subtype. For example a boolean would be represented by the main number 1 and a switch by the subtype 001, the DPT_ID of a switch is 1.001.
+The channel address consist of the group address you want to monitor and the
+corresponding data point ID. A data point consists of a main number and a subtype.
+For example a boolean would be represented by the main number 1 and a switch by
+the subtype 001, the DPT_ID of a switch is 1.001.
 
 
 === eHZ
@@ -403,7 +564,7 @@ OpenMUC driver for SML and IEC 62056-21
 |=========================================================
 |ID | ehz
 |Device Address | sml://<serialPort> or iec://<serialPort>  e.g. sml:///dev/ttyUSB0
-|Settings | 
+|Settings |
 |Channel Address | <OBIScode> e.g. 10181ff (not 1-0:1.8.1*255)
 |=========================================================
 
@@ -415,7 +576,8 @@ scanForDevices() and scanForChannels will return the specific configuration.
 === SNMP
 
 
-Simple Network Management Protocol (SNMP) is an Internet-standard protocol for monitoring and management of devices on IP networks.
+Simple Network Management Protocol (SNMP) is an Internet-standard protocol for
+monitoring and management of devices on IP networks.
 
 *Dependencies:* snmp4j-2.2.5.jar
 
@@ -444,7 +606,7 @@ All settings are stored in "SnmpDriverSettingVariableNames" enum.
 .Setting Parameters
 [{driver_table_op}, cols="1,2"]
 |=========================================================
-|SNMPVersion | "SNMPVersion" enum contains all available values 
+|SNMPVersion | "SNMPVersion" enum contains all available values
 |USERNAME| string
 |SECURITYNAME|  string
 |AUTHENTICATIONPASSPHRASE | is the same COMMUNITY word in SNMP V2c
@@ -468,21 +630,25 @@ In order to read specific channel, corresponding SNMP OID shall be passed.
 ----
 
 
-For scanning SNMP enabled devices in the network, range of IP addresses shall be provided. This functionality is implemented only for SNMP V2c.
+For scanning SNMP enabled devices in the network, range of IP addresses shall be
+provided. This functionality is implemented only for SNMP V2c.
 
 
 
 
 === Aggregator
 
-The Aggregator which performs aggregation of logged values from a channel. It uses the DriverService and the DataAccessService. It is therefore a kind of OpenMUC driver/application mix. The aggregator is fully configurable through the channels.xml config file. 
+The Aggregator which performs aggregation of logged values from a channel. It
+uses the DriverService and the DataAccessService. It is therefore a kind of
+OpenMUC driver/application mix. The aggregator is fully configurable through the
+channels.xml config file.
 
 .Configuration Synopsis
 [{driver_table_op}, cols="1,4"]
 |=========================================================
 |ID | aggregator
 |Device Address | virtual device e.g "aggregatordevice"
-|Settings | 
+|Settings |
 |Channel Address | <sourceChannelId>:<aggregationType>[:<quality>]
 |=========================================================
 
@@ -490,16 +656,22 @@ The Aggregator which performs aggregation of logged values from a channel. It us
 
 <sourceChannelId> - id of channel to be aggregated
 
-<aggregationType> - 
+<aggregationType> -
 
 * AVG: calculates the average of all values of interval (e.g. for average power)
 * LAST: takes the last value of interval (e.g. for energy)
 * DIFF: calculates difference of first and last value of interval
-* PULS_ENERGY,<pulses per Wh>,<max counter>: calculates energy from pulses of interval (e.g. for pulse counter/meter). Example: PULSE_ENERGY,10,65535
+* PULS_ENERGY,<pulses per Wh>,<max counter>: calculates energy from pulses of
+interval (e.g. for pulse counter/meter). Example: PULSE_ENERGY,10,65535
 
-<quality> - Range 0.0 - 1.0. Percentage of the expected valid/available logged records for aggregation. Default value is 1.0. Example: Aggregation of 5s values to 15min. The 15min interval consists of 180 5s values. If quality is 0.9 then at least 162 of 180 values must be valid/available for aggregation. NOTE: The missing/invalid values could appear as block at the beginning or end of the interval, which might be problematic for some aggregation types
+<quality> - Range 0.0 - 1.0. Percentage of the expected valid/available logged
+records for aggregation. Default value is 1.0. Example: Aggregation of 5s values
+to 15min. The 15min interval consists of 180 5s values. If quality is 0.9 then at
+least 162 of 180 values must be valid/available for aggregation.
+NOTE: The missing/invalid values could appear as block at the beginning or end
+of the interval, which might be problematic for some aggregation types
 
-Example: 
+Example:
 
 Channel A (channelA) is sampled and logged every 10 seconds.
 
@@ -511,10 +683,13 @@ Channel A (channelA) is sampled and logged every 10 seconds.
  </channel>
 ----
 
-Now you want a channel B (channelB) which contains the same values as channel A but in a 1 minute resolution by using the 'average' as aggregation type. You can achieve this by simply adding the aggregator driver to your channel config file and define a the channel B as follows:
+Now you want a channel B (channelB) which contains the same values as channel A
+but in a 1 minute resolution by using the 'average' as aggregation type. You can
+achieve this by simply adding the aggregator driver to your channel config file
+and define a the channel B as follows:
 
 [source,xml]
----- 
+----
  <driver id="aggregator">
    <device id="aggregatordevice">
      <channelid="channelB">
@@ -526,8 +701,16 @@ Now you want a channel B (channelB) which contains the same values as channel A 
  </driver>
 ----
 
-The new (aggregated) channel has the id channelB. The channel address consists of the channel id of the original channel and the aggregation type which is channelA:avg in this example. OpenMUC calls the read method of the aggregator every minute. The aggregator then gets all logged records from channelA of the last minute, calculates the average and sets this value for the record of channelB.
-NOTE: It's recommended to specify the samplingTimeOffset for channelB. It should be between samplingIntervalB - samplingIntervalA and samplingIntervalB. In this example: 50 < offset < 60. This constraint ensures that values are AGGREGATED CORRECTLY. At hh:mm:55 the aggregator gets the logged values of channelA and at hh:mm:60 respectively hh:mm:00 the aggregated value is logged.
+The new (aggregated) channel has the id channelB. The channel address consists of
+the channel id of the original channel and the aggregation type which is channelA:avg
+in this example. OpenMUC calls the read method of the aggregator every minute. The
+aggregator then gets all logged records from channelA of the last minute, calculates
+the average and sets this value for the record of channelB.
+NOTE: It's recommended to specify the samplingTimeOffset for channelB. It should
+be between samplingIntervalB - samplingIntervalA and samplingIntervalB. In this
+example: 50 < offset < 60. This constraint ensures that values are AGGREGATED
+CORRECTLY. At hh:mm:55 the aggregator gets the logged values of channelA and at
+hh:mm:60 respectively hh:mm:00 the aggregated value is logged.
 
 [source,xml]
 ----
@@ -542,4 +725,3 @@ NOTE: It's recommended to specify the samplingTimeOffset for channelB. It should
    </device>
  </driver>
 ----
-

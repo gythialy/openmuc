@@ -10,7 +10,8 @@ public class ChannelAddress extends GenericSetting {
     protected String data_type = "v";
     protected int index = -1;
     protected int multiple = 1;
-    protected String command = "";
+    // protected String command = "";
+    protected boolean select = false;
 
     protected static enum Option implements OptionI {
         COMMON_ADDRESS("ca", Integer.class, true),
@@ -19,7 +20,8 @@ public class ChannelAddress extends GenericSetting {
         DATA_TYPE("dt", String.class, false),
         INDEX("i", Integer.class, false),
         MULTIPLE("m", Integer.class, false),
-        COMMAND("c", String.class, false);
+        // COMMAND("c", String.class, false),
+        SELECT("s", Boolean.class, false);
 
         private String prefix;
         private Class<?> type;
@@ -108,13 +110,23 @@ public class ChannelAddress extends GenericSetting {
         return multiple;
     }
 
+    // /**
+    // * Optional: command type
+    // *
+    // * @return the command type
+    // */
+    // public String command() {
+    // return command;
+    // }
+
     /**
-     * Optional: command type
+     * Optional: Qualifier execute/select<br>
+     * Default id false for execute
      * 
-     * @return the command type
+     * @return true for select and false for execute
      */
-    public String command() {
-        return command;
+    public boolean select() {
+        return select;
     }
 
 }

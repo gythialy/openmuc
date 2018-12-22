@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -119,7 +119,7 @@ public class LogFileReaderTestSingleFile {
         long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:51:00").getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         long expectedRecords = 7;
         boolean result;
@@ -143,7 +143,7 @@ public class LogFileReaderTestSingleFile {
         long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:00:10").getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         long expectedRecords = 0;
         boolean result;
@@ -168,7 +168,7 @@ public class LogFileReaderTestSingleFile {
         long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 02:00:00").getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         long expectedRecords = 361; //
 
@@ -193,7 +193,7 @@ public class LogFileReaderTestSingleFile {
         long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 00:59:59").getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         long expectedRecords = 0;
         System.out.print(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -226,7 +226,7 @@ public class LogFileReaderTestSingleFile {
         long t2 = TestUtils.stringToDate(dateFormat, fileDate0 + " 03:59:59").getTimeInMillis();
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        List<Record> records = fr.getValues(t1, t2);
+        List<Record> records = fr.getValues(t1, t2).get(channelTestImpl.getId());
 
         long expectedRecords = 0;
 
@@ -251,7 +251,7 @@ public class LogFileReaderTestSingleFile {
         boolean result;
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        Record record = fr.getValue(t1);
+        Record record = fr.getValue(t1).get(channelTestImpl.getId());
 
         if (record != null) {
             result = true;
@@ -274,8 +274,8 @@ public class LogFileReaderTestSingleFile {
         boolean result;
 
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
-        Record record = fr.getValue(t1);
-
+        Record record = fr.getValue(t1).get(channelTestImpl.getId());
+        System.out.println("record: " + record);
         if (record == null) {
             result = true;
         }
@@ -297,7 +297,7 @@ public class LogFileReaderTestSingleFile {
         // get value looks from 02:59:59 to 3:00:00. before 3:00:00 a value exists
         LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
 
-        Record record = fr.getValue(t1);
+        Record record = fr.getValue(t1).get(channelTestImpl.getId());
 
         if (record != null) {
             result = true;

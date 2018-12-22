@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,8 +21,12 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.openmuc.framework.config.ChannelConfig;
 import org.openmuc.framework.config.DeviceConfig;
@@ -39,23 +43,24 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
+    private static final Pattern timePattern = Pattern.compile("^([0-9]+)(ms|s|m|h)?$");
 
-    String id;
-    String channelAddress = null;
-    String description = null;
-    String unit = null;
-    ValueType valueType = null;
-    Integer valueTypeLength = null;
-    Double scalingFactor = null;
-    Double valueOffset = null;
-    Boolean listening = null;
-    Integer samplingInterval = null;
-    Integer samplingTimeOffset = null;
-    String samplingGroup = null;
-    Integer loggingInterval = null;
-    Integer loggingTimeOffset = null;
-    Boolean disabled = null;
-    List<ServerMapping> serverMappings = null;
+    private String id;
+    private String channelAddress = null;
+    private String description = null;
+    private String unit = null;
+    private ValueType valueType = null;
+    private Integer valueTypeLength = null;
+    private Double scalingFactor = null;
+    private Double valueOffset = null;
+    private Boolean listening = null;
+    private Integer samplingInterval = null;
+    private Integer samplingTimeOffset = null;
+    private String samplingGroup = null;
+    private Integer loggingInterval = null;
+    private Integer loggingTimeOffset = null;
+    private Boolean disabled = null;
+    private List<ServerMapping> serverMappings = null;
 
     ChannelImpl channel;
     DeviceConfigImpl deviceParent;
@@ -180,7 +185,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
     @Override
     public void setSamplingInterval(Integer samplingInterval) {
-        if (listening != null && samplingInterval != null && listening && samplingInterval > 0) {
+        if (listening != null && samplingInterval != null && isListening() && samplingInterval > 0) {
             throw new IllegalStateException("Sampling may not be enabled while listening is enabled.");
         }
         this.samplingInterval = samplingInterval;
@@ -367,16 +372,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
                     config.setLoggingTimeOffset(timeStringToMillis(childNode.getTextContent()));
                 }
                 else if (childName.equals("disabled")) {
-                    String disabledString = childNode.getTextContent().toLowerCase();
-                    if (disabledString.equals("true")) {
-                        config.setDisabled(true);
-                    }
-                    else if (disabledString.equals("false")) {
-                        config.setDisabled(false);
-                    }
-                    else {
-                        throw new ParseException("\"disabled\" tag contains neither \"true\" nor \"false\"");
-                    }
+                    config.setDisabled(Boolean.parseBoolean(childNode.getTextContent()));
                 }
                 else {
                     throw new ParseException("found unknown tag:" + childName);
@@ -448,12 +444,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
         if (listening != null) {
             childElement = document.createElement("listening");
-            if (listening) {
-                childElement.setTextContent("true");
-            }
-            else {
-                childElement.setTextContent("false");
-            }
+            childElement.setTextContent(listening.toString());
             parentElement.appendChild(childElement);
         }
 
@@ -489,12 +480,7 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
         if (disabled != null) {
             childElement = document.createElement("disabled");
-            if (disabled) {
-                childElement.setTextContent("true");
-            }
-            else {
-                childElement.setTextContent("false");
-            }
+            childElement.setTextContent(disabled.toString());
             parentElement.appendChild(childElement);
         }
 
@@ -640,10 +626,10 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
         }
 
         if (disabled == null) {
-            configClone.disabled = clonedParentConfig.disabled;
+            configClone.disabled = clonedParentConfig.isDisabled();
         }
         else {
-            if (clonedParentConfig.disabled) {
+            if (clonedParentConfig.isDisabled()) {
                 configClone.disabled = false;
             }
             else {
@@ -665,58 +651,86 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
         return nameAttribute.getTextContent();
     }
 
-    static String millisToTimeString(Integer time) {
-        if (time == 0) {
+    static String millisToTimeString(final int timeInMillis) {
+        if (timeInMillis <= 0) {
             return "0";
         }
-        if ((time % 1000) == 0) {
-            time /= 1000;
-            if ((time % 60) == 0) {
-                time /= 60;
-                if ((time % 60) == 0) {
-                    return time.toString().concat("h");
-                }
-                return time.toString().concat("m");
-            }
-            return time.toString().concat("s");
+        if ((timeInMillis % 1000) != 0) {
+            return timeToString("ms", timeInMillis);
         }
-        return time.toString().concat("ms");
+
+        int timeInS = timeInMillis / 1000;
+        if ((timeInS % 60) == 0) {
+            int timeInM = timeInS / 60;
+            if ((timeInM % 60) == 0) {
+                int timeInH = timeInM / 60;
+                return timeToString("h", timeInH);
+            }
+            return timeToString("m", timeInM);
+        }
+        return timeToString("s", timeInS);
     }
 
-    static int timeStringToMillis(String timeString) throws ParseException {
+    private static String timeToString(String timeUnit, int time) {
+        return MessageFormat.format("{0,number,#}{1}", time, timeUnit);
+    }
+
+    static Integer timeStringToMillis(String timeString) throws ParseException {
+        if (timeString == null || timeString.isEmpty()) {
+            return null;
+        }
+
+        Matcher timeMatcher = timePattern.matcher(timeString);
+        if (!timeMatcher.matches()) {
+            throw new ParseException(MessageFormat.format("Unknown time string: ''{0}''.", timeString));
+        }
+
+        String timeNumStr = timeMatcher.group(1);
+        Long timeNum = parseTimeNumFrom(timeNumStr);
+
+        String timeUnit = timeMatcher.group(2);
+        final TimeUnit milliseconds = TimeUnit.MILLISECONDS;
+
+        if (timeUnit == null) {
+            return timeNum.intValue();
+        }
+
+        switch (timeUnit) {
+        case "s":
+            return (int) milliseconds.convert(timeNum, TimeUnit.SECONDS);
+
+        case "m":
+            return (int) milliseconds.convert(timeNum, TimeUnit.MINUTES);
+
+        case "h":
+            return (int) milliseconds.convert(timeNum, TimeUnit.HOURS);
+
+        case "ms":
+            return timeNum.intValue();
+        default:
+            // can not reach this case: string pattern does not allow this.
+            throw new ParseException("Unknown time unit: " + timeUnit);
+        }
+
+    }
+
+    private static Long parseTimeNumFrom(String timeNumStr) throws ParseException {
         try {
-
-            char lastChar = timeString.charAt(timeString.length() - 1);
-
-            if (Character.isDigit(lastChar)) {
-                return Integer.parseInt(timeString);
-            }
-
-            switch (lastChar) {
-            case 's':
-                if (timeString.charAt(timeString.length() - 2) == 'm') {
-                    return Integer.parseInt(timeString.substring(0, timeString.length() - 2));
-                }
-                return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 1000;
-            case 'm':
-                return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 60000;
-            case 'h':
-                return Integer.parseInt(timeString.substring(0, timeString.length() - 1)) * 3600000;
-            default:
-                throw new ParseException("unknown time string: " + timeString);
-            }
-
+            return Long.parseLong(timeNumStr);
         } catch (NumberFormatException e) {
             throw new ParseException(e);
         }
-
     }
 
     static void checkIdSyntax(String id) {
-        if (!id.matches("[a-zA-Z0-9_-]+")) {
-            throw new IllegalArgumentException("Invalid ID: \"" + id
-                    + "\". An ID may not be the empty string and must contain only ASCII letters, digits, hyphens and underscores.");
+        if (id.matches("[a-zA-Z0-9_-]+")) {
+            return;
         }
+
+        String msg = MessageFormat.format(
+                "Invalid ID: \"{0}\". An ID may not be the empty string and must contain only ASCII letters, digits, hyphens and underscores.",
+                id);
+        throw new IllegalArgumentException(msg);
     }
 
     public boolean isSampling() {

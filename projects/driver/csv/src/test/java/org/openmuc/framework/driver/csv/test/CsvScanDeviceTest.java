@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class CsvScanDeviceTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(CsvScanDeviceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvScanDeviceTest.class);
 
     String dir = System.getProperty("user.dir");
 

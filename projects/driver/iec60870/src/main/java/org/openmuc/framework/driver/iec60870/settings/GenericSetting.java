@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -13,26 +14,19 @@ import org.slf4j.LoggerFactory;
 
 public abstract class GenericSetting {
 
-    private final static String SEPARATOR = ";";
-    private final static String PAIR_SEP = "=";
-    private final static String PREFIX = "prefix";
-    private final static String TYPE = "type";
-    private final static String MANDATORY = "mandatory";
-    private final static Locale LOCALE = Locale.ENGLISH;
+    private static final String SEPARATOR = ";";
+    private static final String PAIR_SEP = "=";
+    private static final String PREFIX = "prefix";
+    private static final String TYPE = "type";
+    private static final String MANDATORY = "mandatory";
+    private static final Locale LOCALE = Locale.ENGLISH;
 
-    private final static Logger logger = LoggerFactory.getLogger(GenericSetting.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenericSetting.class);
 
     @SuppressWarnings("unchecked")
     public static String syntax(Class<? extends GenericSetting> genericSettings) {
         Class<Enum<? extends OptionI>> options = (Class<Enum<? extends OptionI>>) genericSettings
                 .getDeclaredClasses()[0];
-        // Class<Enum<? extends OptionI>> options = null;
-        // for (Class<?> c : genericSettings.getClasses()) {
-        // if (c.isEnum() && OptionI.class.isAssignableFrom(c)
-        // && !c.getEnclosingClass().equals(GenericSetting.class)) {
-        // options = (Class<Enum<? extends OptionI>>) c;
-        // }
-        // }
 
         StringBuilder sb = new StringBuilder();
         StringBuilder sbNotMandetory = new StringBuilder();
@@ -215,12 +209,15 @@ public abstract class GenericSetting {
         case "String":
             options.getDeclaringClass().getDeclaredField(optionName).set(this, value);
             break;
+        case "byte[]":
+            options.getDeclaringClass().getDeclaredField(optionName).set(this, extractByteArray(value, enumName));
+            break;
         case "InetAddress":
             options.getDeclaringClass().getDeclaredField(optionName).set(this, extractInetAddress(value, enumName));
             break;
         default:
-            throw new NoSuchFieldException("Driver implementation error, \'" + enumName.toLowerCase(LOCALE)
-                    + "\' not supported data type. Report driver developer\n");
+            throw new NoSuchFieldException(type.getSimpleName() + "  Driver implementation error, \'"
+                    + enumName.toLowerCase(LOCALE) + "\' not supported data type. Report driver developer\n");
         }
     }
 
@@ -284,6 +281,22 @@ public abstract class GenericSetting {
         return ret;
     }
 
+    private synchronized byte[] extractByteArray(String value, String errorMessage) throws ArgumentSyntaxException {
+        byte[] ret = {};
+        if (value.startsWith("0x")) {
+            try {
+                ret = fromShortHexString(value);
+            } catch (NumberFormatException e) {
+                argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());
+            }
+        }
+        else {
+            ret = value.getBytes(StandardCharsets.US_ASCII);
+        }
+
+        return ret;
+    }
+
     private synchronized InetAddress extractInetAddress(String value, String errorMessage)
             throws ArgumentSyntaxException {
         InetAddress ret = null;
@@ -299,6 +312,36 @@ public abstract class GenericSetting {
             throws ArgumentSyntaxException {
         throw new ArgumentSyntaxException(MessageFormat.format("Value of {0} in {1} is not type of {2}.", errorMessage,
                 this.getClass().getSimpleName(), returnType));
+    }
+
+    private static byte[] fromShortHexString(String shortHexString) throws NumberFormatException {
+
+        validate(shortHexString);
+
+        int length = shortHexString.length();
+
+        byte[] data = new byte[length / 2];
+        for (int i = 0; i < length; i += 2) {
+            int firstCharacter = Character.digit(shortHexString.charAt(i), 16);
+            int secondCharacter = Character.digit(shortHexString.charAt(i + 1), 16);
+
+            if (firstCharacter == -1 || secondCharacter == -1) {
+                throw new NumberFormatException("string is not a legal hex string.");
+            }
+
+            data[i / 2] = (byte) ((firstCharacter << 4) + secondCharacter);
+        }
+        return data;
+    }
+
+    private static void validate(String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("string s may not be null");
+        }
+
+        if ((s.length() == 0) || ((s.length() % 2) != 0)) {
+            throw new NumberFormatException("string is not a legal hex string.");
+        }
     }
 
 }

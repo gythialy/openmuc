@@ -23,74 +23,62 @@ public class PulseEnergyAggregation extends AggregatorChannel {
         super(simpleAddress, dataAccessService);
     }
 
-    /**
-     * Performs aggregation
-     */
     @Override
     public double aggregate(long currentTimestamp, long endTimestamp) throws AggregationException {
 
-        double value = 0;
-
         try {
             List<Record> recordList = getLoggedRecords(currentTimestamp, endTimestamp);
-            value = getPulsesEnergy(channelAddress, sourceChannel, recordList, aggregatedChannel);
+            return getPulsesEnergy(channelAddress, sourceChannel, recordList, aggregatedChannel);
+        } catch (AggregationException e) {
+            throw e;
         } catch (Exception e) {
             throw new AggregationException(e.getMessage());
         }
 
-        return value;
     }
 
-    private double getPulsesEnergy(ChannelAddress simpleAdress, Channel sourceChannel, List<Record> recordList,
+    private static double getPulsesEnergy(ChannelAddress simpleAdress, Channel sourceChannel, List<Record> recordList,
             Channel aggregatedChannel) throws AggregationException, AggregationException {
-
-        double aggregatedValue;
-        double pulsesPerWh;
-        double maxCounterValue;
 
         // parse type address params. length = 3: <type,pulsePerWh,maxCounterValue>
         String[] typeParams = simpleAdress.getAggregationType().split(AggregatorConstants.TYPE_PARAM_SEPARATOR);
 
-        if (typeParams.length == 3) {
-            pulsesPerWh = Double.valueOf(typeParams[INDEX_PULSES_WH]);
-            maxCounterValue = Double.valueOf(typeParams[INDEX_MAX_COUNTER]);
-        }
-        else {
+        if (typeParams.length != 3) {
             throw new AggregationException("Wrong parameters for PULSE_ENERGY.");
         }
 
-        if (pulsesPerWh > 0) {
-            if (maxCounterValue <= 0) {
-                maxCounterValue = SHORT_MAX; // if negative or null then set default value
-            }
-            aggregatedValue = getImpulsValue(sourceChannel, recordList, aggregatedChannel.getSamplingInterval(),
-                    pulsesPerWh, maxCounterValue);
-        }
-        else {
+        final double pulsesPerWh = Double.valueOf(typeParams[INDEX_PULSES_WH]);
+        double maxCounterValue = Double.valueOf(typeParams[INDEX_MAX_COUNTER]);
+
+        if (pulsesPerWh <= 0) {
             throw new AggregationException("Parameter pulses per Wh has to be greater then 0.");
         }
 
-        return aggregatedValue;
+        if (maxCounterValue <= 0) {
+            maxCounterValue = SHORT_MAX; // if negative or null then set default value
+        }
+
+        return calcImpulsValue(sourceChannel, recordList, aggregatedChannel.getSamplingInterval(), pulsesPerWh,
+                maxCounterValue);
     }
 
-    private double getImpulsValue(Channel sourceChannel, List<Record> recordList, long samplingInterval,
+    private static double calcImpulsValue(Channel sourceChannel, List<Record> recordList, long samplingInterval,
             double pulsesPerX, double maxCounterValue) throws AggregationException {
 
-        if (recordList.size() < 1) {
+        if (recordList.isEmpty()) {
             throw new AggregationException("List holds less than 1 records, calculation of pulses not possible.");
         }
 
-        Record lastRecord = AggregatorUtil.getLastRecordOfList(recordList);
+        Record lastRecord = AggregatorUtil.findLastRecordIn(recordList);
         double past = lastRecord.getValue().asDouble();
-        double actual = getWaitForLatestRecordValue(sourceChannel, lastRecord);
-        double power = calcPulsesValue(actual, past, pulsesPerX, samplingInterval, maxCounterValue);
-        return power;
+        double actual = retrieveLatestRecordValueWithTs(sourceChannel, lastRecord);
+
+        return calcPulsesValue(actual, past, pulsesPerX, samplingInterval, maxCounterValue);
     }
 
-    private double calcPulsesValue(double actualPulses, double pulsesHist, double pulsesPerX, long loggingInterval,
-            double maxCounterValue) {
+    private static double calcPulsesValue(double actualPulses, double pulsesHist, double pulsesPerX,
+            long loggingInterval, double maxCounterValue) {
 
-        double power;
         double pulses = actualPulses - pulsesHist;
 
         if (pulses >= 0.0) {
@@ -99,26 +87,20 @@ public class PulseEnergyAggregation extends AggregatorChannel {
         else {
             pulses = (maxCounterValue - pulsesHist) + actualPulses;
         }
-        power = pulses / pulsesPerX * (loggingInterval / 1000.);
-
-        return power;
+        return pulses / pulsesPerX * (loggingInterval / 1000.);
     }
 
-    private double getWaitForLatestRecordValue(Channel sourceChannel, Record lastRecord) {
-
-        double returnValue;
-
+    private static double retrieveLatestRecordValueWithTs(Channel srcChannel, Record lastRecord) {
+        final long timestamp = lastRecord.getTimestamp();
         do {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
-        } while (sourceChannel.getLatestRecord().getTimestamp().equals(lastRecord.getTimestamp()));
+        } while (srcChannel.getLatestRecord().getTimestamp() == timestamp);
 
-        returnValue = sourceChannel.getLatestRecord().getValue().asDouble();
-        return returnValue;
+        return srcChannel.getLatestRecord().getValue().asDouble();
     }
 
 }

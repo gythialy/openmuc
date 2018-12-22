@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-16 Fraunhofer ISE
+ * Copyright 2011-18 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,8 +40,6 @@ import org.openmuc.framework.config.ScanException;
  * <li>Before a driver service is unregistered or the data manager is stopped the framework calls disconnect for all
  * connected devices. The disconnect function should do any necessary resource clean up.</li>
  * </ul>
- * 
- * @author Stefan Feuerhahn
  *
  */
 public interface Connection {
@@ -61,7 +59,7 @@ public interface Connection {
      * @throws ConnectionException
      *             if an error occurs while scanning and the connection was closed
      */
-    public List<ChannelScanInfo> scanForChannels(String settings)
+    List<ChannelScanInfo> scanForChannels(String settings)
             throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException;
 
     /**
@@ -91,7 +89,7 @@ public interface Connection {
      * @throws ConnectionException
      *             if the connection to the device was interrupted.
      */
-    public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
+    Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
             throws UnsupportedOperationException, ConnectionException;
 
     /**
@@ -109,7 +107,7 @@ public interface Connection {
      * @throws ConnectionException
      *             if the connection to the device was interrupted.
      */
-    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
+    void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
             throws UnsupportedOperationException, ConnectionException;
 
     /**
@@ -133,13 +131,12 @@ public interface Connection {
      * @throws ConnectionException
      *             if the connection to the device was interrupted.
      */
-    public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
+    Object write(List<ChannelValueContainer> containers, Object containerListHandle)
             throws UnsupportedOperationException, ConnectionException;
 
     /**
      * Disconnects or closes the connection. Cleans up any resources associated with the connection.
-     * 
      */
-    public void disconnect();
+    void disconnect();
 
 }
