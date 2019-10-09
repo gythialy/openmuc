@@ -1,4 +1,4 @@
-# OpenMUC Framework - Overview [![Build Status](https://travis-ci.com/gythialy/openmuc.svg?branch=master)](https://travis-ci.com/gythialy/openmuc)
+# OpenMUC Framework - Overview [![Actions Status](https://github.com/gythialy/openmuc/workflows/Java%20CI/badge.svg)](https://github.com/gythialy/openmuc/actions)
 
 This is UNOFFICIAL, fork from [openmuc](http://www.openmuc.org/openmuc/).
 
