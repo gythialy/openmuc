@@ -4,9 +4,7 @@
 
     var LoginController = function ($scope, $state, notify, $translate, AuthService) {
 
-        $translate('LOGIN_CREDENTIALS_INCORRECT').then(text = > $scope.loginCredentialsErrorErrorText = text
-    )
-        ;
+        $translate('LOGIN_CREDENTIALS_INCORRECT').then(text => $scope.loginCredentialsErrorErrorText = text);
 
         if (AuthService.isLoggedIn()) {
             $state.go('dashboard');
@@ -14,17 +12,12 @@
             $scope.user = {};
 
             $scope.login = function () {
-                AuthService.login($scope.user).then(res = > {
+                AuthService.login($scope.user).then(res => {
                     $state.go('dashboard');
-            },
-                err =
-            >
-                {
+                }, err => {
                     notify({message: $scope.loginCredentialsErrorText, position: "right", classes: "alert-warning"})
                     $state.go('home');
-                }
-            )
-                ;
+                });
             }
         }
     };

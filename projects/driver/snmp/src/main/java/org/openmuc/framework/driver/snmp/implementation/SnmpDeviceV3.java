@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -56,7 +56,7 @@ public class SnmpDeviceV3 extends SnmpDevice {
      *            only supports unauthenticated messages. [required by snmp4j library] eg. AuthMD5.ID
      * @param authenticationPassphrase
      *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *            also be not <code>null</code>. RFC3414 &sect;11.2 requires pass phrases to have a minimum length of 8
      *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
      *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
      * @param privacyProtocol
@@ -64,14 +64,14 @@ public class SnmpDeviceV3 extends SnmpDevice {
      *            supports not encrypted messages. [required by snmp4j library] eg. PrivDES.ID
      * @param privacyPassphrase
      *            the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
-     *            <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
-     *            length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *            <code>null</code>. RFC3414 &sect;11.2 requires pass phrases to have a minimum length of 8 bytes. If
+     *            the length of <code>authenticationPassphrase</code> is less than 8 bytes an
      *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
      * 
      * @throws ConnectionException
      *             thrown if SNMP listen or initialization failed
      * @throws ArgumentSyntaxException
-     *             thrown if Device address foramt is wrong
+     *             thrown if Device address format is wrong
      */
 
     public SnmpDeviceV3(String address, String username, String securityName, OID authenticationProtocol,
@@ -99,13 +99,13 @@ public class SnmpDeviceV3 extends SnmpDevice {
      *            the security name of the user (typically the user name). [required by snmp4j library]
      * @param authenticationPassphrase
      *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *            also be not <code>null</code>. RFC3414 &sect;11.2 requires pass phrases to have a minimum length of 8
      *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
      *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
      * @param privacyPassphrase
      *            the privacy pass phrase. If not <code>null</code>, <code>privacyProtocol</code> must also be not
-     *            <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8 bytes. If the
-     *            length of <code>authenticationPassphrase</code> is less than 8 bytes an
+     *            <code>null</code>. RFC3414 &sect;11.2 requires pass phrases to have a minimum length of 8 bytes. If
+     *            the length of <code>authenticationPassphrase</code> is less than 8 bytes an
      *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
      * 
      * @throws ConnectionException

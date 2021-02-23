@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,11 +29,20 @@ public class ShortValue extends NumberValue {
         super(value);
     }
 
+    public ShortValue(String value) {
+        super(Short.parseShort(value));
+    }
+
     @Override
     public byte[] asByteArray() {
         byte[] bytes = new byte[2];
         ByteBuffer.wrap(bytes).putShort(super.asShort());
         return bytes;
+    }
+
+    @Override
+    public ValueType getValueType() {
+        return ValueType.SHORT;
     }
 
 }

@@ -1,3 +1,3 @@
-(function () {
-    angular.module('openmuc.openmuc-visu', []);
+(function(){
+	angular.module('openmuc.openmuc-visu', []);
 })();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,13 +21,13 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import java.util.List;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public final class StartListeningTask extends DeviceTask implements ConnectedTask {
 
@@ -36,7 +36,7 @@ public final class StartListeningTask extends DeviceTask implements ConnectedTas
     List<ChannelRecordContainerImpl> selectedChannels;
 
     public StartListeningTask(DataManager dataManager, Device device,
-            List<ChannelRecordContainerImpl> selectedChannels) {
+                              List<ChannelRecordContainerImpl> selectedChannels) {
         this.dataManager = dataManager;
         this.device = device;
         this.selectedChannels = selectedChannels;

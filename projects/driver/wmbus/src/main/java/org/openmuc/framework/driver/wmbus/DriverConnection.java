@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,8 +23,9 @@ package org.openmuc.framework.driver.wmbus;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.DatatypeConverter;
-
+//import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
@@ -47,7 +48,7 @@ public class DriverConnection implements Connection {
     private List<ChannelRecordContainer> containersToListenFor = new ArrayList<>();
 
     public DriverConnection(WMBusConnection con, SecondaryAddress secondaryAddress, String keyString,
-            WMBusInterface serialInterface) throws ArgumentSyntaxException {
+            WMBusInterface serialInterface) throws ArgumentSyntaxException, DecoderException {
         this.con = con;
         this.serialInterface = serialInterface;
         this.secondaryAddress = secondaryAddress;
@@ -56,7 +57,7 @@ public class DriverConnection implements Connection {
 
             byte[] keyAsBytes;
             try {
-                keyAsBytes = DatatypeConverter.parseHexBinary(keyString);
+                keyAsBytes = Hex.decodeHex(keyString);
             } catch (IllegalArgumentException e) {
                 serialInterface.connectionClosedIndication(secondaryAddress);
                 throw new ArgumentSyntaxException("The key could not be converted to a byte array.");

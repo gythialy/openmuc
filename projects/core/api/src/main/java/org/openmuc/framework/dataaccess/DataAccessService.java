@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -34,7 +34,7 @@ public interface DataAccessService {
 
     /**
      * Get the list of all channel IDs.
-     * 
+     *
      * @return the list of all channel IDs.
      */
     List<String> getAllIds();
@@ -45,19 +45,16 @@ public interface DataAccessService {
 
     /**
      * Execute the read on the read value containers.
-     * 
-     * @param values
-     *            a list of ReadRecordContainer
+     *
+     * @param values a list of ReadRecordContainer
      * @see Channel#getReadContainer()
      */
     void read(List<ReadRecordContainer> values);
 
     /**
      * Execute the write on the write value containers.
-     * 
-     * @param values
-     *            a list of WriteValueContainer.
-     * 
+     *
+     * @param values a list of WriteValueContainer.
      * @see Channel#getWriteContainer()
      */
     void write(List<WriteValueContainer> values);

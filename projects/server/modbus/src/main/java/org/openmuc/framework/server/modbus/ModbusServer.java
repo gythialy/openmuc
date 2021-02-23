@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,11 +23,14 @@ package org.openmuc.framework.server.modbus;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.lib.osgi.config.DictionaryPreprocessor;
+import org.openmuc.framework.lib.osgi.config.PropertyHandler;
+import org.openmuc.framework.lib.osgi.config.ServicePropertyException;
 import org.openmuc.framework.server.modbus.register.BooleanMappingInputRegister;
 import org.openmuc.framework.server.modbus.register.DoubleMappingInputRegister;
 import org.openmuc.framework.server.modbus.register.FloatMappingInputRegister;
@@ -37,59 +40,80 @@ import org.openmuc.framework.server.modbus.register.LongMappingInputRegister;
 import org.openmuc.framework.server.modbus.register.ShortMappingInputRegister;
 import org.openmuc.framework.server.spi.ServerMappingContainer;
 import org.openmuc.framework.server.spi.ServerService;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.ModbusCoupler;
-import com.ghgande.j2mod.modbus.net.ModbusTCPListener;
+import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleInputRegister;
 import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
+import com.ghgande.j2mod.modbus.slave.ModbusSlave;
+import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
-@Component
-public class ModbusServer implements ServerService {
+public class ModbusServer implements ServerService, ManagedService {
     private static Logger logger = LoggerFactory.getLogger(ModbusServer.class);
-    private ModbusTCPListener listener;
-    private Thread listenThread;
-    private ServerSettings settings;
+    private final SimpleProcessImage spi = new SimpleProcessImage();
+    private ModbusSlave slave;
+    private final PropertyHandler property;
+    private final Settings settings;
 
-    @Activate
-    protected void activate(ComponentContext context) throws IOException {
-        logger.info("Activating Modbus Server");
-        settings = new ServerSettings();
-
-        bindMappings(new ArrayList<ServerMappingContainer>());
-        startServer(new SimpleProcessImage());
+    public ModbusServer() {
+        String pid = ModbusServer.class.getName();
+        settings = new Settings();
+        property = new PropertyHandler(settings, pid);
     }
 
-    private void startServer(SimpleProcessImage spi) {
-        ModbusCoupler.getReference().setProcessImage(spi);
-        ModbusCoupler.getReference().setMaster(settings.isMaster());
-        ModbusCoupler.getReference().setUnitID(settings.getUnitId());
+    private void startServer(SimpleProcessImage spi) throws IOException {
+        String address = property.getString(Settings.ADDRESS);
+        int port = property.getInt(Settings.PORT);
+        String type = property.getString(Settings.TYPE).toLowerCase();
+        boolean isRtuTcp = false;
 
-        if (listener == null) {
-            try {
-                listener = new ModbusTCPListener(3, InetAddress.getByName(settings.getAddress()));
-                listener.setPort(settings.getPort());
-                listenThread = listener.listen();
-                listenThread.setName("modbusServerListener");
-            } catch (UnknownHostException e) {
-                logger.error(e.getMessage());
+        logServerSettings();
+
+        try {
+            switch (type) {
+            case "udp":
+                slave = ModbusSlaveFactory.createUDPSlave(InetAddress.getByName(address), port);
+                break;
+            case "serial":
+                logger.error("Serial connection is not supported, yet. Using RTU over TCP with default values.");
+            case "rtutcp":
+                isRtuTcp = true;
+            case "tcp":
+            default:
+                slave = ModbusSlaveFactory.createTCPSlave(InetAddress.getByName(address), port,
+                        property.getInt(Settings.POOLSIZE), isRtuTcp);
+                break;
             }
+            slave.setThreadName("modbusServerListener");
+            slave.addProcessImage(property.getInt(Settings.UNITID), spi);
+            slave.open();
+        } catch (ModbusException e) {
+            throw new IOException(e.getMessage());
+        } catch (UnknownHostException e) {
+            logger.error("Unknown host: {}", address);
+            throw new IOException(e.getMessage());
         }
-
     }
 
-    @Deactivate
-    protected void deactivate(ComponentContext context) {
-        logger.info("Deactivating Modbus Server");
-        listener.stop();
-        listener = null;
+    private void logServerSettings() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Address:  {}", property.getString(Settings.ADDRESS));
+            logger.debug("Port:     {}", property.getString(Settings.PORT));
+            logger.debug("UnitId:   {}", property.getString(Settings.UNITID));
+            logger.debug("Type:     {}", property.getString(Settings.TYPE));
+            logger.debug("Poolsize: {}", property.getString(Settings.POOLSIZE));
+        }
+    }
+
+    void shutdown() {
+        if (slave != null) {
+            slave.close();
+        }
     }
 
     @Override
@@ -100,32 +124,45 @@ public class ModbusServer implements ServerService {
     @Override
     public void updatedConfiguration(List<ServerMappingContainer> mappings) {
         bindMappings(mappings);
+        try {
+            startServer(spi);
+        } catch (IOException e) {
+            logger.error("Error starting server.");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void serverMappings(List<ServerMappingContainer> mappings) {
+        logger.debug("serverMappings");
         bindMappings(mappings);
     }
 
     private void bindMappings(List<ServerMappingContainer> mappings) {
-        SimpleProcessImage spi = new SimpleProcessImage();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Bind mappings of {} channel.", mappings.size());
+        }
 
         for (final ServerMappingContainer container : mappings) {
 
             String serverAddress = container.getServerMapping().getServerAddress();
 
             EPrimaryTable primaryTable = EPrimaryTable
-                    .getEnumfromString(serverAddress.substring(0, serverAddress.indexOf(":")));
+                    .getEnumfromString(serverAddress.substring(0, serverAddress.indexOf(':')));
             int modbusAddress = Integer
-                    .parseInt(serverAddress.substring(serverAddress.indexOf(":") + 1, serverAddress.lastIndexOf(":")));
-            String dataType = serverAddress.substring(serverAddress.lastIndexOf(":") + 1);
+                    .parseInt(serverAddress.substring(serverAddress.indexOf(':') + 1, serverAddress.lastIndexOf(':')));
+            String dataType = serverAddress.substring(serverAddress.lastIndexOf(':') + 1);
+
+            ValueType valueType = ValueType.valueOf(dataType);
+
+            logMapping(primaryTable, modbusAddress, valueType, container.getChannel());
 
             switch (primaryTable) {
             case INPUT_REGISTERS:
-                addInputRegisters(spi, modbusAddress, ValueType.valueOf(dataType), container.getChannel());
+                addInputRegisters(spi, modbusAddress, valueType, container.getChannel());
                 break;
             case HOLDING_REGISTERS:
-                addHoldingRegisters(spi, modbusAddress, ValueType.valueOf(dataType), container.getChannel());
+                addHoldingRegisters(spi, modbusAddress, valueType, container.getChannel());
                 break;
             case COILS:
                 // TODO: create for coils
@@ -136,8 +173,13 @@ public class ModbusServer implements ServerService {
             default:
             }
         }
+    }
 
-        startServer(spi);
+    private void logMapping(EPrimaryTable primaryTable, int modbusAddress, ValueType valueType, Channel channel) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("ChannelId: {}, Register: {}, Address: {}, ValueType: {}, Channel valueType: {}",
+                    channel.getId(), primaryTable, modbusAddress, valueType, channel.getValueType());
+        }
     }
 
     private void addHoldingRegisters(SimpleProcessImage spi, int modbusAddress, ValueType valueType, Channel channel) {
@@ -260,7 +302,7 @@ public class ModbusServer implements ServerService {
             EPrimaryTable returnValue = null;
             if (enumAsString != null) {
                 for (EPrimaryTable value : EPrimaryTable.values()) {
-                    if (enumAsString.toUpperCase().equals(value.toString())) {
+                    if (enumAsString.equalsIgnoreCase(value.toString())) {
                         returnValue = EPrimaryTable.valueOf(enumAsString.toUpperCase());
                         break;
                     }
@@ -278,11 +320,33 @@ public class ModbusServer implements ServerService {
          * @return all supported values as a comma separated string
          */
         public static String getSupportedValues() {
-            String supported = "";
+            StringBuilder sb = new StringBuilder();
             for (EPrimaryTable value : EPrimaryTable.values()) {
-                supported += value.toString() + ", ";
+                sb.append(value.toString()).append(", ");
             }
-            return supported;
+            return sb.toString();
         }
     }
+
+    @Override
+    public void updated(Dictionary<String, ?> propertiesDict) throws ConfigurationException {
+        DictionaryPreprocessor dict = new DictionaryPreprocessor(propertiesDict);
+        if (!dict.wasIntermediateOsgiInitCall()) {
+            tryProcessConfig(dict);
+        }
+    }
+
+    private void tryProcessConfig(DictionaryPreprocessor newConfig) {
+        try {
+            property.processConfig(newConfig);
+            if (property.configChanged()) {
+                shutdown();
+                startServer(spi);
+            }
+        } catch (ServicePropertyException | IOException e) {
+            logger.error("Update properties failed", e);
+            shutdown();
+        }
+    }
+
 }

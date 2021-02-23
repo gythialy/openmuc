@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,8 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.DatatypeConverter;
-
+//import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.LongValue;
@@ -75,7 +76,7 @@ public class WMBusInterface {
         @Override
         public void discardedBytes(byte[] bytes) {
             if (logger.isDebugEnabled()) {
-                String bytesAsHexStr = DatatypeConverter.printHexBinary(bytes);
+                String bytesAsHexStr = Hex.encodeHexString(bytes);
                 logger.debug("received bytes that will be discarded: {}", bytesAsHexStr);
             }
         }
@@ -130,8 +131,8 @@ public class WMBusInterface {
 
                 int i = 0;
                 for (DataRecord dataRecord : dataRecords) {
-                    String dibHexStr = DatatypeConverter.printHexBinary(dataRecord.getDib());
-                    String vibHexStr = DatatypeConverter.printHexBinary(dataRecord.getVib());
+                    String dibHexStr = Hex.encodeHexString(dataRecord.getDib());
+                    String vibHexStr = Hex.encodeHexString(dataRecord.getVib());
                     dibvibs[i++] = MessageFormat.format("{0}:{1}", dibHexStr, vibHexStr);
                 }
 
@@ -334,7 +335,8 @@ public class WMBusInterface {
         }
     }
 
-    public Connection connect(SecondaryAddress secondaryAddress, String keyString) throws ArgumentSyntaxException {
+    public Connection connect(SecondaryAddress secondaryAddress, String keyString)
+            throws ArgumentSyntaxException, DecoderException {
         DriverConnection connection = new DriverConnection(con, secondaryAddress, keyString, this);
         if (logger.isTraceEnabled()) {
             logger.trace("WMBus: connect device with ID {} and HashCode {}", secondaryAddress.getDeviceId(),

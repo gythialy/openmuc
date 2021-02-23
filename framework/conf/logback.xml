@@ -1,9 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+
+  <appender name="STDOUT_TRACE" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>TRACE</level>
+        <onMatch>ACCEPT</onMatch>
+        <onMismatch>DENY</onMismatch>
+    </filter>
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{yyMMdd HHmmss.SSS} [%thread] %-5level %logger{20} - %green(%msg%n)</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT_DEBUG" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>DEBUG</level>
+        <onMatch>ACCEPT</onMatch>
+        <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %white(%msg%n)</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT_INFO" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>INFO</level>
+	<onMatch>ACCEPT</onMatch>
+        <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %cyan(%msg%n)</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT_WARN" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>WARN</level>
+        <onMatch>ACCEPT</onMatch>
+        <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %yellow(%msg%n)</pattern>
+    </encoder>
+  </appender>
+
+
+  <appender name="STDOUT_ERROR" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>ERROR</level>
+        <onMatch>ACCEPT</onMatch>
+        <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %red(%msg%n)</pattern>
     </encoder>
   </appender>
 
@@ -11,20 +62,18 @@
     <file>log/openmuc.log</file>
     <append>true</append>
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
 
- 
+  <!--project specific-->
   <root level="INFO">
-    <appender-ref ref="STDOUT" />
-  </root>
- 
-  <root level="INFO">
+    <appender-ref ref="STDOUT_TRACE" />
+    <appender-ref ref="STDOUT_INFO" />
+    <appender-ref ref="STDOUT_DEBUG" />
+    <appender-ref ref="STDOUT_WARN" />
+    <appender-ref ref="STDOUT_ERROR" />
     <appender-ref ref="FILE" />
   </root>
-
-
-  <logger name="org.eclipse.jetty" level="WARN" />
 
 </configuration>

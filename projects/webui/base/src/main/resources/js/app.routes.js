@@ -30,11 +30,7 @@
             if (!toState.requireLogin || AuthService.isLoggedIn()) {
                 return;
             }
-            notify({
-                message: 'You need to be authenticated to see this page!',
-                position: "right",
-                classes: "alert-warning"
-            });
+            notify({message: 'You need to be authenticated to see this page!', position: "right", classes: "alert-warning"});
             AuthService.redirectToLogin();
             event.preventDefault();
         });

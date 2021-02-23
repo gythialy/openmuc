@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,9 +25,9 @@ package org.openmuc.framework.driver.modbus;
  */
 public enum EPrimaryTable {
 
-    COILS, //
-    DISCRETE_INPUTS, //
-    INPUT_REGISTERS, //
+    COILS,
+    DISCRETE_INPUTS,
+    INPUT_REGISTERS,
     HOLDING_REGISTERS;
 
     public static EPrimaryTable getEnumfromString(String enumAsString) {

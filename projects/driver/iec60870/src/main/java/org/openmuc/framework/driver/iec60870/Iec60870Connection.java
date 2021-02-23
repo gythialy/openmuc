@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,7 +23,6 @@ package org.openmuc.framework.driver.iec60870;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
@@ -41,7 +40,7 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.openmuc.j60870.CauseOfTransmission;
 import org.openmuc.j60870.ClientConnectionBuilder;
-import org.openmuc.j60870.IeQualifierOfInterrogation;
+import org.openmuc.j60870.ie.IeQualifierOfInterrogation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ public final class Iec60870Connection implements Connection {
     private final String driverId;
 
     private final Iec60870ListenerList iec60870listener = new Iec60870ListenerList();
-    private final Iec60870ReadListener readListener = new Iec60870ReadListener();
+    private final Iec60870ReadListener readListener = new Iec60870ReadListener(clientConnection);
 
     public Iec60870Connection(DeviceAddress deviceAddress, DeviceSettings deviceSettings, String driverId)
             throws ConnectionException {
@@ -76,23 +75,20 @@ public final class Iec60870Connection implements Connection {
         } catch (IOException e) {
             throw new ConnectionException(MessageFormat.format("Was not able to connect to {0}:{1}. {2}",
                     this.deviceAddress.hostAddress().getHostName(), port, e.getMessage()));
-        } catch (TimeoutException e) {
-            throw new ConnectionException("Timeout while start data transfer.", e);
         }
     }
 
-    private void startListenIec60870(DeviceSettings deviceSettings, int port, String hostAddress)
-            throws IOException, TimeoutException {
-        clientConnection.startDataTransfer(iec60870listener, deviceSettings.stardtConTimeout());
+    private void startListenIec60870(DeviceSettings deviceSettings, int port, String hostAddress) throws IOException {
+        clientConnection.startDataTransfer(iec60870listener);
         iec60870listener.addListener(readListener);
-        logger.debug("Driver-IEC60870: successful sended startDT act to ", hostAddress, ":", port,
+        logger.debug("Driver-IEC60870: successful sent startDT act to ", hostAddress, ":", port,
                 "and got startDT con.");
     }
 
     private void connect(ClientConnectionBuilder clientConnectionBuilder, int port, String hostAddress)
             throws IOException {
         logger.debug("Try to connect to: ", hostAddress, ':', port);
-        clientConnection = clientConnectionBuilder.connect();
+        clientConnection = clientConnectionBuilder.build();
         logger.info("Driver-IEC60870: successful connected to ", hostAddress, ":", port);
     }
 
@@ -122,15 +118,14 @@ public final class Iec60870Connection implements Connection {
 
     @Override
     public synchronized void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
-            throws UnsupportedOperationException, ConnectionException {
+            throws ConnectionException {
         Iec60870Listener iec60870Listen = new Iec60870Listener();
         iec60870Listen.registerOpenMucListener(containers, listener, driverId, this);
         iec60870listener.addListener(iec60870Listen);
     }
 
     @Override
-    public Object write(List<ChannelValueContainer> containers, Object containerListHandle)
-            throws UnsupportedOperationException, ConnectionException {
+    public Object write(List<ChannelValueContainer> containers, Object containerListHandle) throws ConnectionException {
         for (ChannelValueContainer channelValueContainer : containers) {
             ChannelAddress channelAddress;
             try {

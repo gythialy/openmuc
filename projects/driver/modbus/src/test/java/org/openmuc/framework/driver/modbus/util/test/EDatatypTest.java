@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,8 +20,10 @@
  */
 package org.openmuc.framework.driver.modbus.util.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.driver.modbus.EDatatype;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,19 +43,19 @@ public class EDatatypTest {
     public void getSupportedDatatypesTest() {
 
         logger.info("Supported Datatyps: " + EDatatype.getSupportedDatatypes());
-        Assert.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
     public void isValidDatatypTest() {
 
         // valid
-        Assert.assertTrue(EDatatype.isValid("int32"));
-        Assert.assertTrue(EDatatype.isValid("INT32"));
+        assertTrue(EDatatype.isValid("int32"));
+        assertTrue(EDatatype.isValid("INT32"));
 
         // invalid
-        Assert.assertFalse(EDatatype.isValid("INT30"));
-        Assert.assertFalse(EDatatype.isValid("shorts"));
+        assertFalse(EDatatype.isValid("INT30"));
+        assertFalse(EDatatype.isValid("shorts"));
     }
 
     // @Test

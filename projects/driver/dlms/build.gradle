@@ -3,38 +3,36 @@ def projectDescription = "DLMS/COSEM driver for the OpenMUC framework."
 
 configurations.create('embed')
 
-def jdlmsversion = "1.6.0"
-def jasn1version = "1.9.0"
+def jdlmsversion = "1.7.1"
+def asn1version = "1.12.0"
 def jrxtxversion = "1.0.1"
+def bouncycastleversion = "1.67"
 
 dependencies {
     implementation project(':openmuc-core-spi')
     implementation group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
 
     embed group: 'org.openmuc', name: 'jdlms', version: jdlmsversion
-    embed group: 'org.openmuc', name: 'jasn1', version: jasn1version
+    embed group: 'com.beanit', name: 'asn1bean', version: asn1version
+    embed group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: bouncycastleversion
+    
 }
 
 jar {
-    manifest {
-        name = "OpenMUC Driver - DLMS/COSEM"
-        instruction 'Bundle-ClassPath', '.,lib/jdlms-' + jdlmsversion + '.jar, lib/jasn1-' + jasn1version + '.jar' + ',lib/jrxtx-' + jrxtxversion + '.jar'
-        instruction 'Export-Package', ''
-        instruction 'Import-Package', '!org.openmuc.jdlms*,!org.openmuc.jasn1*,org.openmux.jrxtx*,javax.net;resolution:=optional,*' + jarDefaultImportPackageVersion
-    }
-}
+    bnd('Bundle-Name': projectName,
+            'Bundle-ClassPath': '.,lib/jdlms-' + jdlmsversion + '.jar, lib/asn1bean-' + asn1version + '.jar',
+            'Import-Package': '!org.openmuc.jdlms*,!com.beanit.asn1bean.*,!org.bouncycastle.*,javax.net;resolution:=optional,*' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description projectDescription
             }
         }

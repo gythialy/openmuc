@@ -3,20 +3,18 @@ def projectName = "OpenMUC Data Logger - ASCII"
 dependencies {
     implementation project(':openmuc-core-spi')
     implementation project(':openmuc-core-datamanager')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Export-Package', ''
-    }
+    bnd('Bundle-Name': projectName)
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description "ASCII data logger for the OpenMUC framework."
             }
         }

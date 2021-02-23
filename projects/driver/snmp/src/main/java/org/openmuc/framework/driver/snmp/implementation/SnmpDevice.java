@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
@@ -96,7 +95,7 @@ public abstract class SnmpDevice implements Connection {
      *            Contains ip and port. accepted string "X.X.X.X/portNo"
      * @param authenticationPassphrase
      *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *            also be not <code>null</code>. RFC3414 &sect;11.2 requires pass phrases to have a minimum length of 8
      *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
      *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
      * 
@@ -176,9 +175,9 @@ public abstract class SnmpDevice implements Connection {
             response = snmp.send(pdu, target);
             PDU responsePDU = response.getResponse();
             @SuppressWarnings("rawtypes")
-            Vector vbs = responsePDU.getVariableBindings();
+            List<? extends VariableBinding> vbs = responsePDU.getVariableBindings();
             for (int i = 0; i < vbs.size(); i++) {
-                VariableBinding vb = (VariableBinding) vbs.get(i);
+                VariableBinding vb = vbs.get(i);
                 result.put(vb.getOid().toString(), vb.getVariable().toString());
             }
         } catch (IOException e) {
@@ -219,7 +218,7 @@ public abstract class SnmpDevice implements Connection {
             response = snmp.send(pdu, target);
             PDU responsePDU = response.getResponse();
             @SuppressWarnings("rawtypes")
-            Vector vbs = responsePDU.getVariableBindings();
+            List<? extends VariableBinding> vbs = responsePDU.getVariableBindings();
             result = ((VariableBinding) vbs.get(0)).getVariable().toString();
         } catch (IOException e) {
             throw new ConnectionException("SNMP get request failed! " + e.getMessage());
@@ -284,7 +283,7 @@ public abstract class SnmpDevice implements Connection {
      *            response vector
      * @return HashMap&lt;String, String&gt;
      */
-    public static HashMap<String, String> parseResponseVectorToHashMap(Vector<VariableBinding> responseVector) {
+    public static HashMap<String, String> parseResponseVectorToHashMap(List<? extends VariableBinding> responseVector) {
 
         HashMap<String, String> map = new HashMap<>();
         for (VariableBinding elem : responseVector) {

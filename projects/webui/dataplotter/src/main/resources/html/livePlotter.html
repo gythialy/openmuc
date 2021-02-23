@@ -34,6 +34,26 @@
         </div>
 
         <div class="form-group row">
+            <div class = "col-md-2">
+                {{'Y_AXIS' | translate}}
+                <input type="checkbox" ng-model="enableAutoRange" class="autoRange">
+                {{'AUTO_RANGE' | translate}}
+            </div>
+            <form class="form-inline" id="access">
+                <div class="col-md-4 row">    
+                    <div class="col-md-6">
+                        <input id="value-input" type="text" class="form-control"
+                        ng-disabled="enableAutoRange" ng-model="yMinValue" placeholder="min"/>
+                    </div>
+                    <div class="col-md-6">
+                        <input id="value-input" type="text" class="form-control"
+                        ng-disabled="enableAutoRange" ng-model="yMaxValue" placeholder="max"/>
+                    </div>
+                </div>   
+            </form>
+        </div>
+
+        <div class="form-group row">
             <label for="start_date" class="col-md-2 control-label">
                 {{'PLOT_TIME_PERIOD' | translate}}
             </label>
@@ -59,12 +79,11 @@
             <div class="col-md-6 row">
                 <div class="col-md-5" ng-repeat="channel in channels">
                     <label class="sr-only">{{channel.label}}</label>
-                    <label uib-tooltip="{{channel.valueType == 'STRING'  ? ('CHANNEL_VALUE_NOT_PLOTTABLE' | translate) : ''}}"
-                           ng-class="{deactivated: channel.valueType == 'STRING'}">
+                    <label uib-tooltip="{{channel.valueType == 'STRING'  ? ('CHANNEL_VALUE_NOT_PLOTTABLE' | translate) : ''}}" ng-class="{deactivated: channel.valueType == 'STRING'}">
                         <input type="checkbox"
-                               checklist-model="selectedChannels"
-                               checklist-value="channel"
-                               ng-disabled="channel.valueType == 'STRING'">
+                                  checklist-model="selectedChannels"
+                                  checklist-value="channel"
+                                  ng-disabled="channel.valueType == 'STRING'">
                         {{channel.label}}
                     </label>
                 </div>

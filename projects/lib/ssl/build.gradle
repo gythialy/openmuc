@@ -1,0 +1,24 @@
+def projectName = "OpenMUC Library - SSL Manager"
+def projectDescription = "SSL manager for the OpenMUC framework."
+
+dependencies {
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-lib-osgi')
+    implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
+}
+
+jar {
+    bnd('Bundle-Name': projectName,
+            'Export-Package': 'org.openmuc.framework.lib.ssl')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description = projectDescription
+            }
+        }
+    }
+}

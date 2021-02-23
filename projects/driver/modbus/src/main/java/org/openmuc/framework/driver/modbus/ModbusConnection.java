@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -72,9 +72,6 @@ public abstract class ModbusConnection implements Connection {
     private final int MAX_RETRIES_FOR_DRIVER = 3;
 
     public abstract void connect() throws ConnectionException;
-
-    @Override
-    public abstract void disconnect();
 
     public ModbusConnection() {
 
@@ -194,7 +191,7 @@ public abstract class ModbusConnection implements Connection {
     public void writeChannel(ModbusChannel channel, Value value) throws ModbusException, RuntimeException {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("write channel: " + channel.getChannelAddress());
+            logger.debug("write channel: {}", channel.getChannelAddress());
         }
 
         switch (channel.getFunctionCode()) {
@@ -320,12 +317,9 @@ public abstract class ModbusConnection implements Connection {
      *             if max number of retries is reached, which indicates an IO problem.
      */
     private void checkRetryCondition(int retries) throws ModbusIOException {
+        logger.trace("Failed to get response. Retry {}/{}", retries, MAX_RETRIES_FOR_DRIVER);
         if (retries == MAX_RETRIES_FOR_DRIVER) {
-            logger.trace("Failed to get response. Retry " + retries + "/" + MAX_RETRIES_FOR_DRIVER);
             throw new ModbusIOException("Unable to get response. Max number of retries reached");
-        }
-        else {
-            logger.trace("Failed to get response. Retry " + retries + "/" + MAX_RETRIES_FOR_DRIVER);
         }
     }
 
@@ -340,8 +334,8 @@ public abstract class ModbusConnection implements Connection {
             isMatching = true;
         }
         else {
-            logger.warn("Mismatching transaction IDs: request (" + requestId + ") / response (" + responseId
-                    + "). Retrying transaction...");
+            logger.warn("Mismatching transaction IDs: request ({}) / response ({}). Retrying transaction...", requestId,
+                    responseId);
         }
 
         return isMatching;
@@ -446,8 +440,7 @@ public abstract class ModbusConnection implements Connection {
 
         transaction.setRequest(readInputRegistersRequest);
         ModbusResponse response = executeReadTransaction();
-        InputRegister[] registers = ((ReadInputRegistersResponse) response).getRegisters();
-        return registers;
+        return ((ReadInputRegistersResponse) response).getRegisters();
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,7 +31,7 @@ public abstract class KnxValue {
     protected DPTXlator dptXlator;
 
     public static KnxValue createKnxValue(String dptID) throws KNXException {
-        int mainNumber = new Integer(dptID.split("\\.")[0]);
+        int mainNumber = Integer.valueOf(dptID.split("\\.")[0]);
 
         switch (mainNumber) {
         case 1:
@@ -78,7 +78,7 @@ public abstract class KnxValue {
         dptXlator.setData(data);
     }
 
-    public abstract void setOpenMucValue(Value value) throws KNXFormatException;
-
     public abstract Value getOpenMucValue();
+
+    public abstract void setOpenMucValue(Value value) throws KNXFormatException;
 }

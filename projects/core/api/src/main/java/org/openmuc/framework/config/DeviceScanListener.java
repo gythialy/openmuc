@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,23 +23,20 @@ package org.openmuc.framework.config;
 /**
  * Interface to implement when you want to be informed about a device scan progress and results. Register your listener
  * with configService.scanForDevices(..., listener).
- * 
  */
 public interface DeviceScanListener {
 
     /**
      * Called immediately when a new device has been found.
-     * 
-     * @param scanInfo
-     *            the information of the device found
+     *
+     * @param scanInfo the information of the device found
      */
     void deviceFound(DeviceScanInfo scanInfo);
 
     /**
      * Called when scan is progressing.
-     * 
-     * @param progress
-     *            the scan progress in percentage
+     *
+     * @param progress the scan progress in percentage
      */
     void scanProgress(int progress);
 
@@ -55,9 +52,8 @@ public interface DeviceScanListener {
 
     /**
      * Called when there has been a scan error reported by the driver.
-     * 
-     * @param message
-     *            the error message
+     *
+     * @param message the error message
      */
     void scanError(String message);
 

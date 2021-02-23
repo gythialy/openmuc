@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -32,6 +32,7 @@ import org.openmuc.framework.config.ScanException;
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.StringValue;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.driver.csv.channel.ChannelFactory;
 import org.openmuc.framework.driver.csv.channel.CsvChannel;
@@ -96,8 +97,16 @@ public class CsvDeviceConnection implements Connection {
         for (ChannelRecordContainer container : containers) {
             try {
                 CsvChannel channel = getCsvChannel(container);
-                double value = channel.readValue(samplingTime);
-                container.setRecord(new Record(new DoubleValue(value), samplingTime, Flag.VALID));
+                String valueAsString = channel.readValue(samplingTime);
+
+                if (container.getChannel().getValueType().equals(ValueType.STRING)) {
+                    container.setRecord(new Record(new StringValue(valueAsString), samplingTime, Flag.VALID));
+                }
+                else {
+                    // in all other cases try parsing as double
+                    double value = Double.parseDouble(valueAsString);
+                    container.setRecord(new Record(new DoubleValue(value), samplingTime, Flag.VALID));
+                }
 
             } catch (EmptyChannelAddressException e) {
                 logger.warn("EmptyChannelAddressException: {}", e.getMessage());

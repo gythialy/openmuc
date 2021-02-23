@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,8 +20,10 @@
  */
 package org.openmuc.framework.driver.wmbus;
 
-import javax.xml.bind.DatatypeConverter;
+//import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -94,7 +96,12 @@ public class Driver implements DriverService {
             secondaryAddressAsString = deviceAddressTokens[1].toLowerCase();
         }
 
-        SecondaryAddress secondaryAddress = parseSecondaryAddress(secondaryAddressAsString);
+        SecondaryAddress secondaryAddress = null;
+        try {
+            secondaryAddress = parseSecondaryAddress(secondaryAddressAsString);
+        } catch (DecoderException e) {
+            e.printStackTrace();
+        }
 
         String[] settingsTokens = splitSettingsToken(settings);
 
@@ -110,15 +117,24 @@ public class Driver implements DriverService {
         if (isTCP) {
             synchronized (this) {
                 wmBusInterface = WMBusInterface.getTCPInstance(host, port, transceiverString, modeString);
-                return wmBusInterface.connect(secondaryAddress, keyString);
+                try {
+                    return wmBusInterface.connect(secondaryAddress, keyString);
+                } catch (DecoderException e) {
+                    e.printStackTrace();
+                }
             }
         }
         else {
             synchronized (this) {
                 wmBusInterface = WMBusInterface.getSerialInstance(connectionPort, transceiverString, modeString);
-                return wmBusInterface.connect(secondaryAddress, keyString);
+                try {
+                    return wmBusInterface.connect(secondaryAddress, keyString);
+                } catch (DecoderException e) {
+                    e.printStackTrace();
+                }
             }
         }
+        return null;
     }
 
     private String[] splitSettingsToken(String settings) throws ArgumentSyntaxException {
@@ -130,11 +146,12 @@ public class Driver implements DriverService {
         return settingsTokens;
     }
 
-    private SecondaryAddress parseSecondaryAddress(String secondaryAddressAsString) throws ArgumentSyntaxException {
+    private SecondaryAddress parseSecondaryAddress(String secondaryAddressAsString)
+            throws ArgumentSyntaxException, DecoderException {
         SecondaryAddress secondaryAddress;
         try {
-            byte[] bytes = DatatypeConverter.parseHexBinary(secondaryAddressAsString);
-            secondaryAddress = SecondaryAddress.newFromWMBusLlHeader(bytes, 0);
+            byte[] bytes = Hex.decodeHex(secondaryAddressAsString);
+            secondaryAddress = SecondaryAddress.newFromWMBusHeader(bytes, 0);
         } catch (NumberFormatException e) {
             throw new ArgumentSyntaxException(
                     "The SecondaryAddress: " + secondaryAddressAsString + " could not be converted to a byte array.");

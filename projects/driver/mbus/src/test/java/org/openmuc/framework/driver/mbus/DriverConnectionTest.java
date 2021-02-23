@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,7 +21,7 @@
 package org.openmuc.framework.driver.mbus;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openmuc.framework.config.ChannelScanInfo;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.Record;
@@ -54,6 +55,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DriverConnection.class)
 public class DriverConnectionTest {
+
+    private final int delay = 100; // in ms
 
     private final Map<String, ConnectionInterface> interfaces = new HashMap<>();
     private static final byte[] NZR_ANSWER = { 104, 50, 50, 104, 8, 5, 114, 8, 6, 16, 48, 82, 59, 1, 2, 2, 0, 0, 0, 4,
@@ -83,7 +86,7 @@ public class DriverConnectionTest {
         vds.decode();
         PowerMockito.when(con.read(anyInt())).thenReturn(vds);
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, mBusAdresse, interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, mBusAdresse, delay, interfaces);
         serialIntervace.increaseConnectionCounter();
         String[] deviceAddressTokens = mBusAdresse.trim().split(":");
 
@@ -98,7 +101,7 @@ public class DriverConnectionTest {
             mBusAddress = Integer.decode(deviceAddressTokens[1]);
         }
 
-        DriverConnection mBusConnection = new DriverConnection(serialIntervace, mBusAddress, secondaryAddress);
+        DriverConnection mBusConnection = new DriverConnection(serialIntervace, mBusAddress, secondaryAddress, delay);
 
         return mBusConnection;
 
@@ -150,6 +153,7 @@ public class DriverConnectionTest {
     @Test
     public void testScanForChannels() throws Exception {
         DriverConnection mBusConnection = newConnection("/dev/ttyS100:5");
+        mBusConnection.disconnect();
         assertEquals(ValueType.LONG, mBusConnection.scanForChannels(null).get(0).getValueType());
     }
 
@@ -162,12 +166,18 @@ public class DriverConnectionTest {
         vds.decode();
         when(con.read(anyInt())).thenReturn(vds);
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", delay, interfaces);
         serialIntervace.increaseConnectionCounter();
-        String[] deviceAddressTokens = "/dev/ttyS100:5".trim().split(":");
+        String[] deviceAddressTokens = { "/dev/ttyS100", "5" };
         DriverConnection mBusConnection = new DriverConnection(serialIntervace,
-                Integer.parseInt(deviceAddressTokens[1]), null);
+                Integer.parseInt(deviceAddressTokens[1]), null, delay);
 
+        mBusConnection.disconnect();
+        List<ChannelScanInfo> scanForChannels = mBusConnection.scanForChannels(null);
+        for (ChannelScanInfo info : scanForChannels) {
+            System.out.println(info.getDescription() + " " + info.getUnit());
+
+        }
         ValueType actual = mBusConnection.scanForChannels(null).get(22).getValueType();
         assertEquals(ValueType.LONG, actual);
     }
@@ -204,11 +214,11 @@ public class DriverConnectionTest {
 
         when(con.read(anyInt())).thenReturn(vds);
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", delay, interfaces);
         serialIntervace.increaseConnectionCounter();
-        String[] deviceAddressTokens = "/dev/ttyS100:5".trim().split(":");
+        String[] deviceAddressTokens = { "/dev/ttyS100", "5" };
         DriverConnection mBusConnection = new DriverConnection(serialIntervace,
-                Integer.parseInt(deviceAddressTokens[1]), null);
+                Integer.parseInt(deviceAddressTokens[1]), null, delay);
 
         List<ChannelRecordContainer> records = new LinkedList<>();
         records.add(newChannelRecordContainer("09:74"));
@@ -264,19 +274,19 @@ public class DriverConnectionTest {
 
     }
 
-    @Test(expected = ConnectionException.class)
+    @Test
     public void testReadThrowsIOException() throws Exception {
         MBusConnection con = mock(MBusConnection.class);
         VariableDataStructure vds = new VariableDataStructure(NZR_ANSWER, 6, NZR_ANSWER.length - 6, null, null);
         vds.decode();
         when(con.read(anyInt())).thenThrow(new IOException());
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", delay, interfaces);
         serialIntervace.increaseConnectionCounter();
 
-        String[] deviceAddressTokens = "/dev/ttyS100:5".trim().split(":");
+        String[] deviceAddressTokens = { "/dev/ttyS100", "5" };
         int address = Integer.parseInt(deviceAddressTokens[1]);
-        DriverConnection driverCon = new DriverConnection(serialIntervace, address, null);
+        DriverConnection driverCon = new DriverConnection(serialIntervace, address, null, delay);
 
         List<ChannelRecordContainer> records = Arrays.asList(newChannelRecordContainer("04:03"));
 
@@ -293,12 +303,12 @@ public class DriverConnectionTest {
         vds.decode();
         when(con.read(anyInt())).thenThrow(new SerialPortTimeoutException());
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", delay, interfaces);
         serialIntervace.increaseConnectionCounter();
-        String[] deviceAddressTokens = "/dev/ttyS100:5".trim().split(":");
+        String[] deviceAddressTokens = { "/dev/ttyS100", "5" };
 
         int address = Integer.parseInt(deviceAddressTokens[1]);
-        DriverConnection driverCon = new DriverConnection(serialIntervace, address, null);
+        DriverConnection driverCon = new DriverConnection(serialIntervace, address, null, delay);
 
         List<ChannelRecordContainer> records = Arrays.asList(newChannelRecordContainer("04:03"));
         driverCon.read(records, null, null);
@@ -314,11 +324,11 @@ public class DriverConnectionTest {
         vds.decode();
         when(con.read(anyInt())).thenThrow(new SerialPortTimeoutException());
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", delay, interfaces);
         serialIntervace.increaseConnectionCounter();
-        String[] deviceAddressTokens = "/dev/ttyS100:5".trim().split(":");
+        String[] deviceAddressTokens = { "/dev/ttyS100", "5" };
         DriverConnection driverCon = new DriverConnection(serialIntervace, Integer.parseInt(deviceAddressTokens[1]),
-                null);
+                null, delay);
 
         driverCon.scanForChannels(null);
     }
@@ -331,11 +341,11 @@ public class DriverConnectionTest {
         vds.decode();
         when(con.read(anyInt())).thenThrow(new IOException());
 
-        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", interfaces);
+        ConnectionInterface serialIntervace = new ConnectionInterface(con, "/dev/ttyS100:5", delay, interfaces);
         serialIntervace.increaseConnectionCounter();
-        String[] deviceAddressTokens = "/dev/ttyS100:5".trim().split(":");
+        String[] deviceAddressTokens = { "/dev/ttyS100", "5" };
         DriverConnection mBusConnection = new DriverConnection(serialIntervace,
-                Integer.parseInt(deviceAddressTokens[1]), null);
+                Integer.parseInt(deviceAddressTokens[1]), null, delay);
 
         mBusConnection.scanForChannels(null);
     }

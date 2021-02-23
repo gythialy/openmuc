@@ -1,0 +1,203 @@
+=== SQL Logger
+
+==== General Information
+
+[width="100%",options="header"]]
+|=========================================================
+|Option |  Description
+|Event logging | supported
+|=========================================================
+
+==== Configuration
+
+The SQL Logger can be configured using the file system.properties in the folder with the path openmuc/framework/conf.
+
+[source]
+----
+# SQL Logger Config
+org.openmuc.framework.datalogger.sql.url = jdbc:h2:tcp://127.0.0.1:9092/./data/h2/h2;MODE=MYSQL
+
+org.openmuc.framework.datalogger.sql.user = openmuc
+org.openmuc.framework.datalogger.sql.password = openmuc
+org.openmuc.framework.datalogger.sql.ssl = false
+org.openmuc.framework.datalogger.sql.psqlPass = postgres
+
+# alternative SQL database url
+#org.openmuc.framework.datalogger.sql.url = jdbc:postgresql://127.0.0.1:5432/openmuc
+#org.openmuc.framework.datalogger.sql.url = jdbc:mysql://127.0.0.1:3306/openmuc
+#org.openmuc.framework.datalogger.sql.url = jdbc:h2:retry:file:./data/h2/h2;AUTO_SERVER=TRUE;MODE=MYSQL;MULTI_THREADED=1
+
+# H2 Linked Table Config
+org.openmuc.framework.datalogger.sql.linkedDriver = org.postgresql.Driver
+org.openmuc.framework.datalogger.sql.linkedUrl = 
+org.openmuc.framework.datalogger.sql.linkedUser = openmuc
+org.openmuc.framework.datalogger.sql.linkedPassword = openmuc
+org.openmuc.framework.datalogger.sql.linkedTable = doublevalue
+org.openmuc.framework.datalogger.sql.linkedTableIdentifier =	
+
+# Linked Table host
+org.openmuc.framework.datalogger.sql.host = localhost
+
+# Delay until first synchronization in milliseconds
+org.openmuc.framework.datalogger.sql.synchronizationDelay =
+
+# Time between synchronizations in milliseconds
+org.openmuc.framework.datalogger.sql.synchronizationPeriod = 86400000
+
+# Synchromize all Data that could not be sent to the server
+org.openmuc.framework.datalogger.sql.synchronizeMissingData = false
+
+# Set Time Zone with the format continent/city
+org.openmuc.framework.datalogger.sql.timeZone = Europe/Berlin
+----
+
+===== SQL Logger Config & alternative SQL database url
+
+Under SQL Logger Config you can change the following Options
+
+JDBC URL: the JDBC URL decides the database you use, 3 different database engines are supported (H2, PostgreSQL and
+MySQL), by default the H2 url is used, the other options are listed under 'alternative SQL databse url'. If you want to use one of them you have to remove the # in front of it and add it in front of the currently used one.
+ The "openmuc" in the URL is the name of the Database, if your Database has a different name you have to edit the URL
+ accordingly. 
+
+The URLs for postgreSQL and MySQL are made of the servers' host address, in this case localhost, and the servers' port. 
+
+The H2 URL that is not commmented out contains the keywords tcp (which tells the database to accept tcp connections over the specified host and port), the file path and a few Options. MODE=MYSQL is
+necessary as it enables the use of some MySQL Functions and MULTI_THREADED = 1 activates multi threading.
+
+If you want to run H2 in embedded mode remove the # from the H2 URL which contains the keywords file (which tells the database to run in embedded mode) and retry (necessary
+so the database dosen't become unusable if a thread gets interrupted but can only be used in file mode) and the option AUTO_SERVER = TRUE
+which starts a server for local connections once the first process accesses the database.
+
+
+You can also set the username and password necessary to access your database here. The password for the PostgreSQL superuser also has to be set in this file. Lastly you can choose wether to use ssl
+or not.
+
+If you want to use MySQL you have to add the jdbc drivers to openmuc/framework/conf/bundles.conf.gradle under OpenMUC bundles.
+
+For MySQL you have to add:
+
+[source]
+----
+  osgibundles group: "mysql",                 name: "mysql-connector-java",                  version: "8.0.17"
+  osgibundles group: "org.ops4j.pax.jdbc",    name: "pax-jdbc",                              version: "1.4.0"
+----
+
+===== H2 Linked Table Config
+
+With the following attributes you can enable and configure the function of sending the data in your h2 data base to a different database, by default a PostgreSQL database, through a tcp connection. This function is only comüatible with H2s file mode, meaning you cant use it with server mode.
+
+The linkedDriver attribute determines the driver used to connect to the target database. This function is only tested with the PostgreSQL Driver and is not guaranteed to work with others.
+
+The linkedUrl, linkedUser and linkedPassword attributes give the H2 database the neccesary information to establish a connection to the target database. If the url field is left blank then no synchronization will occur.
+
+The linkedTable attribute determines the tables in the target database in which the data should be inserted into. These tables have to be named the same as they are in the H2 database, meaning: 
+
+booleanvalue, bytearrayvalue, bytevalue, doublevalue, floatvalue, intvalue, longvalue, openmuc_meta, shortvalue or longvalue
+
+with the exceptions of a identifier that is added after the name and can be set through the linkedTableIdentifier attribute. You can choose multiple target tables by seperating the names with a comma and no space after it.
+
+[source]
+----
+doublevalue,intvalue,stringvalue
+----
+
+===== Linked Table Host
+
+Sets the host of the linked table so that the connection to it can be tested.
+
+===== Delay until first synchronization in milliseconds
+
+If this field is left empty then the first synchronization will take place shortly after the next day begins. The delay should not be shorter than the shortest loggingInterval.
+
+===== Synchromize all Data that could not be sent to the server
+
+In case the connection to the target database is interrupted and causes insert statements to not be sent they will be sent once the connection is reestablished.
+
+===== Set Time Zone with the format continent/city
+
+Set your current time zone.
+
+==== PostgreSQL Server
+
+After installing PostgreSQL and the timescale extension you have to start PostgreSQL if it isnt already, execute
+timescaledb-tune and then restart PostgreSQL. 
+
+[source]
+----
+sudo service postgresql start
+sudo timescaledb-tune
+sudo service postgresql restart
+----
+
+First you have to change the password of the PostgreSQL superuser by entering following commands into the command line:
+
+[source]
+----
+sudo -u postgres psql postgres
+\password postgres
+\q
+----
+
+You then also have to add your chosen password to the system.properties file.
+
+Afterwards you have to create a new user, create the database and grant this user all privileges for the database,
+by accessing the PostgreSQL command line as the PostgreSQL superuser.
+
+[source, SQL]
+----
+psql -U postgres -h localhost
+CREATE USER openmuc PASSWORD 'openmuc';
+CREATE DATABASE openmuc;
+GRANT ALL PRIVILEGES ON DATABASE openmuc TO openmuc;
+----
+
+You can leave the command line tool with \q.
+
+The final step is to add the timescale Extension to the database. To do so you have to access the database as the
+PostgreSQL superuser with the command line tool.
+
+[source]
+----
+postgresql.conf:
+#listen_addresses = 'localhost' to #listen_addresses = 'localhost, machines' ip address'
+
+add at the bottom of pg_hba.conf:
+host all all (machines' ip address) md5
+----
+
+If you want the PostgreSQL server to accept tcp connections from outside, you have to change and add the following lines to postgresql.conf and pg_hba.conf. These files are in the folder /etc/postgresql/10(used version)/main
+
+[source, SQL]
+----
+psql -U postgres -h localhost -d openmuc
+CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+----
+
+==== MySQL Server
+
+After installing MySQL you have to start it with the following command if it isn't started already.
+
+[source]
+----
+sudo service mysql start
+----
+
+The easiest way to create the database and a new user is through the MySQL workbench. Click on local instance to open
+a connection to a local server instance.
+
+On the left side is a panel called MANAGEMENT where you have to click on "Users and Privileges". In the bottom left
+corner of the newly opened window is a button called Add Account, click on it, change the login name as well as the
+password and confirm by clicking Apply in the bottom right corner.
+    
+To create a database you just have to enter the following query into the window named query 1  and then click on the
+lightning bolt in the toolbar.
+
+[source, SQL]
+----
+CREATE DATABASE openmuc;
+----
+
+==== H2 Server
+
+The H2 server is started automatically if you use H2 in server mode.

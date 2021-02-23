@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,7 +30,6 @@ public class ChannelAddress extends GenericSetting {
     protected String data_type = "v";
     protected int index = -1;
     protected int multiple = 1;
-    // protected String command = "";
     protected boolean select = false;
 
     protected static enum Option implements OptionI {
@@ -40,7 +39,6 @@ public class ChannelAddress extends GenericSetting {
         DATA_TYPE("dt", String.class, false),
         INDEX("i", Integer.class, false),
         MULTIPLE("m", Integer.class, false),
-        // COMMAND("c", String.class, false),
         SELECT("s", Boolean.class, false);
 
         private String prefix;
@@ -129,15 +127,6 @@ public class ChannelAddress extends GenericSetting {
     public int multiple() {
         return multiple;
     }
-
-    // /**
-    // * Optional: command type
-    // *
-    // * @return the command type
-    // */
-    // public String command() {
-    // return command;
-    // }
 
     /**
      * Optional: Qualifier execute/select<br>

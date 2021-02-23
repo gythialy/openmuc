@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -46,15 +46,15 @@ public class RestDriverImpl implements DriverService {
     private static final DriverInfo info = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, SETTINGS, CHANNEL_ADDRESS,
             DEVICE_SCAN_SETTINGS);
 
+    private static final String HTTP = "http://";
+    private static final String HTTPS = "https://";
+
     private DataAccessService dataAccessService;
 
     @Override
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
         RestConnection connection;
-
-        String HTTP = "http://";
-        String HTTPS = "https://";
 
         if (settings == null || settings.isEmpty() || settings.trim().isEmpty() || !settings.contains(":")) {
             throw new ArgumentSyntaxException("Invalid User Credentials provided in settings: " + settings

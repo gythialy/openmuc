@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -73,14 +73,14 @@ public final class Iec62056Driver implements DriverService {
             + " <timeout>] [" + RETRIES_PARAM + " <number_of_read_retries>] [" + INITIAL_BAUD_RATE
             + " <initial_baud_rate>] [" + DEVICE_ADDRESS + " <device_address>] [" + FIXED_BAUD_RATE + "] ["
             + REQUEST_START_CHARACTER + " <request_message_start_character>]\n" + BAUD_RATE_CHANGE_DELAY
-            + " sets the waiting time between a baude rate change, default: 0; \n" + TIMEOUT_PARAM
+            + " sets the waiting time between a baud rate change, default: 0; \n" + TIMEOUT_PARAM
             + " sets the response timeout, default: 2000\n" + INITIAL_BAUD_RATE
             + " sets a initial baud rate e.g. for devices with modem configuration, default: 300\n" + DEVICE_ADDRESS
             + " is mostly needed for devices with RS485, default: empty\n" + FIXED_BAUD_RATE
             + " activates fixed baud rate, default: deactivated\n" + REQUEST_START_CHARACTER
             + " Used for manufacture specific request messages\n" + READ_STANDARD
             + " Reads the standard message and the manufacture specific message. Only if " + REQUEST_START_CHARACTER
-            + " is setetd\n";
+            + " is set\n";
     private static final String SETTINGS_SYNTAX = "Synopsis: " + SETTINGS;
     private static final String CHANNEL_ADDRESS_SYNTAX = "Synopsis: <data_set_id>";
     private static final String DEVICE_SCAN_SETTINGS_SYNTAX = "Synopsis: <serial_port> " + SETTINGS;
@@ -96,7 +96,7 @@ public final class Iec62056Driver implements DriverService {
     @Override
     public void scanForDevices(String settings, DriverDeviceScanListener listener)
             throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
-        handleParameter(settings, true);
+        handleScanParameter(settings);
 
         Iec21Port iec21Port = null;
         Builder iec21PortBuilder = getConfiguredBuilder();
@@ -104,8 +104,7 @@ public final class Iec62056Driver implements DriverService {
         try {
             iec21Port = iec21PortBuilder.buildAndOpen();
         } catch (IOException e) {
-            logger.error("Failed to open serial port: " + e.getMessage());
-            System.exit(1);
+            throw new ScanException("Failed to open serial port: " + e.getMessage());
         }
 
         try {
@@ -138,7 +137,7 @@ public final class Iec62056Driver implements DriverService {
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
         serialPortName = deviceAddress;
-        handleParameter(settings, false);
+        handleParameter(settings);
         Builder configuredBuilder = getConfiguredBuilder();
         return new Iec62056Connection(configuredBuilder, retries, readStandard, requestStartCharacter);
     }
@@ -153,29 +152,38 @@ public final class Iec62056Driver implements DriverService {
                 .setRequestStartCharacters(requestStartCharacter);
     }
 
-    private void handleParameter(String settings, boolean isScan) throws ArgumentSyntaxException {
-        if (isScan && settings.isEmpty()) {
+    private void handleScanParameter(String settings) throws ArgumentSyntaxException {
+        if (settings.isEmpty()) {
             throw new ArgumentSyntaxException("No parameter given. At least serial port is needed");
         }
-
         String[] args = settings.split("\\s+", 0);
 
-        if (isScan) {
-            serialPortName = args[0];
-            if (serialPortName.isEmpty()) {
-                throw new ArgumentSyntaxException("The <serial_port> has to be specified in the settings");
-            }
+        serialPortName = args[0].trim();
+        if (serialPortName.isEmpty()) {
+            throw new ArgumentSyntaxException(
+                    "The <serial_port> has to be specified in the settings, as first parameter");
         }
 
-        parseArguments(args);
+        parseArguments(args, true);
         if (requestStartCharacter.isEmpty()) {
             readStandard = false;
         }
 
     }
 
-    private void parseArguments(String[] args) throws ArgumentSyntaxException {
-        for (int i = 0; i < args.length; i++) {
+    private void handleParameter(String settings) throws ArgumentSyntaxException {
+        String[] args = settings.split("\\s+", 0);
+
+        parseArguments(args, false);
+        if (requestStartCharacter.isEmpty()) {
+            readStandard = false;
+        }
+    }
+
+    private void parseArguments(String[] args, boolean isScan) throws ArgumentSyntaxException {
+        int i = isScan ? 1 : 0;
+
+        for (; i < args.length; i++) {
 
             if (args[i].equals(BAUD_RATE_CHANGE_DELAY)) {
                 ++i;

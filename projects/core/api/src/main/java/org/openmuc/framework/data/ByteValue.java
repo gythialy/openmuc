@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,9 +27,18 @@ public class ByteValue extends NumberValue {
         super(value);
     }
 
+    public ByteValue(String value) {
+        super(Byte.parseByte(value));
+    }
+
     @Override
     public byte[] asByteArray() {
-        return new byte[] { super.asByte() };
+        return new byte[]{super.asByte()};
+    }
+
+    @Override
+    public ValueType getValueType() {
+        return ValueType.BYTE;
     }
 
 }

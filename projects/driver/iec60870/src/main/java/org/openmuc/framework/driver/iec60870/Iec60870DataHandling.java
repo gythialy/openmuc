@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,6 +22,8 @@ package org.openmuc.framework.driver.iec60870;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.MessageFormat;
+import java.util.Set;
 
 import javax.naming.ConfigurationException;
 
@@ -35,36 +37,38 @@ import org.openmuc.framework.data.TypeConversionException;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.driver.iec60870.settings.ChannelAddress;
 import org.openmuc.j60870.ASdu;
+import org.openmuc.j60870.ASduType;
 import org.openmuc.j60870.CauseOfTransmission;
 import org.openmuc.j60870.Connection;
-import org.openmuc.j60870.IeBinaryCounterReading;
-import org.openmuc.j60870.IeBinaryStateInformation;
-import org.openmuc.j60870.IeDoubleCommand;
-import org.openmuc.j60870.IeDoubleCommand.DoubleCommandState;
-import org.openmuc.j60870.IeDoublePointWithQuality;
-import org.openmuc.j60870.IeNormalizedValue;
-import org.openmuc.j60870.IeProtectionQuality;
-import org.openmuc.j60870.IeQualifierOfCounterInterrogation;
-import org.openmuc.j60870.IeQualifierOfInterrogation;
-import org.openmuc.j60870.IeQualifierOfResetProcessCommand;
-import org.openmuc.j60870.IeQualifierOfSetPointCommand;
-import org.openmuc.j60870.IeQuality;
-import org.openmuc.j60870.IeRegulatingStepCommand;
-import org.openmuc.j60870.IeRegulatingStepCommand.StepCommandState;
-import org.openmuc.j60870.IeScaledValue;
-import org.openmuc.j60870.IeShortFloat;
-import org.openmuc.j60870.IeSingleCommand;
-import org.openmuc.j60870.IeSinglePointWithQuality;
-import org.openmuc.j60870.IeTestSequenceCounter;
-import org.openmuc.j60870.IeTime16;
-import org.openmuc.j60870.IeTime56;
-import org.openmuc.j60870.InformationElement;
-import org.openmuc.j60870.InformationObject;
-import org.openmuc.j60870.TypeId;
+import org.openmuc.j60870.ie.IeBinaryCounterReading;
+import org.openmuc.j60870.ie.IeBinaryStateInformation;
+import org.openmuc.j60870.ie.IeDoubleCommand;
+import org.openmuc.j60870.ie.IeDoubleCommand.DoubleCommandState;
+import org.openmuc.j60870.ie.IeDoublePointWithQuality;
+import org.openmuc.j60870.ie.IeNormalizedValue;
+import org.openmuc.j60870.ie.IeProtectionQuality;
+import org.openmuc.j60870.ie.IeQualifierOfCounterInterrogation;
+import org.openmuc.j60870.ie.IeQualifierOfInterrogation;
+import org.openmuc.j60870.ie.IeQualifierOfResetProcessCommand;
+import org.openmuc.j60870.ie.IeQualifierOfSetPointCommand;
+import org.openmuc.j60870.ie.IeQuality;
+import org.openmuc.j60870.ie.IeRegulatingStepCommand;
+import org.openmuc.j60870.ie.IeRegulatingStepCommand.StepCommandState;
+import org.openmuc.j60870.ie.IeScaledValue;
+import org.openmuc.j60870.ie.IeShortFloat;
+import org.openmuc.j60870.ie.IeSingleCommand;
+import org.openmuc.j60870.ie.IeSinglePointWithQuality;
+import org.openmuc.j60870.ie.IeTestSequenceCounter;
+import org.openmuc.j60870.ie.IeTime16;
+import org.openmuc.j60870.ie.IeTime56;
+import org.openmuc.j60870.ie.InformationElement;
+import org.openmuc.j60870.ie.InformationObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Iec60870DataHandling {
+
+    private static final String ONLY_BYTE_ARRAY_WITH_LENGTH = "): Only byte array with length ";
 
     private static final Logger logger = LoggerFactory.getLogger(Iec60870DataHandling.class);
 
@@ -73,14 +77,10 @@ public class Iec60870DataHandling {
     static void writeSingleCommand(Record record, ChannelAddress channelAddress, Connection clientConnection)
             throws IOException, UnsupportedOperationException, TypeConversionException {
 
-        // String command = channelAddress.command();
         int commonAddress = channelAddress.commonAddress();
-        String dataType = channelAddress.dataType();
-        boolean qualifier_select = channelAddress.select();
-        // int index = channelAddress.index();
-        // int multiple = channelAddress.multiple();
+        boolean qualifierSelect = channelAddress.select();
         int informationObjectAddress = channelAddress.ioa();
-        TypeId typeId = TypeId.getInstance(channelAddress.typeId());
+        ASduType typeId = ASduType.typeFor(channelAddress.typeId());
 
         Flag flag = record.getFlag();
         Value value = record.getValue();
@@ -110,7 +110,7 @@ public class Iec60870DataHandling {
                 clientConnection.bitStringCommandWithTimeTag(commonAddress, cot, informationObjectAddress,
                         binaryStateInformation, timestamp);
                 break;
-            case C_CD_NA_1: // Writes only the current time, no values;
+            case C_CD_NA_1: // Writes only the current time, no values
                 IeTime16 time16 = new IeTime16(record.getTimestamp());
                 clientConnection.delayAcquisitionCommand(commonAddress, cot, time16);
                 break;
@@ -126,7 +126,7 @@ public class Iec60870DataHandling {
                             + "): Only byte array with length 2 allowed. byte[0]=request, byte[1]=freeze]");
                 }
                 break;
-            case C_CS_NA_1: // Writes only the current time, no values;
+            case C_CS_NA_1: // Writes only the current time, no values
                 clientConnection.synchronizeClocks(commonAddress, new IeTime56(System.currentTimeMillis()));
                 break;
             case C_IC_NA_1:
@@ -172,7 +172,7 @@ public class Iec60870DataHandling {
                 IeQualifierOfSetPointCommand ieQualifierOfSetPointCommand = getIeQualifierSetPointCommand(values,
                         arrayLength);
                 IeNormalizedValue ieNormalizedValue = new IeNormalizedValue(
-                        bytes_To_SignedInt32(values, valueLength, false));
+                        bytesToSignedInt32(values, valueLength, false));
 
                 clientConnection.setNormalizedValueCommand(commonAddress, cot, informationObjectAddress,
                         ieNormalizedValue, ieQualifierOfSetPointCommand);
@@ -183,15 +183,16 @@ public class Iec60870DataHandling {
                 checkLength(typeId, values, arrayLength,
                         "byte[0-1]=command state, byte[2]=qualifier of command, byte[3]=execute/select");
                 ieQualifierOfSetPointCommand = getIeQualifierSetPointCommand(values, arrayLength);
-                IeScaledValue scaledValue = new IeScaledValue(bytes_To_SignedInt32(values, 2, false));
+                IeScaledValue scaledValue = new IeScaledValue(bytesToSignedInt32(values, 2, false));
                 clientConnection.setScaledValueCommand(commonAddress, cot, informationObjectAddress, scaledValue,
                         ieQualifierOfSetPointCommand);
                 break;
             case C_SE_NC_1:
                 IeShortFloat shortFloat = new IeShortFloat(value.asFloat());
-                IeQualifierOfSetPointCommand qualifier = new IeQualifierOfSetPointCommand(0, qualifier_select);
+                IeQualifierOfSetPointCommand qualifier = new IeQualifierOfSetPointCommand(0, qualifierSelect);
                 clientConnection.setShortFloatCommand(commonAddress, cot, informationObjectAddress, shortFloat,
                         qualifier);
+                break;
             case C_SE_TA_1:
                 values = value.asByteArray();
                 arrayLength = 6;
@@ -199,7 +200,7 @@ public class Iec60870DataHandling {
                 checkLength(typeId, values, arrayLength,
                         "byte[0-3]=command state, byte[4]=qualifier of command, byte[5]=execute/select");
                 ieQualifierOfSetPointCommand = getIeQualifierSetPointCommand(values, arrayLength);
-                ieNormalizedValue = new IeNormalizedValue(bytes_To_SignedInt32(values, valueLength, false));
+                ieNormalizedValue = new IeNormalizedValue(bytesToSignedInt32(values, valueLength, false));
 
                 clientConnection.setNormalizedValueCommandWithTimeTag(commonAddress, cot, informationObjectAddress,
                         ieNormalizedValue, ieQualifierOfSetPointCommand, timestamp);
@@ -210,7 +211,7 @@ public class Iec60870DataHandling {
                 checkLength(typeId, values, arrayLength,
                         "byte[0-1]=command state, byte[2]=qualifier of command, byte[3]=execute/select");
                 ieQualifierOfSetPointCommand = getIeQualifierSetPointCommand(values, arrayLength);
-                scaledValue = new IeScaledValue(bytes_To_SignedInt32(values, 2, false));
+                scaledValue = new IeScaledValue(bytesToSignedInt32(values, 2, false));
                 clientConnection.setScaledValueCommandWithTimeTag(commonAddress, cot, informationObjectAddress,
                         scaledValue, ieQualifierOfSetPointCommand, timestamp);
                 break;
@@ -405,12 +406,12 @@ public class Iec60870DataHandling {
         }
     }
 
-    private static void checkLength(TypeId typeId, byte[] values, int maxLength, String commands)
+    private static void checkLength(ASduType typeId, byte[] values, int maxLength, String commands)
             throws TypeConversionException {
         int length = values.length;
         if (length != maxLength) {
-            throw new UnsupportedOperationException(typeId + "(" + typeId.getId() + "): Only byte array with length "
-                    + maxLength + " allowed. " + commands);
+            throw new UnsupportedOperationException(
+                    typeId + "(" + typeId.getId() + ONLY_BYTE_ARRAY_WITH_LENGTH + maxLength + " allowed. " + commands);
         }
     }
 
@@ -421,7 +422,7 @@ public class Iec60870DataHandling {
         return ieQualifierOfSetPointCommand;
     }
 
-    private static IeSingleCommand getIeSingeleCommand(TypeId typeId, Value value) throws TypeConversionException {
+    private static IeSingleCommand getIeSingeleCommand(ASduType typeId, Value value) throws TypeConversionException {
         byte[] values = value.asByteArray();
         boolean commandStateOn;
         boolean select;
@@ -432,14 +433,13 @@ public class Iec60870DataHandling {
             select = values[1] >= 0;
         }
         else {
-            throw new TypeConversionException(typeId + "(" + typeId.getId() + "): Only byte array with length " + length
+            throw new TypeConversionException(typeId + "(" + typeId.getId() + ONLY_BYTE_ARRAY_WITH_LENGTH + length
                     + " allowed. byte[0]=command state on, byte[1]=execute/select, byte[2]=qualifier of command");
         }
-        IeSingleCommand singleCommand = new IeSingleCommand(commandStateOn, values[2], select);
-        return singleCommand;
+        return new IeSingleCommand(commandStateOn, values[2], select);
     }
 
-    private static IeRegulatingStepCommand getIeRegulatingStepCommand(TypeId typeId, Value value)
+    private static IeRegulatingStepCommand getIeRegulatingStepCommand(ASduType typeId, Value value)
             throws TypeConversionException {
         byte[] values = value.asByteArray();
         StepCommandState commandState;
@@ -451,11 +451,10 @@ public class Iec60870DataHandling {
             select = values[1] >= 0;
         }
         else {
-            throw new TypeConversionException(typeId + "(" + typeId.getId() + "): Only byte array with length " + length
+            throw new TypeConversionException(typeId + "(" + typeId.getId() + ONLY_BYTE_ARRAY_WITH_LENGTH + length
                     + " allowed. byte[0]=command state, byte[1]=execute/select, byte[2]=qualifier of command ");
         }
-        IeRegulatingStepCommand regulatingStepCommand = new IeRegulatingStepCommand(commandState, values[2], select);
-        return regulatingStepCommand;
+        return new IeRegulatingStepCommand(commandState, values[2], select);
     }
 
     static Record handleInformationObject(ASdu aSdu, long timestamp, ChannelAddress channelAddress,
@@ -484,7 +483,7 @@ public class Iec60870DataHandling {
         return record;
     }
 
-    private static Record creatNewRecord(InformationElement[] informationElements, TypeId typeId,
+    private static Record creatNewRecord(InformationElement[] informationElements, ASduType typeId,
             ChannelAddress channelAddress, long timestamp) {
         if (!channelAddress.dataType().equals("v")) {
             return getQualityDescriptorAsRecord(channelAddress.dataType(), informationElements, typeId, timestamp);
@@ -524,9 +523,12 @@ public class Iec60870DataHandling {
             case M_SP_TA_1:
             case M_PS_NA_1:
             case M_SP_TB_1:
-            case M_ST_NA_1: // TODO: test this!!! It's not really a SinglePointInformation
-            case M_ST_TA_1: // TODO: test this!!! It's not really a SinglePointInformation
-            case M_ST_TB_1: // TODO: test this!!! It's not really a SinglePointInformation
+            case M_ST_NA_1:
+                // TODO: test this!!! It's not really a SinglePointInformation
+            case M_ST_TA_1:
+                // TODO: test this!!! It's not really a SinglePointInformation
+            case M_ST_TB_1:
+                // TODO: test this!!! It's not really a SinglePointInformation
                 IeSinglePointWithQuality singlePointWithQuality = (IeSinglePointWithQuality) informationElements[0];
                 return new Record(new BooleanValue(singlePointWithQuality.isOn()), timestamp);
             case M_DP_NA_1:
@@ -549,7 +551,7 @@ public class Iec60870DataHandling {
     }
 
     private static Record getQualityDescriptorAsRecord(String dataType, InformationElement[] informationElements,
-            TypeId typeIdentification, long timestamp) {
+            ASduType typeIdentification, long timestamp) {
         Record record = null;
         InformationElement informationElement = informationElements[informationElements.length - 1];
 
@@ -624,16 +626,18 @@ public class Iec60870DataHandling {
     private static Record binaryCounterReading(String dataType, long timestamp, InformationElement informationElement) {
         IeBinaryCounterReading quality = (IeBinaryCounterReading) informationElement;
         Record record = null;
+        Set<org.openmuc.j60870.ie.IeBinaryCounterReading.Flag> flags = quality.getFlags();
 
         switch (dataType) {// iv ca cy
         case "iv":
-            record = new Record(new BooleanValue(quality.isInvalid()), timestamp);
+            record = new Record(new BooleanValue(flags.contains(IeBinaryCounterReading.Flag.INVALID)), timestamp);
             break;
         case "ca":
-            record = new Record(new BooleanValue(quality.isCounterAdjusted()), timestamp);
+            record = new Record(new BooleanValue(flags.contains(IeBinaryCounterReading.Flag.COUNTER_ADJUSTED)),
+                    timestamp);
             break;
         case "cy":
-            record = new Record(new BooleanValue(quality.isCarry()), timestamp);
+            record = new Record(new BooleanValue(flags.contains(IeBinaryCounterReading.Flag.CARRY)), timestamp);
             break;
         default:
         }
@@ -691,8 +695,8 @@ public class Iec60870DataHandling {
         return informationElements;
     }
 
-    private static int sizeOfType(TypeId typeIdentification) {
-        int size = -1; // size in byte;
+    private static int sizeOfType(ASduType typeIdentification) {
+        int size = -1; // size in byte
         switch (typeIdentification) {
         case M_BO_NA_1:
         case M_BO_TA_1:
@@ -700,14 +704,14 @@ public class Iec60870DataHandling {
             size = 4;
             break;
         default:
-            logger.debug(
-                    "Not able to set Data Type " + typeIdentification.toString() + "  as multiple IOAs or Indices.");
+            logger.debug(MessageFormat.format("Not able to set Data Type {0}  as multiple IOAs or Indices.",
+                    typeIdentification));
             break;
         }
         return size;
     }
 
-    private static int bytes_To_SignedInt32(byte[] bytes, int length, boolean isLitteleEndian) {
+    private static int bytesToSignedInt32(byte[] bytes, int length, boolean isLitteleEndian) {
         if (length <= INT32_BYTE_LENGTH) {
             int returnValue = 0;
             int lengthLoop = bytes.length - 1;
@@ -738,6 +742,10 @@ public class Iec60870DataHandling {
             bytes[i] = bytes[index];
             bytes[index] = temp;
         }
+    }
+
+    private Iec60870DataHandling() {
+        // Hide the contructor.
     }
 
 }

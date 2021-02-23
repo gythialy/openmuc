@@ -27,7 +27,7 @@
       <div class="col-md-6">
         <div class="input-group">
           <input type="text" class="form-control" id="samplingTimeout" name="samplingTimeout" ng-model="driver.configs.samplingTimeout" ng-pattern="/^[0-9]{1,10}$/">
-          <div class="input-group-addon">ms</div>
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
         </div>
         <div class="form-error-container" ng-show="(driverForm.samplingTimeout.$dirty && driverForm.samplingTimeout.$invalid) || (driverForm.submitted && driverForm.samplingTimeout.$invalid)">
           <div class="form-error-message" ng-show="driverForm.samplingTimeout.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
@@ -44,7 +44,7 @@
       <div class="col-md-6">
         <div class="input-group">
           <input type="text" class="form-control" id="connectRetryInterval" name="connectRetryInterval" ng-model="driver.configs.connectRetryInterval" ng-pattern="/^[0-9]{1,10}$/">
-          <div class="input-group-addon">ms</div>
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
         </div>
         <div class="form-error-container" ng-show="(driverForm.connectRetryInterval.$dirty && driverForm.connectRetryInterval.$invalid) || (driverForm.submitted && driverForm.connectRetryInterval.$invalid)">
           <div class="form-error-message" ng-show="driverForm.connectRetryInterval.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>

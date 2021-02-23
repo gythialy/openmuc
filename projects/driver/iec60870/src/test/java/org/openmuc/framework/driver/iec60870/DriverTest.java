@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,8 +20,9 @@
  */
 package org.openmuc.framework.driver.iec60870;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.iec60870.settings.DeviceAddress;
 import org.openmuc.framework.driver.iec60870.settings.DeviceSettings;
@@ -43,9 +44,9 @@ public class DriverTest {
 
         DeviceAddress testSetting = new DeviceAddress(string);
 
-        Assert.assertEquals(expectedHost, testSetting.hostAddress().getHostAddress());
-        Assert.assertEquals(expectedPort, testSetting.port());
-        Assert.assertEquals(expectedCa, testSetting.commonAddress());
+        assertEquals(expectedHost, testSetting.hostAddress().getHostAddress());
+        assertEquals(expectedPort, testSetting.port());
+        assertEquals(expectedCa, testSetting.commonAddress());
     }
 
     @Test
@@ -57,7 +58,7 @@ public class DriverTest {
 
         DeviceAddress testSetting = new DeviceAddress(string);
 
-        Assert.assertEquals(expectedHost, testSetting.hostAddress().getHostAddress());
+        assertEquals(expectedHost, testSetting.hostAddress().getHostAddress());
     }
 
     @Test
@@ -70,8 +71,8 @@ public class DriverTest {
 
         DeviceSettings testSetting = new DeviceSettings(string);
 
-        Assert.assertEquals(expectedMFT, testSetting.messageFragmentTimeout());
-        Assert.assertEquals(expectedCFL, testSetting.cotFieldLength());
+        assertEquals(expectedMFT, testSetting.messageFragmentTimeout());
+        assertEquals(expectedCFL, testSetting.cotFieldLength());
     }
 
     @Test

@@ -139,7 +139,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
     /**
      * Returns the timeout for this {@link RTUTCPMasterConnection}.
      * 
-     * @return the timeout as an <tt>int</tt> value.
+     * @return the timeout as an <code>int</code> value.
      */
     public int getTimeout() {
         return this.socketTimeout;
@@ -149,7 +149,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
      * Sets the timeout for this {@link RTUTCPMasterConnection}.
      * 
      * @param timeout
-     *            the timeout as an <tt>int</tt>.
+     *            the timeout as an <code>int</code>.
      */
     public void setTimeout(int timeout) {
         // store the current socket timeout
@@ -168,7 +168,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
     /**
      * Returns the destination port of this {@link RTUTCPMasterConnection}.
      * 
-     * @return the port number as an <tt>int</tt>.
+     * @return the port number as an <code>int</code>.
      */
     public int getPort() {
         return this.slaveIPPort;
@@ -178,7 +178,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
      * Sets the destination port of this {@link RTUTCPMasterConnection}.
      * 
      * @param port
-     *            the port number as <tt>int</tt>.
+     *            the port number as <code>int</code>.
      */
     public void setPort(int port) {
         this.slaveIPPort = port;
@@ -206,7 +206,7 @@ public class RTUTCPMasterConnection implements MasterConnection {
     /**
      * Tests if this {@link RTUTCPMasterConnection} is active or not.
      * 
-     * @return <tt>true</tt> if connected, <tt>false</tt> otherwise.
+     * @return <code>true</code> if connected, <code>false</code> otherwise.
      */
     @Override
     public boolean isConnected() {

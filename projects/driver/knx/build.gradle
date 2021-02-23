@@ -15,25 +15,19 @@ dependencies {
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Bundle-ClassPath', '.,lib/calimero-core-' + calimerovers + '.jar'
-        instruction 'Import-Package', '!tuwien.auto.calimero*,*' + jarDefaultImportPackageVersion
-        instruction 'Export-Package', ''
-    }
-}
+    bnd('Bundle-Name': projectName, 'Bundle-ClassPath': '.,lib/calimero-core-' + calimerovers + '.jar',
+            'Import-Package': '!tuwien.auto.calimero*,*' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description projectDescription
             }
         }

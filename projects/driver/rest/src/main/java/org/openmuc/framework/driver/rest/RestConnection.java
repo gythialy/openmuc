@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,17 +40,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.codec.binary.Base64;
 import org.openmuc.framework.config.ChannelScanInfo;
-import org.openmuc.framework.data.BooleanValue;
-import org.openmuc.framework.data.ByteArrayValue;
-import org.openmuc.framework.data.ByteValue;
-import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
-import org.openmuc.framework.data.FloatValue;
-import org.openmuc.framework.data.IntValue;
-import org.openmuc.framework.data.LongValue;
 import org.openmuc.framework.data.Record;
-import org.openmuc.framework.data.ShortValue;
-import org.openmuc.framework.data.StringValue;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.dataaccess.Channel;
@@ -61,7 +52,7 @@ import org.openmuc.framework.driver.spi.ChannelValueContainer;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
-import org.openmuc.framework.lib.json.Const;
+import org.openmuc.framework.lib.rest1.Const;
 
 public class RestConnection implements Connection {
 
@@ -292,7 +283,7 @@ public class RestConnection implements Connection {
 
     @Override
     public Object read(List<ChannelRecordContainer> containerList, Object obj, String arg3) throws ConnectionException {
-        // TODO: add grouping (reading device/driver in once)
+        // TODO: add grouping (reading device/driver at once)
         for (ChannelRecordContainer container : containerList) {
             Record record;
             if (checkTimestamp) {
@@ -333,44 +324,9 @@ public class RestConnection implements Connection {
     public Object write(List<ChannelValueContainer> container, Object containerListHandle) throws ConnectionException {
         for (ChannelValueContainer cont : container) {
             Value value = cont.getValue();
-            ValueType valueType = getValueType(value);
-            Flag flag = writeChannel(cont.getChannelAddress(), value, valueType);
+            Flag flag = writeChannel(cont.getChannelAddress(), value, value.getValueType());
             cont.setFlag(flag);
         }
         return null;
     }
-
-    private ValueType getValueType(Value value) {
-        ValueType valueType = ValueType.DOUBLE;
-
-        if (value instanceof DoubleValue) {
-            valueType = ValueType.DOUBLE;
-        }
-        else if (value instanceof StringValue) {
-            valueType = ValueType.STRING;
-        }
-        else if (value instanceof ByteArrayValue) {
-            valueType = ValueType.BYTE_ARRAY;
-        }
-        else if (value instanceof LongValue) {
-            valueType = ValueType.LONG;
-        }
-        else if (value instanceof BooleanValue) {
-            valueType = ValueType.BOOLEAN;
-        }
-        else if (value instanceof FloatValue) {
-            valueType = ValueType.FLOAT;
-        }
-        else if (value instanceof IntValue) {
-            valueType = ValueType.INTEGER;
-        }
-        else if (value instanceof ShortValue) {
-            valueType = ValueType.SHORT;
-        }
-        else if (value instanceof ByteValue) {
-            valueType = ValueType.BYTE;
-        }
-        return valueType;
-    }
-
 }

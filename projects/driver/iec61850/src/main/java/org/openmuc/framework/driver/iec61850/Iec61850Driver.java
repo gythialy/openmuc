@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,8 +22,6 @@
 package org.openmuc.framework.driver.iec61850;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
@@ -33,13 +31,14 @@ import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
-import org.openmuc.openiec61850.ClientAssociation;
-import org.openmuc.openiec61850.ClientSap;
-import org.openmuc.openiec61850.ServerModel;
-import org.openmuc.openiec61850.ServiceError;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.beanit.iec61850bean.ClientAssociation;
+import com.beanit.iec61850bean.ClientSap;
+import com.beanit.iec61850bean.ServerModel;
+import com.beanit.iec61850bean.ServiceError;
 
 @Component
 public final class Iec61850Driver implements DriverService {
@@ -79,42 +78,20 @@ public final class Iec61850Driver implements DriverService {
     public Connection connect(String deviceAddress, String settings)
             throws ArgumentSyntaxException, ConnectionException {
 
-        String[] deviceAddresses = deviceAddress.split(":");
-
-        if (deviceAddresses.length < 1 || deviceAddresses.length > 2) {
-            throw new ArgumentSyntaxException("Invalid device address syntax.");
-        }
-
-        String remoteHost = deviceAddresses[0];
-        InetAddress address;
-        try {
-            address = InetAddress.getByName(remoteHost);
-        } catch (UnknownHostException e) {
-            throw new ConnectionException("Unknown host: " + remoteHost, e);
-        }
-
-        int remotePort = 102;
-        if (deviceAddresses.length == 2) {
-            try {
-                remotePort = Integer.parseInt(deviceAddresses[1]);
-            } catch (NumberFormatException e) {
-                throw new ArgumentSyntaxException("The specified port is not an integer");
-            }
-        }
+        DeviceAddress deviceAdress = new DeviceAddress(deviceAddress);
+        DeviceSettings deviceSettings = new DeviceSettings(settings);
 
         ClientSap clientSap = new ClientSap();
-
-        String authentication = null;
-
-        authentication = parseSettings(settings, clientSap, authentication);
+        clientSap.setTSelLocal(deviceSettings.getTSelLocal());
+        clientSap.setTSelLocal(deviceSettings.getTSelRemote());
 
         ClientAssociation clientAssociation;
         try {
-            clientAssociation = clientSap.associate(address, remotePort, authentication, null);
+            clientAssociation = clientSap.associate(deviceAdress.getAdress(), deviceAdress.getRemotePort(),
+                    deviceSettings.getAuthentication(), null);
         } catch (IOException e) {
             throw new ConnectionException(e);
         }
-
         ServerModel serverModel;
         try {
             serverModel = clientAssociation.retrieveModel();
@@ -128,59 +105,4 @@ public final class Iec61850Driver implements DriverService {
 
         return new Iec61850Connection(clientAssociation, serverModel);
     }
-
-    private String parseSettings(String settings, ClientSap clientSap, String authentication)
-            throws ArgumentSyntaxException {
-        if (!settings.isEmpty()) {
-            String[] args = settings.split("\\s+", 0);
-            if (args.length > 6) {
-                throw new ArgumentSyntaxException(
-                        "Less than one or more than four arguments in the settings are not allowed.");
-            }
-
-            for (int i = 0; i < args.length; i++) {
-                if (args[i].equals("-a")) {
-                    i++;
-                    if (i == args.length) {
-                        throw new ArgumentSyntaxException(
-                                "No authentication parameter was specified after the -a parameter");
-                    }
-                    authentication = args[i];
-                }
-                else if (args[i].equals("-lt")) {
-
-                    if (i == (args.length - 1) || args[i + 1].startsWith("-")) {
-                        clientSap.setTSelLocal(new byte[0]);
-                    }
-                    else {
-                        i++;
-                        byte[] tSelLocal = new byte[args[i].length()];
-                        for (int j = 0; j < args[i].length(); j++) {
-                            tSelLocal[j] = (byte) args[i].charAt(j);
-                        }
-                        clientSap.setTSelLocal(tSelLocal);
-                    }
-                }
-                else if (args[i].equals("-rt")) {
-
-                    if (i == (args.length - 1) || args[i + 1].startsWith("-")) {
-                        clientSap.setTSelRemote(new byte[0]);
-                    }
-                    else {
-                        i++;
-                        byte[] tSelRemote = new byte[args[i].length()];
-                        for (int j = 0; j < args[i].length(); j++) {
-                            tSelRemote[j] = (byte) args[i].charAt(j);
-                        }
-                        clientSap.setTSelRemote(tSelRemote);
-                    }
-                }
-                else {
-                    throw new ArgumentSyntaxException("Unexpected argument: " + args[i]);
-                }
-            }
-        }
-        return authentication;
-    }
-
 }

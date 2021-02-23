@@ -1,3 +1,106 @@
+v0.19.0 08-02-2021
+-------------------
+- gradle:
+   * updated to gradle 6.7.1
+   * refactored gradle scripts
+- datamanager:
+   * added loggingSettings
+- lib osgi:
+   * library which handles the usage of OSGi concepts.
+   * support for property handling
+- lib rest1:
+   * new lib for reducing code duplication of rest driver and server
+- lib mqtt:
+   * added last will and testament support
+   * added first will support
+   * lib contains all dependencies for hive mq now
+- lib ssl:
+   * configurable via dynamic configuration now
+- datalogger MQTT
+   * fixed several bugs
+- datalogger AMQP
+   * fixed several bugs
+- datalogger SQL
+   * added new logger to support SQL databases
+- driver CSV
+   * added support for String values
+- driver DLMS
+   * updated to jDLMS v1.7.1
+- driver M-Bus:
+   * fixed wrong sorted channel bug
+- server Modbus:
+   * updates to j2mod v2.7.0
+   * added support for TCP/RTU and UDP
+   * changed server config to new dynamic osgi lib
+   * fixed NullPointerException
+   * fixed register not readable bug
+
+v0.18.1 29-Jul-2020
+-------------------
+- core:
+   * added optional channel settings
+- lib bundles:
+   * added lib-mqtt
+   * added lib-filePersistence
+- datalogger MQTT:
+   * added file buffering 
+- driver DLMS:
+   * fixed driver not configurable
+- driver AMQP:
+   * fixed parser bug
+- driver iec62056-21:
+   * fixed some device scan bugs
+- driver M-Bus:
+   * less strict device connection, strict mode is optional
+   * less errors if a single device has problems  
+- driver iec61850:
+   * updated to iec61850bean v1.9.0
+- demo framework:
+   * added channel settings example in simple demo app
+
+v0.18.0 23-Jun-2020
+-------------------
+- core:
+   * added parser service and lib bundle
+   * added getValueType() and string parser to OpenMUC Values
+- datamanager:
+   * extended SPI
+   * added new event logging (support depends on datalogger)
+- datalogger AMQP:
+   * added new amqp logger
+- datalogger MQTT:
+   * added new mqtt logger
+- lib bundles:
+   * added new lib bundles for parsing ,amqp and ssl
+- WebUI:
+   * Base
+      + added user role admin and non admin
+      + added option to set CORS functionality
+   * Live Plotter: 
+      + added configure x and y range
+- driver AMQP:
+   * added new amqp driver
+- driver IEC 61850:
+   * code refactoring
+   * some bug fixes
+   * added tests
+   * changes from OpenMUC OpenIEC61850 to beanit.com OpenIEC61850 v1.8.0
+- driver IEC 60870:
+   * updated j60870 to v1.4.0
+   * fixed C_SE_NC_1 bug
+- driver M-Bus: 
+   * added option for delay between every message (for slow devices)
+   * added multi telegram message in channel scan and read function
+   * updated jmbus to 3.3.0
+- driver wireless M-Bus
+   * updated jmbus to 3.3.0
+- driver DLMS:
+   * updated jDLMS to 1.7.0
+   * updated jASN1 to 1.10.0 
+- several bug fixes
+- extended documentation
+- osgi bundle updates
+
 v0.17.2 20-Dec-2018
 -------------------
 - WebUI:

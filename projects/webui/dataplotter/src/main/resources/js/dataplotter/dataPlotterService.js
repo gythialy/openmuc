@@ -16,9 +16,7 @@
                 }
             };
 
-            return $http(req).then(r = > r.data.plotters
-        )
-            ;
+            return $http(req).then(r => r.data.plotters);
         };
 
     };

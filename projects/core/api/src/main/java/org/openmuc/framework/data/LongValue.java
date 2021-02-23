@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,11 +29,20 @@ public class LongValue extends NumberValue {
         super(value);
     }
 
+    public LongValue(String value) {
+        super(Long.parseLong(value));
+    }
+
     @Override
     public byte[] asByteArray() {
         byte[] bytes = new byte[8];
         ByteBuffer.wrap(bytes).putLong(super.asLong());
         return bytes;
+    }
+
+    @Override
+    public ValueType getValueType() {
+        return ValueType.LONG;
     }
 
 }

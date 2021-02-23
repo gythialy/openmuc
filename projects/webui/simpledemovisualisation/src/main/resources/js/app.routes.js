@@ -1,14 +1,16 @@
-(function () {
+(function(){
 
     var app = angular.module('openmuc');
 
     app.config(['$stateProvider', '$urlRouterProvider',
-        function ($stateProvider, $urlRouterProvider) {
-            $stateProvider.state('simpledemovisualisation', {
+        function($stateProvider, $urlRouterProvider) {
+            $stateProvider.
+            state('simpledemovisualisation', {
                 url: '/simpledemovisualisation',
                 templateUrl: 'simpledemovisualisation/html/index.html',
                 requireLogin: true
-            }).state('simpledemovisualisation.index', {
+            }).
+            state('simpledemovisualisation.index', {
                 url: '/',
                 templateUrl: 'simpledemovisualisation/html/graphic.html',
                 controller: 'VisualisationController',
@@ -21,7 +23,7 @@
                                 files: ['openmuc/js/channels/channelsService.js',
                                     'openmuc/js/channels/channelDataService.js',
                                     'simpledemovisualisation/css/simpledemovisualisation/main.css',
-                                    'simpledemovisualisation/js/visu/VisualisationController.js']
+                                   'simpledemovisualisation/js/visu/VisualisationController.js']
                             }
                         )
                     }

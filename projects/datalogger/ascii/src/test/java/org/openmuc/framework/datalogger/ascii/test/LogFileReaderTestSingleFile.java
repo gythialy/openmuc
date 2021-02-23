@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,16 +20,15 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openmuc.framework.core.datamanager.LogRecordContainerImpl;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
@@ -39,7 +38,7 @@ import org.openmuc.framework.datalogger.ascii.LogFileReader;
 import org.openmuc.framework.datalogger.ascii.LogFileWriter;
 import org.openmuc.framework.datalogger.ascii.LogIntervalContainerGroup;
 import org.openmuc.framework.datalogger.spi.LogChannel;
-import org.openmuc.framework.datalogger.spi.LogRecordContainer;
+import org.openmuc.framework.datalogger.spi.LoggingRecord;
 
 public class LogFileReaderTestSingleFile {
 
@@ -56,10 +55,10 @@ public class LogFileReaderTestSingleFile {
     static String[] channelIds = { Channel0Name };
     static String dateFormat = "yyyyMMdd HH:mm:ss";
 
-    LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "Comment", "W", ValueType.DOUBLE,
-            loggingInterval, loggingTimeOffset);
+    LogChannelTestImpl channelTestImpl = new LogChannelTestImpl(Channel0Name, "", "Comment", "W", ValueType.DOUBLE, 0.0,
+            0.0, false, 1000, 0, "", loggingInterval, loggingTimeOffset, false, false);
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
 
         System.out.println("### Setup() LogFileReaderTestSingleFile");
@@ -79,16 +78,15 @@ public class LogFileReaderTestSingleFile {
 
         HashMap<String, LogChannel> logChannelList = new HashMap<>();
 
-        LogChannelTestImpl ch1 = new LogChannelTestImpl(Channel0Name, "dummy description", "kW", ValueType.DOUBLE,
-                loggingInterval, loggingTimeOffset);
+        LogChannelTestImpl ch1 = new LogChannelTestImpl(Channel0Name, "", "dummy description", "kW", ValueType.DOUBLE,
+                0.0, 0.0, false, 1000, 0, "", loggingInterval, loggingTimeOffset, false, false);
 
         logChannelList.put(Channel0Name, ch1);
 
         Calendar calendar = TestUtils.stringToDate(dateFormat, fileDate0 + " 01:00:00");
 
         for (int i = 0; i < ((60 * 60 * 2) * (1000d / loggingInterval)); i++) {
-
-            LogRecordContainer container1 = new LogRecordContainerImpl(Channel0Name,
+            LoggingRecord container1 = new LoggingRecord(Channel0Name,
                     new Record(new DoubleValue(i), calendar.getTimeInMillis()));
 
             LogIntervalContainerGroup group = new LogIntervalContainerGroup();
@@ -103,7 +101,7 @@ public class LogFileReaderTestSingleFile {
         // }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
 
         System.out.println("tearing down");

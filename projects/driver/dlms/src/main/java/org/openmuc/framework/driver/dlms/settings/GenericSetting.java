@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -73,7 +73,7 @@ public abstract class GenericSetting {
         String value = option.value();
         boolean mandatory = option.mandatory();
         if (!mandatory) {
-            sb.append("[");
+            sb.append('[');
         }
 
         if (!first) {
@@ -91,10 +91,10 @@ public abstract class GenericSetting {
         sb.append(MessageFormat.format("{0}{1}<{2}>", value, PAIR_SEP, range));
 
         if (!mandatory) {
-            sb.append("]");
+            sb.append(']');
         }
 
-        return sb.append(" ").toString();
+        return sb.append(' ').toString();
 
     }
 

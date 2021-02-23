@@ -9,7 +9,7 @@ html, body {
     position: relative;
     width: 1108px;
     height: 760px;
-    border: 1px solid black;
+    border:1px solid black;
 }
 
 .svg-content {

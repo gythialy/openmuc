@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,6 +24,6 @@ import org.openmuc.framework.driver.csv.exceptions.CsvException;
 
 public interface CsvChannel {
 
-    public double readValue(long sampleTime) throws CsvException;
+    public String readValue(long sampleTime) throws CsvException;
 
 }

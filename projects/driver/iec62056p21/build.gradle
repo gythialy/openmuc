@@ -13,25 +13,19 @@ dependencies {
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Bundle-ClassPath', '.,lib/j62056-' + j62056version + '.jar'
-        instruction 'Import-Package', '!org.openmuc.j62056*,org.openmuc.jrxtx,*' + jarDefaultImportPackageVersion
-        instruction 'Export-Package', ''
-    }
-}
+    bnd('Bundle-Name': projectName, 'Bundle-ClassPath': '.,lib/j62056-' + j62056version + '.jar',
+            'Import-Package': '!org.openmuc.j62056*,org.openmuc.jrxtx,*' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description projectDescription
             }
         }

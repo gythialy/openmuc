@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,19 +20,19 @@
  */
 package org.openmuc.framework.server.restws.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
-import org.openmuc.framework.lib.json.Const;
-import org.openmuc.framework.lib.json.FromJson;
+import org.openmuc.framework.lib.rest1.Const;
+import org.openmuc.framework.lib.rest1.FromJson;
 
 public class TestJsonHelper_fromJson {
 
@@ -41,7 +41,7 @@ public class TestJsonHelper_fromJson {
     private static String[] sTestJsonValueArray;
     private static String sTestRecord;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
 
         String testJsonDoubleValue = "\"value\":" + Constants.DOUBLE_VALUE;

@@ -1,0 +1,34 @@
+def projectName = "OpenMUC Library - REST/JSON v1.0"
+def projectDescription = "Rest/JSON library for the OpenMUC framework"
+
+configurations.create('embed')
+
+def gsonVersion = '2.8.6'
+
+dependencies {
+    implementation project(':openmuc-core-api')
+
+    implementation group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+    embed group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+}
+
+jar {
+    bnd('Bundle-Name': projectName,
+            'Bundle-ClassPath': '.,lib/gson-' + gsonVersion + '.jar',
+            'Export-Package': 'org.openmuc.framework.lib.rest1.*,com.google.*')
+
+    into('lib') {
+        from configurations.embed
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description projectDescription
+            }
+        }
+    }
+}

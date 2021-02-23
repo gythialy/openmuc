@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -42,11 +42,9 @@ public class Record {
 
     /**
      * Creates a valid record.
-     * 
-     * @param value
-     *            the value of the record
-     * @param timestamp
-     *            the timestamp of the record
+     *
+     * @param value     the value of the record
+     * @param timestamp the timestamp of the record
      */
     public Record(Value value, Long timestamp) {
         this(value, timestamp, Flag.VALID);
@@ -54,9 +52,8 @@ public class Record {
 
     /**
      * Creates an invalid record with the given flag. The flag may not indicate valid.
-     * 
-     * @param flag
-     *            the flag of the invalid record.
+     *
+     * @param flag the flag of the invalid record.
      */
     public Record(Flag flag) {
         this(null, null, flag);

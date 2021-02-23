@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -39,22 +39,20 @@ import org.openmuc.framework.datalogger.ascii.exceptions.WrongCharacterException
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
-import org.openmuc.framework.datalogger.ascii.utils.LogRecordContainerAscii;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
-import org.openmuc.framework.datalogger.spi.LogRecordContainer;
+import org.openmuc.framework.datalogger.spi.LoggingRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LogFileWriter {
 
+    private static final Logger logger = LoggerFactory.getLogger(LogFileWriter.class);
     private final StringBuilder sb = new StringBuilder();
     private final StringBuilder sbValue = new StringBuilder();
-
     private final String directoryPath;
-    private static final Logger logger = LoggerFactory.getLogger(LogFileWriter.class);
-    private File actualFile;
     private final boolean isFillUpFiles;
+    private File actualFile;
 
     public LogFileWriter(String directoryPath, boolean isFillUpFiles) {
 
@@ -64,7 +62,7 @@ public class LogFileWriter {
 
     /**
      * Main logger writing controller.
-     * 
+     *
      * @param group
      *            log interval container group
      * @param loggingInterval
@@ -85,7 +83,7 @@ public class LogFileWriter {
             return;
         }
 
-        List<LogRecordContainer> logRecordContainer = group.getList();
+        List<LoggingRecord> logRecordContainer = group.getList();
 
         // TODO match column with container id, so that they don't get mixed up
 
@@ -101,7 +99,7 @@ public class LogFileWriter {
     }
 
     private void fillUpFile(int loggingInterval, int logTimeOffset, Calendar calendar,
-            Map<String, LogChannel> logChannelList, List<LogRecordContainer> logRecordContainer, PrintStream out) {
+            Map<String, LogChannel> logChannelList, List<LoggingRecord> loggingRecords, PrintStream out) {
 
         Long lastLoglineTimestamp = AsciiLogger.getLastLoggedLineTimeStamp(loggingInterval, logTimeOffset);
 
@@ -120,14 +118,14 @@ public class LogFileWriter {
 
                     for (int i = 1; i < numOfErrorLines; ++i) {
                         errCalendar.setTimeInMillis(lastLoglineTimestamp + ((long) loggingInterval * i));
-                        out.print(getLoggingLine(logRecordContainer, logChannelList, errCalendar, true));
+                        out.print(getLoggingLine(loggingRecords, logChannelList, errCalendar, true));
                     }
                 }
             }
         }
     }
 
-    private String getLoggingLine(List<LogRecordContainer> logRecordContainer, Map<String, LogChannel> logChannelList,
+    private String getLoggingLine(List<LoggingRecord> logRecordContainer, Map<String, LogChannel> logChannelList,
             Calendar calendar, boolean isError32) {
         sb.setLength(0);
 
@@ -138,8 +136,8 @@ public class LogFileWriter {
             boolean left = true;
 
             Record record = logRecordContainer.get(i).getRecord();
-            String channelID = logRecordContainer.get(i).getChannelId();
-            LogChannel logChannel = logChannelList.get(channelID);
+            String channelId = logRecordContainer.get(i).getChannelId();
+            LogChannel logChannel = logChannelList.get(channelId);
 
             sbValue.setLength(0);
 
@@ -149,8 +147,7 @@ public class LogFileWriter {
 
                 if (isError32) {
                     recordBackup = logRecordContainer.get(i).getRecord();
-                    logRecordContainer.set(i,
-                            new LogRecordContainerAscii(channelID, new Record(Flag.DATA_LOGGING_NOT_ACTIVE)));
+                    logRecordContainer.set(i, new LoggingRecord(channelId, new Record(Flag.DATA_LOGGING_NOT_ACTIVE)));
                 }
                 record = logRecordContainer.get(i).getRecord();
 
@@ -187,7 +184,7 @@ public class LogFileWriter {
                                         size);
                             } catch (WrongScalingException e) {
                                 LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
-                                logger.error(e.getMessage() + " ChannelId: " + channelID);
+                                logger.error(e.getMessage() + " ChannelId: " + channelId);
                             }
                             break;
                         case BYTE_ARRAY:
@@ -197,7 +194,7 @@ public class LogFileWriter {
                             if (byteArray.length > size) {
                                 LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
                                 logger.error("The byte array is too big, length is ", byteArray.length,
-                                        " but max. length allowed is ", size, ", ChannelId: ", channelID);
+                                        " but max. length allowed is ", size, ", ChannelId: ", channelId);
                             }
                             else {
                                 sbValue.append(Const.HEXADECIMAL);
@@ -218,7 +215,7 @@ public class LogFileWriter {
                             if (valueLength > size) {
                                 LoggerUtils.buildError(sbValue, Flag.UNKNOWN_ERROR);
                                 logger.error("The string is too big, length is ", valueLength,
-                                        " but max. length allowed is ", size, ", ChannelId: ", channelID);
+                                        " but max. length allowed is ", size, ", ChannelId: ", channelId);
                             }
                             break;
                         case BYTE:
@@ -236,7 +233,7 @@ public class LogFileWriter {
                 }
 
                 if (isError32) {
-                    logRecordContainer.set(i, new LogRecordContainerAscii(channelID, recordBackup));
+                    logRecordContainer.set(i, new LoggingRecord(channelId, recordBackup));
                 }
             }
             else {
@@ -264,7 +261,7 @@ public class LogFileWriter {
 
     /**
      * Checks a string if it is IESData conform, e.g. wrong characters. If not it will drop a error.
-     * 
+     *
      * @param value
      *            the string value which should be checked
      */
@@ -295,7 +292,7 @@ public class LogFileWriter {
 
     /**
      * Returns the PrintStream for logging.
-     * 
+     *
      * @param group
      * @param loggingInterval
      * @param date
@@ -313,10 +310,10 @@ public class LogFileWriter {
 
         try {
             if (file.exists()) {
-                out = new PrintStream(new FileOutputStream(file, true), false, Const.CHAR_SET);
+                out = new PrintStream(new FileOutputStream(file, true), false, Const.CHAR_SET.toString());
             }
             else {
-                out = new PrintStream(new FileOutputStream(file, true), false, Const.CHAR_SET);
+                out = new PrintStream(new FileOutputStream(file, true), false, Const.CHAR_SET.toString());
                 String headerString = LogFileHeader.getIESDataFormatHeaderString(group, file.getName(), loggingInterval,
                         logChannelList);
 
@@ -333,7 +330,7 @@ public class LogFileWriter {
 
     /**
      * Returns the size of a DataType / ValueType.
-     * 
+     *
      * @param logChannel
      * @param iterator
      * @return size of DataType / ValueType.

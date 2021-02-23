@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,6 +20,12 @@
  */
 package org.openmuc.framework.driver.csv.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,13 +38,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({System.class, CsvDeviceConnection.class})
+@PrepareForTest({ System.class, CsvDeviceConnection.class })
 public class SamplingModeHhmmssTest {
 
     private static final String DEVICE_ADDRESS = System.getProperty("user.dir") + "/src/test/resources/test_data.csv";
@@ -58,6 +59,7 @@ public class SamplingModeHhmmssTest {
     @Before
     public void before() {
 
+        TimeZone.setDefault(TimeZone.getTimeZone("CET"));
         containers = new ArrayList<>();
         containers.add(INDEX_HHMMSS, new CsvChannelRecordContainer("hhmmss"));
         containers.add(INDEX_POWER, new CsvChannelRecordContainer("power_grid"));
@@ -66,80 +68,80 @@ public class SamplingModeHhmmssTest {
     @Test
     public void testNormal() throws Exception {
 
-//        String deviceSettings = "samplingmode=hhmmss";
-//        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
-//        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
-//
-//        PowerMockito.mockStatic(System.class);
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_1LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(10.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
-//
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_2LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(15.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
-//
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_3LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
-//
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_AFTER_3LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+        String deviceSettings = "samplingmode=hhmmss";
+        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
+        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
+
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_1LINE);
+        read(connectionSpy, containers);
+        assertEquals(10.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_2LINE);
+        read(connectionSpy, containers);
+        assertEquals(15.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_3LINE);
+        read(connectionSpy, containers);
+        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_AFTER_3LINE);
+        read(connectionSpy, containers);
+        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
 
     }
 
     @Test
     public void testNewDayRewind() throws ConnectionException, ArgumentSyntaxException {
 
-//        String deviceSettings = "samplingmode=hhmmss;rewind=true";
-//
-//        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
-//
-//        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
-//
-//        PowerMockito.mockStatic(System.class);
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_3LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
-//
-//        // rewind should performed so first line can be read
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_1LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(10.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+        String deviceSettings = "samplingmode=hhmmss;rewind=true";
+
+        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
+
+        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
+
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_3LINE);
+        read(connectionSpy, containers);
+        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+
+        // rewind should performed so first line can be read
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_1LINE);
+        read(connectionSpy, containers);
+        assertEquals(10.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
 
     }
 
     @Test
     public void testNewDayWithoutRewind() throws ConnectionException, ArgumentSyntaxException {
 
-//        String deviceSettings = "samplingmode=hhmmss";
-//        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
-//        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
-//
-//        PowerMockito.mockStatic(System.class);
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_3LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
-//
-//        // no rewind, causes timetravel exception resulting in NaN
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_1LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(Double.NaN, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+        String deviceSettings = "samplingmode=hhmmss";
+        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
+        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
+
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_3LINE);
+        read(connectionSpy, containers);
+        assertEquals(20.0, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+
+        // no rewind, causes timetravel exception resulting in NaN
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_1LINE);
+        read(connectionSpy, containers);
+        assertEquals(Double.NaN, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
 
     }
 
     @Test
     public void testBeforeAvailableData() throws ConnectionException, ArgumentSyntaxException {
 
-//        String deviceSettings = "samplingmode=hhmmss";
-//        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
-//        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
-//
-//        PowerMockito.mockStatic(System.class);
-//        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_BEFORE_1LINE);
-//        read(connectionSpy, containers);
-//        assertEquals(Double.NaN, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
+        String deviceSettings = "samplingmode=hhmmss";
+        CsvDeviceConnection connectionSpy = PowerMockito.spy(new CsvDeviceConnection(DEVICE_ADDRESS, deviceSettings));
+        System.out.println(String.format("%10s, %10s", "hhmmss", "power_grid"));
+
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(TIMESTAMP_BEFORE_1LINE);
+        read(connectionSpy, containers);
+        assertEquals(Double.NaN, containers.get(INDEX_HHMMSS).getRecord().getValue().asDouble());
 
     }
 

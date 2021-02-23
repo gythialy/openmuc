@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,11 +29,20 @@ public class DoubleValue extends NumberValue {
         super(value);
     }
 
+    public DoubleValue(String value) {
+        super(Double.parseDouble(value));
+    }
+
     @Override
     public byte[] asByteArray() {
         byte[] bytes = new byte[8];
         ByteBuffer.wrap(bytes).putDouble(super.asDouble());
         return bytes;
+    }
+
+    @Override
+    public ValueType getValueType() {
+        return ValueType.DOUBLE;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -69,7 +69,7 @@ public class ModbusTCPConnection extends ModbusConnection {
             logger.error("Unable to connect to device " + deviceAddress, e);
             throw new ConnectionException();
         }
-        logger.info("Modbus Device: " + deviceAddress + " connected");
+        logger.info("Modbus Device: {} connected", deviceAddress);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class ModbusTCPConnection extends ModbusConnection {
                     value = readChannel(channel);
 
                     if (logger.isTraceEnabled()) {
-                        logger.trace("Value of response: " + value.toString());
+                        logger.trace("Value of response: {}", value.toString());
                     }
 
                     container.setRecord(new Record(value, receiveTime));

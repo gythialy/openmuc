@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,7 +21,7 @@
 package org.openmuc.framework.driver.snmp.implementation;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.List;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.snmp.SnmpDriver.SnmpDriverSettingVariableNames;
@@ -59,7 +59,7 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
      *            Contains ip and port. accepted string "X.X.X.X/portNo" or "udp:X.X.X.X/portNo"
      * @param authenticationPassphrase
      *            the authentication pass phrase. If not <code>null</code>, <code>authenticationProtocol</code> must
-     *            also be not <code>null</code>. RFC3414 §11.2 requires pass phrases to have a minimum length of 8
+     *            also be not <code>null</code>. RFC3414 &sect;11.2 requires pass phrases to have a minimum length of 8
      *            bytes. If the length of <code>authenticationPassphrase</code> is less than 8 bytes an
      *            <code>IllegalArgumentException</code> is thrown. [required by snmp4j library]
      * 
@@ -230,7 +230,7 @@ public class SnmpDeviceV1V2c extends SnmpDevice {
 
                             if (event.getResponse() != null) {
                                 @SuppressWarnings("rawtypes")
-                                Vector vbs = event.getResponse().getVariableBindings();
+                                List<? extends VariableBinding> vbs = event.getResponse().getVariableBindings();
                                 // check if sent and received OIDs are the same
                                 // or else snmp version may not compatible
                                 if (!ScanOIDs.containsValue(((VariableBinding) vbs.get(0)).getOid().toString())) {

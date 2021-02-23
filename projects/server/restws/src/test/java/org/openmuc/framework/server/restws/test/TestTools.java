@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,11 +20,11 @@
  */
 package org.openmuc.framework.server.restws.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
-import org.junit.Assert;
 import org.openmuc.framework.data.TypeConversionException;
 import org.openmuc.framework.data.Value;
 import org.openmuc.framework.data.ValueType;
@@ -90,41 +90,39 @@ public class TestTools {
 
         switch (valueType) {
         case BOOLEAN:
-            Assert.assertEquals(Test_method + ": Expected boolean is not equal the actual", Constants.BOOLEAN_VALUE,
-                    value.asBoolean());
+            assertEquals(Constants.BOOLEAN_VALUE, value.asBoolean(),
+                    Test_method + ": Expected boolean is not equal the actual");
             break;
         case BYTE:
-            Assert.assertEquals(Test_method + ": Expected byte is not equal the actual", Constants.BYTE_VALUE,
-                    value.asByte());
+            assertEquals(Constants.BYTE_VALUE, value.asByte(), Test_method + ": Expected byte is not equal the actual");
             break;
         case BYTE_ARRAY:
             if (!Arrays.equals(Constants.BYTE_ARRAY_VALUE, value.asByteArray())) {
-                assertTrue(Test_method + ": Expected byte[] is not equal the actual", false);
+                assertTrue(false, Test_method + ": Expected byte[] is not equal the actual");
             }
             break;
         case DOUBLE:
-            Assert.assertEquals(Test_method + ": Expected double is not equal the actual", Constants.DOUBLE_VALUE,
-                    value.asDouble(), 0.00001);
+            assertEquals(Constants.DOUBLE_VALUE, value.asDouble(), 0.00001,
+                    Test_method + ": Expected double is not equal the actual");
             break;
         case FLOAT:
-            Assert.assertEquals(Test_method + ": Expected double is not equal the actual", Constants.FLOAT_VALUE,
-                    value.asFloat(), 0.00001);
+            assertEquals(Constants.FLOAT_VALUE, value.asFloat(), 0.00001,
+                    Test_method + ": Expected double is not equal the actual");
             break;
         case INTEGER:
-            Assert.assertEquals(Test_method + ": Expected int is not equal the actual", Constants.INTEGER_VALUE,
-                    value.asInt());
+            assertEquals(Constants.INTEGER_VALUE, value.asInt(),
+                    Test_method + ": Expected int is not equal the actual");
             break;
         case LONG:
-            Assert.assertEquals(Test_method + ": Expected long is not equal the actual", Constants.LONG_VALUE,
-                    value.asLong());
+            assertEquals(Constants.LONG_VALUE, value.asLong(), Test_method + ": Expected long is not equal the actual");
             break;
         case SHORT:
-            Assert.assertEquals(Test_method + ": Expected short is not equal the actual", Constants.SHORT_VALUE,
-                    value.asShort());
+            assertEquals(Constants.SHORT_VALUE, value.asShort(),
+                    Test_method + ": Expected short is not equal the actual");
             break;
         case STRING:
-            Assert.assertEquals(Test_method + ": Expected String is not equal the actual", Constants.STRING_VALUE,
-                    value.asString());
+            assertEquals(Constants.STRING_VALUE, value.asString(),
+                    Test_method + ": Expected String is not equal the actual");
             break;
         default:
             // should never happen

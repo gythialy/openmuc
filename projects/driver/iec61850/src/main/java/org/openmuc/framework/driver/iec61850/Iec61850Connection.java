@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,9 +21,9 @@
 package org.openmuc.framework.driver.iec61850;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.openmuc.framework.config.ChannelScanInfo;
@@ -42,39 +42,40 @@ import org.openmuc.framework.driver.spi.ChannelValueContainer;
 import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
-import org.openmuc.openiec61850.BasicDataAttribute;
-import org.openmuc.openiec61850.BdaBitString;
-import org.openmuc.openiec61850.BdaBoolean;
-import org.openmuc.openiec61850.BdaCheck;
-import org.openmuc.openiec61850.BdaDoubleBitPos;
-import org.openmuc.openiec61850.BdaEntryTime;
-import org.openmuc.openiec61850.BdaFloat32;
-import org.openmuc.openiec61850.BdaFloat64;
-import org.openmuc.openiec61850.BdaInt128;
-import org.openmuc.openiec61850.BdaInt16;
-import org.openmuc.openiec61850.BdaInt16U;
-import org.openmuc.openiec61850.BdaInt32;
-import org.openmuc.openiec61850.BdaInt32U;
-import org.openmuc.openiec61850.BdaInt64;
-import org.openmuc.openiec61850.BdaInt8;
-import org.openmuc.openiec61850.BdaInt8U;
-import org.openmuc.openiec61850.BdaOctetString;
-import org.openmuc.openiec61850.BdaOptFlds;
-import org.openmuc.openiec61850.BdaQuality;
-import org.openmuc.openiec61850.BdaReasonForInclusion;
-import org.openmuc.openiec61850.BdaTapCommand;
-import org.openmuc.openiec61850.BdaTimestamp;
-import org.openmuc.openiec61850.BdaTriggerConditions;
-import org.openmuc.openiec61850.BdaUnicodeString;
-import org.openmuc.openiec61850.BdaVisibleString;
-import org.openmuc.openiec61850.ClientAssociation;
-import org.openmuc.openiec61850.Fc;
-import org.openmuc.openiec61850.FcModelNode;
-import org.openmuc.openiec61850.ModelNode;
-import org.openmuc.openiec61850.ServerModel;
-import org.openmuc.openiec61850.ServiceError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.beanit.iec61850bean.BasicDataAttribute;
+import com.beanit.iec61850bean.BdaBitString;
+import com.beanit.iec61850bean.BdaBoolean;
+import com.beanit.iec61850bean.BdaCheck;
+import com.beanit.iec61850bean.BdaDoubleBitPos;
+import com.beanit.iec61850bean.BdaEntryTime;
+import com.beanit.iec61850bean.BdaFloat32;
+import com.beanit.iec61850bean.BdaFloat64;
+import com.beanit.iec61850bean.BdaInt128;
+import com.beanit.iec61850bean.BdaInt16;
+import com.beanit.iec61850bean.BdaInt16U;
+import com.beanit.iec61850bean.BdaInt32;
+import com.beanit.iec61850bean.BdaInt32U;
+import com.beanit.iec61850bean.BdaInt64;
+import com.beanit.iec61850bean.BdaInt8;
+import com.beanit.iec61850bean.BdaInt8U;
+import com.beanit.iec61850bean.BdaOctetString;
+import com.beanit.iec61850bean.BdaOptFlds;
+import com.beanit.iec61850bean.BdaQuality;
+import com.beanit.iec61850bean.BdaReasonForInclusion;
+import com.beanit.iec61850bean.BdaTapCommand;
+import com.beanit.iec61850bean.BdaTimestamp;
+import com.beanit.iec61850bean.BdaTriggerConditions;
+import com.beanit.iec61850bean.BdaUnicodeString;
+import com.beanit.iec61850bean.BdaVisibleString;
+import com.beanit.iec61850bean.ClientAssociation;
+import com.beanit.iec61850bean.Fc;
+import com.beanit.iec61850bean.FcModelNode;
+import com.beanit.iec61850bean.ModelNode;
+import com.beanit.iec61850bean.ServerModel;
+import com.beanit.iec61850bean.ServiceError;
 
 public final class Iec61850Connection implements Connection {
 
@@ -95,183 +96,26 @@ public final class Iec61850Connection implements Connection {
             throws UnsupportedOperationException, ConnectionException {
         List<BasicDataAttribute> bdas = serverModel.getBasicDataAttributes();
         List<ChannelScanInfo> scanInfos = new ArrayList<>(bdas.size());
-
         for (BasicDataAttribute bda : bdas) {
-            String channelAddress = bda.getReference() + ":" + bda.getFc();
-
-            switch (bda.getBasicType()) {
-
-            case CHECK:
-            case DOUBLE_BIT_POS:
-            case OPTFLDS:
-            case QUALITY:
-            case REASON_FOR_INCLUSION:
-            case TAP_COMMAND:
-            case TRIGGER_CONDITIONS:
-                bda.setDefault();
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
-                        ((BdaBitString) bda).getValue().length));
-                break;
-            case ENTRY_TIME:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE, null));
-                break;
-            case OCTET_STRING:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
-                        ((BdaOctetString) bda).getMaxLength()));
-                break;
-            case VISIBLE_STRING:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
-                        ((BdaVisibleString) bda).getMaxLength()));
-                break;
-            case UNICODE_STRING:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
-                        ((BdaUnicodeString) bda).getMaxLength()));
-                break;
-            case TIMESTAMP:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.LONG, null));
-                break;
-            case BOOLEAN:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BOOLEAN, null));
-                break;
-            case FLOAT32:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.FLOAT, null));
-                break;
-            case FLOAT64:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.DOUBLE, null));
-                break;
-            case INT8:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.BYTE, null));
-                break;
-            case INT8U:
-            case INT16:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.SHORT, null));
-                break;
-            case INT16U:
-            case INT32:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.INTEGER, null));
-                break;
-            case INT32U:
-                // Long due to setValueFromMmsDataObj in BdaInt64
-            case INT64:
-                scanInfos.add(new ChannelScanInfo(channelAddress, "", ValueType.LONG, null));
-                break;
-            default:
-                throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
-            }
+            scanInfos.add(createScanInfo(bda));
         }
-
         return scanInfos;
     }
 
     @Override
     public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
             throws UnsupportedOperationException, ConnectionException {
+        // Check if record container objects exist -> check if basic data attribute exists in server model for channel
+        // adress
+        // -> model node exists but is no BDA
         for (ChannelRecordContainer container : containers) {
 
-            if (container.getChannelHandle() == null) {
-
-                String[] args = container.getChannelAddress().split(":", 3);
-
-                if (args.length != 2) {
-                    logger.debug("Wrong channel address syntax: {}", container.getChannelAddress());
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
-                    continue;
-                }
-
-                ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));
-
-                if (modelNode == null) {
-                    logger.debug("No Basic Data Attribute for the channel address {} was found in the server model.",
-                            container.getChannelAddress());
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
-                    continue;
-                }
-
-                FcModelNode fcModelNode;
-                try {
-                    fcModelNode = (FcModelNode) modelNode;
-                } catch (ClassCastException e) {
-                    logger.debug(
-                            "ModelNode with object reference {} was found in the server model but is not a Basic Data Attribute.",
-                            container.getChannelAddress());
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
-                    continue;
-                }
-                container.setChannelHandle(fcModelNode);
-
-            }
+            setChannelHandleWithFcModelNode(container);
         }
 
         if (!samplingGroup.isEmpty()) {
 
-            FcModelNode fcModelNode;
-            if (containerListHandle != null) {
-                fcModelNode = (FcModelNode) containerListHandle;
-            }
-
-            else {
-
-                String[] args = samplingGroup.split(":", 3);
-
-                if (args.length != 2) {
-                    logger.debug("Wrong sampling group syntax: {}", samplingGroup);
-                    for (ChannelRecordContainer container : containers) {
-                        container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));
-                    }
-                    return null;
-                }
-
-                ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));
-
-                if (modelNode == null) {
-                    logger.debug(
-                            "Error reading sampling group: no FCDO/DA or DataSet with object reference {} was not found in the server model.",
-                            samplingGroup);
-                    for (ChannelRecordContainer container : containers) {
-                        container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));
-                    }
-                    return null;
-                }
-
-                try {
-                    fcModelNode = (FcModelNode) modelNode;
-                } catch (ClassCastException e) {
-                    logger.debug(
-                            "Error reading channel: ModelNode with sampling group reference {} was found in the server model but is not a FcModelNode.",
-                            samplingGroup);
-                    for (ChannelRecordContainer container : containers) {
-                        container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));
-                    }
-                    return null;
-                }
-
-            }
-
-            try {
-                clientAssociation.getDataValues(fcModelNode);
-            } catch (ServiceError e) {
-                logger.debug("Error reading sampling group: service error calling getDataValues on {}: {}",
-                        samplingGroup, e);
-                for (ChannelRecordContainer container : containers) {
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_ACCESSIBLE));
-                }
-                return fcModelNode;
-            } catch (IOException e) {
-                throw new ConnectionException(e);
-            }
-
-            long receiveTime = System.currentTimeMillis();
-
-            for (ChannelRecordContainer container : containers) {
-                if (container.getChannelHandle() != null) {
-                    setRecord(container, (BasicDataAttribute) container.getChannelHandle(), receiveTime);
-                }
-                else {
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_PART_OF_SAMPLING_GROUP));
-                }
-            }
-
-            return fcModelNode;
+            return setRecordContainerWithSamplingGroup(containers, containerListHandle, samplingGroup);
 
         }
         // sampling group is empty
@@ -279,218 +123,11 @@ public final class Iec61850Connection implements Connection {
 
             for (ChannelRecordContainer container : containers) {
 
-                if (container.getChannelHandle() == null) {
-                    continue;
-                }
-                FcModelNode fcModelNode = (FcModelNode) container.getChannelHandle();
-                try {
-                    clientAssociation.getDataValues(fcModelNode);
-                } catch (ServiceError e) {
-                    logger.debug("Error reading channel: service error calling getDataValues on {}: {}",
-                            container.getChannelAddress(), e);
-                    container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
-                    continue;
-                } catch (IOException e) {
-                    throw new ConnectionException(e);
-                }
-
-                if (fcModelNode instanceof BasicDataAttribute) {
-                    long receiveTime = System.currentTimeMillis();
-                    setRecord(container, (BasicDataAttribute) fcModelNode, receiveTime);
-                }
-                else {
-                    StringBuilder sb = new StringBuilder("");
-                    for (BasicDataAttribute bda : fcModelNode.getBasicDataAttributes()) {
-                        sb.append(bda2String(bda) + STRING_SEPARATOR);
-                    }
-                    sb.delete(sb.length() - 1, sb.length());// remove last separator
-                    long receiveTime = System.currentTimeMillis();
-                    setRecord(container, sb.toString(), receiveTime);
-                }
+                setRecordContainer(container);
             }
             return null;
         }
 
-    }
-
-    private String bda2String(BasicDataAttribute bda) {
-        String result;
-        switch (bda.getBasicType()) {
-        case CHECK:
-            result = ((BdaCheck) bda).getValueString();
-            break;
-        case DOUBLE_BIT_POS:
-            result = ((BdaDoubleBitPos) bda).getValueString();
-            break;
-        case OPTFLDS:
-            result = ((BdaOptFlds) bda).toString();
-            break;
-        case QUALITY:
-            result = ((BdaQuality) bda).getValueString();
-            break;
-        case REASON_FOR_INCLUSION:
-            result = ((BdaReasonForInclusion) bda).getValueString();
-            break;
-        case TAP_COMMAND:
-            result = "" + ((BdaTapCommand) bda).getTapCommand().getIntValue();
-            break;
-        case TRIGGER_CONDITIONS:
-            result = ((BdaTriggerConditions) bda).getValueString();
-            break;
-        case ENTRY_TIME:
-            result = ((BdaEntryTime) bda).getValueString();
-            break;
-        case OCTET_STRING:
-            result = Arrays.toString(((BdaOctetString) bda).getValue());
-            break;
-        case UNICODE_STRING:
-            byte[] byteValue = ((BdaUnicodeString) bda).getValue();
-            if (byteValue == null) {
-                result = "null";
-            }
-            else {
-                result = new String(byteValue);
-            }
-            break;
-        case VISIBLE_STRING:
-            result = ((BdaVisibleString) bda).getValueString();
-            break;
-        case TIMESTAMP:
-            Date date = ((BdaTimestamp) bda).getDate();
-            result = date == null ? "<invalid date>" : ("" + date.getTime());
-            break;
-        case BOOLEAN:
-            result = ((BdaBoolean) bda).getValueString();
-            break;
-        case FLOAT32:
-            result = ((BdaFloat32) bda).getValueString();
-            break;
-        case FLOAT64:
-            result = ((BdaFloat64) bda).getValueString();
-            break;
-        case INT8:
-            result = ((BdaInt8) bda).getValueString();
-            break;
-        case INT8U:
-            result = "" + ((BdaInt8U) bda).getValue();
-            break;
-        case INT16:
-            result = "" + ((BdaInt16) bda).getValue();
-            break;
-        case INT16U:
-            result = "" + ((BdaInt16U) bda).getValue();
-            break;
-        case INT32:
-            result = ((BdaInt32) bda).getValueString();
-            break;
-        case INT32U:
-            result = ((BdaInt32U) bda).getValueString();
-            break;
-        case INT64:
-            result = "" + ((BdaInt64) bda).getValue();
-            break;
-        case INT128:
-            result = ((BdaInt128) bda).getValueString();
-            break;
-        default:
-            throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
-        }
-        return result;
-    }
-
-    private void setRecord(ChannelRecordContainer container, String stringValue, long receiveTime) {
-        container.setRecord(new Record(new ByteArrayValue(stringValue.getBytes(), true), receiveTime));
-    }
-
-    private void setRecord(ChannelRecordContainer container, BasicDataAttribute bda, long receiveTime) {
-
-        switch (bda.getBasicType()) {
-        case CHECK:
-            container.setRecord(new Record(new ByteArrayValue(((BdaCheck) bda).getValue(), true), receiveTime));
-            break;
-        case DOUBLE_BIT_POS:
-            container.setRecord(new Record(new ByteArrayValue(((BdaDoubleBitPos) bda).getValue(), true), receiveTime));
-            break;
-        case OPTFLDS:
-            container.setRecord(new Record(new ByteArrayValue(((BdaOptFlds) bda).getValue(), true), receiveTime));
-            break;
-        case QUALITY:
-            container.setRecord(new Record(new ByteArrayValue(((BdaQuality) bda).getValue(), true), receiveTime));
-            break;
-        case REASON_FOR_INCLUSION:
-            container.setRecord(
-                    new Record(new ByteArrayValue(((BdaReasonForInclusion) bda).getValue(), true), receiveTime));
-            break;
-        case TAP_COMMAND:
-            container.setRecord(
-                    new Record(new IntValue(((BdaTapCommand) bda).getTapCommand().getIntValue()), receiveTime));
-            break;
-        case TRIGGER_CONDITIONS:
-            container.setRecord(new Record(new ByteArrayValue(((BdaBitString) bda).getValue(), true), receiveTime));
-            break;
-        case ENTRY_TIME:
-            container.setRecord(new Record(new ByteArrayValue(((BdaEntryTime) bda).getValue(), true), receiveTime));
-            break;
-        case OCTET_STRING:
-            container.setRecord(new Record(new ByteArrayValue(((BdaOctetString) bda).getValue(), true), receiveTime));
-            break;
-        case VISIBLE_STRING:
-            container.setRecord(new Record(new StringValue(((BdaVisibleString) bda).getStringValue()), receiveTime));
-            break;
-        case UNICODE_STRING:
-            container.setRecord(new Record(new ByteArrayValue(((BdaUnicodeString) bda).getValue(), true), receiveTime));
-            break;
-        case TIMESTAMP:
-            Date date = ((BdaTimestamp) bda).getDate();
-            if (date == null) {
-                container.setRecord(new Record(new LongValue(-1l), receiveTime));
-            }
-            else {
-                container.setRecord(new Record(new LongValue(date.getTime()), receiveTime));
-            }
-            break;
-        case BOOLEAN:
-            container.setRecord(new Record(new BooleanValue(((BdaBoolean) bda).getValue()), receiveTime));
-            break;
-        case FLOAT32:
-            container.setRecord(new Record(new FloatValue(((BdaFloat32) bda).getFloat()), receiveTime));
-            break;
-        case FLOAT64:
-            container.setRecord(new Record(new DoubleValue(((BdaFloat64) bda).getDouble()), receiveTime));
-            break;
-        case INT8:
-            container.setRecord(new Record(new DoubleValue(((BdaInt8) bda).getValue()), receiveTime));
-            break;
-        case INT8U:
-            container.setRecord(new Record(new DoubleValue(((BdaInt8U) bda).getValue()), receiveTime));
-            break;
-        case INT16:
-            container.setRecord(new Record(new DoubleValue(((BdaInt16) bda).getValue()), receiveTime));
-            break;
-        case INT16U:
-            container.setRecord(new Record(new DoubleValue(((BdaInt16U) bda).getValue()), receiveTime));
-            break;
-        case INT32:
-            container.setRecord(new Record(new DoubleValue(((BdaInt32) bda).getValue()), receiveTime));
-            break;
-        case INT32U:
-            container.setRecord(new Record(new DoubleValue(((BdaInt32U) bda).getValue()), receiveTime));
-            break;
-        case INT64:
-            container.setRecord(new Record(new DoubleValue(((BdaInt64) bda).getValue()), receiveTime));
-            break;
-        case INT128:
-            container.setRecord(new Record(new DoubleValue(((BdaInt128) bda).getValue()), receiveTime));
-            break;
-        default:
-            throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
-        }
-    }
-
-    @Override
-    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -553,9 +190,16 @@ public final class Iec61850Connection implements Connection {
 
         for (FcModelNode fcModelNode : fcNodesToBeRequested) {
             try {
-                clientAssociation.setDataValues(fcModelNode);
+                if (fcModelNode.getFc().toString().equals("CO")) {
+                    logger.info("writing CO model node");
+                    fcModelNode = (FcModelNode) fcModelNode.getParent().getParent();
+                    clientAssociation.operate(fcModelNode);
+                }
+                else {
+                    clientAssociation.setDataValues(fcModelNode);
+                }
             } catch (ServiceError e) {
-                logger.debug("Error writing to channel: service error calling setDataValues on {}: {}",
+                logger.error("Error writing to channel: service error calling setDataValues on {}: {}",
                         fcModelNode.getReference(), e);
                 for (BasicDataAttribute bda : fcModelNode.getBasicDataAttributes()) {
                     for (ChannelValueContainer valueContainer : containers) {
@@ -579,6 +223,151 @@ public final class Iec61850Connection implements Connection {
 
         return null;
 
+    }
+
+    private FcModelNode setRecordContainer(ChannelRecordContainer container) throws ConnectionException {
+        if (container.getChannelHandle() == null) {
+            return null;
+        }
+        FcModelNode fcModelNode = (FcModelNode) container.getChannelHandle();
+        try {
+            clientAssociation.getDataValues(fcModelNode);
+        } catch (ServiceError e) {
+            logger.debug("Error reading channel: service error calling getDataValues on {}: {}",
+                    container.getChannelAddress(), e);
+            container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
+            return fcModelNode;
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
+
+        if (fcModelNode instanceof BasicDataAttribute) {
+            long receiveTime = System.currentTimeMillis();
+            setRecord(container, (BasicDataAttribute) fcModelNode, receiveTime);
+        }
+        else {
+            StringBuilder sb = new StringBuilder("");
+            for (BasicDataAttribute bda : fcModelNode.getBasicDataAttributes()) {
+                sb.append(bda2String(bda) + STRING_SEPARATOR);
+            }
+            sb.delete(sb.length() - 1, sb.length());// remove last separator
+            long receiveTime = System.currentTimeMillis();
+            setRecord(container, sb.toString(), receiveTime);
+        }
+        return null;
+    }
+
+    private Object setRecordContainerWithSamplingGroup(List<ChannelRecordContainer> containers,
+            Object containerListHandle, String samplingGroup) throws ConnectionException {
+        FcModelNode fcModelNode;
+        if (containerListHandle != null) {
+            fcModelNode = (FcModelNode) containerListHandle;
+        }
+
+        else {
+
+            String[] args = samplingGroup.split(":", 3);
+
+            if (args.length != 2) {
+                logger.debug("Wrong sampling group syntax: {}", samplingGroup);
+                for (ChannelRecordContainer container : containers) {
+                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));
+                }
+                return null;
+            }
+
+            ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));
+
+            if (modelNode == null) {
+                logger.debug(
+                        "Error reading sampling group: no FCDO/DA or DataSet with object reference {} was not found in the server model.",
+                        samplingGroup);
+                for (ChannelRecordContainer container : containers) {
+                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));
+                }
+                return null;
+            }
+
+            try {
+                fcModelNode = (FcModelNode) modelNode;
+            } catch (ClassCastException e) {
+                logger.debug(
+                        "Error reading channel: ModelNode with sampling group reference {} was found in the server model but is not a FcModelNode.",
+                        samplingGroup);
+                for (ChannelRecordContainer container : containers) {
+                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));
+                }
+                return null;
+            }
+
+        }
+
+        try {
+            clientAssociation.getDataValues(fcModelNode);
+        } catch (ServiceError e) {
+            logger.debug("Error reading sampling group: service error calling getDataValues on {}: {}", samplingGroup,
+                    e);
+            for (ChannelRecordContainer container : containers) {
+                container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_ACCESSIBLE));
+            }
+            return fcModelNode;
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
+
+        long receiveTime = System.currentTimeMillis();
+
+        for (ChannelRecordContainer container : containers) {
+            if (container.getChannelHandle() != null) {
+                setRecord(container, (BasicDataAttribute) container.getChannelHandle(), receiveTime);
+            }
+            else {
+                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_PART_OF_SAMPLING_GROUP));
+            }
+        }
+
+        return fcModelNode;
+    }
+
+    private void setChannelHandleWithFcModelNode(ChannelRecordContainer container) {
+        if (container.getChannelHandle() == null) {
+
+            String[] args = container.getChannelAddress().split(":", 3);
+
+            if (args.length != 2) {
+                logger.debug("Wrong channel address syntax: {}", container.getChannelAddress());
+                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
+                return;
+            }
+
+            ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));
+
+            if (modelNode == null) {
+                logger.debug("No Basic Data Attribute for the channel address {} was found in the server model.",
+                        container.getChannelAddress());
+                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
+                return;
+            }
+
+            FcModelNode fcModelNode;
+            try {
+                fcModelNode = (FcModelNode) modelNode;
+            } catch (ClassCastException e) {
+                logger.debug(
+                        "ModelNode with object reference {} was found in the server model but is not a Basic Data Attribute.",
+                        container.getChannelAddress());
+                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));
+                return;
+            }
+            container.setChannelHandle(fcModelNode);
+
+        }
+    }
+
+    @Override
+    public void startListening(List<ChannelRecordContainer> containers, RecordsReceivedListener listener)
+            throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
     void fillRequestedNodes(List<FcModelNode> fcNodesToBeRequested, List<FcModelNode> remainingFcModelNodes,
@@ -642,137 +431,704 @@ public final class Iec61850Connection implements Connection {
         }
     }
 
+    public enum BdaTypes {
+        BOOLEAN {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BOOLEAN, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaBoolean) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new BooleanValue(((BdaBoolean) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBoolean) bda).setValue(Boolean.parseBoolean(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBoolean) bda).setValue(container.getValue().asBoolean());
+            }
+        },
+        INT8 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaInt8) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt8) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt8) bda).setValue(Byte.parseByte(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt8) bda).setValue(container.getValue().asByte());
+            }
+        },
+        INT16 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.SHORT, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return "" + ((BdaInt16) bda).getValue();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt16) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt16) bda).setValue(Short.parseShort(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt16) bda).setValue(container.getValue().asShort());
+            }
+        },
+        INT32 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.INTEGER, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaInt32) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt32) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt32) bda).setValue(Integer.parseInt(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt32) bda).setValue(container.getValue().asInt());
+            }
+        },
+        INT64 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.LONG, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return "" + ((BdaInt64) bda).getValue();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt64) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt64) bda).setValue(Long.parseLong(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt64) bda).setValue(container.getValue().asLong());
+            }
+        },
+        INT128 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return null;
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaInt128) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt128) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt128) bda).setValue(Long.parseLong(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt128) bda).setValue(container.getValue().asLong());
+            }
+        },
+        INT8U {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.SHORT, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return "" + ((BdaInt8U) bda).getValue();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt8U) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt8U) bda).setValue(Short.parseShort(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt8U) bda).setValue(container.getValue().asShort());
+            }
+        },
+        INT16U {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.INTEGER, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return "" + ((BdaInt16U) bda).getValue();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt16U) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt16U) bda).setValue(Integer.parseInt(bdaValueString));
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt16U) bda).setValue(container.getValue().asInt());
+            }
+        },
+        INT32U {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.LONG, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaInt32U) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaInt32U) bda).getValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaInt32U) bda).setValue(Long.parseLong(bdaValueString));
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaInt32U) bda).setValue(container.getValue().asLong());
+            }
+        },
+        FLOAT32 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.FLOAT, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaFloat32) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new FloatValue(((BdaFloat32) bda).getFloat()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaFloat32) bda).setFloat(Float.parseFloat(bdaValueString));
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaFloat32) bda).setFloat(container.getValue().asFloat());
+            }
+        },
+        FLOAT64 {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.DOUBLE, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaFloat64) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new DoubleValue(((BdaFloat64) bda).getDouble()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaFloat64) bda).setDouble(Double.parseDouble(bdaValueString));
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaFloat64) bda).setDouble(container.getValue().asDouble());
+            }
+        },
+        OCTET_STRING {
+
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaOctetString) bda).getMaxLength());
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return Arrays.toString(((BdaOctetString) bda).getValue());
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaOctetString) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaOctetString) bda).setValue(bdaValueString.getBytes());
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaOctetString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        VISIBLE_STRING {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaVisibleString) bda).getMaxLength());
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaVisibleString) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new StringValue(((BdaVisibleString) bda).getStringValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaVisibleString) bda).setValue(bdaValueString);
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaVisibleString) bda).setValue(container.getValue().asString());
+            }
+        },
+        UNICODE_STRING {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                // TODO Auto- method stub
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaUnicodeString) bda).getMaxLength());
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                byte[] byteValue = ((BdaUnicodeString) bda).getValue();
+                if (byteValue == null) {
+                    return "null";
+                }
+                else {
+                    return new String(byteValue);
+                }
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaUnicodeString) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaUnicodeString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaUnicodeString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        TIMESTAMP {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.LONG, null);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                Instant date = ((BdaTimestamp) bda).getInstant();
+                return date == null ? "<invalid date>" : ("" + date.toEpochMilli());
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                Instant date = ((BdaTimestamp) bda).getInstant();
+
+                if (date == null) {
+                    return new Record(new LongValue(-1l), receiveTime);
+                }
+                else {
+                    return new Record(new LongValue(date.toEpochMilli()), receiveTime);
+                }
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaTimestamp) bda).setInstant(Instant.ofEpochMilli(Long.parseLong(bdaValueString)));
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaTimestamp) bda).setInstant(Instant.ofEpochMilli(container.getValue().asLong()));
+            }
+        },
+        ENTRY_TIME {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaEntryTime) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaEntryTime) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaEntryTime) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaEntryTime) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaEntryTime) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        CHECK {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaCheck) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaCheck) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        QUALITY {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaQuality) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaQuality) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        DOUBLE_BIT_POS {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaDoubleBitPos) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaDoubleBitPos) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        TAP_COMMAND {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return "" + ((BdaTapCommand) bda).getTapCommand().getIntValue();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new IntValue(((BdaTapCommand) bda).getTapCommand().getIntValue()), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        TRIGGER_CONDITIONS {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaTriggerConditions) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaBitString) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        OPTFLDS {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaOptFlds) bda).toString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaOptFlds) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        },
+        REASON_FOR_INCLUSION {
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                return new ChannelScanInfo(channelAddress, "", ValueType.BYTE_ARRAY,
+                        ((BdaBitString) bda).getValue().length);
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+                return ((BdaReasonForInclusion) bda).getValueString();
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+                return new Record(new ByteArrayValue(((BdaReasonForInclusion) bda).getValue(), true), receiveTime);
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(bdaValueString.getBytes());
+            }
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+                ((BdaBitString) bda).setValue(container.getValue().asByteArray());
+            }
+        };
+        public abstract ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda);
+
+        public abstract String bda2String(BasicDataAttribute bda);
+
+        public abstract Record setRecord(BasicDataAttribute bda, long receiveTime);
+
+        public abstract void setBda(String bdaValueString, BasicDataAttribute bda);
+
+        public abstract void setBda(ChannelValueContainer container, BasicDataAttribute bda);
+
+    }
+
+    public ChannelScanInfo createScanInfo(BasicDataAttribute bda) {
+        try {
+            return BdaTypes.valueOf(bda.getBasicType().toString())
+                    .getScanInfo(bda.getReference() + ":" + bda.getFc(), bda);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
+
+        }
+    }
+
+    public String bda2String(BasicDataAttribute bda) {
+        try {
+            return BdaTypes.valueOf(bda.getBasicType().toString()).bda2String(bda);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
+        }
+    }
+
+    private void setRecord(ChannelRecordContainer container, BasicDataAttribute bda, long receiveTime) {
+        try {
+            container.setRecord(BdaTypes.valueOf(bda.getBasicType().toString()).setRecord(bda, receiveTime));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
+        }
+    }
+
+    private void setRecord(ChannelRecordContainer container, String stringValue, long receiveTime) {
+        container.setRecord(new Record(new ByteArrayValue(stringValue.getBytes(), true), receiveTime));
+    }
+
     private void setBda(String bdaValueString, BasicDataAttribute bda) {
-        switch (bda.getBasicType()) {
-        case CHECK:
-        case DOUBLE_BIT_POS:
-        case OPTFLDS:
-        case QUALITY:
-        case REASON_FOR_INCLUSION:
-        case TAP_COMMAND:
-        case TRIGGER_CONDITIONS:
-            ((BdaBitString) bda).setValue(bdaValueString.getBytes());
-            break;
-        case ENTRY_TIME:
-            ((BdaEntryTime) bda).setValue(bdaValueString.getBytes());
-            break;
-        case OCTET_STRING:
-            ((BdaOctetString) bda).setValue(bdaValueString.getBytes());
-            break;
-        case VISIBLE_STRING:
-            ((BdaVisibleString) bda).setValue(bdaValueString);
-            break;
-        case UNICODE_STRING:
-            ((BdaUnicodeString) bda).setValue(bdaValueString.getBytes());
-            break;
-        case TIMESTAMP:
-            ((BdaTimestamp) bda).setDate(new Date(Long.parseLong(bdaValueString)));
-            break;
-        case BOOLEAN:
-            ((BdaBoolean) bda).setValue(Boolean.parseBoolean(bdaValueString));
-            break;
-        case FLOAT32:
-            ((BdaFloat32) bda).setFloat(Float.parseFloat(bdaValueString));
-            break;
-        case FLOAT64:
-            ((BdaFloat64) bda).setDouble(Double.parseDouble(bdaValueString));
-            break;
-        case INT8:
-            ((BdaInt8) bda).setValue(Byte.parseByte(bdaValueString));
-            break;
-        case INT8U:
-            ((BdaInt8U) bda).setValue(Short.parseShort(bdaValueString));
-            break;
-        case INT16:
-            ((BdaInt16) bda).setValue(Short.parseShort(bdaValueString));
-            break;
-        case INT16U:
-            ((BdaInt16U) bda).setValue(Integer.parseInt(bdaValueString));
-            break;
-        case INT32:
-            ((BdaInt32) bda).setValue(Integer.parseInt(bdaValueString));
-            break;
-        case INT32U:
-            ((BdaInt32U) bda).setValue(Long.parseLong(bdaValueString));
-            break;
-        case INT64:
-            ((BdaInt64) bda).setValue(Long.parseLong(bdaValueString));
-            break;
-        case INT128:
-            ((BdaInt128) bda).setValue(Long.parseLong(bdaValueString));
-            break;
-        default:
+        try {
+            BdaTypes.valueOf(bda.getBasicType().toString()).setBda(bdaValueString, bda);
+        } catch (IllegalArgumentException e) {
             throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
         }
     }
 
     private void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
-        switch (bda.getBasicType()) {
-        case CHECK:
-        case DOUBLE_BIT_POS:
-        case OPTFLDS:
-        case QUALITY:
-        case REASON_FOR_INCLUSION:
-        case TAP_COMMAND:
-        case TRIGGER_CONDITIONS:
-            ((BdaBitString) bda).setValue(container.getValue().asByteArray());
-            break;
-        case ENTRY_TIME:
-            ((BdaEntryTime) bda).setValue(container.getValue().asByteArray());
-            break;
-        case OCTET_STRING:
-            ((BdaOctetString) bda).setValue(container.getValue().asByteArray());
-            break;
-        case VISIBLE_STRING:
-            ((BdaVisibleString) bda).setValue(container.getValue().asString());
-            break;
-        case UNICODE_STRING:
-            ((BdaUnicodeString) bda).setValue(container.getValue().asByteArray());
-            break;
-        case TIMESTAMP:
-            ((BdaTimestamp) bda).setDate(new Date(container.getValue().asLong()));
-            break;
-        case BOOLEAN:
-            ((BdaBoolean) bda).setValue(container.getValue().asBoolean());
-            break;
-        case FLOAT32:
-            ((BdaFloat32) bda).setFloat(container.getValue().asFloat());
-            break;
-        case FLOAT64:
-            ((BdaFloat64) bda).setDouble(container.getValue().asDouble());
-            break;
-        case INT8:
-            ((BdaInt8) bda).setValue(container.getValue().asByte());
-            break;
-        case INT8U:
-            ((BdaInt8U) bda).setValue(container.getValue().asShort());
-            break;
-        case INT16:
-            ((BdaInt16) bda).setValue(container.getValue().asShort());
-            break;
-        case INT16U:
-            ((BdaInt16U) bda).setValue(container.getValue().asInt());
-            break;
-        case INT32:
-            ((BdaInt32) bda).setValue(container.getValue().asInt());
-            break;
-        case INT32U:
-            ((BdaInt32U) bda).setValue(container.getValue().asLong());
-            break;
-        case INT64:
-            ((BdaInt64) bda).setValue(container.getValue().asLong());
-            break;
-        case INT128:
-            ((BdaInt128) bda).setValue(container.getValue().asLong());
-            break;
-        default:
+        try {
+            BdaTypes.valueOf(bda.getBasicType().toString()).setBda(container, bda);
+        } catch (IllegalArgumentException e) {
             throw new IllegalStateException("unknown BasicType received: " + bda.getBasicType());
         }
     }
 
     @Override
     public void disconnect() {
-        clientAssociation.close();
+        clientAssociation.disconnect();
     }
 
 }

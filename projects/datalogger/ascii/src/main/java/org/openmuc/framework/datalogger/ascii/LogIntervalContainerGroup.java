@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,23 +23,23 @@ package org.openmuc.framework.datalogger.ascii;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openmuc.framework.datalogger.spi.LogRecordContainer;
+import org.openmuc.framework.datalogger.spi.LoggingRecord;
 
 public class LogIntervalContainerGroup {
 
-    List<LogRecordContainer> containers;
+    List<LoggingRecord> containers;
 
     public LogIntervalContainerGroup() {
 
         containers = new ArrayList<>();
     }
 
-    public void add(LogRecordContainer container) {
+    public void add(LoggingRecord container) {
 
         containers.add(container);
     }
 
-    public List<LogRecordContainer> getList() {
+    public List<LoggingRecord> getList() {
 
         return containers;
     }

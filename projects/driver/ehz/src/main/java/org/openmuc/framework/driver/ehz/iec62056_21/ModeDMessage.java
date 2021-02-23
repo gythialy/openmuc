@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -52,6 +52,7 @@ public class ModeDMessage {
     public static ModeDMessage parse(byte[] frame) throws ParseException {
         int position = 0;
         try {
+            System.out.println(Byte.toString(frame[0]));
             /* Check for start sign */
             if (frame[0] != '/') {
                 throw new ParseException("Invalid character", 0);

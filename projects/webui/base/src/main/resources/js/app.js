@@ -21,7 +21,7 @@
     angular.module('openmuc.dashboard', []);
     angular.module('openmuc.filters', []);
     angular.module('openmuc.sessions', []);
-
+    angular.module('openmuc.channels', ['ui.bootstrap']);
     // TODO: Move me to somewhere else
 
 })();

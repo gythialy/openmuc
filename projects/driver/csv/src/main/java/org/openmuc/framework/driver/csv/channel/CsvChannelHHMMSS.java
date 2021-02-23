@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,11 +35,10 @@ public class CsvChannelHHMMSS extends CsvTimeChannel {
     }
 
     @Override
-    public double readValue(long samplingTime) throws CsvException {
+    public String readValue(long samplingTime) throws CsvException {
         int hhmmss = convertTimestamp(samplingTime);
         lastReadIndex = searchNextIndex(hhmmss);
-        double value = Double.parseDouble(data.get(lastReadIndex));
-        return value;
+        return data.get(lastReadIndex);
     }
 
     private int convertTimestamp(long samplingTime) {

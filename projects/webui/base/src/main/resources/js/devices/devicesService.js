@@ -16,9 +16,7 @@
                 var devices = [];
 
                 // add basic data
-                response.data['devices'].forEach(value = > devices.push({id: value})
-            )
-                ;
+                response.data['devices'].forEach(value => devices.push({id: value}));
 
                 return devices;
             });
@@ -49,9 +47,7 @@
             return $http(req).then(function (response) {
                 var devices = [];
                 // add basic data
-                response.data['devices'].forEach(value = > devices.push({id: value})
-            )
-                ;
+                response.data['devices'].forEach(value => devices.push({id: value}));
 
                 // add additional data
                 devices.forEach(function (device) {

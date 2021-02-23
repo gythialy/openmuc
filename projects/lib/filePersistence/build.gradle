@@ -1,0 +1,21 @@
+def projectName = "OpenMUC Library - File Persistence"
+def projectDescription = "library which provides file persistence functionality for the OpenMUC framework."
+
+dependencies {
+    implementation project(':openmuc-core-spi')
+}
+
+jar {
+    bnd('Bundle-Name': projectName, 'Export-Package': 'org.openmuc.framework.lib.*')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description projectDescription
+            }
+        }
+    }
+}

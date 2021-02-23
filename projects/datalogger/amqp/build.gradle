@@ -1,0 +1,29 @@
+def projectName = "OpenMUC Data Logger - AMQP"
+
+def gsonversion = '2.8.5'
+
+dependencies {
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-datamanager')
+    implementation project(':openmuc-lib-amqp')
+    implementation project(':openmuc-lib-osgi')
+    implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
+    implementation group: 'com.google.code.gson', name: 'gson', version: gsonversion
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+}
+
+jar {
+    bnd('Bundle-Name': projectName)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description = "AMQP data logger for the OpenMUC framework."
+            }
+        }
+    }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,13 +27,20 @@ import java.util.Set;
  */
 public interface AuthenticationService {
 
+    void registerNewUser(String user, String pw);
+
     boolean login(String name, String password);
 
     boolean contains(String user);
 
     void delete(String user);
 
-    void register(String user, String pwd);
+    void register(String user, String pwd, String group);
 
     Set<String> getAllUsers();
+
+    void writeShadowToFile();
+
+    boolean isUserAdmin(String userName);
+
 }

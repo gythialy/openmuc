@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,11 +41,11 @@ import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.DataAccessService;
 import org.openmuc.framework.dataaccess.DataLoggerNotAvailableException;
-import org.openmuc.framework.lib.json.Const;
-import org.openmuc.framework.lib.json.FromJson;
-import org.openmuc.framework.lib.json.ToJson;
-import org.openmuc.framework.lib.json.exceptions.MissingJsonObjectException;
-import org.openmuc.framework.lib.json.exceptions.RestConfigIsNotCorrectException;
+import org.openmuc.framework.lib.rest1.Const;
+import org.openmuc.framework.lib.rest1.FromJson;
+import org.openmuc.framework.lib.rest1.ToJson;
+import org.openmuc.framework.lib.rest1.exceptions.MissingJsonObjectException;
+import org.openmuc.framework.lib.rest1.exceptions.RestConfigIsNotCorrectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +55,7 @@ import com.google.gson.JsonSyntaxException;
 
 public class ChannelResourceServlet extends GenericServlet {
 
-    private static final String REST_PATH = " Rest Path = ";
     private static final String REQUESTED_REST_PATH_IS_NOT_AVAILABLE = "Requested rest path is not available";
-    private static final String APPLICATION_JSON = "application/json";
     private static final long serialVersionUID = -702876016040151438L;
     private static final Logger logger = LoggerFactory.getLogger(ChannelResourceServlet.class);
 
@@ -69,7 +67,6 @@ public class ChannelResourceServlet extends GenericServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString == null) {
             return;
@@ -96,7 +93,7 @@ public class ChannelResourceServlet extends GenericServlet {
     private void readSpecificChannels(HttpServletRequest request, HttpServletResponse response, String[] pathInfoArray,
             ToJson json) throws IOException {
         String channelId = pathInfoArray[0].replace("/", "");
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
+
         if (pathInfoArray.length == 1) {
             doGetSpecificChannel(json, channelId, response);
         }
@@ -143,7 +140,6 @@ public class ChannelResourceServlet extends GenericServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString == null) {
             return;
@@ -169,7 +165,6 @@ public class ChannelResourceServlet extends GenericServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -212,7 +207,6 @@ public class ChannelResourceServlet extends GenericServlet {
             throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 

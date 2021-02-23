@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SCL>
+   <Header id="0" version="0"/>
+   <Communication>
+      <SubNetwork name="SubNetworkName">
+         <ConnectedAP apName="SubstationRing1" iedName="NewIED">
+            <Address>
+               <P type="OSI-AP-Title">1,1,9999,1</P>
+               <P type="OSI-AE-Qualifier">12</P>
+               <P type="OSI-PSEL">00000001</P>
+               <P type="OSI-SSEL">0001</P>
+               <P type="OSI-TSEL">0001</P>
+               <P type="IP">192.168.1.100</P>
+               <P type="IP-SUBNET">255.255.255.0</P>
+               <P type="IP-GATEWAY">192.168.1.1</P>
+               <P type="MAC-Address">00-01-02-03-04-05</P>
+            </Address>
+         </ConnectedAP>
+      </SubNetwork>
+   </Communication>
+   <IED desc="NewIED" manufacturer="SystemCORP Pty Ltd" name="NewIED" type="RTUType">
+      <Services nameLength="64">
+         <ClientServices/>
+      </Services>
+      <AccessPoint name="SubstationRing1" router="false">
+         <Server timeout="30">
+            <Authentication/>
+            <LDevice inst="LDevice1">
+               <LN0 desc="Logical node zero" inst="" lnClass="LLN0" lnType="LLN0_0"/>
+            </LDevice>
+         </Server>
+      </AccessPoint>
+   </IED>
+   <DataTypeTemplates>
+      <LNodeType id="LLN0_0" lnClass="LLN0">
+         <DO desc="Controllable enumerated status" name="Mod" type="ENC_0"/>
+         <DO desc="Enumerated status" name="Beh" type="ENS_1"/>
+         <DO desc="Enumerated status" name="Health" type="ENS_0"/>
+         <DO desc="Logical Node name plate" name="NamPlt" type="LPL_0"/>
+         <DO desc="Controllable single point" name="TestOpenmuc" type="SPC_0"/>
+      </LNodeType>
+      <DOType cdc="SPC" desc="Controllable single point" id="SPC_0">
+         <DA bType="Check" fc="DC" name="ctlNum"/>
+         <DA bType="Dbpos" dchg="true" fc="DC" name="stVal"/>
+         <DA bType="OptFlds" fc="DC" name="q" qchg="true"/>
+         <DA bType="Quality" fc="DC" name="t"/>
+         <DA bType="Tcmd" dchg="true" fc="DC" name="stSeld" type="Tcmd"/>
+         <DA bType="TrgOps" dchg="true" fc="DC" name="opRcvd"/>
+         <DA bType="EntryTime" dchg="true" fc="DC" name="opOk"/>
+         <DA bType="Octet64" fc="DC" name="tOpOk"/>
+         <DA bType="VisString64" fc="DC" name="subEna"/>
+         <DA bType="Unicode255" fc="DC" name="subVal"/>
+         <DA bType="Timestamp" fc="DC" name="subQ"/>
+         <DA bType="BOOLEAN" fc="DC" name="subID"/>
+         <DA bType="FLOAT32" fc="DC" name="blkEna"/>
+         <DA bType="FLOAT64" dchg="true" fc="DC" name="ctlModel" type="CtlModelKind"/>
+         <DA bType="INT8" dchg="true" fc="DC" name="sboTimeout"/>
+         <DA bType="INT8U" dchg="true" fc="DC" name="sboClass" type="SboClasses"/>
+         <DA bType="INT16" dchg="true" fc="DC" name="operTimeout"/>
+         <DA bType="INT16U" fc="DC" name="d"/>
+         <DA bType="INT32" fc="DC" name="dU"/>
+         <DA bType="INT32U" fc="DC" name="cdcNs"/>
+         <DA bType="INT64" fc="DC" name="cdcName"/>
+      </DOType>
+      <DOType cdc="LPL" desc="Logical Node name plate" id="LPL_0">
+         <DA bType="VisString255" fc="DC" name="vendor"/>
+         <DA bType="VisString255" fc="DC" name="swRev"/>
+         <DA bType="VisString255" fc="DC" name="d"/>
+         <DA bType="VisString255" fc="DC" name="configRev"/>
+      </DOType>
+      <DOType cdc="ENS" desc="Enumerated status" id="ENS_0">
+         <DA bType="Enum" dchg="true" fc="ST" name="stVal" type="HealthKind"/>
+         <DA bType="Quality" fc="ST" name="q" qchg="true"/>
+         <DA bType="Timestamp" fc="ST" name="t"/>
+      </DOType>
+      <DOType cdc="ENS" desc="Enumerated status" id="ENS_1">
+         <DA bType="Enum" dchg="true" fc="ST" name="stVal" type="ModKind"/>
+         <DA bType="Quality" fc="ST" name="q" qchg="true"/>
+         <DA bType="Timestamp" fc="ST" name="t"/>
+      </DOType>
+      <DOType cdc="ENC" desc="Controllable enumerated status" id="ENC_0">
+         <DA bType="Enum" dchg="true" fc="ST" name="stVal" type="ModKind"/>
+         <DA bType="Quality" fc="ST" name="q" qchg="true"/>
+         <DA bType="Timestamp" fc="ST" name="t"/>
+         <DA bType="Enum" fc="CF" name="ctlModel" type="CtlModelKind"/>
+      </DOType>
+      <EnumType id="Tcmd">
+         <EnumVal ord="0">stop</EnumVal>
+         <EnumVal ord="1">lower</EnumVal>
+         <EnumVal ord="2">higher</EnumVal>
+         <EnumVal ord="3">reserved</EnumVal>
+      </EnumType>
+      <EnumType id="HealthKind">
+         <EnumVal ord="1">Ok</EnumVal>
+         <EnumVal ord="2">Warning</EnumVal>
+         <EnumVal ord="3">Alarm</EnumVal>
+      </EnumType>
+      <EnumType id="ModKind">
+         <EnumVal ord="1">on</EnumVal>
+         <EnumVal ord="2">on-blocked</EnumVal>
+         <EnumVal ord="3">test</EnumVal>
+         <EnumVal ord="4">test/blocked</EnumVal>
+         <EnumVal ord="5">off</EnumVal>
+      </EnumType>
+      <EnumType id="CtlModelKind">
+         <EnumVal ord="0">status-only</EnumVal>
+         <EnumVal ord="1">direct-with-normal-security</EnumVal>
+         <EnumVal ord="2">sbo-with-normal-security</EnumVal>
+         <EnumVal ord="3">direct-with-enhanced-security</EnumVal>
+         <EnumVal ord="4">sbo-with-enhanced-security</EnumVal>
+      </EnumType>
+   </DataTypeTemplates>
+</SCL>

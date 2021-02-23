@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,15 +30,12 @@ public class BooleanMappingInputRegister extends MappingInputRegister {
 
     @Override
     public byte[] toBytes() {
-        if (channel.getLatestRecord().getValue().asBoolean() == true) {
-            byte[] bytes = { (byte) 0x01 };
-            return bytes;
+        if (channel.getLatestRecord().getValue().asBoolean()) {
+            return new byte[] { 0x01b };
         }
-        else if (channel.getLatestRecord().getValue().asBoolean() == false) {
-            byte[] bytes = { (byte) 0x00 };
-            return bytes;
+        else {
+            return new byte[] { 0x00b };
         }
-        return null;
     }
 
 }

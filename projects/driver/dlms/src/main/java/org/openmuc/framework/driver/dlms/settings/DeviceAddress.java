@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -67,7 +67,7 @@ public class DeviceAddress extends GenericSetting {
         if (connectionType.equalsIgnoreCase("tcp")) {
             if (addressLength == 1) {
                 logger.info(MessageFormat.format(
-                        "No device address setted in configuration, default values will be used: host address = localhost; port = {0}",
+                        "No device address set in configuration, default values will be used: host address = localhost; port = {0}",
                         port));
             }
             if (hostAddress == null) {

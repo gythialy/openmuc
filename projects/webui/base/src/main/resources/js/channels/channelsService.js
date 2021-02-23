@@ -27,9 +27,7 @@
                 }
             };
 
-            return $http(req).then((response) = > response.data.records.map((record) = > record.id
-        ))
-            ;
+            return $http(req).then((response) => response.data.records.map((record) => record.id));
         };
 
         this.getChannelDriverId = function (channelId) {
@@ -89,20 +87,14 @@
                 }
             };
 
-            return $http(req).then((response) = > {
-                return response.data.channels.map((channelId) = > {
+            return $http(req).then((response) => {
+                return response.data.channels.map((channelId) => {
                     var channel = {id: channelId, data: null, records: null};
-            ChannelDataService.getChannelData(channel).then((data) = > channel.data = data
-        )
-            ;
-            ChannelDataService.getChannelDataValues(channel).then((records) = > channel.records = records
-        )
-            ;
-            return channel;
-        })
-            ;
-        })
-            ;
+                    ChannelDataService.getChannelData(channel).then((data) => channel.data = data);
+                    ChannelDataService.getChannelDataValues(channel).then((records) => channel.records = records);
+                    return channel;
+                });
+            });
         };
 
         this.getHistoryValues = function (channelId, from, until) {
@@ -150,26 +142,21 @@
                     if (until >= now + 60 * 60000) {
                         latestTimestamp = until + 8 * 60 * 60000;
                     }
-                    response.data.records.reverse().forEach((value) = > {
+                    response.data.records.reverse().forEach((value) => {
                         var reverse_entry_list = value.value.split(";").reverse();
-                    reverse_entry_list.forEach((entry) = > {
-                        if(
-                    !entry || entry.trim().length === 0
-                )
-                    {
-                        return;
-                    }
-                    var stringPair = entry.split(",");
-                    var timestamp = parseInt(stringPair[0]);
-                    if (timestamp < latestTimestamp && timestamp > from) {
-                        var valAtTime = parseFloat(stringPair[1]);
-                        values.push({x: timestamp, y: self.valuesDisplayPrecision(valAtTime, 0.001)});
-                        latestTimestamp = timestamp;
-                    }
-                })
-                    ;
-                })
-                    ;
+                        reverse_entry_list.forEach((entry) => {
+                            if (!entry || entry.trim().length === 0) {
+                                return;
+                            }
+                            var stringPair = entry.split(",");
+                            var timestamp = parseInt(stringPair[0]);
+                            if (timestamp < latestTimestamp && timestamp > from) {
+                                var valAtTime = parseFloat(stringPair[1]);
+                                values.push({x: timestamp, y: self.valuesDisplayPrecision(valAtTime, 0.001)});
+                                latestTimestamp = timestamp;
+                            }
+                        });
+                    });
                     values.reverse();
                 }
                 return values;
@@ -188,22 +175,18 @@
                 var value = response.value;
                 var reverse_entry_list = value.split(";").reverse();
                 console.log(reverse_entry_list);
-                reverse_entry_list.forEach((entry) = > {
-                    if(
-                !entry || entry.trim().length === 0
-            )
-                {
-                    return;
-                }
-                var stringPair = entry.split(",");
-                var timestamp = parseInt(stringPair[0]);
+                reverse_entry_list.forEach((entry) => {
+                    if (!entry || entry.trim().length === 0) {
+                        return;
+                    }
+                    var stringPair = entry.split(",");
+                    var timestamp = parseInt(stringPair[0]);
 
-                var valAtTime = parseFloat(stringPair[1]);
-                console.log(timestamp);
-                console.log(valAtTime);
-                values.push({x: timestamp, y: self.valuesDisplayPrecision(valAtTime, 0.001)});
-            })
-                ;
+                    var valAtTime = parseFloat(stringPair[1]);
+                    console.log(timestamp);
+                    console.log(valAtTime);
+                    values.push({x: timestamp, y: self.valuesDisplayPrecision(valAtTime, 0.001)});
+                });
                 values.reverse();
             });
 
@@ -219,19 +202,17 @@
                 }
             };
 
-            return $http(req).then((response) = > {
+            return $http(req).then((response) => {
                 var values = [];
-            var timestamps = [];
+                var timestamps = [];
 
-            angular.forEach(response.data.records, (channel) = > {
-                timestamps.push(channel.timestamp);
-            values.push(channel.value);
-        })
-            ;
+                angular.forEach(response.data.records, (channel) => {
+                    timestamps.push(channel.timestamp);
+                    values.push(channel.value);
+                });
 
-            return [timestamps, values, channelId];
-        })
-            ;
+                return [timestamps, values, channelId];
+            });
         };
 
         this.getChannel = function (channelId) {
@@ -240,9 +221,7 @@
                 configs: []
             };
 
-            ChannelDataService.getChannelData(channel).then(configs = > channel.configs = configs
-        )
-            ;
+            ChannelDataService.getChannelData(channel).then(configs => channel.configs = configs);
 
             return channel;
         };
@@ -256,9 +235,7 @@
             });
         };
 
-        this.writeChannel = (channel, doWrite) =
-    >
-        writeChannel(channel.id, channel.type, channel.newValue, doWrite);
+        this.writeChannel = (channel, doWrite) => writeChannel(channel.id, channel.type, channel.newValue, doWrite);
 
         function writeChannel(id, type, newValue, doWrite) {
             var dataType = null;
@@ -267,19 +244,16 @@
             } else if (type == "BYTE_ARRAY") {
                 newValue = newValue.replace('[', '').replace(']', '');
 
-                var arrayValue = newValue.split(',').map((v) = > {
-                    if(v.length === 0
-            )
-                {
-                    throw 'Illegal value.';
-                }
-                var res = parseInt(v);
-                if (res > 255 || res < 0) {
-                    throw 'Byte array value out of range.';
-                }
-                return res;
-            })
-                ;
+                var arrayValue = newValue.split(',').map((v) => {
+                    if (v.length === 0) {
+                        throw 'Illegal value.';
+                    }
+                    var res = parseInt(v);
+                    if (res > 255 || res < 0) {
+                        throw 'Byte array value out of range.';
+                    }
+                    return res;
+                });
                 dataType = {record: {value: arrayValue}};
             } else if (type == "INTEGER" || type == "LONG" || type == "SHORT" || type == "BYTE") {
                 dataType = {record: {value: parseInt(newValue)}};

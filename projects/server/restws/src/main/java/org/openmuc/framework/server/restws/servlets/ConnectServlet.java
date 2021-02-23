@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,12 +31,13 @@ import org.slf4j.LoggerFactory;
 
 public class ConnectServlet extends GenericServlet {
 
+    private static final String NOT_FOUND = "Not found.";
     private static final long serialVersionUID = -2248093375930139043L;
     private static final Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
 
         if (pathAndQueryString == null) {
@@ -50,27 +51,27 @@ public class ConnectServlet extends GenericServlet {
             sendJson(null, response);
         }
         else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, NOT_FOUND);
         }
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, NOT_FOUND);
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, NOT_FOUND);
     }
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, NOT_FOUND);
     }
 
 }

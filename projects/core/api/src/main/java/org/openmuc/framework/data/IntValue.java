@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,11 +29,20 @@ public class IntValue extends NumberValue {
         super(value);
     }
 
+    public IntValue(String value) {
+        super(Integer.parseInt(value));
+    }
+
     @Override
     public byte[] asByteArray() {
         byte[] bytes = new byte[4];
         ByteBuffer.wrap(bytes).putInt(super.asInt());
         return bytes;
+    }
+
+    @Override
+    public ValueType getValueType() {
+        return ValueType.INTEGER;
     }
 
 }

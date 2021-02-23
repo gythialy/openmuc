@@ -1,0 +1,38 @@
+def projectName = "OpenMUC Data Logger - MQTT"
+
+configurations.create('embed')
+
+
+dependencies {
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-datamanager')
+    implementation project(':openmuc-lib-mqtt')
+    implementation project(':openmuc-lib-osgi')
+    implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
+    testImplementation project(':openmuc-lib-parser-openmuc')
+}
+
+jar {
+    bnd('Bundle-Name': projectName,
+            'Export-Package': 'dagger.internal;version="2.20", dagger;version="2.20", javax.inject;version="1"')
+
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description "MQTT data logger for the OpenMUC framework."
+            }
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+}

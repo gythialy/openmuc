@@ -1,29 +1,25 @@
 def projectName = "OpenMUC Core - API"
 
+
 dependencies {
     api group: 'org.osgi', name: 'osgi.core', version: '7.0.0'
     api group: 'org.osgi', name: 'org.osgi.service.component.annotations', version: '1.4.0'
-    api group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '2.1.14'
-    api group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
+    api group: 'org.apache.felix', name: 'org.apache.felix.scr', version: '2.1.20'
     api group: 'org.osgi', name: 'org.osgi.service.http', version: '1.2.1'
-    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
-    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
+    testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Export-Package', '*'
-    }
+    bnd('Bundle-Name': projectName, 'Export-Package': 'org.openmuc.framework.*')
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
-                description "The core API of the OpenMUC framework."
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description = "The core API of the OpenMUC framework."
             }
         }
     }

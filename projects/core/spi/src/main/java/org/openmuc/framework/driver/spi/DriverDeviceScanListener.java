@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,17 +27,15 @@ public interface DriverDeviceScanListener {
     /**
      * Can optionally be used by driver to let the Data Manager know about the device scan progress in percent.
      * Applications can access this value through the ConfigService.
-     * 
-     * @param progress
-     *            the progress in percent.
+     *
+     * @param progress the progress in percent.
      */
     void scanProgressUpdate(int progress);
 
     /**
      * Is used by the driver to notify the Data Manager of new devices found during a scan.
-     * 
-     * @param scanInfo
-     *            the information obtained from the device.
+     *
+     * @param scanInfo the information obtained from the device.
      */
     void deviceFound(DeviceScanInfo scanInfo);
 

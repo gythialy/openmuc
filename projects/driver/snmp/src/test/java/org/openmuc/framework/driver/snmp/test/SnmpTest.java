@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,9 +20,11 @@
  */
 package org.openmuc.framework.driver.snmp.test;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.driver.snmp.SnmpDriver;
 import org.openmuc.framework.driver.snmp.SnmpDriver.SnmpDriverSettingVariableNames;
@@ -33,7 +35,7 @@ public class SnmpTest {
     private static SnmpDriver snmpDriver;
     private static String correctSetting;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         snmpDriver = new SnmpDriver();
         correctSetting = SnmpDriverSettingVariableNames.USERNAME + "=username:"
@@ -42,83 +44,85 @@ public class SnmpTest {
                 + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=privacy";
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testInvalidSettingStringNumber() throws ConnectionException, ArgumentSyntaxException {
 
         String settings = SnmpDriverSettingVariableNames.SECURITYNAME + "=security:"
                 + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=pass:"
                 + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=pass";
-        snmpDriver.connect("1.1.1.1/1", settings);
-        snmpDriver.connect("1.1.1.1/1", settings);
-        snmpDriver.connect("1.1.1.1/1", settings);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", settings));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", settings));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", settings));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testNullSettingStringNumber() throws ConnectionException, ArgumentSyntaxException {
 
-        snmpDriver.connect("1.1.1.1/1", null);
-        snmpDriver.connect("1.1.1.1/1", null);
-        snmpDriver.connect("1.1.1.1/1", null);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", null));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", null));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", null));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testEmptySettingStringNumber() throws ConnectionException, ArgumentSyntaxException {
 
-        snmpDriver.connect("1.1.1.1/1", "");
-        snmpDriver.connect("1.1.1.1/1", "");
-        snmpDriver.connect("1.1.1.1/1", "");
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", ""));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", ""));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", ""));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testInvalidSettingStringFormat() throws ConnectionException, ArgumentSyntaxException {
 
         String settings = SnmpDriverSettingVariableNames.USERNAME + "=username&"
                 + SnmpDriverSettingVariableNames.SECURITYNAME + "=username:"
                 + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=pass:"
                 + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=pass";
-        snmpDriver.connect("1.1.1.1/1", settings);
-        snmpDriver.connect("1.1.1.1/1", settings);
-        snmpDriver.connect("1.1.1.1/1", settings);
+        String finalSettings = settings;
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", finalSettings));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", finalSettings));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", finalSettings));
 
         settings = SnmpDriverSettingVariableNames.USERNAME + ":username&" + SnmpDriverSettingVariableNames.SECURITYNAME
                 + "=username:" + SnmpDriverSettingVariableNames.AUTHENTICATIONPASSPHRASE + "=pass:"
                 + SnmpDriverSettingVariableNames.PRIVACYPASSPHRASE + "=pass";
-        snmpDriver.connect("1.1.1.1/1", settings);
-        snmpDriver.connect("1.1.1.1/1", settings);
-        snmpDriver.connect("1.1.1.1/1", settings);
+        String finalSettings1 = settings;
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", finalSettings1));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", finalSettings1));
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", finalSettings1));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testInvalidDeviceAddress() throws ConnectionException, ArgumentSyntaxException {
-        snmpDriver.connect("1.1.1.1:1", correctSetting);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1:1", correctSetting));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testNullDeviceAddress() throws ConnectionException, ArgumentSyntaxException {
-        snmpDriver.connect(null, correctSetting);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect(null, correctSetting));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testEmptyDeviceAddress() throws ConnectionException, ArgumentSyntaxException {
-        snmpDriver.connect("", correctSetting);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("", correctSetting));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testIncorrectSnmpVersoin() throws ConnectionException, ArgumentSyntaxException {
-        snmpDriver.connect("1.1.1.1/1", correctSetting);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", correctSetting));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testNullSnmpVersoin() throws ConnectionException, ArgumentSyntaxException {
-        snmpDriver.connect("1.1.1.1/1", correctSetting);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", correctSetting));
     }
 
-    @Test(expected = ArgumentSyntaxException.class)
+    @Test
     public void testEmptySnmpVersoin() throws ConnectionException, ArgumentSyntaxException {
-        snmpDriver.connect("1.1.1.1/1", correctSetting);
+        assertThrows(ArgumentSyntaxException.class, () -> snmpDriver.connect("1.1.1.1/1", correctSetting));
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         snmpDriver = null;
     }

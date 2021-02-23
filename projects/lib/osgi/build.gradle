@@ -1,0 +1,22 @@
+def projectName = "OpenMUC Library - OSGi"
+def projectDescription = "library which handles the usage of OSGi concepts."
+
+jar {
+    bnd('Bundle-Name': projectName, 'Export-Package': 'org.openmuc.framework.lib.*')
+}
+
+dependencies {
+    implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
+    implementation group: 'org.osgi', name: 'org.osgi.framework', version: '1.9.0'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description projectDescription
+            }
+        }
+    }
+}

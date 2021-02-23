@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,9 +20,6 @@
  */
 package org.openmuc.framework.core.datamanager;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
@@ -30,20 +27,22 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 public class ReadTask extends DeviceTask implements ConnectedTask {
 
     private static final Logger logger = LoggerFactory.getLogger(ReadTask.class);
 
     private final CountDownLatch readTaskFinishedSignal;
-    List<ChannelRecordContainerImpl> channelRecordContainers;
     protected boolean methodNotExceptedExceptionThrown = false;
     protected boolean unknownDriverExceptionThrown = false;
     protected volatile boolean disabled = false;
-
+    List<ChannelRecordContainerImpl> channelRecordContainers;
     boolean startedLate = false;
 
     public ReadTask(DataManager dataManager, Device device, List<ChannelRecordContainerImpl> selectedChannels,
-            CountDownLatch readTaskFinishedSignal) {
+                    CountDownLatch readTaskFinishedSignal) {
         this.dataManager = dataManager;
         this.device = device;
         channelRecordContainers = selectedChannels;
@@ -104,8 +103,7 @@ public class ReadTask extends DeviceTask implements ConnectedTask {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
                 driverChannel.setRecord(new Record(null, now, Flag.ACCESS_METHOD_NOT_SUPPORTED));
             }
-        }
-        else if (unknownDriverExceptionThrown) {
+        } else if (unknownDriverExceptionThrown) {
             for (ChannelRecordContainerImpl driverChannel : channelRecordContainers) {
                 driverChannel.setRecord(new Record(null, now, Flag.DRIVER_THREW_UNKNOWN_EXCEPTION));
             }

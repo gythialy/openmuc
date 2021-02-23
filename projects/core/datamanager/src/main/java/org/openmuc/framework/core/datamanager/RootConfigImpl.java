@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,33 +21,7 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.openmuc.framework.config.ChannelConfig;
-import org.openmuc.framework.config.DeviceConfig;
-import org.openmuc.framework.config.DriverConfig;
-import org.openmuc.framework.config.IdCollisionException;
-import org.openmuc.framework.config.ParseException;
-import org.openmuc.framework.config.RootConfig;
+import org.openmuc.framework.config.*;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,25 +29,35 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-final class RootConfigImpl implements RootConfig {
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
-    private String dataLogSource = null;
+final class RootConfigImpl implements RootConfig {
 
     final HashMap<String, DriverConfigImpl> driverConfigsById = new LinkedHashMap<>();
     final HashMap<String, DeviceConfigImpl> deviceConfigsById = new HashMap<>();
     final HashMap<String, ChannelConfigImpl> channelConfigsById = new HashMap<>();
-
     // TODO really needed?:
     List<LogChannel> logChannels;
+    private String dataLogSource = null;
 
-    @Override
-    public String getDataLogSource() {
-        return dataLogSource;
+    public RootConfigImpl() {
     }
 
-    @Override
-    public void setDataLogSource(String source) {
-        dataLogSource = source;
+    public RootConfigImpl(RootConfigImpl other) {
+        this.dataLogSource = other.dataLogSource;
+        for (DriverConfigImpl driverConfig : other.driverConfigsById.values()) {
+            addDriver(driverConfig.clone(this));
+        }
     }
 
     public static RootConfigImpl createFromFile(File configFile) throws ParseException, FileNotFoundException {
@@ -119,21 +103,31 @@ final class RootConfigImpl implements RootConfig {
             String childName = childNode.getNodeName();
             switch (childName) {
 
-            case "#text":
-                continue;
+                case "#text":
+                    continue;
 
-            case "driver":
-                DriverConfigImpl.addDriverFromDomNode(childNode, rootConfig);
-                break;
-            case "dataLogSource":
-                rootConfig.dataLogSource = childNode.getTextContent();
-                break;
-            default:
-                throw new ParseException("found unknown tag:" + childName);
+                case "driver":
+                    DriverConfigImpl.addDriverFromDomNode(childNode, rootConfig);
+                    break;
+                case "dataLogSource":
+                    rootConfig.dataLogSource = childNode.getTextContent();
+                    break;
+                default:
+                    throw new ParseException("found unknown tag:" + childName);
             }
         }
 
         return rootConfig;
+    }
+
+    @Override
+    public String getDataLogSource() {
+        return dataLogSource;
+    }
+
+    @Override
+    public void setDataLogSource(String source) {
+        dataLogSource = source;
     }
 
     public void writeToFile(File configFile) throws TransformerFactoryConfigurationError, IOException,
@@ -216,22 +210,11 @@ final class RootConfigImpl implements RootConfig {
                 .unmodifiableCollection(driverConfigsById.values());
     }
 
-    public RootConfigImpl() {
-    }
-
-    public RootConfigImpl(RootConfigImpl other) {
-        this.dataLogSource = other.dataLogSource;
-        for (DriverConfigImpl driverConfig : other.driverConfigsById.values()) {
-            addDriver(driverConfig.clone(this));
-        }
-    }
-
     public RootConfigImpl cloneWithDefaults() {
         RootConfigImpl configClone = new RootConfigImpl();
         if (dataLogSource != null) {
             configClone.dataLogSource = dataLogSource;
-        }
-        else {
+        } else {
             configClone.dataLogSource = "";
         }
         for (DriverConfigImpl driverConfig : driverConfigsById.values()) {

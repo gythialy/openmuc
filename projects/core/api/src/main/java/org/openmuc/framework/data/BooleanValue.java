@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,6 +27,10 @@ public class BooleanValue implements Value {
 
     public BooleanValue(boolean value) {
         this.value = value;
+    }
+
+    public BooleanValue(String value) {
+        this.value = Boolean.parseBoolean(value);
     }
 
     @Override
@@ -58,8 +62,7 @@ public class BooleanValue implements Value {
     public byte asByte() {
         if (value) {
             return 1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -71,7 +74,7 @@ public class BooleanValue implements Value {
 
     @Override
     public byte[] asByteArray() {
-        return new byte[] { asByte() };
+        return new byte[]{asByte()};
     }
 
     @Override
@@ -82,5 +85,10 @@ public class BooleanValue implements Value {
     @Override
     public String asString() {
         return toString();
+    }
+
+    @Override
+    public ValueType getValueType() {
+        return ValueType.BOOLEAN;
     }
 }

@@ -17,19 +17,18 @@
             };
             userName = credentials.user;
             var p = $http(req);
-            p.then(r = > {
+            p.then(r => {
                 auth = 'Basic ' + btoa(credentials.user + ":" + credentials.pwd);
-            $cookies.put('authentication', auth);
-        })
-            ;
+                $cookies.put('authentication', auth);
+            });
             return p;
         };
 
-        this.currentUsername = function () {
+        this.currentUsername = function() {
             return userName;
         };
 
-        this.getRestAuth = function () {
+        this.getRestAuth = function() {
             auth = $cookies.get("authentication");
             return auth;
         };

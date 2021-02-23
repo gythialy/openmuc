@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,7 +22,7 @@ package org.openmuc.framework.webui.base;
 
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.webui.spi.WebUiPluginService;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -39,6 +39,7 @@ public final class WebUiBase {
     private static final Logger logger = LoggerFactory.getLogger(WebUiBase.class);
 
     final Map<String, WebUiPluginService> pluginsByAlias = new ConcurrentHashMap<>();
+    final Map<String, WebUiPluginService> pluginsByAliasDeactivated = new ConcurrentHashMap<>();
 
     @Reference
     private HttpService httpService;
@@ -49,12 +50,13 @@ public final class WebUiBase {
     private volatile WebUiBaseServlet servlet;
 
     @Activate
-    protected void activate(ComponentContext context) {
+    protected void activate(BundleContext context) {
         logger.info("Activating WebUI Base");
 
         servlet = new WebUiBaseServlet(this);
+        servlet.setAuthentification(authService);
 
-        BundleHttpContext bundleHttpContext = new BundleHttpContext(context.getBundleContext().getBundle());
+        BundleHttpContext bundleHttpContext = new BundleHttpContext(context.getBundle());
 
         try {
             httpService.registerResources("/app", "/app", bundleHttpContext);
@@ -74,7 +76,6 @@ public final class WebUiBase {
                 registerResources(plugin);
             }
         }
-
     }
 
     @Deactivate
@@ -101,7 +102,6 @@ public final class WebUiBase {
                 registerResources(uiPlugin);
             }
         }
-        logger.info("WebUI plugin registered: " + uiPlugin.getName());
     }
 
     protected void unsetWebUiPluginService(WebUiPluginService uiPlugin) {
@@ -110,9 +110,28 @@ public final class WebUiBase {
         logger.info("WebUI plugin deregistered: {}.", uiPlugin.getName());
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setAuthentificationService(AuthenticationService authService) {
+        this.authService = authService;
+    }
+
+    protected void unsetAuthentificationService(AuthenticationService authService) {
+
+    }
+
+    protected void unsetWebUiPluginServiceByAlias(String alias) {
+        WebUiPluginService toRemovePlugin = pluginsByAlias.remove(alias);
+        pluginsByAliasDeactivated.put(alias, toRemovePlugin);
+    }
+
+    protected void restoreWebUiPlugin(String alias) {
+        WebUiPluginService toAddPlugin = pluginsByAliasDeactivated.remove(alias);
+        pluginsByAlias.put(alias, toAddPlugin);
+    }
+
     private void registerResources(WebUiPluginService plugin) {
         if (servlet == null || httpService == null) {
-            logger.warn("Cant register web UI plugin {}.", plugin.getName());
+            logger.warn("Can't register WebUI plugin {}.", plugin.getName());
             return;
         }
 
@@ -121,14 +140,13 @@ public final class WebUiBase {
         Set<String> aliases = plugin.getResources().keySet();
         for (String alias : aliases) {
             try {
-
                 httpService.registerResources("/" + plugin.getAlias() + "/" + alias, plugin.getResources().get(alias),
                         bundleHttpContext);
-
             } catch (NamespaceException e) {
                 logger.error("Servlet with alias \"/{}/{}\" already registered.", plugin.getAlias(), alias);
             }
         }
+        logger.info("WebUI plugin registered: " + plugin.getName());
     }
 
     private void unregisterResources(WebUiPluginService plugin) {
@@ -138,9 +156,4 @@ public final class WebUiBase {
             httpService.unregister("/" + plugin.getAlias() + "/" + alias);
         }
     }
-
-    public AuthenticationService getAuthenticationService() {
-        return authService;
-    }
-
 }

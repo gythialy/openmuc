@@ -1,0 +1,28 @@
+def projectName = "OpenMUC Driver - MQTT"
+
+dependencies {
+    implementation project(':openmuc-core-spi')
+    //implementation project(':openmuc-core-datamanager')
+    implementation project(':openmuc-lib-mqtt')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+}
+
+jar {
+    bnd('Bundle-Name': projectName)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description "MQTT driver for the OpenMUC framework."
+            }
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

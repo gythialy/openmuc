@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,47 +21,30 @@
 
 package org.openmuc.framework.core.authentication;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.openmuc.framework.authentication.AuthenticationService;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.useradmin.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 @Component(service = AuthenticationService.class, scope = ServiceScope.SINGLETON)
 public class Authentication implements AuthenticationService {
     private static final String DEFAULT_SHADOW_FILE_LOCATION = "conf/shadow";
 
     private static final Logger logger = LoggerFactory.getLogger(Authentication.class);
-
-    private final String path;
     private final Map<String, String> shadow = new HashMap<>();
-
-    public Authentication() {
-        this.path = initPath();
-        File file = new File(this.path);
-
-        if (!file.exists()) {
-            register("admin", "admin");
-        }
-        else {
-            loadShadowFromFile();
-        }
-    }
+    private String path;
+    private UserAdmin userAdmin;
+    private boolean userAdminInitiated;
 
     private static String initPath() {
         String path = System.getProperty("bundles.configuration.location");
@@ -74,50 +57,6 @@ public class Authentication implements AuthenticationService {
         }
 
         return path + "/shadow";
-    }
-
-    @Override
-    public void register(String user, String pw) {
-        pw += generateHash(user); // use the hash of the username as salt
-
-        String hash = generateHash(pw);
-
-        setUserHashPair(user, hash);
-    }
-
-    @Override
-    public boolean login(String user, String pw) {
-        if (!shadow.containsKey(user)) {
-            return false;
-        }
-
-        // use the hash of the username as salt
-        String pwToCheck = pw + generateHash(user);
-
-        String hash = generateHash(pwToCheck);
-
-        String storedHash = shadow.get(user);
-
-        return hash.equals(storedHash);
-    }
-
-    @Override
-    public void delete(String user) {
-        shadow.remove(user);
-
-        writeShadowToFile();
-    }
-
-    @Override
-    public boolean contains(String user) {
-        return shadow.containsKey(user);
-    }
-
-    @Override
-    public Set<String> getAllUsers() {
-        Set<String> registeredUsers = new HashSet<>();
-        registeredUsers.addAll(Collections.unmodifiableSet(shadow.keySet()));
-        return registeredUsers;
     }
 
     private static String generateHash(String pw) {
@@ -141,18 +80,99 @@ public class Authentication implements AuthenticationService {
         return hash.toString();
     }
 
-    private void setUserHashPair(String user, String hash) {
-        shadow.put(user, hash);
+    @Activate
+    public void activate() {
+        this.path = initPath();
+        userAdminInitiated = false;
+    }
+
+    @Override
+    public void register(String user, String pw, String group) {
+        logger.info("register");
+        pw += generateHash(user); // use the hash of the username as salt
+
+        String hash = generateHash(pw);
+
+        setUserHashPair(user, hash, group);
+    }
+
+    @Override
+    public void registerNewUser(String user, String pw) {
+        pw += generateHash(user); // use the hash of the username as salt
+
+        String hash = generateHash(pw);
+
+        setUserHashPair(user, hash, "normal");
+        writeShadowToFile();
+    }
+
+    @Override
+    public boolean login(String userName, String pw) {
+        initUserAdminIfNotDone();
+        // use the hash of the username as salt
+        String pwToCheck = pw + generateHash(userName);
+
+        String hash = generateHash(pwToCheck);
+
+        User user = userAdmin.getUser("name", userName);
+
+        return user.getProperties().get("password").equals(hash);
+    }
+
+    @Override
+    public void delete(String user) {
+        userAdmin.removeRole(user);
 
         writeShadowToFile();
     }
 
-    private void writeShadowToFile() {
-        StringBuilder textSb = new StringBuilder();
+    @Override
+    public boolean contains(String user) {
+        return getAllUsers().contains(user);
+    }
 
-        for (String key : shadow.keySet()) {
-            textSb.append(key + ":" + shadow.get(key) + "\n");
+    @Override
+    public Set<String> getAllUsers() {
+        Set<String> registeredUsers = new HashSet<>();
+        Role[] allRoles = getAllRoleObjects();
+
+        for (Role role : Arrays.asList(allRoles)) {
+            User user = (User) role;
+            String userName = (String) user.getProperties().get("name");
+            if (userName != null) {
+                registeredUsers.add(userName);
+            }
         }
+
+        return registeredUsers;
+    }
+
+    private void setUserHashPair(String user, String hash, String group) {
+        User newUser = (User) userAdmin.createRole(user, Role.USER);
+        Group grp = (Group) userAdmin.createRole(group, Role.GROUP);
+
+        if (grp == null) {
+            grp = (Group) userAdmin.getRole(group);
+        }
+
+        if (newUser == null) {
+            newUser = (User) userAdmin.getRole(user);
+        }
+
+        @SuppressWarnings("unchecked")
+        Dictionary<String, String> properties = newUser.getProperties();
+        properties.put("name", user);
+        properties.put("password", hash);
+        properties.put("group", group);
+
+        grp.addMember(newUser);
+    }
+
+    @Override
+    public void writeShadowToFile() {
+        Role[] allRoles = getAllRoleObjects();
+        StringBuilder textSb = prepareStringBuilder(allRoles);
+
         try (Writer output = new BufferedWriter(new FileWriter(new File(path)));) {
             output.write(textSb.toString());
             output.flush();
@@ -162,16 +182,74 @@ public class Authentication implements AuthenticationService {
 
     }
 
+    private Role[] getAllRoleObjects() {
+        Role[] allUser = null;
+        try {
+            allUser = userAdmin.getRoles(null);
+        } catch (InvalidSyntaxException e) {
+            logger.error(e.getMessage());
+        }
+
+        return allUser;
+    }
+
+    private StringBuilder prepareStringBuilder(Role[] allUser) {
+        StringBuilder textSb = new StringBuilder();
+
+        for (Role role : Arrays.asList(allUser)) {
+            User user = (User) role;
+            if (user.getProperties().get("name") != null) {
+                textSb.append(user.getProperties().get("name") + ";");
+                textSb.append(user.getProperties().get("password") + ";");
+                textSb.append(user.getProperties().get("group") + ";\n");
+            }
+        }
+
+        return textSb;
+    }
+
     private void loadShadowFromFile() {
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] temp = line.split(":");
-
-                shadow.put(temp[0], temp[1]);
+                String[] temp = line.split(";");
+                setUserHashPair(temp[0], temp[1], temp[2]);
             }
         } catch (IOException e) {
             logger.warn("Failed to load shadow.", e);
         }
+    }
+
+    @Override
+    public boolean isUserAdmin(String userName) {
+        User user = userAdmin.getUser("name", userName);
+        Authorization loggedUser = userAdmin.getAuthorization(user);
+
+        return loggedUser.hasRole("admin");
+
+    }
+
+    @Reference
+    protected void setUserAdmin(UserAdmin userAdmin) {
+        this.userAdmin = userAdmin;
+    }
+
+    protected void unsetUserAdmin(UserAdmin userAdmin) {
+
+    }
+
+    private void initUserAdminIfNotDone() {
+        if (userAdminInitiated) {
+            return;
+        }
+
+        File file = new File(this.path);
+        if (!file.exists()) {
+            register("admin", "admin", "adminGrp");
+            writeShadowToFile();
+        } else {
+            loadShadowFromFile();
+        }
+        userAdminInitiated = true;
     }
 }

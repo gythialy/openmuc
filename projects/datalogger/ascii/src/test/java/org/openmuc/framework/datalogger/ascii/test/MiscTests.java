@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,12 +20,14 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.datalogger.ascii.exceptions.WrongScalingException;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.IESDataFormatUtils;
@@ -39,7 +41,7 @@ public class MiscTests {
 
     StringBuilder sb = new StringBuilder();
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
 
         System.out.println("tearing down");
@@ -105,7 +107,7 @@ public class MiscTests {
 
                 System.out.println(input + " --> " + sb.toString() + " " + expectedResult);
 
-                Assert.assertEquals(expectedResult, sb.toString());
+                assertEquals(expectedResult, sb.toString());
 
             } catch (WrongScalingException e) {
                 e.printStackTrace();
@@ -124,9 +126,9 @@ public class MiscTests {
         try {
             sb.setLength(0);
             IESDataFormatUtils.convertDoubleToStringWithMaxLength(sb, input, Const.VALUE_SIZE_DOUBLE);
-            Assert.assertTrue("Expected WrongScalingException", false);
+            assertTrue(false, "Expected WrongScalingException");
         } catch (WrongScalingException e) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
 
         input = -100000000.0;
@@ -134,9 +136,9 @@ public class MiscTests {
         try {
             sb.setLength(0);
             IESDataFormatUtils.convertDoubleToStringWithMaxLength(sb, input, Const.VALUE_SIZE_DOUBLE);
-            Assert.assertTrue("Expected WrongScalingException", false);
+            assertTrue(false, "Expected WrongScalingException");
         } catch (WrongScalingException e) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
     }
 
@@ -146,7 +148,7 @@ public class MiscTests {
         sb.append(Const.HEXADECIMAL);
         LoggerUtils.byteArrayToHexString(sb, BYTE_ARRAY);
 
-        Assert.assertEquals(sb.toString(), STRING_BYTE_ARRAY);
+        assertEquals(sb.toString(), STRING_BYTE_ARRAY);
     }
 
 }

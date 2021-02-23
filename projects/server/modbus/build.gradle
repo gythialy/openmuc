@@ -3,39 +3,38 @@ def projectDescription = "Modbus server for the OpenMUC framework."
 
 configurations.create('embed')
 
-repositories {
-    mavenCentral()
-}
+def j2modVersion = '2.7.0'
 
 dependencies {
     implementation project(':openmuc-core-api')
     implementation project(':openmuc-core-spi')
-    implementation files('../../../dependencies/j2mod/j2mod-r100.jar')
-    embed files('../../../dependencies/j2mod/j2mod-r100.jar')
+    implementation project(':openmuc-lib-osgi')
+
+    implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
+
+    implementation 'com.ghgande:j2mod:' + j2modVersion
+    embed 'com.ghgande:j2mod:' + j2modVersion
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Bundle-ClassPath', '.,lib/j2mod-r100.jar'
-        instruction 'Import-Package', '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
-        instruction 'Export-Package', ''
-    }
-}
+    bnd('Bundle-Name': projectName,
+            'Bundle-ClassPath': '.,lib/j2mod-' + j2modVersion + '.jar',
+            'Import-Package': '!com.ghgande.j2mod*,gnu.io;resolution:=optional,com.fazecast*;resolution:=optional, *' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
-                description projectDescription
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description = projectDescription
             }
         }
     }
 }
+
+

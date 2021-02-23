@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,7 +35,7 @@ import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 
 public class CsvScanDeviceTest {
 
-    private String dir = System.getProperty("user.dir");
+    private final String dir = System.getProperty("user.dir");
 
     @Test
     public void testDeviceScan()

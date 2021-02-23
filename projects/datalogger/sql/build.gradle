@@ -1,0 +1,37 @@
+def projectName = "OpenMUC Data Logger - SQL"
+
+configurations.create('embed')
+
+dependencies {
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-datamanager')
+    implementation project(':openmuc-lib-osgi')
+    implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
+    implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
+    embed group: 'org.osgi', name: 'org.osgi.service.jdbc', version: '1.0.0'
+    api group: 'org.osgi', name: 'org.osgi.service.jdbc', version: '1.0.0'
+}
+
+jar {
+    bnd('Bundle-Name': projectName, 'Bundle-ClassPath': '.,lib/org.osgi.service.jdbc-1.0.0.jar',
+            'Export-Package': 'org.osgi.service.jdbc',
+            'Import-Package': 'org.postgresql,javax.sql,org.h2.tools,' +
+                    'org.openmuc.framework.*,' +
+                    'org.osgi.*,org.slf4j,!org.osgi.service.jdbc,' + jarDefaultImportPackageVersion)
+    into('lib') {
+        from configurations.embed
+    }
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description "SQL data logger for the OpenMUC framework."
+            }
+        }
+    }
+}

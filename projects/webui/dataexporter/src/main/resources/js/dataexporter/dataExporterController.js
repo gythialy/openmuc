@@ -70,7 +70,7 @@
                             readableTime = channels[0].map(function (element){
                                 var javaTime = new Date(element);
                                 var year = javaTime.getFullYear();
-                                var month = javaTime.getMonth() + 1;
+                                var month = ('0'+(javaTime.getMonth() + 1)).slice(-2);
                                 var day = ('0'+javaTime.getDate()).slice(-2);
                                 var hour = ('0'+javaTime.getHours()).slice(-2);
                                 var min = ('0'+javaTime.getMinutes()).slice(-2);
@@ -87,7 +87,7 @@
                             readableTime = channels[0].map(function (element){
                                 var javaTime = new Date(element);
                                 var year = javaTime.getFullYear();
-                                var month = javaTime.getMonth() + 1;
+                                var month = ('0'+(javaTime.getMonth() + 1)).slice(-2);
                                 var day = ('0'+javaTime.getDate()).slice(-2);
                                 var hour = ('0'+javaTime.getHours()).slice(-2);
                                 var min = ('0'+javaTime.getMinutes()).slice(-2);
@@ -107,7 +107,7 @@
                             readableTime = channels[0].map(function (element){
                                 var javaTime = new Date(element);
                                 var year = javaTime.getFullYear();
-                                var month = javaTime.getMonth() + 1;
+                                var month = ('0'+(javaTime.getMonth() + 1)).slice(-2);
                                 var day = ('0'+javaTime.getDate()).slice(-2);
                                 var hour = ('0'+javaTime.getHours()).slice(-2);
                                 var min = ('0'+javaTime.getMinutes()).slice(-2);
@@ -121,7 +121,7 @@
                             csvTime = channels[0].map(function (element){
                                 var javaTime = new Date(element);
                                 var year = javaTime.getFullYear();
-                                var month = javaTime.getMonth() + 1;
+                                var month = ('0'+(javaTime.getMonth() + 1)).slice(-2);
                                 var day = ('0'+javaTime.getDate()).slice(-2);
                                 var hour = ('0'+javaTime.getHours()).slice(-2);
                                 var min = ('0'+javaTime.getMinutes()).slice(-2);
@@ -137,7 +137,7 @@
                             readableTime = channels[0].map(function (element){
                                 var javaTime = new Date(element);
                                 var year = javaTime.getFullYear();
-                                var month = javaTime.getMonth() + 1;
+                                var month = ('0'+(javaTime.getMonth() + 1)).slice(-2);
                                 var day = ('0'+javaTime.getDate()).slice(-2);
                                 var hour = ('0'+javaTime.getHours()).slice(-2);
                                 var min = ('0'+javaTime.getMinutes()).slice(-2);
@@ -151,7 +151,7 @@
                             csvTime = channels[0].map(function (element){
                                 var javaTime = new Date(element);
                                 var year = javaTime.getFullYear();
-                                var month = javaTime.getMonth() + 1;
+                                var month = ('0'+(javaTime.getMonth() + 1)).slice(-2);
                                 var day = ('0'+javaTime.getDate()).slice(-2);
                                 var hour = ('0'+javaTime.getHours()).slice(-2);
                                 var min = ('0'+javaTime.getMinutes()).slice(-2);

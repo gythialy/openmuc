@@ -16,25 +16,20 @@ dependencies {
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Bundle-ClassPath', '.,lib/jsml-' + jsmlversion + '.jar,lib/jrxtx-' + jrxtxversion + '.jar'
-        instruction 'Import-Package', '!org.openmuc.jsml*,*' + jarDefaultImportPackageVersion
-        instruction 'Export-Package', ''
-    }
-}
+    bnd('Bundle-Name': projectName,
+            'Bundle-ClassPath': '.,lib/jsml-' + jsmlversion + '.jar,lib/jrxtx-' + jrxtxversion + '.jar',
+            'Import-Package': '!org.openmuc.jsml*,*' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description projectDescription
             }
         }

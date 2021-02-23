@@ -114,10 +114,13 @@
             CHANNEL_UNIT: 'Unit',
             CHANNEL_LOGGING_INTERVAL: 'Logging Interval',
             CHANNEL_LOGGING_TIME_OFFSET: 'Logging Time Offset',
+            CHANNEL_LOGGING_SETTINGS: 'Logging Settings',
+            CHANNEL_LOGGING_EVENT: 'Logging events',
             CHANNEL_LISTENING_FOR_DATA: 'Listening for Data',
             CHANNEL_SAMPLING_INTERVAL: 'Sampling Inverval',
             CHANNEL_SAMPLING_TIME_OFFSET: 'Sampling Time Offset',
             CHANNEL_SAMPLING_GROUP: 'Sampling Group',
+            CHANNEL_SETTINGS: 'Channel Settings',
             CHANNEL_DISABLED: 'Disabled',
             CHANNEL_ID_HINT: 'The ID of the channel.',
             CHANNEL_DESCRIPTION_HINT: 'The description of the channel. Exists for informational purposes only.',
@@ -129,10 +132,13 @@
             CHANNEL_UNIT_HINT: 'Physical unit of this channel. For information only (info can be accessed by an app or driver)',
             CHANNEL_LOGGING_INTERVAL_HINT: 'Time difference until this channel is logged again. -1 or omitting loggingInterval disables logging.',
             CHANNEL_LOGGING_TIME_OFFSET_HINT: 'Offset of the logging time.',
+            CHANNEL_LOGGING_EVENT_HINT: 'Determines if channel shall passivly logged for incomming value changes. Needs listening activated and logging intervall off.',
             CHANNEL_LISTENING_FOR_DATA_HINT: 'Determines if this channel shall passively listen for incoming value changes from the driver.',
+            CHANNEL_LOGGING_SETTINGS_HINT: 'Data logger specific log settings.',
             CHANNEL_SAMPLING_INTERVAL_HINT: 'Time interval between two attempts to read this channel. -1 or omitting samlingOffset disables sampling on this channel.',
             CHANNEL_SAMPLING_TIME_OFFSET_HINT: 'Offset of the sampling time.',
             CHANNEL_SAMPLING_GROUP_HINT: 'For grouping channels. All channels with the same samplingGroup and same samplingInterval are in one group. The purpous of samplingGroups is to improve the drivers performance - if possible.',
+            CHANNEL_SETTINGS_HINT: 'Settings for this channel. Some Parsers need this.',
             CHANNEL_DISABLED_HINT: 'Disables all communication activity (e.g. sampling, writing, connecting) for this channel.',
             CHANNEL_NOT_HISTORIC: 'Channel does not have a history.',
             DELETE_CONFIRM_MESSAGE: 'Are you sure to delete',
@@ -269,7 +275,9 @@
             DELETE_SELECTED_CONFIRM_MESSAGE: 'Are you sure you want to delete selected channels?',
             EDIT_DELETE_SELECTED: 'Edit/delete selected channels',
             VALUE_TYPE_LENGTH_BYTE_ARRAY: 'You need to set a value length higher than 0 for value type BYTE ARRAY',
-            VALUE_TYPE_LENGTH_STRING: 'You need to set a value length higher than 0 for value type STRING'
+            VALUE_TYPE_LENGTH_STRING: 'You need to set a value length higher than 0 for value type STRING',
+            Y_AXIS: 'Y axis:',
+            AUTO_RANGE: 'auto range'
         });
 
         $translateProvider.translations('de', {
@@ -288,7 +296,9 @@
             HOURS: 'Stunden',
             SAVE: 'Speichern',
             CHANNEL_NOT_HISTORIC: 'Kanal hat keine historischen Werte.',
-            MINUTE_STEPS: 'Minutenschritte'
+            MINUTE_STEPS: 'Minutenschritte',
+            CHANNEL_SETTINGS: 'Kanal Einstellungen',
+            CHANNEL_SETTINGS_HINT: 'Einstellungen für diesen Kanal. Wird von manchen Parsern benötigt.'
         });
 
         $translateProvider.useCookieStorage();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,7 +31,7 @@ import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.utils.Const;
 import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
-import org.openmuc.framework.datalogger.spi.LogRecordContainer;
+import org.openmuc.framework.datalogger.spi.LoggingRecord;
 
 public class LogFileHeader {
 
@@ -44,7 +44,7 @@ public class LogFileHeader {
 
     /**
      * Generate the standard IES Data Format Header.
-     * 
+     *
      * @param group
      *            a group of the LogIntervallContainer
      * @param filename
@@ -63,16 +63,16 @@ public class LogFileHeader {
 
         // write channel specific header informations
         int colNumber = 4;
-        for (LogRecordContainer container : group.getList()) {
-
-            LogChannel logChannel = logChannelList.get(container.getChannelId());
+        for (LoggingRecord loggingRecord : group.getList()) {
+            String channelId = loggingRecord.getChannelId();
+            LogChannel logChannel = logChannelList.get(channelId);
             appendChannelSpecificComment(sb, logChannel, colNumber);
             ++colNumber;
         }
-        List<LogRecordContainer> containers = group.getList();
+        List<LoggingRecord> containers = group.getList();
         appendColumnHeaderTimestamp(sb);
 
-        Iterator<LogRecordContainer> iterator = containers.iterator();
+        Iterator<LoggingRecord> iterator = containers.iterator();
 
         while (iterator.hasNext()) {
             sb.append(iterator.next().getChannelId());
@@ -82,12 +82,13 @@ public class LogFileHeader {
         }
 
         sb.append(Const.LINESEPARATOR);
+
         return sb.toString();
     }
 
     /**
      * Generate the standard IES Data Format Header
-     * 
+     *
      * @param filename
      *            the name of the file to add the header
      * @param logChannelList
@@ -122,7 +123,7 @@ public class LogFileHeader {
 
     /**
      * Appends channel specific comments to a StringBuilder
-     * 
+     *
      * @param sb
      * @param logChannel
      * @param colNumber
@@ -154,9 +155,8 @@ public class LogFileHeader {
 
     /**
      * Append column headers, the timestamps, in a StringBuilder
-     * 
+     *
      * @param sb
-     * @param group
      */
     private static void appendColumnHeaderTimestamp(StringBuilder sb) {
 
@@ -171,7 +171,7 @@ public class LogFileHeader {
 
     /**
      * Sets the top of the header.
-     * 
+     *
      * @param sb
      * @param loggingInterval
      * @param filename
@@ -198,7 +198,7 @@ public class LogFileHeader {
 
     /**
      * Construct a header row with predefined separators and comment signs.
-     * 
+     *
      * @param colNumber
      *            column number example: #001
      * @param colName
@@ -236,7 +236,7 @@ public class LogFileHeader {
 
     /**
      * appendStrings appends a any String to a StringBuilder
-     * 
+     *
      * @param sb
      *            StringBuilder to append a String
      * @param s
@@ -252,7 +252,7 @@ public class LogFileHeader {
     /**
      * Calculates the difference between the configured local time and the Coordinated Universal Time (UTC) without
      * daylight saving time and returns it as a string.
-     * 
+     *
      * @return the difference between local time and UTC as string.
      */
     private static String getDiffLocalUTC() {

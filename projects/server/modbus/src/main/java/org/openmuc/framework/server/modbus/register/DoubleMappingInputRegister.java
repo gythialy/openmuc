@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,8 +40,7 @@ public class DoubleMappingInputRegister extends MappingInputRegister {
         else {
             bytes = new DoubleValue(channel.getLatestRecord().getValue().asDouble()).asByteArray();
         }
-        byte[] toReturn = { bytes[highByte], bytes[lowByte] };
-        return toReturn;
+        return new byte[] { bytes[highByte], bytes[lowByte] };
     }
 
 }

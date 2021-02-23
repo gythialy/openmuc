@@ -31,28 +31,28 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     private int m_Retries = Modbus.DEFAULT_RETRIES;
 
     /**
-     * Constructs a new <tt>ModbusRTUTCPTransaction</tt> instance.
+     * Constructs a new <code>ModbusRTUTCPTransaction</code> instance.
      */
     public ModbusRTUTCPTransaction() {
     }
 
     /**
-     * Constructs a new <tt>ModbusTCPTransaction</tt> instance with a given <tt>ModbusRequest</tt> to be send when the
+     * Constructs a new <code>ModbusTCPTransaction</code> instance with a given <code>ModbusRequest</code> to be send when the
      * transaction is executed.
      * 
      * @param request
-     *            a <tt>ModbusRequest</tt> instance.
+     *            a <code>ModbusRequest</code> instance.
      */
     public ModbusRTUTCPTransaction(ModbusRequest request) {
         setRequest(request);
     }// constructor
 
     /**
-     * Constructs a new <tt>ModbusTCPTransaction</tt> instance with a given <tt>TCPMasterConnection</tt> to be used for
+     * Constructs a new <code>ModbusTCPTransaction</code> instance with a given <code>TCPMasterConnection</code> to be used for
      * transactions.
      * 
      * @param con
-     *            a <tt>TCPMasterConnection</tt> instance.
+     *            a <code>TCPMasterConnection</code> instance.
      */
     public ModbusRTUTCPTransaction(RTUTCPMasterConnection con) {
         setConnection(con);
@@ -60,12 +60,12 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     }// constructor
 
     /**
-     * Sets the connection on which this <tt>ModbusTransaction</tt> should be executed.
+     * Sets the connection on which this <code>ModbusTransaction</code> should be executed.
      * <p>
      * An implementation should be able to handle open and closed connections. <br>
      * 
      * @param con
-     *            a <tt>TCPMasterConnection</tt>.
+     *            a <code>TCPMasterConnection</code>.
      */
     public void setConnection(RTUTCPMasterConnection con) {
         m_Connection = con;

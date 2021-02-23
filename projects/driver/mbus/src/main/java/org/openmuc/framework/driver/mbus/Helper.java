@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -28,10 +28,6 @@ public class Helper {
 
     static final String HEXES = "0123456789ABCDEF";
 
-    private Helper() {
-        // hide constructor
-    }
-
     public static String bytesToHex(byte[] raw) {
         if (raw == null) {
             return null;
@@ -52,5 +48,9 @@ public class Helper {
             b[i] = (byte) Integer.parseInt(s.substring(index, index + 2), 16);
         }
         return b;
+    }
+
+    private Helper() {
+        // hide constructor
     }
 }

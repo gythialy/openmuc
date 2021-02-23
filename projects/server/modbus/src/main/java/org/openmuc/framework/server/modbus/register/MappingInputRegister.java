@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,14 +23,10 @@ package org.openmuc.framework.server.modbus.register;
 import java.nio.ByteBuffer;
 
 import org.openmuc.framework.dataaccess.Channel;
-import org.openmuc.framework.server.modbus.ModbusServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 public abstract class MappingInputRegister implements InputRegister {
-    private static Logger logger = LoggerFactory.getLogger(ModbusServer.class);
     boolean useUnscaledValues;
     protected Channel channel;
     protected int highByte;
@@ -51,26 +47,21 @@ public abstract class MappingInputRegister implements InputRegister {
 
     @Override
     public int getValue() {
-        int toReturn = ByteBuffer.wrap(toBytes())
-                .getShort(); /*
-                              * toBytes always only contains two bytes. So cast from short.
-                              */
-        return toReturn;
+        /*
+         * toBytes always only contains two bytes. So cast from short.
+         */
+        return ByteBuffer.wrap(toBytes()).getShort();
     }
 
     @Override
     public int toUnsignedShort() {
         short shortVal = ByteBuffer.wrap(toBytes()).getShort();
-        int toReturn = shortVal & 0xFFFF;
-        return toReturn;
+        return shortVal & 0xFFFF;
     }
 
     @Override
     public short toShort() {
-        short toReturn = ByteBuffer.wrap(toBytes()).getShort();
-        return toReturn;
+        return ByteBuffer.wrap(toBytes()).getShort();
     }
 
-    @Override
-    public abstract byte[] toBytes();
 }

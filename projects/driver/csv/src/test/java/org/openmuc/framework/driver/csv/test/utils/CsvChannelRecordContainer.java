@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,8 +26,8 @@ import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
 public class CsvChannelRecordContainer implements ChannelRecordContainer {
 
-    private final String channelAddress;
     private Record record;
+    private final String channelAddress;
 
     public CsvChannelRecordContainer(String channelAddress) {
         this.channelAddress = channelAddress;
@@ -36,11 +36,6 @@ public class CsvChannelRecordContainer implements ChannelRecordContainer {
     @Override
     public Record getRecord() {
         return record;
-    }
-
-    @Override
-    public void setRecord(Record record) {
-        this.record = record;
     }
 
     @Override
@@ -64,6 +59,11 @@ public class CsvChannelRecordContainer implements ChannelRecordContainer {
     public void setChannelHandle(Object handle) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void setRecord(Record record) {
+        this.record = record;
     }
 
     @Override

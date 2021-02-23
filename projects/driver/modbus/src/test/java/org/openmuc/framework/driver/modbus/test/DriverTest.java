@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,7 +20,7 @@
  */
 package org.openmuc.framework.driver.modbus.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.driver.modbus.ModbusDriver;
 import org.slf4j.Logger;

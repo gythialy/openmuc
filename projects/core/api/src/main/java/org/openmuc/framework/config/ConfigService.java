@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,10 +21,10 @@
 
 package org.openmuc.framework.config;
 
+import org.openmuc.framework.dataaccess.DeviceState;
+
 import java.io.FileNotFoundException;
 import java.util.List;
-
-import org.openmuc.framework.dataaccess.DeviceState;
 
 public interface ConfigService {
 
@@ -36,18 +36,17 @@ public interface ConfigService {
 
     /**
      * Returns a <i>clone</i> of the current configuration file.
-     * 
+     *
      * @return clone of the configuration file.
-     * 
      * @see #setConfig(RootConfig)
      */
     RootConfig getConfig();
 
+    void setConfig(RootConfig config);
+
     RootConfig getConfig(ConfigChangeListener listener);
 
     void stopListeningForConfigChange(ConfigChangeListener listener);
-
-    void setConfig(RootConfig config);
 
     void writeConfigToFile() throws ConfigWriteException;
 

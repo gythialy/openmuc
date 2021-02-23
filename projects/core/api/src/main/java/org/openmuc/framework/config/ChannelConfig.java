@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,25 +21,29 @@
 
 package org.openmuc.framework.config;
 
-import java.util.List;
-
 import org.openmuc.framework.data.ValueType;
+
+import java.util.List;
 
 public interface ChannelConfig {
 
-    static final Boolean DISABLED_DEFAULT = false;
-    static final String DESCRIPTION_DEFAULT = "";
-    static final String CHANNEL_ADDRESS_DEFAULT = "";
-    static final String UNIT_DEFAULT = "";
-    static final ValueType VALUE_TYPE_DEFAULT = ValueType.DOUBLE;
-    static final int BYTE_ARRAY_SIZE_DEFAULT = 10;
-    static final int STRING_SIZE_DEFAULT = 10;
-    static final boolean LISTENING_DEFAULT = false;
-    static final int SAMPLING_INTERVAL_DEFAULT = -1;
-    static final int SAMPLING_TIME_OFFSET_DEFAULT = 0;
-    static final String SAMPLING_GROUP_DEFAULT = "";
-    static final int LOGGING_INTERVAL_DEFAULT = -1;
-    static final int LOGGING_TIME_OFFSET_DEFAULT = 0;
+    Boolean DISABLED_DEFAULT = false;
+    String DESCRIPTION_DEFAULT = "";
+    String CHANNEL_ADDRESS_DEFAULT = "";
+    String UNIT_DEFAULT = "";
+    ValueType VALUE_TYPE_DEFAULT = ValueType.DOUBLE;
+    int BYTE_ARRAY_SIZE_DEFAULT = 10;
+    int STRING_SIZE_DEFAULT = 10;
+    boolean LISTENING_DEFAULT = false;
+    int SAMPLING_INTERVAL_DEFAULT = -1;
+    int SAMPLING_TIME_OFFSET_DEFAULT = 0;
+    String SAMPLING_GROUP_DEFAULT = "";
+    String SETTINGS_DEFAULT = "";
+    int LOGGING_INTERVAL_DEFAULT = -1;
+    int LOGGING_TIME_OFFSET_DEFAULT = 0;
+    boolean LOGGING_EVENT_DEFAULT = false;
+    String LOGGING_SETTINGS_DEFAULT = "";
+    String LOGGING_READER_DEFAULT = "";
 
     String getId();
 
@@ -89,9 +93,17 @@ public interface ChannelConfig {
 
     void setSamplingGroup(String group);
 
+    String getSettings();
+
+    void setSettings(String settings);
+
     Integer getLoggingInterval();
 
     void setLoggingInterval(Integer interval);
+
+    String getReader();
+
+    void setReader(String reader);
 
     Integer getLoggingTimeOffset();
 
@@ -110,4 +122,12 @@ public interface ChannelConfig {
     void addServerMapping(ServerMapping serverMapping);
 
     void deleteServerMappings(String id);
+
+    void setLoggingEvent(Boolean loggingEvent);
+
+    Boolean isLoggingEvent();
+
+    String getLoggingSettings();
+
+    void setLoggingSettings(String loggingSettings);
 }

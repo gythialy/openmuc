@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,19 +30,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openmuc.framework.authentication.AuthenticationService;
-import org.openmuc.framework.lib.json.Const;
-import org.openmuc.framework.lib.json.FromJson;
-import org.openmuc.framework.lib.json.ToJson;
-import org.openmuc.framework.lib.json.rest.objects.RestUserConfig;
+import org.openmuc.framework.lib.rest1.Const;
+import org.openmuc.framework.lib.rest1.FromJson;
+import org.openmuc.framework.lib.rest1.ToJson;
+import org.openmuc.framework.lib.rest1.rest.objects.RestUserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserServlet extends GenericServlet {
 
     private static final String REQUESTED_REST_PATH_IS_NOT_AVAILABLE = "Requested rest path is not available.";
-    private static final String REST_PATH = " Rest Path = ";
     private static final long serialVersionUID = -5635380730045771853L;
-    private static final String APPLICATION_JSON = "application/json";
     private static final Logger logger = LoggerFactory.getLogger(DriverResourceServlet.class);
 
     private AuthenticationService authenticationService;
@@ -56,8 +54,6 @@ public class UserServlet extends GenericServlet {
             setServices();
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
             ToJson json = new ToJson();
-
-            java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
             if (pathInfo.equals("/")) {
                 Set<String> userSet = authenticationService.getAllUsers();
@@ -102,7 +98,6 @@ public class UserServlet extends GenericServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString == null) {
             return;
@@ -124,7 +119,7 @@ public class UserServlet extends GenericServlet {
                         "Password is mandatory.");
             }
             else {
-                authenticationService.register(userConfig.getId(), userConfig.getPassword());
+                authenticationService.registerNewUser(userConfig.getId(), userConfig.getPassword());
             }
 
         }
@@ -138,7 +133,6 @@ public class UserServlet extends GenericServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 
@@ -160,7 +154,7 @@ public class UserServlet extends GenericServlet {
                 else if (authenticationService.contains(userConfig.getId())) {
                     String id = userConfig.getId();
                     if (authenticationService.login(id, userConfig.getOldPassword())) {
-                        authenticationService.register(id, userConfig.getPassword());
+                        authenticationService.registerNewUser(id, userConfig.getPassword());
                     }
                     else {
                         ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_UNAUTHORIZED, logger,
@@ -184,7 +178,6 @@ public class UserServlet extends GenericServlet {
             throws ServletException, IOException {
         response.setContentType(APPLICATION_JSON);
         String[] pathAndQueryString = checkIfItIsACorrectRest(request, response, logger);
-        java.util.Date time = new java.util.Date(request.getSession().getLastAccessedTime());
 
         if (pathAndQueryString != null) {
 

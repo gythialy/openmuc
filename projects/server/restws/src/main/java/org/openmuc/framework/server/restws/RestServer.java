@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,7 +23,7 @@ package org.openmuc.framework.server.restws;
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.openmuc.framework.config.ConfigService;
 import org.openmuc.framework.dataaccess.DataAccessService;
-import org.openmuc.framework.lib.json.Const;
+import org.openmuc.framework.lib.rest1.Const;
 import org.openmuc.framework.server.restws.servlets.ChannelResourceServlet;
 import org.openmuc.framework.server.restws.servlets.ConnectServlet;
 import org.openmuc.framework.server.restws.servlets.DeviceResourceServlet;
@@ -55,6 +55,33 @@ public final class RestServer {
     private final UserServlet userServlet = new UserServlet();
     // private final ControlsServlet controlsServlet = new ControlsServlet();
 
+    public static DataAccessService getDataAccessService() {
+        return RestServer.dataAccessService;
+    }
+
+    @Reference
+    protected void setDataAccessService(DataAccessService dataAccessService) {
+        RestServer.dataAccessService = dataAccessService;
+    }
+
+    public static ConfigService getConfigService() {
+        return RestServer.configService;
+    }
+
+    @Reference
+    protected void setConfigService(ConfigService configService) {
+        RestServer.configService = configService;
+    }
+
+    public static AuthenticationService getAuthenticationService() {
+        return RestServer.authenticationService;
+    }
+
+    @Reference
+    protected void setAuthenticationService(AuthenticationService authenticationService) {
+        RestServer.authenticationService = authenticationService;
+    }
+
     @Activate
     protected void activate(ComponentContext context) throws Exception {
         logger.info("Activating REST Server");
@@ -82,18 +109,8 @@ public final class RestServer {
         // httpService.unregister(Const.ALIAS_CONTROLS);
     }
 
-    @Reference
-    protected void setConfigService(ConfigService configService) {
-        RestServer.configService = configService;
-    }
-
     protected void unsetConfigService(ConfigService configService) {
         RestServer.configService = null;
-    }
-
-    @Reference
-    protected void setAuthenticationService(AuthenticationService authenticationService) {
-        RestServer.authenticationService = authenticationService;
     }
 
     protected void unsetAuthenticationService(AuthenticationService authenticationService) {
@@ -109,25 +126,8 @@ public final class RestServer {
         RestServer.httpService = null;
     }
 
-    @Reference
-    protected void setDataAccessService(DataAccessService dataAccessService) {
-        RestServer.dataAccessService = dataAccessService;
-    }
-
     protected void unsetDataAccessService(DataAccessService dataAccessService) {
         RestServer.dataAccessService = null;
-    }
-
-    public static DataAccessService getDataAccessService() {
-        return RestServer.dataAccessService;
-    }
-
-    public static ConfigService getConfigService() {
-        return RestServer.configService;
-    }
-
-    public static AuthenticationService getAuthenticationService() {
-        return RestServer.authenticationService;
     }
 
 }

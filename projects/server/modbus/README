@@ -36,4 +36,6 @@ system.properties example:
 org.openmuc.framework.server.modbus.address=127.0.0.1
 org.openmuc.framework.server.modbus.port=5502
 org.openmuc.framework.server.modbus.unitId=1
-org.openmuc.framework.server.modbus.master=false
+# modbus connection type, possible values are tcp or udp
+org.openmuc.framework.server.modbus.type=tcp
+org.openmuc.framework.server.modbus.rtuTcp=false

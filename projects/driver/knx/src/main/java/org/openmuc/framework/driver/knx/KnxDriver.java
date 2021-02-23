@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,7 +31,9 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +61,14 @@ public class KnxDriver implements DriverService {
             // device scan settings
             "<host_ip>;<mcast> for multicast scan or <host_ip>;<nat> for NAT scan");
 
+    @Activate
     protected void activate(ComponentContext context) {
         if (logger.isDebugEnabled()) {
             LogManager.getManager().addWriter("", new KnxLogWriter()); // Add calimero logger
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext context) {
         logger.debug("Deactivated KNX Driver");
     }

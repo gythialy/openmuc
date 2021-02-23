@@ -6,17 +6,14 @@ dependencies {
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Export-Package', ''
-    }
+    bnd('Bundle-Name': projectName)
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description "SlotsDB is a binary data logger for the OpenMUC framework."
             }
         }

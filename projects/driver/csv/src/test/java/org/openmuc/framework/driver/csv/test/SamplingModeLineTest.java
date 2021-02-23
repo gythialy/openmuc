@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,6 +20,12 @@
  */
 package org.openmuc.framework.driver.csv.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openmuc.framework.config.ArgumentSyntaxException;
@@ -27,11 +33,6 @@ import org.openmuc.framework.driver.csv.CsvDeviceConnection;
 import org.openmuc.framework.driver.csv.test.utils.CsvChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.framework.driver.spi.ConnectionException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SamplingModeLineTest {
 
@@ -45,6 +46,7 @@ public class SamplingModeLineTest {
     @Before
     public void setup() {
 
+        TimeZone.setDefault(TimeZone.getTimeZone("CET"));
         containers = new ArrayList<>();
         containers.add(INDEX_HHMMSS, new CsvChannelRecordContainer("hhmmss"));
         containers.add(INDEX_POWER, new CsvChannelRecordContainer("power_grid"));
@@ -52,7 +54,7 @@ public class SamplingModeLineTest {
 
     /**
      * Reads 3 lines of the csv file. Test checks if the correct value of hhmmss is returned
-     *
+     * 
      * @throws ConnectionException
      * @throws ArgumentSyntaxException
      */

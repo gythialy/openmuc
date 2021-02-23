@@ -9,9 +9,7 @@
         });
 
         $scope.getPlotter = function (name) {
-            var res = $scope.confFile.find((plotter) = > plotter.name === name
-        )
-            ;
+            var res = $scope.confFile.find((plotter) => plotter.name === name);
             return res ? res : '';
         };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,7 +41,7 @@ public abstract class AggregatorChannel {
     protected long aggregationInterval;
     protected long aggregationSamplingTimeOffset;
 
-    // TODO dataAccessService wird über viele ebenen durchgereicht, wie kann ich das vermeiden?
+    // TODO dataAccessService wird ueber viele ebenen durchgereicht, wie kann ich das vermeiden?
     // Brauche den dataAccessService eigentlich nur hier
 
     public AggregatorChannel(ChannelAddress channelAddress, DataAccessService dataAccessService)

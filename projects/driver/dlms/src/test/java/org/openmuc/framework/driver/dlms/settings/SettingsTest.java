@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,8 +20,8 @@
  */
 package org.openmuc.framework.driver.dlms.settings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SettingsTest {
 
@@ -52,7 +52,7 @@ public class SettingsTest {
         Pattern p = Pattern.compile("(\\w+:) *(\\[?\\w+=.*\\]?)+$");
         String pat = GenericSetting.strSyntaxFor(clazz);
         Matcher m1 = p.matcher(pat);
-        assertTrue(pat, m1.matches());
+        assertTrue(m1.matches(), pat);
 
         String[] str = pat.substring(m1.group(1).length()).trim().replaceAll("(\\[|\\])", "").split(";");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -34,7 +34,7 @@ import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.RecordsReceivedListener;
 import org.openmuc.j60870.ASdu;
 import org.openmuc.j60870.ConnectionEventListener;
-import org.openmuc.j60870.InformationObject;
+import org.openmuc.j60870.ie.InformationObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +114,12 @@ public class Iec60870Listener implements ConnectionEventListener {
         }
     }
 
+    @Override
+    public void connectionClosed(IOException e) {
+        logger.info("Connection was closed by server.");
+        listener.connectionInterrupted(driverId, connection);
+    }
+
     private void newRecords(int i, Record record) {
         if (logger.isTraceEnabled()) {
             logger.trace("Set new Record: " + record.toString());
@@ -127,12 +133,6 @@ public class Iec60870Listener implements ConnectionEventListener {
         container.setRecord(record);
         channelRecordContainerList.add(container);
         return channelRecordContainerList;
-    }
-
-    @Override
-    public void connectionClosed(IOException e) {
-        logger.info("Connection was closed by server.");
-        listener.connectionInterrupted(driverId, connection);
     }
 
 }

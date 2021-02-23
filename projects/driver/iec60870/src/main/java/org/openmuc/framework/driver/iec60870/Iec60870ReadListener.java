@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -32,8 +32,9 @@ import org.openmuc.framework.data.Record;
 import org.openmuc.framework.driver.iec60870.settings.ChannelAddress;
 import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 import org.openmuc.j60870.ASdu;
+import org.openmuc.j60870.Connection;
 import org.openmuc.j60870.ConnectionEventListener;
-import org.openmuc.j60870.InformationObject;
+import org.openmuc.j60870.ie.InformationObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,9 @@ class Iec60870ReadListener implements ConnectionEventListener {
     private boolean isReadyReading = false;
 
     private static final Logger logger = LoggerFactory.getLogger(Iec60870ReadListener.class);
+
+    public Iec60870ReadListener(Connection clientConnection) {
+    }
 
     synchronized void setContainer(List<ChannelRecordContainer> containers) {
 

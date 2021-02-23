@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -77,10 +77,8 @@ public final class ModbusDriver implements DriverService {
 
         final String DEVICE_SCAN_SETTINGS = "Device scan is not supported.";
 
-        final DriverInfo driverInfo = new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, DEVICE_SETTINGS, CHANNEL_ADDRESS,
-                DEVICE_SCAN_SETTINGS);
+        return new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, DEVICE_SETTINGS, CHANNEL_ADDRESS, DEVICE_SCAN_SETTINGS);
 
-        return driverInfo;
     }
 
     @Override

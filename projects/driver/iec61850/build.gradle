@@ -1,44 +1,40 @@
+
 def projectName = "OpenMUC Driver - IEC 61850"
 def projectDescription = "IEC 61850 driver for the OpenMUC framework."
 
 configurations.create('embed')
 
-def openiec61850version = '1.7.0'
+def iec61850version = '1.9.0'
 def josiVersion = '1.3.3'
-def jasn1name = 'jasn1-iec61850mod'
-def jasn1version = '1.10.0'
+def jasn1name = 'asn1bean' 
+def jasn1version = '1.12.0'
 
 dependencies {
-    implementation project(':openmuc-core-spi')
-    implementation group: 'org.openmuc', name: 'openiec61850', version: openiec61850version
-    testImplementation 'org.mockito:mockito-core:2.7.22'
+  implementation project(':openmuc-core-spi')
 
-    embed group: 'org.openmuc', name: 'openiec61850', version: openiec61850version
-    embed group: 'org.openmuc', name: 'josistack', version: josiVersion
-    embed group: 'org.openmuc', name: 'jositransport', version: josiVersion
-    embed group: 'org.openmuc', name: jasn1name, version: jasn1version
+  implementation group: 'com.beanit', name: 'iec61850bean', version: iec61850version
+  embed group: 'com.beanit', name: 'iec61850bean',  version: iec61850version
+  embed group: 'com.beanit', name: jasn1name,       version: jasn1version
+
+  testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+  testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Bundle-ClassPath', '.,lib/openiec61850-' + openiec61850version + '.jar,lib/josistack-' + josiVersion + '.jar,lib/jositransport-' + josiVersion + '.jar,lib/' + jasn1name + '-' + jasn1version + '.jar'
-        instruction 'Import-Package', '!org.openmuc.openiec61850.*,javax.net,*' + jarDefaultImportPackageVersion
-        instruction 'Export-Package', ''
-    }
-}
+    bnd('Bundle-Name': projectName,
+            'Bundle-ClassPath': '.,lib/iec61850bean-' + iec61850version + '.jar,lib/' + jasn1name + '-' + jasn1version + '.jar',
+            'Import-Package': '!com.beanit.openiec61850.*,javax.net,*' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description projectDescription
             }
         }

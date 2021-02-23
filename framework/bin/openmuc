@@ -37,6 +37,7 @@ if [ -z ${OPENMUC_HOME+x} ]; then
 fi
 cd "$OPENMUC_HOME"
 
+
 # If root change user to owner of this script
 if [ $UID -eq 0 ] ; then
     SCRIPT_OWNER=`stat -c "%U" bin/openmuc`
@@ -157,7 +158,60 @@ stop_openmuc() {
     esac
 }
 
+# Apache Felix FileInstall
+# Since FileInstall doesn't create the felix.fileinstall.dir by itself, this script creates
+# the folder. If the folder doesn't exist the org.apache.felix.fileinstall bundle will throw null pointer
+# exception at start.
+# The folder should be specified in system.properties e.g: felix.fileinstall.dir=conf/properties
+# If the property is missing then the default folder "load" for Felix FileInstall is created in "framework/load"
+create_felix_file_install_folder(){
+   
+    SYSPROP=$OPENMUC_HOME/conf/system.properties
+    FILE_INSTALL_KEY="felix.fileinstall.dir="
+    FILE_INSTALL_VALUE=`grep $FILE_INSTALL_KEY $SYSPROP | sed "s/${FILE_INSTALL_KEY}//g"`
+    FILE_INSTALL_FOLDER_DEFAULT=/load
+
+    # if FILE_INSTALL_VALUE exists in system.properties
+    if [ -n "$FILE_INSTALL_VALUE" ]; then
+
+        # check if string starts with / 
+        if [[ $FILE_INSTALL_VALUE =~ ^/ ]]; then
+            FILE_INSTALL_FOLDER=$OPENMUC_HOME$FILE_INSTALL_VALUE
+        else 
+            FILE_INSTALL_FOLDER=$OPENMUC_HOME"/"$FILE_INSTALL_VALUE
+        fi
+
+        # check if the folder already exists
+        if test -e "$FILE_INSTALL_FOLDER"; then
+           echo "Felix FileInstall folder already exists: $FILE_INSTALL_FOLDER"
+        else
+            # create folder if it doesn't exist
+            mkdir -p $FILE_INSTALL_FOLDER
+            if test -e "$FILE_INSTALL_FOLDER"; then
+               echo "Felix FileInstall folder created: $FILE_INSTALL_FOLDER"
+            else
+                echo "ERROR: unable to create Felix FileInstall $FILE_INSTALL_FOLDER. Try to create folder manually and start OpenMUC again."
+                exit 1
+            fi 
+        fi 
+    else
+        # create default Felix FileInstall folder "load"
+        mkdir -p $OPENMUC_HOME$FILE_INSTALL_FOLDER_DEFAULT        
+    fi  
+}
+
+
+
 start_openmuc() {
+   
+    create_felix_file_install_folder
+
+    #check bundle folder
+    if [ -z "$(ls -A $OPENMUC_HOME/bundle)" ]; then
+        echo "Bundle folder is empty, starting update-bundles."
+        eval $GRADLE -b $OPENMUC_HOME/conf/bundles.conf.gradle updateBundles --warning-mode all
+    fi
+
     if [ -f $PID_FILE ]; then
         if ps -p `cat $PID_FILE` > /dev/null
         then
@@ -190,11 +244,11 @@ start_openmuc() {
 }
 
 find_gradle() {
-    if hash gradle 2>/dev/null; then
-        GRADLE="gradle"
-    else
+#    if hash gradle 2>/dev/null; then
+#        GRADLE="gradle"
+#    else
         GRADLE=$OPENMUC_HOME"/../gradlew"
-    fi
+#    fi
 }
 
 PID_FILE=$OPENMUC_HOME/log/openmuc.pid
@@ -215,14 +269,19 @@ case "$1" in
     update-bundles)
         if [ "$2" = "-i" ]
         then
-            eval $GRADLE -p ../ install
+            eval $GRADLE -p $OPENMUC_HOME/../ publishMavenJavaPublicationToMavenLocal
+        elif [ "$2" = "-b" ]
+        then
+            cd $OPENMUC_HOME/..
+            eval $GRADLE jar check
+            cd $OPENMUC_HOME
         fi
-        eval $GRADLE -b conf/bundles.conf.gradle updateBundles --warning-mode all
+        eval $GRADLE -b $OPENMUC_HOME/conf/bundles.conf.gradle updateBundles --warning-mode all
         ;;
     remote-shell)
-        echo "Using netcat to connect to remote shell at 127.0.0.1:6666"
+        echo "Using telnet to connect to remote shell at 127.0.0.1:6666"
         echo "Press ctrl+d to close connection"
-        exec netcat 127.0.0.1 6666
+        exec telnet 127.0.0.1 6666
         ;;
     reload)
         echo "reaload configuration"

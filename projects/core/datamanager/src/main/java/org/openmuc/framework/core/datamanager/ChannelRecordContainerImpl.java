@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -30,9 +30,9 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     private static final Record defaulRecord = new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);
 
     private final ChannelImpl channel;
+    private final String channelAddress;
     private Record record;
     private Object channelHandle;
-    private final String channelAddress;
 
     public ChannelRecordContainerImpl(ChannelImpl channel) {
         this(channel, defaulRecord);
@@ -61,13 +61,10 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     }
 
     @Override
-    public void setRecord(Record record) {
-        this.record = record;
-    }
-
-    @Override
     public ChannelRecordContainer copy() {
-        return new ChannelRecordContainerImpl(channel, record);
+        Record copiedRecord = new Record(record.getValue(), record.getTimestamp(), record.getFlag());
+
+        return new ChannelRecordContainerImpl(channel, copiedRecord);
     }
 
     @Override
@@ -78,5 +75,10 @@ public final class ChannelRecordContainerImpl implements ChannelRecordContainer 
     @Override
     public Record getRecord() {
         return record;
+    }
+
+    @Override
+    public void setRecord(Record record) {
+        this.record = record;
     }
 }

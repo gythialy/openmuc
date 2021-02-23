@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,43 +20,50 @@
  */
 package org.openmuc.framework.driver.mbus;
 
-import org.openmuc.jmbus.MBusConnection;
-
 import java.util.Map;
+
+import org.openmuc.jmbus.MBusConnection;
 
 /**
  * Class representing an MBus Connection.<br>
  * This class will bind to the local com-interface.<br>
+ * 
  */
 class ConnectionInterface {
 
     private int connectionCounter = 0;
     private MBusConnection mBusConnection;
     private boolean open = true;
-    private String connectionName;
+    private final String connectionName;
+    private int delay = 0;
     private Map<String, ConnectionInterface> interfaces;
 
-    public ConnectionInterface(MBusConnection mBusConnection, String serialPortName,
-                               Map<String, ConnectionInterface> interfaces) {
+    public ConnectionInterface(MBusConnection mBusConnection, String serialPortName, int delay,
+            Map<String, ConnectionInterface> interfaces) {
         this.connectionName = serialPortName;
-        generalConnectionInterface(mBusConnection, interfaces);
+        generalConnectionInterface(mBusConnection, interfaces, delay);
     }
 
-    public ConnectionInterface(MBusConnection mBusConnection, String host, int port,
-                               Map<String, ConnectionInterface> interfaces) {
+    public ConnectionInterface(MBusConnection mBusConnection, String host, int port, int delay,
+            Map<String, ConnectionInterface> interfaces) {
         this.connectionName = host + port;
-        generalConnectionInterface(mBusConnection, interfaces);
+        generalConnectionInterface(mBusConnection, interfaces, delay);
     }
 
-    private void generalConnectionInterface(MBusConnection mBusConnection,
-                                            Map<String, ConnectionInterface> interfaces) {
+    private void generalConnectionInterface(MBusConnection mBusConnection, Map<String, ConnectionInterface> interfaces,
+            int delay) {
         this.mBusConnection = mBusConnection;
         this.interfaces = interfaces;
+        this.delay = delay;
         interfaces.put(connectionName, this);
     }
 
     public MBusConnection getMBusConnection() {
         return mBusConnection;
+    }
+
+    public int getDelay() {
+        return delay;
     }
 
     public void increaseConnectionCounter() {

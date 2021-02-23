@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,9 +26,11 @@ import org.openmuc.framework.data.BooleanValue;
 import org.openmuc.framework.data.ByteArrayValue;
 import org.openmuc.framework.data.ByteValue;
 import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.FloatValue;
 import org.openmuc.framework.data.IntValue;
 import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ShortValue;
 import org.openmuc.framework.data.StringValue;
 import org.openmuc.framework.data.TypeConversionException;
@@ -182,11 +184,14 @@ public class LinkedMappingHoldingRegister extends MappingInputRegister implement
     }
 
     private void writeChannel(Value value) {
-        if (useUnscaledValues) {
-            channel.write(new DoubleValue(value.asDouble() * channel.getScalingFactor()));
+        if (value != null) {
+            if (useUnscaledValues) {
+                channel.write(new DoubleValue(value.asDouble() * channel.getScalingFactor()));
+            }
+            else {
+                channel.write(value);
+            }
         }
-        else {
-            channel.write(value);
-        }
+        channel.setLatestRecord(new Record(Flag.CANNOT_WRITE_NULL_VALUE));
     }
 }

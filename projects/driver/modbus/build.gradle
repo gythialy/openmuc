@@ -7,31 +7,28 @@ def jrxtxversion = '1.0.1'
 
 dependencies {
     implementation project(':openmuc-core-spi')
+
     implementation group: 'org.openmuc', name: 'jrxtx', version: jrxtxversion
     implementation files('../../../dependencies/j2mod/j2mod-r100.jar')
     embed files('../../../dependencies/j2mod/j2mod-r100.jar')
+
+    testImplementation 'commons-codec:commons-codec:1.13'
 }
 
 jar {
-    manifest {
-        name = projectName
-        instruction 'Bundle-ClassPath', '.,lib/j2mod-r100.jar'
-        instruction 'Import-Package', '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion
-        instruction 'Export-Package', ''
-    }
-}
+    bnd('Bundle-Name': projectName, 'Bundle-ClassPath': '.,lib/j2mod-r100.jar',
+            'Import-Package': '!com.ghgande.j2mod*,gnu.io;resolution:=optional,*' + jarDefaultImportPackageVersion)
 
-jar {
     into('lib') {
         from configurations.embed
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name projectName
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
                 description projectDescription
             }
         }

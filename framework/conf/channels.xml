@@ -13,31 +13,50 @@
         <samplingInterval>5s</samplingInterval>
       </channel>
       <channel id="power_photovoltaics">
-        <description>pv_power_production</description>
+        <description>PV Power Production</description>
         <channelAddress>pv_power_production</channelAddress>
         <unit>W</unit>
         <samplingInterval>5s</samplingInterval>
+        <settings>tilt=30:azimuth=0</settings>
         <loggingInterval>5s</loggingInterval>
       </channel>
       <channel id="power_grid">
-        <description>grid_power</description>
+        <description>Grid Power</description>
         <channelAddress>grid_power</channelAddress>
         <unit>W</unit>
         <samplingInterval>5s</samplingInterval>
         <loggingInterval>5s</loggingInterval>
       </channel>
       <channel id="power_heatpump">
-        <description>hp_power_consumption</description>
+        <description>Heat Pump Power Consumption</description>
         <channelAddress>hp_power_consumption</channelAddress>
         <unit>W</unit>
         <samplingInterval>5s</samplingInterval>
         <loggingInterval>5s</loggingInterval>
       </channel>
       <channel id="power_electric_vehicle">
-        <description>ev_power_consumption</description>
+        <description>EV Power Consumption</description>
         <channelAddress>ev_power_consumption</channelAddress>
         <unit>W</unit>
         <samplingInterval>5s</samplingInterval>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+    </device>
+  </driver>
+  <driver id="aggregator">
+    <device id="aggregationdevice">
+      <samplingTimeout>55s</samplingTimeout>
+      <connectRetryInterval>1m</connectRetryInterval>
+      <channel id="ev_power_aggr">
+        <channelAddress>power_electric_vehicle:avg:0.9</channelAddress>
+        <samplingInterval>5s</samplingInterval>
+        <samplingTimeOffset>5s</samplingTimeOffset>
+        <loggingInterval>5s</loggingInterval>
+      </channel>
+      <channel id="power_photovoltaics_aggr">
+        <channelAddress>power_photovoltaics:avg:0.9</channelAddress>
+        <samplingInterval>5s</samplingInterval>
+        <samplingTimeOffset>5s</samplingTimeOffset>
         <loggingInterval>5s</loggingInterval>
       </channel>
     </device>

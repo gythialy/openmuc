@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-18 Fraunhofer ISE
+ * Copyright 2011-2021 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,29 +26,57 @@ import org.openmuc.framework.datalogger.spi.LogChannel;
 public class LogChannelTestImpl implements LogChannel {
 
     private final String id;
+    private final String channelAddress;
     private final String description;
     private final String unit;
     private final ValueType valueType;
+    private final Double scalingFactor;
+    private final Double valueOffset;
+    private final Boolean listening;
+    private final Integer samplingInterval;
+    private final Integer samplingTimeOffset;
+    private final String samplingGroup;
     private final Integer loggingInterval;
     private final Integer loggingTimeOffset;
+    private final Boolean disabled;
+    private final Boolean isEventLogging;
     private Integer valueLength;
 
-    public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
-            Integer loggingTimeOffset) {
+    public LogChannelTestImpl(String id, String channelAddress, String description, String unit, ValueType valueType,
+            Double scalingFactor, Double valueOffset, Boolean listening, Integer samplingInterval,
+            Integer samplingTimeOffset, String samplingGroup, Integer loggingInterval, Integer loggingTimeOffset,
+            Boolean disabled, Boolean isEventLogging) {
 
         this.id = id;
+        this.channelAddress = channelAddress;
         this.description = description;
         this.unit = unit;
         this.valueType = valueType;
+        this.scalingFactor = scalingFactor;
+        this.valueOffset = valueOffset;
+        this.listening = listening;
+        this.samplingInterval = samplingInterval;
+        this.samplingTimeOffset = samplingTimeOffset;
+        this.samplingGroup = samplingGroup;
         this.loggingInterval = loggingInterval;
         this.loggingTimeOffset = loggingTimeOffset;
+        this.disabled = disabled;
+        this.isEventLogging = isEventLogging;
     }
 
-    public LogChannelTestImpl(String id, String description, String unit, ValueType valueType, Integer loggingInterval,
-            Integer loggingTimeOffset, int valueLength) {
+    public LogChannelTestImpl(String id, String channelAddress, String description, String unit, ValueType valueType,
+            Double scalingFactor, Double valueOffset, Boolean listening, Integer samplingInterval,
+            Integer samplingTimeOffset, String samplingGroup, Integer loggingInterval, Integer loggingTimeOffset,
+            Boolean disabled, int valueLength, Boolean isEventLogging) {
 
-        this(id, description, unit, valueType, loggingInterval, loggingTimeOffset);
+        this(id, description, channelAddress, unit, valueType, scalingFactor, valueOffset, listening, samplingInterval,
+                samplingTimeOffset, samplingGroup, loggingInterval, loggingTimeOffset, disabled, isEventLogging);
         this.valueLength = valueLength;
+    }
+
+    @Override
+    public String getLoggingSettings() {
+        return "default";
     }
 
     @Override
@@ -92,4 +120,58 @@ public class LogChannelTestImpl implements LogChannel {
 
         return loggingTimeOffset;
     }
+
+    @Override
+    public String getChannelAddress() {
+
+        return channelAddress;
+    }
+
+    @Override
+    public Double getScalingFactor() {
+
+        return scalingFactor;
+    }
+
+    @Override
+    public Double getValueOffset() {
+
+        return valueOffset;
+    }
+
+    @Override
+    public Boolean isListening() {
+
+        return listening;
+    }
+
+    @Override
+    public Integer getSamplingInterval() {
+
+        return samplingInterval;
+    }
+
+    @Override
+    public Integer getSamplingTimeOffset() {
+
+        return samplingTimeOffset;
+    }
+
+    @Override
+    public String getSamplingGroup() {
+
+        return samplingGroup;
+    }
+
+    @Override
+    public Boolean isDisabled() {
+
+        return disabled;
+    }
+
+    @Override
+    public Boolean isLoggingEvent() {
+        return isEventLogging;
+    }
+
 }
