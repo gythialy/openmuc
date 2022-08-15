@@ -1,0 +1,193 @@
+=== OSGI
+[#osgi-lib]
+
+Bundle: openmuc-lib-osgi
+
+This library provides an API to make the usage of OSGi concepts more comfortable.
+Main goals are dynamic providing and subscription of OSGi services and their configuration.
+
+==== OSGi Service Registration
+
+This section covers:
+
+- How to provide your service to the OSGi service registry?
+- How to subscribe to a service provided by the OSGi service registry?
+
+===== RegistrationHandler
+First of all, an instance of RegistrationHandler has to be created. It takes an instance of
+org.osgi.framework.BundleContext as parameter, which can be obtained from the activate method.
+It is useful to define the RegistrationHandler as global attribute. So it can be used at different points in your code.
+
+```java
+@Activate
+public void activate(BundleContext context) {
+    RegistrationHandler registrationHandler = new RegistrationHandler(context);
+}
+```
+
+===== Providing a custom service
+[#provide-ref]
+For providing a new service class, the following method can be used. The example is based on our AmqpLogger. To use
+this method, it is required that your class implements the interface org.osgi.service.cm.ManagedService. Otherwise,
+it is impossible to use the dynamic configuration, which is described in the next section.
+If you don't want to use the dynamic configuration, the RegistrationHandler provides similar methods to provide OSGi
+services, which doesn't implement the ManagedService interface. +
+In our case, the first parameter is the class name of the DataLoggerService interface and the second is an instance of the class,
+which implements this interface. As third parameter the full qualified class name of our concrete implementation is used
+(pid), which is important for the configuration later.
+
+```java
+String pid = AmqpLogger.class.getName();
+registrationHandler.provideInFramework(DataLoggerService.class.getName(), amqpLogger, pid);
+```
+
+===== Subscribe for a service
+A subscription for a specific service can be done with the RegistrationHandler as well. The given example subscribes
+to all instances of the interface DataLoggerService. Handling of a new received service instance can be
+established with a lambda on a very comfortable way. The received instance has the type object and must be casted
+in the concrete type. It is advisable to check for null references, because it is possible, that no service
+registration exists or the provided service is removed. In this case, a null reference will be received from the
+OSGi Service Registry.
+
+```java
+registrationHandler.subscribeForService(DataLoggerService.class.getName(), (instance) -> {
+    if (instance != null)
+        this.loggerService = (DataLoggerService) instance;
+});
+```
+
+===== Clean up
+To keep the OSGi Service Registry clean, it is helpful to remove all provided services and subscriptions, when your
+bundle is going down. This can be done in the bundle specific deactivate method, like in the following example.
+Call the remove method of our RegistrationHandler. This removes your provided and subscribed services from the
+framework and avoids, that code of uninstalled bundles stays in the Service Registry.
+
+```java
+@Deactivate
+public void deactivate()  {
+    registrationHandler.removeAllProvidedServices();
+}
+```
+
+==== OSGi Dynamic Configuration
+[[anchor-osgi-dynamic-configuration]]
+
+OSGi provides the possibility to change the configuration of bundles at runtime. For this purpose the bundle FileInstall
+of the Apache Felix project (`org.apache.felix.fileinstall-*.jar`) must be added to the framework under framework/conf/bundles.conf.gradle.
+It is useful to define a directory where the configuration files will be stored. This can be configured in
+`conf/system.properties` e.g.:
+
+```
+##################### Felix FileInstall
+felix.fileinstall.dir=properties
+felix.fileinstall.poll=5000
+```
+
+For correct functionality it is important to create a subdirectory under framework/conf/ with the previous defined name,
+in this case `properties`. The following subsections help you to implement dynamic configurations for your service.
+
+===== PropertyHandler
+First of all it is required to build a class with all properties of your service, which should be updateable at runtime.
+Therefore, the class `GenericSettings` has to be extended like in this example.
+
+```java
+public class Settings extends GenericSettings {
+
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String PORT = "port";
+    public static final String HOST = "host";
+
+    public Settings() {
+        super();
+        properties.put(USERNAME, new ServiceProperty(USERNAME, "name of your AMQP account", null, true));
+        properties.put(PASSWORD, new ServiceProperty(PASSWORD, "password of your AMQP account", null, true));
+        properties.put(PORT, new ServiceProperty(PORT, "port for AMQP communication", null, true));
+        properties.put(HOST, new ServiceProperty(HOST, "URL of AMQP broker", "localhost", true));
+    }
+}
+```
+
+Extend the given property map with new instances of the class `ServiceProperty`. The instantiation needs the key and
+description of the property. Furthermore, you can provide a default value and mark the property as optional or mandatory.
+The OSGi lib will validate the configuration against the mandatory flag and will report a waring if a mandatory property
+is missing. +
+The next step is to instantiate the `PropertyHandler` with this settings and the pid which corresponds
+to the class implementing the ManagedService. The following examples is based on the AmqpLogger:
+
+```java
+
+public class AmqpLogger implements DataLoggerService, ManagedService {
+
+    ...
+
+    public AmqpLogger() {
+        String pid = AmqpLogger.class.getName();
+        settings = new Settings();
+        propertyHandler = new PropertyHandler(settings, pid);
+    }
+```
+
+At bundle start a new .cfg file with default values is created in the `properties` subdirectory e.g.:
+`org.openmuc.framework.datalogger.amqp.AmqpLogger.cfg`
+
+```
+# name of your AMQP account
+username=
+
+# password of your AMQP account
+password=
+
+# port for AMQP communication
+port=
+
+# URL of AMQP broker
+host=localhost
+```
+
+If the .cfg file already exists at bundle start then this file is used and will not be overwritten with default values.
+This text file can be edited multiple times at runtime and will be parsed from Apache Felix FileInstall after it is saved.
+The file is parsed as an instance of the java type Dictionary and is given to the linked service. This linking is
+described in the following subsection.
+
+*NOTE:* If you develop a new service with dynamic configuration, then run the framework once, so that the openmuc-lib-osgi
+generates the .cfg file with default values for you. Afterwards, you can edit the file.
+
+===== Managed Service
+For updating a service class at runtime, it has to implement the interface org.osgi.service.cm.ManagedService.
+This interface defines a method `public void updated(Dictionary<String, ?> propertyDict)`.
+Every time the properties in the internal OSGi database for this specific service are updated,
+for example through the Apache Felix FileInstall,
+the method is called with a new instance of type Dictionary. The linking of this ManagedService with the configuration
+file is done by using the same name for the service registration in subsection <<provide-ref>> and
+instantiating our `PropertyHandler`. Because of this, the name of the configuration
+file and the full qualified class name are equal. +
+The given dictionary contains key-value pairs with the properties of the service specific settings class and can be
+handled like in the following example:
+
+```java
+@Override
+public void updated(Dictionary<String, ?> propertyDict) throws ConfigurationException {
+    DictionaryPreprocessor dict = new DictionaryPreprocessor(propertyDict);
+    if (!dict.wasIntermediateOsgiInitCall()) {
+        tryProcessConfig(dict);
+    }
+}
+
+private void tryProcessConfig(DictionaryPreprocessor newConfig) {
+    try {
+        propertyHandler.processConfig(newConfig);
+        if (propertyHandler.configChanged()) {
+            //Properties are updated, trigger a service specific reaction
+        }
+    } catch (ServicePropertyException e) {
+        logger.error("update properties failed", e);
+        //Do some reaction till properties are valid again
+    }
+}
+```
+*NOTE:* Since the configuration can be changed at any time you need to implement a robust handling of the properties.
+Depending on your service you might validate the properties against each other. In general, the user could update
+just one property and saves the properties. This could result in a inconsistent property combination. You either make sure
+that the user knows that he should change property x, y and z at once or you implement a robust handling (better option).
+For example, this could require to close the current communication connection and reconnect with the new properties.

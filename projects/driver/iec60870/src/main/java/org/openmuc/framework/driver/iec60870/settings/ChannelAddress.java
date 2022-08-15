@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -32,7 +32,7 @@ public class ChannelAddress extends GenericSetting {
     protected int multiple = 1;
     protected boolean select = false;
 
-    protected static enum Option implements OptionI {
+    protected enum Option implements OptionI {
         COMMON_ADDRESS("ca", Integer.class, true),
         TYPE_ID("t", Integer.class, true),
         IOA("ioa", Integer.class, true),

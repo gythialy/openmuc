@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,15 +21,18 @@
 
 package org.openmuc.framework.lib.osgi.config;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class PropertyHandlerTest {
 
@@ -112,6 +115,26 @@ class PropertyHandlerTest {
         DictionaryPreprocessor config = new DictionaryPreprocessor(defaultDic);
         propertyHandler.processConfig(config);
         assertFalse(propertyHandler.configChanged());
+    }
+
+    @Test
+    void toStringDoesNotShowPassword() {
+        PropertyHandler propertyHandler = new PropertyHandler(settings, pid);
+        DictionaryPreprocessor config = new DictionaryPreprocessor(defaultDic);
+
+        assertTrue(!propertyHandler.toString().contains("password=openmuc"));
+        assertTrue(propertyHandler.toString().contains("password=*****"));
+    }
+
+    @Test
+    void noMoreNullPointerExceptions() {
+        PropertyHandler propertyHandler = new PropertyHandler(settings, pid);
+        DictionaryPreprocessor config = new DictionaryPreprocessor(defaultDic);
+        assertFalse(propertyHandler.hasValueForKey("thisDoesNotExist"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> propertyHandler.getBoolean("thisDoesNotExist"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> propertyHandler.getDouble("thisDoesNotExist"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> propertyHandler.getInt("thisDoesNotExist"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> propertyHandler.getString("thisDoesNotExist"));
     }
 
     class Settings extends GenericSettings {

@@ -1,0 +1,30 @@
+<div id="dashboard-grid" class="row" ng-controller="TabsController">
+
+  <div ng-if="confFile" ng-repeat="plotter in confFile" class="item col-lg-3 text-center">
+	  <a ng-click="setTabIndex(plotter.name)" ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})" class="btn btn-grid btn-block">
+	    <span class="item-icon" aria-hidden="true">
+	      <img src="dataplotter/images/icon.png" />
+	    </span>
+	    {{plotter.name}}
+	  </a>
+  </div>
+
+  <div ng-if="!confFile" class="item col-lg-3 text-center">
+	  <a ui-sref="dataplotter.data" class="btn btn-grid btn-block">
+	    <span class="item-icon" aria-hidden="true">
+	      <img src="dataplotter/images/icon.png" />
+	    </span>
+	    {{'DATA_PLOTTER' | translate}}
+	  </a>
+
+    <div class="item col-lg-3 text-center"></div>
+      <a ui-sref="dataplotter.live" class="btn btn-grid btn-block">
+        <span class="item-icon" aria-hidden="true">
+          <img src="dataplotter/images/icon.png" />
+        </span>
+        {{'LIVE_PLOTTER' | translate}}
+      </a>
+    </div>
+  </div>
+  
+</div>

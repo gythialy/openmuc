@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,10 +21,10 @@
 
 package org.openmuc.framework.datalogger.spi;
 
-import org.openmuc.framework.data.Record;
-
 import java.io.IOException;
 import java.util.List;
+
+import org.openmuc.framework.data.Record;
 
 public interface DataLoggerService {
 
@@ -37,8 +37,10 @@ public interface DataLoggerService {
      * <p>
      * NOTE: Implementation of this method should be non blocking to avoid blocking in the data manager.
      *
-     * @param containers containers to log
-     * @param timestamp  logging timestamp
+     * @param containers
+     *            containers to log
+     * @param timestamp
+     *            logging timestamp
      */
     void log(List<LoggingRecord> containers, long timestamp);
 
@@ -50,13 +52,29 @@ public interface DataLoggerService {
      * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
      * the channel with the given <code>channelId</code>.
      *
-     * @param channelId the channel ID.
-     * @param startTime the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
-     * @param endTime   the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param channelId
+     *            the channel ID.
+     * @param startTime
+     *            the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param endTime
+     *            the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
      * @return a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code> for
-     * the channel with the given <code>channelId</code>.
-     * @throws IOException if any kind of error occurs accessing the logged data.
+     *         the channel with the given <code>channelId</code>.
+     * @throws IOException
+     *             if any kind of error occurs accessing the logged data.
      */
     List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException;
 
+    /**
+     * Returns the Record with the highest timestamp available in all logged data for the channel with the given
+     * <code>channelId</code>. If there are multiple Records with the same timestamp, results may not be consistent.
+     * Null if no Record was found.
+     * 
+     * @param channelId
+     *            the channel ID.
+     * @return the Record with the highest timestamp available in all logged data for the channel with the given
+     *         <code>channelId</code>
+     * @throws IOException
+     */
+    Record getLatestLogRecord(String channelId) throws IOException;
 }

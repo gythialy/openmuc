@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -150,7 +150,10 @@ public class ChannelResourceServlet extends GenericServlet {
         String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
         String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
         String channelId = pathInfoArray[0].replace("/", "");
-        FromJson json = new FromJson(ServletLib.getJsonText(request));
+        FromJson json = ServletLib.getFromJson(request, logger, response);
+        if (json == null) {
+            return;
+        }
 
         if (pathInfoArray.length == 1) {
             setAndWriteChannelConfig(channelId, response, json, false);
@@ -173,7 +176,10 @@ public class ChannelResourceServlet extends GenericServlet {
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
             String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
             String channelId = pathInfoArray[0].replace("/", "");
-            FromJson json = new FromJson(ServletLib.getJsonText(request));
+            FromJson json = ServletLib.getFromJson(request, logger, response);
+            if (json == null) {
+                return;
+            }
 
             if (pathInfoArray.length < 1) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,
@@ -510,11 +516,11 @@ public class ChannelResourceServlet extends GenericServlet {
 
         if (record.getFlag() == null) {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger,
-                    "No flag setted.");
+                    "No flag set.");
         }
         else if (record.getValue() == null) {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_ACCEPTABLE, logger,
-                    "No value setted.");
+                    "No value set.");
         }
         else {
             Long timestamp = record.getTimestamp();
@@ -530,12 +536,16 @@ public class ChannelResourceServlet extends GenericServlet {
         Channel channel = dataAccess.getChannel(channelId);
 
         Value value = json.getValue(channel.getValueType());
-        Flag flag = channel.write(value);
+        Flag flag = writeToChannel(channel, value);
 
         if (flag != Flag.VALID) {
             ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_CONFLICT, logger,
                     "Problems by writing to channel. Flag = " + flag.toString());
         }
+    }
+
+    public static Flag writeToChannel(Channel channel, Value value) {
+        return channel.write(value);
     }
 
     private void setConfigAccess() {

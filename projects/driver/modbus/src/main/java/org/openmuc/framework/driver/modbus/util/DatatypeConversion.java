@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -395,11 +395,7 @@ public class DatatypeConversion {
      */
     public static int bytes_To_UnsignedInt8(byte[] data, int index) {
 
-        if (index < 0) {
-            throw new IndexOutOfBoundsException("Negative index. Index must be >= 0");
-        }
-
-        if (index >= data.length) {
+        if ((index < 0) || (index >= data.length)) {
             throw new IndexOutOfBoundsException("Negative index. Index must be >= 0");
         }
 

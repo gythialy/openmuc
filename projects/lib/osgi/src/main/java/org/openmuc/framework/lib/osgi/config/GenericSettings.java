@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,7 +21,7 @@
 
 package org.openmuc.framework.lib.osgi.config;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -48,7 +48,7 @@ public class GenericSettings {
     protected Map<String, ServiceProperty> properties;
 
     protected GenericSettings() {
-        properties = new HashMap<>();
+        properties = new LinkedHashMap<>();
     }
 
     public Map<String, ServiceProperty> getProperties() {

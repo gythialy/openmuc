@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -23,6 +23,7 @@ package org.openmuc.framework.config;
 
 /**
  * Class holding the information of a scanned device.
+ * 
  */
 public class DeviceScanInfo {
 
@@ -41,7 +42,8 @@ public class DeviceScanInfo {
         }
         if (id == null || id.isEmpty()) {
             this.id = deviceAddress.replaceAll("[^a-zA-Z0-9]+", "");
-        } else {
+        }
+        else {
             this.id = id;
         }
 
@@ -49,13 +51,15 @@ public class DeviceScanInfo {
 
         if (settings == null) {
             this.settings = "";
-        } else {
+        }
+        else {
             this.settings = settings;
         }
 
         if (description == null) {
             this.description = "";
-        } else {
+        }
+        else {
             this.description = description;
         }
 
@@ -63,7 +67,7 @@ public class DeviceScanInfo {
 
     /**
      * Gets the ID. The ID is generated out of interface + device address. Special chars are omitted.
-     *
+     * 
      * @return the id
      */
     public String getId() {
@@ -72,7 +76,7 @@ public class DeviceScanInfo {
 
     /**
      * Gets the description.
-     *
+     * 
      * @return the description
      */
     public String getDescription() {
@@ -81,7 +85,7 @@ public class DeviceScanInfo {
 
     /**
      * Gets the device address
-     *
+     * 
      * @return the device address
      */
     public String getDeviceAddress() {
@@ -90,7 +94,7 @@ public class DeviceScanInfo {
 
     /**
      * Gets the settings
-     *
+     * 
      * @return the settings
      */
     public String getSettings() {

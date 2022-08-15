@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,8 +21,8 @@
 package org.openmuc.framework.lib.ssl;
 
 import org.openmuc.framework.lib.osgi.deployment.RegistrationHandler;
+import org.openmuc.framework.security.SslManagerInterface;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -30,15 +30,13 @@ import org.slf4j.LoggerFactory;
 
 @Component
 public class SslManagerComponent {
-    private static final Logger logger = LoggerFactory.getLogger(SslManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(SslManagerComponent.class);
 
     @Activate
     protected void activate(BundleContext context) {
         logger.info("SSL Component activated");
         RegistrationHandler registrationHandler = new RegistrationHandler(context);
-        Settings settings = new Settings();
-        SslManager.getInstance().newSettings(settings);
-        registrationHandler.provideInFrameworkWithoutManagedService(ManagedService.class.getName(), settings,
+        registrationHandler.provideInFramework(SslManagerInterface.class.getName(), new SslManager(),
                 SslManager.class.getName());
     }
 }

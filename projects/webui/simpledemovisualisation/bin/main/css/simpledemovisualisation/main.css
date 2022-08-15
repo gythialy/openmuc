@@ -1,0 +1,22 @@
+html, body {
+    font-family: "Arial";
+    margin: 0px;
+    padding: 0px;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 1108px;
+    height: 760px;
+    border:1px solid black;
+}
+
+.svg-content {
+    display: block;
+    position: absolute;
+    width: 1106px;
+    height: 740px;
+    top: 0;
+    left: 0;
+}

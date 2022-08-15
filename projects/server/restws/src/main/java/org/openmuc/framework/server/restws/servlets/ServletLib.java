@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -26,6 +26,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.openmuc.framework.lib.rest1.FromJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,19 @@ public class ServletLib {
         return text.toString();
     }
 
+    protected static FromJson getFromJson(HttpServletRequest request, Logger logger, HttpServletResponse response) {
+        FromJson json = null;
+        try {
+            json = new FromJson(ServletLib.getJsonText(request));
+        } catch (Exception e) {
+            ServletLib.sendHTTPErrorAndLogWarn(response, HttpServletResponse.SC_BAD_REQUEST, logger,
+                    "Malformed JSON message: ", e.getMessage());
+        }
+        return json;
+    }
+
     /**
-     * Only the first String will be sent over HTTP response.
+     * Send HTTP Error and log as warning. Only the first String will be sent over HTTP response.
      * 
      * @param response
      *            HttpServletResponse response
@@ -79,8 +91,17 @@ public class ServletLib {
         }
     }
 
-    /*
-     * Only the first String will be sent over HTTP response.
+    /**
+     * Send HTTP Error and log as debug. Only the first String will be sent over HTTP response.
+     * 
+     * @param response
+     *            HttpServletResponse response
+     * @param errorCode
+     *            error code
+     * @param logger
+     *            logger
+     * @param msg
+     *            message array
      */
     protected static void sendHTTPErrorAndLogDebug(HttpServletResponse response, int errorCode, Logger logger,
             String... msg) {
@@ -98,8 +119,17 @@ public class ServletLib {
         }
     }
 
-    /*
-     * Logger and HTTP response are the same message.
+    /**
+     * Send HTTP Error and log as error. Logger and HTTP response are the same message.
+     * 
+     * @param response
+     *            HttpServletResponse response
+     * @param errorCode
+     *            error code
+     * @param logger
+     *            logger
+     * @param msg
+     *            message array
      */
     protected static void sendHTTPErrorAndLogErr(HttpServletResponse response, int errorCode, Logger logger,
             String... msg) {

@@ -1,0 +1,51 @@
+.plotter-place-holder {
+  max-width: 90%;
+  min-height: 400px;
+  margin: auto;
+}
+
+#plotter-grid {
+  margin-bottom: 30px;
+}
+
+#plotter-grid .item {
+  margin-bottom: 20px;
+}
+
+#plotter-grid .item .item-label {
+  display: block;
+  padding: 10px 15px 20px 15px;
+  font-weight: bold;
+}
+
+#plotter-grid .item .item-icon {
+  display: block;
+  font-size: 36px;
+  padding-bottom: 15px;
+  color: #00947a;
+}
+
+.nav-tabs > li > a.table-active, .nav-tabs > li > a.table-active:hover, .nav-tabs > li > a.table-active:focus {
+	color: #555;
+	cursor: default;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+}
+
+.nv-x.nv-axis .nvd3.nv-wrap.nv-axis text{
+  font-size: 7px;
+}
+
+.nv-y.nv-axis .nvd3.nv-wrap.nv-axis text{
+  font-size: 7px;
+}
+
+.nv-legendWrap .nvd3.nv-legend .nv-series .nv-legend-text{
+  font-weight: normal;
+  font-size: 7px;
+}
+
+.nvd3 g.nv-groups path.nv-line {
+  stroke-width: 1px;
+}

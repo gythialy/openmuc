@@ -1,0 +1,90 @@
+=== M-Bus (wired)
+
+M-Bus is communication protocol to read out meters.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | mbus
+|Device Address |   <serial_port>:<mbus_address> or
+tcp:<host_address>:<port>
+|Settings |   [<baudrate>][:timeout][:lr][:ar][:d<delay>]
+[:tc<tcp_connection_timeout>]
+|Channel Address |   [X]<dib>:<vib>
+|=========================================================
+
+*Device Address*
+
+<serial_port> - The serial port should be given that connects to the M-Bus converter.
+(e.g. /dev/ttyS0, /dev/ttyUSB0 on Linux).
+
+<mbus_address> - The mbus adrdess can either be the the primary address or secondary
+address of the meter. The primary address is specified as integer
+(e.g. 1 for primary address 1) whereas the secondary address consits of 8 bytes
+that should be specified in hexadecimal form. (e.g. e30456a6b72e3e4e)
+
+tcp - with this option M-Bus over TCP is used.
+
+<host_address> - The host address for M-Bus over TCP e.g. 192.168.8.89.
+
+<port> - The TCP port for M-Bus over TCP e.g. 5369
+
+*Settings*
+
+<baudrate> - If left empty the default is used: "2400"
+
+<timeout> - Defines the read timeout in ms. Default is 2500 ms. Example: t5000
+for timeout of 5 seconds
+
+<lr> - Link reset before readout.
+
+<ar> - Application reset before readout.
+
+d<delay> - Inserts a delay between every message, including link reset and application
+reset. Delay in ms.
+A delay with 100 ms and activated link reset and application reset results in a total
+delay of 300 ms.
+
+tc<tcp_connection_timeout> - The TCP connection timeout is need for a defined timeout
+when no TCP connection could established.
+
+*Channel Address*
+
+Shall be of the format <dib>:<vib> in a hexadecimal string format (e.g. 04:03 or 02:fd48)
+The X option is used for selecting a specific data record.
+
+=== M-Bus (wireless)
+
+Wireless M-Bus is communication protocol to read out meters and sensors.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | wmbus
+|Device Address |   <serial_port>:<secondary_address>
+|Settings |  <transceiver> <mode> [<key>]
+|Channel Address |   <dib>:<vib>
+|=========================================================
+
+*Device Address*
+
+<serial_port> - The serial port used for communication. Examples are /dev/ttyS0
+(Linux) or COM1 (Windows)
+
+<secondary_address> - The secondary address consists of 8 bytes that should be
+specified in hexadecimal form. (e.g. e30456a6b72e3e4e)
+
+*Settings*
+
+<transceiver> - The transceiver being used. It can be 'amber' or 'rc' for modules
+from RadioCrafts.
+
+<mode> - The wM-Bus mode can be S or T.
+
+<key> - The key in hexadecimal form.
+
+*Channel Address*
+
+Shall be of the format <dib>:<vib> in a hexadecimal string format (e.g. 04:03 or 02:fd48)
+
+

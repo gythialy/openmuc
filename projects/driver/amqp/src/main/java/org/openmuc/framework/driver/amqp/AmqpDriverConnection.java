@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -49,6 +49,7 @@ import org.openmuc.framework.lib.amqp.AmqpSettings;
 import org.openmuc.framework.lib.amqp.AmqpWriter;
 import org.openmuc.framework.parser.spi.ParserService;
 import org.openmuc.framework.parser.spi.SerializationException;
+import org.openmuc.framework.security.SslManagerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,8 @@ public class AmqpDriverConnection implements Connection {
         setting = new Setting(settings);
 
         AmqpSettings amqpSettings = new AmqpSettings(deviceAddress, setting.port, setting.vhost, setting.user,
-                setting.password, setting.ssl, setting.exchange);
+                setting.password, setting.ssl, setting.exchange, setting.persistenceDir, setting.maxFileCount,
+                setting.maxFileSize, setting.maxBufferSize, setting.connectionAliveInterval);
 
         try {
             connection = new AmqpConnection(amqpSettings);
@@ -79,7 +81,7 @@ public class AmqpDriverConnection implements Connection {
         } catch (IOException e) {
             throw new ConnectionException("Not able to connect to " + deviceAddress + " " + setting.vhost, e);
         }
-        writer = new AmqpWriter(connection);
+        writer = new AmqpWriter(connection, "amqpdriver");
         reader = new AmqpReader(connection);
     }
 
@@ -124,7 +126,7 @@ public class AmqpDriverConnection implements Connection {
                 }
 
                 addMessageToContainerList(record, container);
-                if (recordContainerList.size() >= setting.bufferSize) {
+                if (recordContainerList.size() >= setting.recordCollentionSize) {
                     notifyListenerAndPurgeList(listener);
                 }
             });
@@ -177,7 +179,7 @@ public class AmqpDriverConnection implements Connection {
                 } catch (SerializationException e) {
                     logger.error(e.getMessage());
                 }
-                writer.write(setting.framework + '.' + container.getChannelAddress(), message);
+                writer.write(container.getChannelAddress(), message);
                 container.setFlag(Flag.VALID);
             }
             else {
@@ -212,6 +214,10 @@ public class AmqpDriverConnection implements Connection {
         return record;
     }
 
+    public void setSslManager(SslManagerInterface instance) {
+        connection.setSslManager(instance);
+    }
+
     private class Setting {
         private static final String SEPARATOR = ";";
         private static final String SETTING_VALUE_SEPARATOR = "=";
@@ -224,8 +230,13 @@ public class AmqpDriverConnection implements Connection {
         private String parser;
         private String exchange;
         private String frameworkChannelSeparator = ".";
-        private int bufferSize = 1;
+        private int recordCollentionSize = 1;
         private boolean ssl = true;
+        private int maxBufferSize = 1024;
+        private int maxFileSize = 5120;
+        private int maxFileCount = 0;
+        private String persistenceDir = "data/amqp/driver";
+        private int connectionAliveInterval = 60;
 
         Setting(String settings) throws ArgumentSyntaxException {
             separate(settings);
@@ -275,8 +286,8 @@ public class AmqpDriverConnection implements Connection {
                 case "parser":
                     parser = settingP1.toLowerCase();
                     break;
-                case "buffersize":
-                    bufferSize = parseInt(settingP1);
+                case "recordCollectionSize":
+                    recordCollentionSize = parseInt(settingP1);
                     break;
                 case "ssl":
                     ssl = Boolean.parseBoolean(settingP1);
@@ -286,6 +297,21 @@ public class AmqpDriverConnection implements Connection {
                     break;
                 case "exchange":
                     exchange = settingP1;
+                    break;
+                case "maxFileSize":
+                    maxFileSize = parseInt(settingP1);
+                    break;
+                case "maxFileCount":
+                    maxFileCount = parseInt(settingP1);
+                    break;
+                case "maxBufferSize":
+                    maxBufferSize = parseInt(settingP1);
+                    break;
+                case "persistenceDirectory":
+                    persistenceDir = settingP1;
+                    break;
+                case "connectionAliveInterval":
+                    connectionAliveInterval = parseInt(settingP1);
                     break;
                 default:
                     throw new ArgumentSyntaxException("Invalid setting given: " + settingP0);

@@ -1,0 +1,60 @@
+[#parser-lib]
+=== Parser-Service
+
+The Parser-Service is part of the OpenMUC core SPI bundle and provides methods to serialize and deserialize
+OpenMUC records. It is used by the MQTT and AMQP logger but can be also used inside OpenMUC drivers and applications.
+
+==== Accessing a specific Parser-Service
+
+Bundles implementing the ParserService interface (like the OpenMUC-Parser see below) registering their parserID at the
+OSGi service registry. The following code describes, how a Parser-Service and its ID can be accessed. The given
+parserID makes it possible to identify the concrete implementation, e.g. "openmuc". Therefore is the instance
+of the given BundleContext needed.
+
+[source,xml]
+----
+String serviceInterfaceName = ParserService.class.getName();
+ServiceReference<?> serviceReference = bundleContext.getServiceReference(serviceInterfaceName);
+
+if (serviceReference != null) {
+    String parserId = (String) serviceReference.getProperty("parserID");
+    ParserService parser = (ParserService) bundleContext.getService(serviceReference);
+}
+----
+
+Alternatively it's possible to import and instantiate a Parser-Implementation over the java classpath.
+But this increases the dependencies of your bundle and prevents the advantages of OSGi.
+
+A more complex example with event based registration can be found in the implementation of the MQTT logger.
+
+==== OpenMUC-Parser
+
+The default OpenMUC-Parser is provided in the openmuc-lib-parser-openmuc project. It implements the
+ParserService-Interface for serialisation and deserialisation of OpenMUC Records. This services is provided and
+can be accessed over the OSGi service registry as shown in the section before.
+It registers its service with the value "openmuc" for the property "parserID".
+The serialized message is represented in JSON with the following format.
+
+[source,xml]
+----
+{"timestamp":1587974340000,"flag":"VALID","value":6.67}
+----
+
+==== Custom Parser
+
+For adding a custom parser to OpenMUC, the ParserService-Interface from the SPI-Project has to be implemented. After
+this the implementation must be registered in the OSGi service registry. Therefore use the given instance of your
+BundleContext.
+
+[source,xml]
+----
+@Activate
+public void activate(BundleContext context) {
+    Dictionary<String, Object> properties = new Hashtable<>();
+    properties.put("parserID", "<myCustomParser>");
+
+    String serviceName = ParserService.class.getName();
+
+    registration = context.registerService(serviceName, new MyParserServiceImpl(), properties);
+}
+----

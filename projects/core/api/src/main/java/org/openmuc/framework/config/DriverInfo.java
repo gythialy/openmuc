@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,16 +31,22 @@ public class DriverInfo {
 
     /**
      * Constructor to set driver info
-     *
-     * @param id                       driver ID
-     * @param description              driver description
-     * @param deviceAddressSyntax      device address syntax
-     * @param settingsSyntax           device settings syntax
-     * @param channelAddressSyntax     channel address syntax
-     * @param deviceScanSettingsSyntax device scan settings syntax
+     * 
+     * @param id
+     *            driver ID
+     * @param description
+     *            driver description
+     * @param deviceAddressSyntax
+     *            device address syntax
+     * @param settingsSyntax
+     *            device settings syntax
+     * @param channelAddressSyntax
+     *            channel address syntax
+     * @param deviceScanSettingsSyntax
+     *            device scan settings syntax
      */
     public DriverInfo(String id, String description, String deviceAddressSyntax, String settingsSyntax,
-                      String channelAddressSyntax, String deviceScanSettingsSyntax) {
+            String channelAddressSyntax, String deviceScanSettingsSyntax) {
         this.id = id;
         this.description = description;
         this.deviceAddressSyntax = deviceAddressSyntax;
@@ -52,7 +58,7 @@ public class DriverInfo {
     /**
      * Returns the ID of the driver. The ID may only contain ASCII letters, digits, hyphens and underscores. By
      * convention the ID should be meaningful and all lower case letters (e.g. "mbus", "modbus").
-     *
+     * 
      * @return the unique ID of the driver.
      */
     public String getId() {

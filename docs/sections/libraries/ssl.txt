@@ -1,0 +1,32 @@
+[[anchor-lib-ssl]]
+=== SSL
+
+*Key/Trust Store*
+
+To get the certificates of a server one can easily use a browser and click on the lock sign next to the URL to download it.
+Alternatively on *nix one can use the tool openssl:
+[source]
+openssl s_client -connect host:port -showcerts [-proxy host:port]
+
+Copy the needed certificates into a file i.e. `cert.crt` (beginning with `-----BEGIN CERTIFICATE-----` ending with `-----END CERTIFICATE-----`. Add them to the store:
+[source]
+keytool -keystore conf/truststore.jks -importcert cert.crt
+
+The default password is `changeme`. We want to change that:
+[source]
+keytool -keystore conf/truststore.jks -storepasswd
+
+You can also import certificates from another store. Prefer importing over just using the other store directly as the store type needs to be `PKCS#12`.
+[source]
+keytool -importkeystore -srckeystore otherstore.jks -destkeystore conf/truststore.jks
+
+Editing `conf/keystore.jks` is done analog to the Trust Store.
+
+Edit `/conf/system.properties` to reflect the changes:
+[source]
+----
+org.openmuc.framework.truststore = conf/truststore.jks
+org.openmuc.framework.keystore = conf/keystore.jks
+org.openmuc.framework.truststorepassword = changeme
+org.openmuc.framework.keystorepassword = changeme
+----

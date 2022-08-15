@@ -1,0 +1,79 @@
+<h3 class="sub-category-heading">{{'SCAN_DRIVER' | translate}} {{driver.id}}</h3>
+
+<form name="scanDriverForm" class="form-horizontal" ng-init="getDeviceScanSettingsSyntax()" novalidate>
+  <div class="form-group">
+    <label for="settings" class="col-md-2 control-label">
+      <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'SCAN_DRIVER_SETTINGS_HINT' | translate}}"></span>
+      Settings
+    </label>
+    <div class="col-md-4">
+      <input type="text" class="form-control" name="settings" ng-model="settings">
+      <p class="help-block">{{'SCAN_SETTINGS_SYNTAX' | translate}}: {{deviceScanSettingsSyntax}}</p>
+    </div>
+  </div>
+
+  <div class="col-md-6 text-right">
+    <button name="scanInterruptButton" class="btn btn-primary" ng-disabled="!scanDriverForm.submitted" ng-click="interruptScan()">{{'SCAN_INTERRUPT' | translate}}</button>
+    <button name="scanDrivertButton" class="btn btn-primary" ng-disabled="scanDriverForm.submitted" ng-click="scanDriver()">
+      <span ng-show="scanDriverForm.submitted">{{'SCANNING' | translate}} <i class="fa fa-spinner fa-pulse"></i></span>
+      <span ng-show="!scanDriverForm.submitted">{{'SCAN_FOR_DEVICES' | translate}}</span>
+    </button>
+  </div>
+</form>
+
+<br />
+<br />
+<br />
+
+<div id="progressBarBackground" ng-show="scanDriverForm.submitted && scanProgress >= 0">
+    <div id="progressBarForeground">
+        <div id="progressBarLabel">0%</div>
+    </div>
+</div>
+
+<div ng-if="scanInterrupted" style="font-weight: bold"><span class="item-icon fa fa-warning" aria-hidden="true"></span>   {{'SCAN_WAS_INTERRUPTED' | translate}} {{scanError}}</div>
+
+<br />
+<br />
+<br />
+
+<table class="table table-hover" ng-show="devices.length">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>{{'DEVICE_ID' | translate}}</th>
+      <th>{{'DEVICE_DESCRIPTION' | translate}}</th>
+      <th>{{'DEVICE_ADDRESS' | translate}}</th>
+      <th>{{'DEVICE_SETTINGS' | translate}}</th>
+    </tr>
+  </thead>
+
+  <tr ng-repeat="device in devices">
+    <td><input type="checkbox" name="checkboxes" checklist-model="selectedDevices" checklist-value="device"></td>
+	  <td>
+        <input type="text" class="form-control" name="id" id="id" ng-model="device.configs.id" required="required" ng-class="{true: 'form-submitted', false: ''}[deviceForm.submitted]" ng-pattern="/^[a-zA-Z0-9_\-]*$/">
+        <div class="form-error-container" ng-show="(deviceForm.id.$dirty && deviceForm.id.$invalid) || (deviceForm.submitted && deviceForm.id.$invalid)"></div>
+        <div class="form-error-message" ng-show="deviceForm.id.$error.required">{{'DEVICE_ID_REQUIRED' | translate}}.</div>
+        <div class="form-error-message" ng-show="deviceForm.id.$error.pattern">{{'DEVICE_ID_PATTERN_INCORRECT' | translate}}</div>
+      </td>
+	  <td>{{device.configs.description}}</td>
+	  <td>{{device.configs.deviceAddress}}</td>
+	  <td>{{device.configs.settings}}</td>
+  </tr>
+  <tr>
+    <td><input type="checkbox" ng-model="master" ng-click="checkAll()"></td>
+    <td>{{'SELECT_ALL' | translate}}</td>
+  </tr>
+</table>
+
+<div ng-if="devices.length" ng-controller="TabsController">
+  <button class="btn btn-primary" ng-click="addDevices(); setTabIndex(1)" ng-disabled="selectedDevices.length == 0">{{'ADD_DEVICES' | translate}}</button>
+</div>
+
+
+
+
+
+
+
+

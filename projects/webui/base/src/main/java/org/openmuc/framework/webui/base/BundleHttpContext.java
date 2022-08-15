@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,17 +20,18 @@
  */
 package org.openmuc.framework.webui.base;
 
-import org.osgi.framework.Bundle;
-import org.osgi.service.http.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.osgi.framework.Bundle;
+import org.osgi.service.http.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BundleHttpContext implements HttpContext {
 
@@ -53,7 +54,8 @@ public class BundleHttpContext implements HttpContext {
         String pathname = System.getProperty("user.dir") + name;
         if (name.startsWith("/media/")) {
             return findUrl(pathname, "*");
-        } else if (name.startsWith("/conf/webui/")) {
+        }
+        else if (name.startsWith("/conf/webui/")) {
             return findUrl(pathname, ".conf");
         }
         return contextBundle.getResource(name);
@@ -83,19 +85,26 @@ public class BundleHttpContext implements HttpContext {
     public String getMimeType(String file) {
         if (file.endsWith(".jpg")) {
             return "image/jpeg";
-        } else if (file.endsWith(".png")) {
+        }
+        else if (file.endsWith(".png")) {
             return "image/png";
-        } else if (file.endsWith(".js")) {
+        }
+        else if (file.endsWith(".js")) {
             return "text/javascript";
-        } else if (file.endsWith(".css")) {
+        }
+        else if (file.endsWith(".css")) {
             return "text/css";
-        } else if (file.endsWith(".html")) {
+        }
+        else if (file.endsWith(".html")) {
             return "text/html";
-        } else if (file.endsWith(".pdf")) {
+        }
+        else if (file.endsWith(".pdf")) {
             return "application/pdf";
-        } else if (file.startsWith("/conf/webui")) {
+        }
+        else if (file.startsWith("/conf/webui")) {
             return "application/json";
-        } else {
+        }
+        else {
             return "text/html";
         }
     }

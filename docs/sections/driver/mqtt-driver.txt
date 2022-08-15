@@ -1,0 +1,83 @@
+=== MQTT
+
+The MQTT-Driver connects OpenMUC to a MQTT-Broker. It enables OpenMUC to listen on topics and write records and
+messages to topics. The driver is based on our MQTT-Library, which is described in section <<mqtt-lib>>. For configuration
+of the MQTT-Connection, the values from the following table have to be set in the channels.xml.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | mqtt
+|Device Address | URL of the mqtt broker
+|Settings | port=<port>;parser=<needed <<parser-lib>>>[;username=<user>;password=<pw>]
+[;recordCollectionSize=<1-n>][;ssl=<true/false>][;maxBufferSize=<0-n>;maxFileSize=<0-n>;maxFileCount=<0-n>]
+[;connectionRetryInterval=<s>][;connectionAliveInterval=<s>][;firstWillTopic=<topic>;firstWillPayload=<payload>]
+[;lastWillTopic=<topic>;lastWillPayload=<payload>][;lastWillAlways=<true/false>]
+[;persistenceDirectory=<data/driver/mqtt>]
+|Channel Address | <name of mqtt-topic>
+|=========================================================
+
+*Parameter description:*
+
+Parameters marked with [ ] are optional parameters. +
+*NOTE:* If optional parameters are used, then *_all_* parameters included in the brackets need to be
+specified (see grouping above).
+
+* *port:* Port for MQTT communication
+* *parser:* Identifier of needed parser implementation e.g. _openmuc_
+* *[username]:* Name of your MQTT account
+* *[password]:* Password of your MQTT account
+* *[recordCollectionSize]*: +
+This parameter makes it possible to optimize the performance of listening and logging huge amounts of records.
+The driver waits until the configured number of records is collected, before returning the list to the
+data manager. This decreases the number of needed tasks e.g. for writing to a database.
+* *[ssl]:* _true_ enable ssl, _false_ disable ssl
+* *[maxBufferSize]:* Max buffer size in kB. If limit is reached than buffer will be written to file.
+* *[maxFileSize]:* Max file size in kB. If
+* *[maxFileCount]:* Number of files to be created for buffering
+* *[connectionRetryInterval]:* Connection retry interval in s – reconnect after given seconds when connection fails
+* *[connectionAliveInterval]:* Connection alive interval in s – periodically send PING message to broker to detect broken connections
+* *[firstWillTopic]:* Topic on which firstWillPayload will be published on successful connections
+* *[firstWillPayload]:* Payload of the first will message
+* *[lastWillTopic]:* Topic on which lastWillPayload will be published
+* *[lastWillPayload]:* Payload of the last will message
+* *[lastWillAlways]:* _true_: publish last will payload on every disconnection, including intended disconnects by the
+client. _false_ publish only on errors/connection interrupts
+* *[persistenceDirectory]:* directory to store data for file buffering e.g. _data/driver/mqtt>_
+
+To get a more clean looking channels.xml it is also possible to use line breaks instead of semicolons or a mix of both.
+
+*Supported features:*
+
+* write channel
+* listening
+
+*Not supported features:*
+
+* read channel
+* scan for devices
+* scan for all channels
+* reading whole devices instead of single channel
+
+After starting this bundle, it connects to the configured mqtt host.
+The example below is listening for the topic "SmartMeter/power_grid".
+It also uses firstWill and lastWill for sending connection status messages.
+
+[source,xml]
+----
+<driver id="mqtt">
+    <device id="Smart Meter">
+       <deviceAddress>myMqttBroker.de</deviceAddress>
+        <settings>
+        port=1883;username=openmuc;password=Password123
+        parser=openmuc;bufferSize=2;ssl=true
+        lastWillTopic=my/topic;lastWillPayload=Offline;lastWillAlways=true
+        firstWillTopic=my/topic;firstWillPayload=Online
+        </settings>
+	    <channel id="power_grid">
+                <channelAddress>SmartMeter/power_grid</channelAddress>
+		<listening>true</listening>
+        </channel>
+   </device>
+</driver>
+----

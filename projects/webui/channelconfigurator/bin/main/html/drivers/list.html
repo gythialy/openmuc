@@ -1,0 +1,42 @@
+<div class="alert alert-md alert-warning" ng-show="!drivers.length">
+  <b class="small">{{'NO_DRIVERS' | translate}}</b>
+</div>
+
+<table id="configuratorTable" class="table table-hover" ng-show="drivers.length" ng-controller="TabsController">
+  <thead>
+    <tr>
+       <th class="col-md-3">{{'DRIVER_ID' | translate}}</th>
+       <th class="col-md-3">{{'ACTION' | translate}}</th>
+       <th class="text-center col-md-3">{{'RUNNING' | translate}}</th>
+    </tr>
+  </thead>
+  <tr ng-repeat="driver in drivers">
+    <td>{{driver.id}}</td>
+    <td id="icons">
+      <a ng-click="setTabIndex(1)" ui-sref="channelconfigurator.devices.index" class="btn btn-secondary btn-md" ng-click="activeTabIndex = setTabIndex(1)" uib-tooltip="{{'OPEN' | translate}}">
+        <span class="item-icon fa fa-folder-open" aria-hidden="true"></span>
+      </a>
+      <a ng-click="setTabIndex(10)" ui-sref="channelconfigurator.drivers.infos({id: driver.id})" class="btn btn-secondary btn-md" uib-tooltip="{{'INFOS' | translate}}" >
+        <span class="item-icon fa fa-info" aria-hidden="true"></span>
+      </a>
+      <a ng-click="setTabIndex(5)" ui-sref="channelconfigurator.drivers.edit({id: driver.id})"  class="btn btn-secondary btn-md" uib-tooltip="{{'EDIT' | translate}}">
+        <span class="item-icon fa fa-pencil" aria-hidden="true"></span>
+      </a>
+      <a ng-click="deleteDriver(driver.id)" class="btn btn-secondary btn-md" uib-tooltip="{{'DELETE' | translate}}">
+        <span class="item-icon fa fa-trash-o" aria-hidden="true"></span>
+      </a>
+      <a ng-click="setTabIndex(11)" ui-sref="channelconfigurator.drivers.scan({id: driver.id})" class="btn btn-secondary btn-md" ng-if="driver.data.running" uib-tooltip="{{'SCAN_DRIVER' | translate}}">
+        <span class="item-icon fa fa-search" aria-hidden="true"></span>
+      </a>
+    </td>
+    <td class="text-center">
+      <span class="item-icon {{driver.data.running | yesNoIcon}}"></span> 
+    </td>
+  </tr>  
+</table>
+
+<br />
+
+<div class="text-right">
+  <a ng-click="setTabIndex(4)" ui-sref="channelconfigurator.drivers.new" class="btn btn-primary">{{'ADD_NEW_DRIVER_CONFIGURATION' | translate}} ...</a>
+</div>

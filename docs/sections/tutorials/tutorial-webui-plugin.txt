@@ -1,0 +1,384 @@
+[[anchor-tutorial-webui-plugin]]
+=== Develop a Customised WebUI Plugin
+
+*Objective:* In this tutorial you will learn how to add a plugin to the WebUI as well as how to display data from your configured channels. Examples 
+for such plugins are the _simpledemovisualisation_ bundle or the 
+link:https://www.openmuc.org/projects/heiphoss/[HeiPhoss WebUI] 
+
+NOTE: *This tutorial describes how we developed the simpledemovisualisation. When creating your own plugin you can just replace the 
+name __simpledemovisualisation__ whenever it comes up in the tutorial.*
+
+*Preparation:* You should be familiar with OpenMUC's <<anchor-architecture,architecture>>.
+
+*Step-by-step*
+
+. First we have to create a new Project with the Structure 
+
++
+----
+openmuc/projects/webui/simpledemovisualisation
+----
++
+
+. Now copy the build.gradle file from one of the existing WebUI plugins, for example:
+
++
+----
+openmuc/projects/webui/channelaccesstool/build.gradle
+----
++
+
+into this project and change the projectName and projectDescription
+
++
+----
+def projectName = "OpenMUC WebUI - Simple Demo Visualisation"
+def projectDescription = "Simple Demo Visualisation plug-in for the WebUI of the OpenMUC framework."
+----
++
+
+. Open openmuc/configuration.gradle and add the following line under distributionProjects = javaProjects.findAll
+
++
+----
+it.getPath() == ":openmuc-webui-simpledemovisualisation" ||
+----
++
+
+. Open openmuc/settings.gradle and add the following line under OpenMUC WebUI Bundles of the include section
+
++
+----
+'openmuc-webui-simpledemovisualisation',
+----
++
+
+. Furthermore, add the following line to the projects section of the settings.gradle
+
++
+----
+project(":openmuc-webui-simpledemovisualisation").projectDir = file('projects/webui/simpledemovisualisation')
+----
++
+
+. Open openmuc/framework/conf/bundles.conf.gradle and add the following line under dependencies
+
++
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-simpledemovisualisation", version: openmucVersion
+----
++
+
+Next we will take a look at how our project should be structured once we are done
+
++
+:img-file: simpleDemoVisualisationTree.png
+image::{img-file}[width=960,link="{imagesdir}/{img-file}"]
++
+
+. First we will take a look at the java file. Recreate the folder structure above and create the java file SimpleDemoVisualisation.java, and then copy this into it
+
++
+[source, java]
+----
+import org.openmuc.framework.webui.spi.WebUiPluginService;
+import org.osgi.service.component.annotations.Component;
+
+@Component(service = WebUiPluginService.class)
+public final class SimpleDemoVisualisation extends WebUiPluginService {
+
+    @Override
+    public String getAlias() {
+        return "simpledemovisualisation";
+    }
+
+    @Override
+    public String getName() {
+        return "Simple Demo Visualisation";
+    }
+
+}
+----
++
+
+The two functions getAlias and getName have to be overridden. The alias is used to identify the plugin while the name will be displayed in the WebUI. In 
+order to display an icon above the plugin's name, the file needs to be called icon and put in the images folder.
+
+. Next we will take a look at app.js and app.routes.js. In app.js all we do is creating a module and naming it.
+
++
+[source, javascript]
+----
+(function(){
+	angular.module('openmuc.openmuc-visu', []);
+})();
+----
++
+
+The more interesting one is app.routes.js because it is responsible for allowing us to get from the main page to the page of our plugin. It also allows 
+us to specify which files have to be loaded.
+
++
+[source, javascript]
+----
+(function(){
+
+    var app = angular.module('openmuc');
+
+    app.config(['$stateProvider', '$urlRouterProvider',
+        function($stateProvider, $urlRouterProvider) {
+            $stateProvider.
+            state('simpledemovisualisation', {
+                url: '/simpledemovisualisation',
+                templateUrl: 'simpledemovisualisation/html/index.html',
+                requireLogin: true
+            }).
+            state('simpledemovisualisation.index', {
+                url: '/',
+                templateUrl: 'simpledemovisualisation/html/graphic.html',
+                controller: 'VisualisationController',
+                requireLogin: true,
+                resolve: {
+                    openmuc: function ($ocLazyLoad) {
+                        return $ocLazyLoad.load(
+                            {
+                                name: 'openmuc.simpledemovisualisation',
+                                files: ['openmuc/js/channels/channelsService.js',
+                                    'openmuc/js/channels/channelDataService.js',
+                                    'simpledemovisualisation/css/simpledemovisualisation/main.css',
+                                   'simpledemovisualisation/js/visu/VisualisationController.js']
+                            }
+                        )
+                    }
+                }
+            })
+        }]);
+
+})();
+----
++
+
+All files you need have to be added to the list "files" in order for the plugin to work. The first two files we load are necessary to access the defined channels. Then 
+we load in our css file and lastly the javascript file of this plugin.
+
+. For the Plugin created in this tutorial we will need an svg that is put into the image folder. The SimpleDemoGraphic.svg used in this tutorial is made up of multiple 
+images, paths as well as text fields. In this case only the text fields are of interest.
+
+. The two html files used in this app are very simple, index.html sets the headline and then calls on graphic.html through ui-view. Ui-view calls upon the route defined 
+in app.routes.js.
+
++
+[source, HTML]
+----
+<div class="page-header">
+    <h1>OpenMUC Visualisation</h1>
+</div>
+<div ui-view></div>
+----
++
+
+In graphic.html we create a div element and assign it the class svg-container. We then create an object HTML element inside the div and assign it the class svg-content.
+
++
+[source, HTML]
+----
+<div class="svg-container">
+  <object id="simpleDemoGraphic" type="image/svg+xml" data="simpledemovisualisation/images/SimpleDemoGraphic.svg" 
+  class="svg-content" onload="display_visualisation()"></object>
+</div>
+----
++
+
+Further we also assign it an Id, in this case simpleDemoGraphic, specify that it is of the type svg and tell it where our svg is located. This way our svg is now displayed on the page, but in order to change elements of the svg we need a javascript function which is called through onload.
+
+. In order to specify how our page should be displayed we use a css file.
+
++
+[source, CSS]
+----
+html, body {
+    font-family: "Arial";
+    margin: 0px;
+    padding: 0px;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 1108px;
+    height: 760px;
+    border:1px solid black;
+}
+
+.svg-content {
+    display: block;
+    position: absolute;
+    width: 1106px;
+    height: 740px;
+    top: 0;
+    left: 0;
+}
+----
++
+
+In this css file we tell the browser how the html elements should look and be positioned. If the declaration starts with a dot it signifies all elements with the 
+specified class being targeted, a hash would signify an element with that Id being targeted and nothing signifies all html elements of that type should be targeted.
+
+. By default the svg will have an eight pixel margin on each side, meaning there will be white space between the border and svg. If you dont want that you need to 
+open the svg in a text editor and add a style tag after the svg tag as shown below
+
++
+[source, HTML]
+----
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="100%"
+   height="100%"
+   viewBox="0 0 573.61664 357.1875"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="SimpleDemoGraphic.svg">
+  <style
+     type="text/css"
+     media="screen"
+     id="style5004"><![CDATA[
+      body{
+         margin: 0px;
+      }
+    ]]></style>
+----
++
+
+We cannot change the css of the svg from our css file so we have to do it inside the svg.
+
+. Finally we take a look at the javascript file that will allow us to display data in real time. 
+
++
+[source, javascript]
+----
+(function(){
+
+    var injectParams = ['$scope', '$interval', 'ChannelsService'];
+
+    var VisualisationController = function($scope, $interval, ChannelsService) {
+        var svg_document;
+
+        display_visualisation = function() {
+----
++
+
+Here we "import" the angular functions $scope and $interval as well as the class ChannelsService. Next we take a look at the function display_visualisation that 
+is called when the html page loads.
+
++
+[source, javascript]
+----
+svg_document = document.getElementById('simpleDemoGraphic').contentDocument;
+----
++
+
+Through this line of code we now have access to the svg in javascript. We achieve this by calling document.getElementById with the id of our object element as 
+a parameter. The contentDocument means that the return value is the document object, otherwise the return would have just been the content of the document, in 
+which case we could not use it in the way we need to later.
+
++
+[source, javascript]
+----
+    $scope.interval = "";
+    $interval.cancel($scope.interval);
+    $scope.interval = $interval(function(){
+        ...
+    }, 500);
+};    
+----
++
+
+What follows is defined inside this interval, meaning it will be repeated every 500 milliseconds.
+
++
+[source, javascript]
+----
+ChannelsService.getAllChannels().then(async function(channels) {
+                    $scope.channels = await channels.records;
+});
+----
++
+
+Here we call the function getAllChannels of the class ChannelsService. It makes a get call to the REST server and returns all the channels defined in the 
+channels.xml. The "then" means that whatever is in the round brackets will be executed after getAllChannels' return value arrives. Inside these round 
+brackets we define an async function with getAllChannels' return value as a parameter. The list records of the return value contains the requested channels, 
+so we save them in the list $scope.channels. Normally the rest of the code would be executed while getAllChannels waits for a reply, in which case our code 
+would fail as $scope.channels would be undefined, but the await keyword in conjunction with marking the function as async makes it so the code only resumes 
+executing once the await has been resolved.
+
++
+[source, javascript]
+---- 
+if ($scope.channels != undefined){
+    $scope.channels.forEach(function(channel){
+        if (channel.id === "power_heatpump"){
+            textHeatPump = svg_document.getElementById("textHeatPump");
+            textHeatPump.textContent = channel.record.value + " kW";
+        }
+        if (channel.id === "power_electric_vehicle"){
+            textChargingStation = svg_document.getElementById("textChargingStation");
+            textChargingStation.textContent = channel.record.value + " kW";
+        }
+        if (channel.id === "power_photovoltaics"){
+            textPv = svg_document.getElementById("textPv");
+            textPv.textContent = channel.record.value + " kW";
+        }
+        if (channel.id === "power_grid"){
+            textGrid = svg_document.getElementById("textGrid");
+            textGrid.textContent = channel.record.value + " kW";
+        }
+    });
+}
+----
++
+
+First we check if our list is not undefined as it is possible that during the first interval there wont be any data to work with. Now we iterate through our 
+channels list to find the channels we need. Once we found the right channel, we search for the corresponding text field and save the reference to it in a 
+variable. By setting the textContent of the text field we can change what is displayed, in this case the channel's value is displayed in the text field. Now 
+we set the interval and close the function definition as shown above.
+
++
+[source, javascript]
+----
+        $scope.$on('$destroy', function () {
+            $interval.cancel($scope.interval);
+        });
+
+        };
+
+    VisualisationController.$inject = injectParams;
+
+    angular.module('openmuc.openmuc-visu').controller('VisualisationController', VisualisationController);
+
+})();
+----
++
+
+After that we tell the function to stop the interval if the scope's destroy event is triggered and that the in app.js defined module should use this controller.
+
+*Tips*
+
+* If you want to change the css of the svg at runtime you can do so through javascript similarly to the manipulation of the text field above.
+
++
+[source, javascript]
+----
+textHeatPump.style.fill = "blue";
+----
++
+
+This would set the text color of the text field to blue

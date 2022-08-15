@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,17 +21,39 @@
 
 package org.openmuc.framework.lib.parser.openmuc;
 
-import com.google.gson.*;
-import org.openmuc.framework.data.*;
+import java.lang.reflect.Type;
+import java.util.Base64;
+import java.util.List;
+
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.ByteValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.ShortValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.spi.LoggingRecord;
 import org.openmuc.framework.parser.spi.ParserService;
 import org.openmuc.framework.parser.spi.SerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-import java.util.Base64;
-import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 /**
  * Parser implementation for OpenMUC to OpenMUC communication e.g. for the AMQP driver.
@@ -53,14 +75,14 @@ public class OpenmucParserServiceImpl implements ParserService {
     }
 
     @Override
-    public byte[] serialize(LoggingRecord openMucRecord) {
+    public synchronized byte[] serialize(LoggingRecord openMucRecord) {
         String serializedString = gson.toJson(openMucRecord.getRecord());
 
         return serializedString.getBytes();
     }
 
     @Override
-    public byte[] serialize(List<LoggingRecord> openMucRecords) throws SerializationException {
+    public synchronized byte[] serialize(List<LoggingRecord> openMucRecords) throws SerializationException {
         StringBuilder sb = new StringBuilder();
         for (LoggingRecord openMucRecord : openMucRecords) {
             sb.append(new String(serialize(openMucRecord)));
@@ -90,42 +112,42 @@ public class OpenmucParserServiceImpl implements ParserService {
         public JsonElement serialize(Record record, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject obj = new JsonObject();
             Value value = record.getValue();
+            obj.addProperty("timestamp", record.getTimestamp());
+            obj.addProperty("flag", record.getFlag().toString());
 
             if (value != null && record.getFlag() == Flag.VALID) {
                 String valueString = "value";
-                obj.addProperty("timestamp", record.getTimestamp());
-                obj.addProperty("flag", record.getFlag().toString());
 
                 switch (value.getValueType()) {
-                    case BOOLEAN:
-                        obj.addProperty(valueString, record.getValue().asBoolean());
-                        break;
-                    case BYTE:
-                        obj.addProperty(valueString, record.getValue().asByte());
-                        break;
-                    case BYTE_ARRAY:
-                        obj.addProperty(valueString, Base64.getEncoder().encodeToString(record.getValue().asByteArray()));
-                        break;
-                    case DOUBLE:
-                        obj.addProperty(valueString, record.getValue().asDouble());
-                        break;
-                    case FLOAT:
-                        obj.addProperty(valueString, record.getValue().asFloat());
-                        break;
-                    case INTEGER:
-                        obj.addProperty(valueString, record.getValue().asInt());
-                        break;
-                    case LONG:
-                        obj.addProperty(valueString, record.getValue().asLong());
-                        break;
-                    case SHORT:
-                        obj.addProperty(valueString, record.getValue().asShort());
-                        break;
-                    case STRING:
-                        obj.addProperty(valueString, record.getValue().asString());
-                        break;
-                    default:
-                        break;
+                case BOOLEAN:
+                    obj.addProperty(valueString, record.getValue().asBoolean());
+                    break;
+                case BYTE:
+                    obj.addProperty(valueString, record.getValue().asByte());
+                    break;
+                case BYTE_ARRAY:
+                    obj.addProperty(valueString, Base64.getEncoder().encodeToString(record.getValue().asByteArray()));
+                    break;
+                case DOUBLE:
+                    obj.addProperty(valueString, record.getValue().asDouble());
+                    break;
+                case FLOAT:
+                    obj.addProperty(valueString, record.getValue().asFloat());
+                    break;
+                case INTEGER:
+                    obj.addProperty(valueString, record.getValue().asInt());
+                    break;
+                case LONG:
+                    obj.addProperty(valueString, record.getValue().asLong());
+                    break;
+                case SHORT:
+                    obj.addProperty(valueString, record.getValue().asShort());
+                    break;
+                case STRING:
+                    obj.addProperty(valueString, record.getValue().asString());
+                    break;
+                default:
+                    break;
                 }
             }
             return obj;
@@ -138,27 +160,27 @@ public class OpenmucParserServiceImpl implements ParserService {
                 throws JsonParseException {
 
             switch (valueType) {
-                case BOOLEAN:
-                    return new BooleanValue(json.getAsBoolean());
-                case BYTE_ARRAY:
-                    return new ByteArrayValue(Base64.getDecoder().decode(json.getAsString()));
-                case BYTE:
-                    return new ByteValue(json.getAsByte());
-                case DOUBLE:
-                    return new DoubleValue(json.getAsDouble());
-                case FLOAT:
-                    return new FloatValue(json.getAsFloat());
-                case INTEGER:
-                    return new IntValue(json.getAsInt());
-                case LONG:
-                    return new LongValue(json.getAsLong());
-                case SHORT:
-                    return new ShortValue(json.getAsShort());
-                case STRING:
-                    return new StringValue(json.getAsString());
-                default:
-                    logger.warn("Unsupported ValueType: {}", valueType);
-                    return null;
+            case BOOLEAN:
+                return new BooleanValue(json.getAsBoolean());
+            case BYTE_ARRAY:
+                return new ByteArrayValue(Base64.getDecoder().decode(json.getAsString()));
+            case BYTE:
+                return new ByteValue(json.getAsByte());
+            case DOUBLE:
+                return new DoubleValue(json.getAsDouble());
+            case FLOAT:
+                return new FloatValue(json.getAsFloat());
+            case INTEGER:
+                return new IntValue(json.getAsInt());
+            case LONG:
+                return new LongValue(json.getAsLong());
+            case SHORT:
+                return new ShortValue(json.getAsShort());
+            case STRING:
+                return new StringValue(json.getAsString());
+            default:
+                logger.warn("Unsupported ValueType: {}", valueType);
+                return null;
             }
         }
     }

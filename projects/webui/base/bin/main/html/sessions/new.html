@@ -1,0 +1,22 @@
+<div class="page-header text-center">
+  <h1>{{'WELCOME_TO_OPEN_MUC' | translate}}</h1>
+</div>
+
+<br />
+<br />
+
+<div class="row">
+  <div class="col-md-4 mx-auto text-center">
+	  <fieldset>		  
+		  <form ng-submit="login()" novalidate>
+		    <div class="form-group">
+		      <input type="text" autocomplete="username" placeholder="{{'USERNAME' | translate}}" class="form-control" ng-model="user.user">
+		    </div>
+		    <div class="form-group">
+		      <input type="password" autocomplete="current-password" placeholder="{{'PASSWORD' | translate}}" class="form-control" ng-model="user.pwd">
+		    </div>
+		    <input type="submit" value="{{'LOGIN' | translate}}" class="btn btn-lg btn-primary btn-block">
+		  </form>
+	  </fieldset>
+  </div>
+</div>

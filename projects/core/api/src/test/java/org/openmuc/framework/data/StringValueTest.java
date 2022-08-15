@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,12 +20,13 @@
  */
 package org.openmuc.framework.data;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
 public class StringValueTest {
@@ -36,8 +37,8 @@ public class StringValueTest {
     }
 
     public Object params() {
-        return new Object[][]{{"false", false}, {"true", true}, {"jhbvce", false}, {"TRUE", true},
-                {"TRuE", true}};
+        return new Object[][] { { "false", false }, { "true", true }, { "jhbvce", false }, { "TRUE", true },
+                { "TRuE", true } };
     }
 
     @Test(expected = TypeConversionException.class)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,10 +27,10 @@ package org.openmuc.framework.lib.osgi.config;
  */
 public class ServiceProperty {
 
-    private final boolean mandatory;
     private String key;
     private String description;
     private String defaultValue;
+    private final boolean mandatory;
     private String value;
 
     public ServiceProperty(String key, String description, String defaultValue, boolean mandatory) {
@@ -45,7 +45,8 @@ public class ServiceProperty {
         if (value == null) {
             // avoid later null checks
             this.value = "";
-        } else {
+        }
+        else {
             this.value = value;
         }
     }
@@ -54,41 +55,12 @@ public class ServiceProperty {
         return key;
     }
 
-    private void setKey(String key) {
-        if (key == null || key.isEmpty()) {
-            // key is important - therefor raise exception
-            throw new IllegalArgumentException("key must not be null or empty!");
-        } else {
-            this.key = key;
-        }
-    }
-
     public String getDescription() {
         return description;
     }
 
-    private void setDescription(String description) {
-        if (description == null) {
-            // description is optional, don't raise exception here, but change it to empty string
-            // to avoid countless "null" checks later in classes using this.
-            this.description = "";
-        } else {
-            this.description = description;
-        }
-    }
-
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    private void setDefaultValue(String defaultValue) {
-        if (defaultValue == null) {
-            // defaultValue is optional, don't raise exception here, but change it to empty string
-            // to avoid countless "null" checks later in classes using this.
-            this.defaultValue = "";
-        } else {
-            this.defaultValue = defaultValue;
-        }
     }
 
     public boolean isMandatory() {
@@ -97,6 +69,38 @@ public class ServiceProperty {
 
     public String getValue() {
         return value;
+    }
+
+    private void setKey(String key) {
+        if (key == null || key.isEmpty()) {
+            // key is important - therefor raise exception
+            throw new IllegalArgumentException("key must not be null or empty!");
+        }
+        else {
+            this.key = key;
+        }
+    }
+
+    private void setDescription(String description) {
+        if (description == null) {
+            // description is optional, don't raise exception here, but change it to empty string
+            // to avoid countless "null" checks later in classes using this.
+            this.description = "";
+        }
+        else {
+            this.description = description;
+        }
+    }
+
+    private void setDefaultValue(String defaultValue) {
+        if (defaultValue == null) {
+            // defaultValue is optional, don't raise exception here, but change it to empty string
+            // to avoid countless "null" checks later in classes using this.
+            this.defaultValue = "";
+        }
+        else {
+            this.defaultValue = defaultValue;
+        }
     }
 
     @Override

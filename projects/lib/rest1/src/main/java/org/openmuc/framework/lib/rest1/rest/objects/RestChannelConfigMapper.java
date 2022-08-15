@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,8 +20,11 @@
  */
 package org.openmuc.framework.lib.rest1.rest.objects;
 
+import java.util.List;
+
 import org.openmuc.framework.config.ChannelConfig;
 import org.openmuc.framework.config.IdCollisionException;
+import org.openmuc.framework.config.ServerMapping;
 import org.openmuc.framework.lib.rest1.exceptions.RestConfigIsNotCorrectException;
 
 public class RestChannelConfigMapper {
@@ -41,7 +44,7 @@ public class RestChannelConfigMapper {
         rcc.setSamplingInterval(cc.getSamplingInterval());
         rcc.setSamplingTimeOffset(cc.getSamplingTimeOffset());
         rcc.setScalingFactor(cc.getScalingFactor());
-        // rcc.setServerMappings(cc.getServerMappings());
+        rcc.setServerMappings(cc.getServerMappings());
         rcc.setSettings(cc.getSettings());
         rcc.setUnit(cc.getUnit());
         rcc.setValueOffset(cc.getValueOffset());
@@ -76,7 +79,15 @@ public class RestChannelConfigMapper {
         cc.setSamplingInterval(rcc.getSamplingInterval());
         cc.setSamplingTimeOffset(rcc.getSamplingTimeOffset());
         cc.setScalingFactor(rcc.getScalingFactor());
-        // cc.setServerMappings(rcc.getServerMappings());
+        List<ServerMapping> serverMappings = rcc.getServerMappings();
+        if (serverMappings != null) {
+            for (ServerMapping serverMapping : cc.getServerMappings()) {
+                cc.deleteServerMappings(serverMapping.getId());
+            }
+            for (ServerMapping restServerMapping : serverMappings) {
+                cc.addServerMapping(restServerMapping);
+            }
+        }
         cc.setSettings(rcc.getSettings());
         cc.setUnit(rcc.getUnit());
         cc.setValueOffset(rcc.getValueOffset());

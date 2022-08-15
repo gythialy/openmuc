@@ -2,16 +2,16 @@ def projectName = "OpenMUC Library - MQTT Service"
 def projectDescription = "MQTT service for the OpenMUC framework"
 
 
-def hivemqVersion = '1.2.1'
+def hivemqVersion = '1.2.2'
 
 configurations.create('embed')
 
 dependencies {
     implementation project(':openmuc-core-spi')
-    implementation project(':openmuc-lib-ssl')
     implementation project(':openmuc-lib-filePersistence')
     implementation group: 'com.hivemq', name: 'hivemq-mqtt-client', version: hivemqVersion
     embed group: 'com.hivemq', name: 'hivemq-mqtt-client', version: hivemqVersion
+    embed group: 'com.hivemq', name: 'hivemq-mqtt-client-websocket', version: hivemqVersion
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
@@ -19,11 +19,11 @@ dependencies {
 
 jar {
     def bundles = '.'
-    configurations.embed.each { bundles += ',lib/' + it.name }
+    configurations.embed.each {bundles += ',lib/' + it.name}
     bnd('Bundle-Name': projectName,
             'Bundle-ClassPath': bundles,
             'Export-Package': 'org.openmuc.framework.lib.*',
-            'Import-Package': 'org.openmuc.*,org.slf4j.*,org.osgi.*,javax.*,sun.misc.*'
+            'Import-Package': 'org.openmuc.*,org.slf4j.*,javax.*,sun.misc.*'
     )
 
     into('lib') {
@@ -36,7 +36,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description projectDescription
+                description = projectDescription
             }
         }
     }

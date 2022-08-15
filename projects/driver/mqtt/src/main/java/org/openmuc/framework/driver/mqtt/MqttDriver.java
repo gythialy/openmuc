@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,6 +21,10 @@
 
 package org.openmuc.framework.driver.mqtt;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.DriverInfo;
 import org.openmuc.framework.config.ScanException;
@@ -29,7 +33,9 @@ import org.openmuc.framework.driver.spi.Connection;
 import org.openmuc.framework.driver.spi.ConnectionException;
 import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
 import org.openmuc.framework.driver.spi.DriverService;
+import org.openmuc.framework.lib.osgi.deployment.RegistrationHandler;
 import org.openmuc.framework.parser.spi.ParserService;
+import org.openmuc.framework.security.SslManagerInterface;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -91,6 +97,8 @@ public class MqttDriver implements DriverService {
         synchronized (this) {
             connection = new MqttDriverConnection(deviceAddress, settings);
 
+            getSslManager();
+
             checkForExistingParserService();
             addParserServiceListenerToServiceRegistry();
 
@@ -98,16 +106,38 @@ public class MqttDriver implements DriverService {
         }
     }
 
-    private void checkForExistingParserService() {
-        ServiceReference<?> serviceReferenceInit = context.getServiceReference(ParserService.class.getName());
+    private void getSslManager() {
+        RegistrationHandler registrationHandler = new RegistrationHandler(context);
+        registrationHandler.subscribeForService(SslManagerInterface.class.getName(), instance -> {
+            if (instance != null) {
+                connection.setSslManager((SslManagerInterface) instance);
+            }
+        });
+    }
 
-        if (serviceReferenceInit != null) {
-            String parserIdInit = (String) serviceReferenceInit.getProperty("parserID");
-            ParserService parserInit = (ParserService) context.getService(serviceReferenceInit);
+    private void checkForExistingParserService() {
+        List<ServiceReference<?>> serviceReferences = getServiceReferences();
+
+        for (ServiceReference<?> serviceReference : serviceReferences) {
+            String parserIdInit = (String) serviceReference.getProperty("parserID");
+            ParserService parserInit = (ParserService) context.getService(serviceReference);
             if (parserInit != null) {
                 logger.info("{} registered, updating Parser in MqttDriver", parserInit.getClass().getName());
                 connection.setParser(parserIdInit, parserInit);
             }
+        }
+    }
+
+    private List<ServiceReference<?>> getServiceReferences() {
+        try {
+            ServiceReference<?>[] serviceReferences = context.getAllServiceReferences(ParserService.class.getName(),
+                    null);
+            if (serviceReferences == null) {
+                serviceReferences = new ServiceReference[] {};
+            }
+            return Arrays.asList(serviceReferences);
+        } catch (InvalidSyntaxException e) {
+            return new ArrayList<>();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -35,19 +35,34 @@ public class Settings extends GenericSettings {
     public static final String EXCHANGE = "exchange";
     public static final String PORT = "port";
     public static final String HOST = "host";
+    public static final String PERSISTENCE_DIR = "persistenceDirectory";
+    public static final String MAX_FILE_COUNT = "maxFileCount";
+    public static final String MAX_FILE_SIZE = "maxFileSize";
+    public static final String MAX_BUFFER_SIZE = "maxBufferSize";
+    public static final String CONNECTION_ALIVE_INTERVAL = "connectionAliveInterval";
 
     public Settings() {
         super();
-        properties.put(PORT, new ServiceProperty(PORT, "port for AMQP communication", null, true));
+        properties.put(PORT, new ServiceProperty(PORT, "port for AMQP communication", "5672", true));
         properties.put(HOST, new ServiceProperty(HOST, "URL of AMQP broker", "localhost", true));
         properties.put(SSL, new ServiceProperty(SSL, "usage of ssl true/false", "false", true));
-        properties.put(USERNAME, new ServiceProperty(USERNAME, "name of your AMQP account", null, true));
-        properties.put(PASSWORD, new ServiceProperty(PASSWORD, "password of your AMQP account", null, true));
+        properties.put(USERNAME, new ServiceProperty(USERNAME, "name of your AMQP account", "guest", true));
+        properties.put(PASSWORD, new ServiceProperty(PASSWORD, "password of your AMQP account", "guest", true));
         properties.put(PARSER,
                 new ServiceProperty(PARSER, "identifier of needed parser implementation", "openmuc", true));
-        properties.put(VIRTUAL_HOST, new ServiceProperty(VIRTUAL_HOST, "used virtual amqp host", null, false));
+        properties.put(VIRTUAL_HOST, new ServiceProperty(VIRTUAL_HOST, "used virtual amqp host", "/", true));
         properties.put(FRAMEWORK, new ServiceProperty(FRAMEWORK, "framework identifier", null, false));
         properties.put(EXCHANGE, new ServiceProperty(EXCHANGE, "used amqp exchange", null, false));
+        properties.put(PERSISTENCE_DIR, new ServiceProperty(PERSISTENCE_DIR,
+                "persistence directory used for file buffer", "data/amqp/logger", true));
+        properties.put(MAX_BUFFER_SIZE,
+                new ServiceProperty(MAX_BUFFER_SIZE, "maximum RAM usage of buffer", "1024", true));
+        properties.put(MAX_FILE_SIZE,
+                new ServiceProperty(MAX_FILE_SIZE, "maximum file size per buffer file", "5120", true));
+        properties.put(MAX_FILE_COUNT,
+                new ServiceProperty(MAX_FILE_COUNT, "maximum number of files per buffer", "2", true));
+        properties.put(CONNECTION_ALIVE_INTERVAL, new ServiceProperty(CONNECTION_ALIVE_INTERVAL,
+                "interval in seconds to detect broken connections (heartbeat)", "60", true));
 
     }
 

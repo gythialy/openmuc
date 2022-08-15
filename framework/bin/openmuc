@@ -287,8 +287,23 @@ case "$1" in
         echo "reaload configuration"
         { echo "openmuc:reload"; sleep 1; } | telnet localhost 6666
         ;;
+    migrateh2)
+        eval $GRADLE -p $OPENMUC_HOME/../ :openmuc-datalogger-sql:migrateh2
+        ;;
     *)
-        echo "Usage: openmuc {start|stop|restart|reload|update-bundles|remote-shell}"
+        echo "Usage:" # openmuc {start|stop|restart|reload|update-bundles|remote-shell}"
+        echo "  openmuc start               Starts OpenMUC."
+        echo "  openmuc start -fg           Starts Openmuc in the foreground on the console."
+        echo ""
+        echo "  openmuc stop                Stops OpenMUC. If you started OpenMUC in the foreground you can press ctrl+d or enter “stop 0” to stop OpenMUC."
+        echo ""
+        echo "  openmuc restart             Stops OpenMUC and starts it again."
+        echo ""
+        echo "  openmuc reload              Reloads the configuration without restarting OpenMUC."
+        echo ""
+        echo "  openmuc update-bundles      Applies changes in bundles.conf.gradle to the /framework/bundle folder."
+        echo "  openmuc update-bundles -b   Rebuilds bundles if the source code was changed and applies them to the /framework/bundle folder."
+        echo "  openmuc update-bundles -i   Updates the local Maven repository with the latest changes."
         exit 1
         ;;
 esac

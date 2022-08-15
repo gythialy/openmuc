@@ -1,0 +1,52 @@
+<div class="page-header">
+  <h2>{{'EDIT_USER' | translate}} {{user.username}}</h2>
+</div>
+
+<form name="edit_password_form" class="form-horizontal" ng-submit="updatePassword()" novalidate>
+  <fieldset>
+    <legend>{{'CHANGE_PASSWORD' | translate}}</legend>
+    
+    <div class="form-group">
+      <label for="oldPassword" class="col-md-2 control-label">{{'OLD_PASSWORD' | translate}} *</label>
+      <div class="col-md-6">
+        <input type="password" class="form-control" name="oldPassword" ng-model="user.configs.oldPassword" id="oldPassword" required="required" ng-class="{true: 'form-submitted', false: ''}[edit_password_form.submitted]">
+        <div class="form-error-container" ng-show="(edit_password_form.oldPassword.$dirty && edit_password_form.oldPassword.$invalid) || (edit_password_form.submitted && edit_password_form.oldPassword.$invalid)">
+          <div class="form-error-message" ng-show="edit_password_form.oldPassword.$error.required">{{'OLD_PASSWORD_REQUIRED' | translate}}</div>
+        </div>                
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password" class="col-md-2 control-label">{{'NEW_PASSWORD' | translate}} *</label>
+      <div class="col-md-6">
+        <input type="password" class="form-control" name="password" ng-model="user.configs.password" id="password" required="required" ng-class="{true: 'form-submitted', false: ''}[edit_password_form.submitted]">
+        <div class="form-error-container" ng-show="(edit_password_form.password.$dirty && edit_password_form.password.$invalid) || (edit_password_form.submitted && edit_password_form.password.$invalid)">
+          <div class="form-error-message" ng-show="edit_password_form.password.$error.required">{{'NEW_PASSWORD_REQUIRED' | translate}}</div>
+        </div>                
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="confirm_password" class="col-md-2 control-label">{{'RETYPE_PASSWORD' | translate}} *</label>
+      <div class="col-md-6">
+        <input type="password" class="form-control" name="confirm_password" ng-model="user.configs.confirm_password" match="user.configs.password" id="confirm_password" required="required" ng-class="{true: 'form-submitted', false: ''}[edit_password_form.submitted]">
+        <div class="form-error-container" ng-show="(edit_password_form.confirm_password.$dirty && edit_password_form.confirm_password.$invalid) || (edit_password_form.submitted && edit_password_form.confirm_password.$invalid)">
+          <div class="form-error-message" ng-show="edit_password_form.confirm_password.$error.required">{{'NEW_PASSWORD_CONFIRMATION_REQUIRED' | translate}}</div>
+          <div class="form-error-message" ng-show="edit_password_form.confirm_password.$error.match">{{'PASSWORD_DO_NOT_MATCH' | translate}}</div>
+        </div>                
+      </div>    
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <div class="alert alert-md alert-warning">
+          <b class="small">* {{'REQUIRED_FIELDS' | translate}}</b><br />
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8 text-right">
+      <input type="submit" class="btn btn-primary" value="{{'CHANGE' | translate}}">
+    </div>
+  </fieldset>
+</form>

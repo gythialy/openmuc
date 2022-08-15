@@ -1,0 +1,85 @@
+<div class="alert alert-md alert-warning" ng-show="!drivers.length">
+  <b class="small">{{'NO_CHANNELS' | translate}}</b>
+</div>
+
+<div data-allow-multiple="true" data-animation="am-fade" >
+  <div ng-repeat="driver in drivers" class="card" id="channels">
+    <div id="driverid" class="card-header" ng-click="isNavCollapsed = !isNavCollapsed">
+      <a class="card-link-heading my-auto" data-toggle="collapse" data-target="#{{driver.id}}" aria-expanded="true">
+        <i class="fa fa-chevron-down pull-right"></i>
+        {{'DRIVER' | translate}} {{driver.id}}
+      </a>
+    </div>  
+    <div class="collapse show" uib-collapse="isNavCollapsed" id="{{driver.id}}">
+      <div class="card-body">
+
+        <div class="alert alert-md alert-warning" ng-show="!driver.devices.length">
+          <b class="small">{{'NO_DEVICES' | translate}}</b>
+        </div>
+        <div ng-repeat="device in driver.devices">
+          <div class="card card-md card-header"><b>{{'DEVICE' | translate}} "{{device.id}}"</b></div>
+            
+          <div class="alert alert-md alert-warning" ng-show="!device.channels.length">
+            <b class="mdall">{{'NO_CHANNELS' | translate}}</b>
+          </div>
+            
+          <table id ="configuratorTable" class="table table-hover table-fixed" ng-show="device.channels.length" ng-controller="ChannelsController">
+            <thead>
+              <tr>
+                 <th width="5%"></th>
+                 <th>{{'CHANNEL_ID' | translate}}</th>
+                 <th>{{'DESCRIPTION' | translate}}</th>
+                 <th class="text-right">{{'ACTION' | translate}}</th>
+              </tr>
+            </thead>
+            <tr ng-repeat="channel in device.channels">
+              <td>
+                <input class="check" 
+                  type="checkbox"
+                  name="{{device.id}} checkboxes"
+                  checklist-model="selectedChannels"
+                  checklist-value="channel"
+                  ng-click="$event.stopPropagation()" />
+              </td>
+              <td>{{channel.id}}</td>
+              <td>{{channel.data.description}}</td>
+              <td class="text-right" id="icons">
+                <a ng-click="setTabIndex(9); revertSelected()" ui-sref="channelconfigurator.channels.edit({id: channel.id})" class="btn btn-secondary btn-md" uib-tooltip="{{'EDIT' | translate}}">
+                  <span class="item-icon fa fa-pencil" aria-hidden="true"></span>
+                </a>
+                <a ng-click="deleteChannel(channel.id)" class="btn btn-secondary btn-md" uib-tooltip="{{'DELETE' | translate}}">
+                  <span class="item-icon fa fa-trash-o" aria-hidden="true"></span>
+                </a>
+              </td>            
+            </tr>
+            <tr>
+              <td>
+                <input 
+                  class="check" 
+                  name="checkboxesAll"
+                  type="checkbox" 
+                  ng-click="checkAll(driver.id, device.id)" 
+                  id="{{device.id}} checkboxesAll"/>
+                </td>
+              <td><b>{{'SELECT_ALL' | translate}}</b></td>
+              <td><b>{{'EDIT_DELETE_SELECTED' | translate}}</b></td>
+              <td class="text-right" id="icons">
+                <a ng-click="setTabIndex(9)" ui-sref="channelconfigurator.channels.edit({id: selectedChannels[0].id})" class="btn btn-secondary btn-md" uib-tooltip="{{'EDIT_SELECTED' | translate}}">
+                  <span class="item-icon fa fa-pencil" aria-hidden="true"></span>
+                </a>
+                <a ng-click="deleteSelectedChannels()" class="btn btn-secondary btn-md" uib-tooltip="{{'DELETE_SELECTED' | translate}}">
+                  <span class="item-icon fa fa-trash-o" aria-hidden="true"></span>
+                </a>
+              </td>  
+            </tr>
+          </table>
+
+          <div class="text-right">
+            <a ng-click="setTabIndex(8)" ui-sref="channelconfigurator.channels.new({deviceId: device.id})" class="btn btn-primary">{{'ADD_CHANNEL' | translate}}...</a>
+          </div>
+          <br />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

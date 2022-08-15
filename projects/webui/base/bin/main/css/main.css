@@ -1,0 +1,162 @@
+html,
+body {
+	font-size: 14px;
+  height: 100%;
+}
+
+#wrap {
+  min-height: 100%;
+  height: auto;
+  margin: 0 auto -130px;
+  padding: 0 0 130px;
+}
+
+#header {
+  border: 0px;
+  background: url('../images/header-bg.jpg') repeat-x;
+}
+
+@media (min-width: 768px) {
+	#openmuc-navbar .navbar-nav .nav-item .nav-link {
+		padding-top: 7px;
+		padding-bottom: 7px;
+		margin: 0px 2px;
+	}
+	
+	#openmuc-navbar .navbar-text {
+	  margin-top: 20px;
+	  margin-bottom: 20px;
+	}
+}
+
+#openmuc-navbar .navbar-text .btn-sm {
+  margin-left: 15px;
+}
+
+#openmuc-navbar .nav-link{
+	cursor: pointer;
+}
+
+#openmuc-navbar .dropdown .nav-item .nav-link {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+#footer {
+  text-align: center;
+  height: 70px;
+  padding: 15px 20px;
+
+  background: #E9EDEB;  
+  margin-top: 60px;
+}
+
+.navbar-brand {
+	height: auto;
+	margin-right: 30px;
+}
+
+.ng-invalid.ng-dirty {
+	border-color: #b94a48;
+}
+
+.ng-invalid.form-submitted {
+	border-color: #b94a48;
+}
+
+.form-error-message {
+	color: #b94a48;
+}
+
+@media (min-width: 768px) {
+	.lang-menu.navbar-btn {
+	  margin-top: 17px;
+	  margin-right: 20px;
+	}
+}
+
+@media (max-width: 768px) {
+  .lang-menu.navbar-btn {
+    margin-left: 15px;
+  }
+}
+
+.flag {
+	display: inline-block;
+	width: 24px;
+	height: 16px;
+	position: relative;
+  top: 3px;
+}
+
+.flag-de {
+	background: url('../images/flag-de.gif');
+}
+
+.flag-en {
+  background: url('../images/flag-en.gif');
+}
+
+.dropdown-label {
+	padding: 0 3px;
+}
+
+.dropdown .icon {
+	color: #00947a;
+	margin-right: 10px;
+	font-size: 20px;
+	width: 28px;
+	text-align: center;
+}
+
+.dropdown .icon img {
+  width: 20px;
+}
+
+/* FORMS */
+
+.form-horizontal .fa-info-circle {
+	color: #009474;
+}
+
+.help-label {
+	position: relative;
+	top: 5px;
+}
+
+/* TABLES */
+
+table.table-fixed {
+	table-layout: fixed;
+}
+
+/* HEADER */
+
+.sub-category-heading {
+  margin-top: 0px;
+  top: -20px;
+  position: relative;
+  color: #008669;
+  margin-bottom: 20px;
+}
+
+/* progress bar */
+
+#progressBarBackground {
+	position: relative;
+	width: 100%;
+	height: 30px;
+	background-color: #E9EDEB;
+}
+#progressBarForeground {
+	position: absolute;
+	width: 1%;
+	height: 100%;
+	background-color: #008669;
+}
+
+#progressBarLabel {
+	text-align: center;
+	line-height: 30px;
+	color: white;
+}

@@ -1,4 +1,5 @@
 def projectName = "OpenMUC Data Logger - ASCII"
+def projectDescription = "ASCII data logger for the OpenMUC framework."
 
 dependencies {
     implementation project(':openmuc-core-spi')
@@ -15,7 +16,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description "ASCII data logger for the OpenMUC framework."
+                description = projectDescription 
             }
         }
     }

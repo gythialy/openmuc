@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,11 +21,11 @@
 
 package org.openmuc.framework.parser.spi;
 
+import java.util.List;
+
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.spi.LoggingRecord;
-
-import java.util.List;
 
 /**
  * The ParserService provides methods to serialize and deserialize OpenMUC records.
@@ -36,18 +36,22 @@ public interface ParserService {
      * Serializes a given java datatype to byte array. The needed datatype depends on the concrete implementation of
      * this service.
      *
-     * @param openMucRecord logging record for serializing
+     * @param openMucRecord
+     *            logging record for serializing
      * @return serialized record as byte array
-     * @throws SerializationException when something goes wrong while serializing
+     * @throws SerializationException
+     *             when something goes wrong while serializing
      */
     byte[] serialize(LoggingRecord openMucRecord) throws SerializationException;
 
     /**
      * Serializes a list of LogRecordContainers.
      *
-     * @param openMucRecords list of logging records for serializing
+     * @param openMucRecords
+     *            list of logging records for serializing
      * @return serialized records as byte array
-     * @throws SerializationException when something goes wrong while serializing
+     * @throws SerializationException
+     *             when something goes wrong while serializing
      */
     byte[] serialize(List<LoggingRecord> openMucRecords) throws SerializationException;
 
@@ -55,9 +59,11 @@ public interface ParserService {
      * Deserializes a given JSON-String as byte array to {@link org.openmuc.framework.data.Record}. The format of the
      * byte array depends on the concrete implementation of this service.
      *
-     * @param byteArray received JSON-String
-     * @param valueType defines the type of the value, which is encapsulated in the received JSON-String
-     *                  {@link org.openmuc.framework.data.ValueType}
+     * @param byteArray
+     *            received JSON-String
+     * @param valueType
+     *            defines the type of the value, which is encapsulated in the received JSON-String
+     *            {@link org.openmuc.framework.data.ValueType}
      * @return deserialized instance of {@link org.openmuc.framework.data.Record}
      */
     Record deserialize(byte[] byteArray, ValueType valueType);

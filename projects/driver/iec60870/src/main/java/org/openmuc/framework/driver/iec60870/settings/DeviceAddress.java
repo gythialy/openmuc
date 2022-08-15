@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,7 +22,6 @@ package org.openmuc.framework.driver.iec60870.settings;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.MessageFormat;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class DeviceAddress extends GenericSetting {
     protected InetAddress host_address = null;
     protected int port = 2404;
 
-    protected static enum Option implements OptionI {
+    protected enum Option implements OptionI {
         COMMON_ADDRESS("ca", Integer.class, false),
         PORT("p", Integer.class, false),
         HOST_ADDRESS("h", InetAddress.class, false);
@@ -71,9 +70,9 @@ public class DeviceAddress extends GenericSetting {
         int addressLength = parseFields(deviceAddress, Option.class);
 
         if (addressLength == 0) {
-            logger.info(MessageFormat.format(
-                    "No device address setted in configuration, default values will be used: host address = localhost; port = {0}",
-                    port));
+            logger.info(
+                    "No device address set in configuration, default values will be used: host address = localhost; port = {}",
+                    port);
         }
         if (host_address == null) {
             try {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,15 +21,21 @@
 
 package org.openmuc.framework.lib.amqp;
 
-import com.rabbitmq.client.*;
-import org.openmuc.framework.lib.ssl.SslManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
+
+import org.openmuc.framework.security.SslManagerInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Recoverable;
+import com.rabbitmq.client.RecoveryListener;
+import com.rabbitmq.client.ShutdownSignalException;
 
 /**
  * Represents a connection to an AMQP broker
@@ -45,35 +51,38 @@ public class AmqpConnection {
     private String exchange;
     private Connection connection;
     private Channel channel;
+    private SslManagerInterface sslManager;
+    private boolean connected = false;
 
     /**
      * A connection to an AMQP broker
      *
-     * @param settings connection details {@link AmqpSettings}
-     * @throws IOException      when connection fails
-     * @throws TimeoutException when connection fails due time out
+     * @param settings
+     *            connection details {@link AmqpSettings}
+     * @throws IOException
+     *             when connection fails
+     * @throws TimeoutException
+     *             when connection fails due time out
      */
     public AmqpConnection(AmqpSettings settings) throws IOException, TimeoutException {
         this.settings = settings;
-        ConnectionFactory factory;
 
-        /*
-         * #88 if (settings.isSsl()) { SslManager.getInstance().listenForConfigChange(this::sslUpdate); }
-         */
+        if (!settings.isSsl()) {
+            logger.info("Starting amqp connection without ssl");
+            ConnectionFactory factory = getConnectionFactoryForSsl(settings);
 
-        factory = getConnectionFactoryForSsl(settings);
-
-        try {
-            connect(settings, factory);
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                connect(settings, factory);
+            } catch (Exception e) {
+                logger.error("Connection could not be created: {}", e.getMessage());
+            }
         }
     }
 
     private ConnectionFactory getConnectionFactoryForSsl(AmqpSettings settings) {
         ConnectionFactory factory = new ConnectionFactory();
         if (settings.isSsl()) {
-            factory.useSslProtocol(SslManager.getInstance().getSslContext());
+            factory.useSslProtocol(sslManager.getSslContext());
             factory.enableHostnameVerification();
         }
         factory.setHost(settings.getHost());
@@ -81,21 +90,33 @@ public class AmqpConnection {
         factory.setVirtualHost(settings.getVirtualHost());
         factory.setUsername(settings.getUsername());
         factory.setPassword(settings.getPassword());
+        factory.setExceptionHandler(new AmqpExceptionHandler());
+        factory.setRequestedHeartbeat(settings.getConnectionAliveInterval());
         return factory;
     }
 
-    private void connect(AmqpSettings settings, ConnectionFactory factory) throws IOException, TimeoutException {
+    private void connect(AmqpSettings settings, ConnectionFactory factory) throws IOException {
+        establishConnection(factory);
 
-        connection = factory.newConnection();
+        if (connection == null) {
+            logger.warn("Created connection is null, check your config\n{}", settings);
+            return;
+        }
+
+        connected = true;
+        logger.info("Connection established successfully!");
+
         addRecoveryListener(new RecoveryListener() {
             @Override
             public void handleRecovery(Recoverable recoverable) {
                 logger.debug("Connection recovery completed");
+                connected = true;
             }
 
             @Override
             public void handleRecoveryStarted(Recoverable recoverable) {
                 logger.debug("Connection recovery started");
+                connected = false;
             }
         });
 
@@ -105,7 +126,15 @@ public class AmqpConnection {
 
         if (logger.isTraceEnabled()) {
             logger.trace("Connected to {}:{} on virtualHost {} as user {}", settings.getHost(), settings.getPort(),
-                    settings.getVirtualHost(), settings.getPort());
+                    settings.getVirtualHost(), settings.getUsername());
+        }
+    }
+
+    private void establishConnection(ConnectionFactory factory) {
+        try {
+            connection = factory.newConnection();
+        } catch (Exception e) {
+            logger.error("Error at creation of new connection: {}", e.getMessage());
         }
     }
 
@@ -115,13 +144,18 @@ public class AmqpConnection {
         ConnectionFactory factory = getConnectionFactoryForSsl(settings);
         try {
             connect(settings, factory);
+            if (connection == null) {
+                logger.error("connection after calling ssl update is null");
+                return;
+            }
             for (RecoveryListener listener : recoveryListeners) {
                 ((Recoverable) connection).addRecoveryListener(listener);
+                listener.handleRecovery((Recoverable) connection);
             }
             for (AmqpReader reader : readers) {
                 reader.resubscribe();
             }
-        } catch (IOException | TimeoutException e) {
+        } catch (IOException e) {
             logger.error("Reconnection failed. Reason: {}", e.getMessage());
         }
         logger.warn("Reconnection completed.");
@@ -131,8 +165,9 @@ public class AmqpConnection {
      * Close the channel and connection
      */
     public void disconnect() {
-        if (channel == null || connection == null)
+        if (channel == null || connection == null) {
             return;
+        }
         try {
             channel.close();
             connection.close();
@@ -147,8 +182,10 @@ public class AmqpConnection {
     /**
      * Declares the passed queue as a durable queue
      *
-     * @param queue the queue that should be declared
-     * @throws IOException if an I/O problem is encountered
+     * @param queue
+     *            the queue that should be declared
+     * @throws IOException
+     *             if an I/O problem is encountered
      */
     public void declareQueue(String queue) throws IOException {
         if (!DECLARED_QUEUES.contains(queue)) {
@@ -156,19 +193,21 @@ public class AmqpConnection {
                 channel.queueDeclarePassive(queue);
                 channel.queueBind(queue, exchange, queue);
                 DECLARED_QUEUES.add(queue);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Queue {} declared", queue);
+                }
             } catch (Exception e) {
-                logger.debug("Channel not found, start to create it...");
+                logger.debug("Channel {} not found, start to create it...", queue);
                 initDeclare(queue);
-            }
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("Queue {} declared", queue);
             }
         }
     }
 
     void addRecoveryListener(RecoveryListener listener) {
         recoveryListeners.add(listener);
+        if (connection == null) {
+            return;
+        }
         ((Recoverable) connection).addRecoveryListener(listener);
     }
 
@@ -177,7 +216,16 @@ public class AmqpConnection {
     }
 
     private void initDeclare(String queue) throws IOException {
-        channel = connection.createChannel();
+        if (connection == null) {
+            logger.error("declaring queue stopped, because connection to broker is null");
+            return;
+        }
+        try {
+            channel = connection.createChannel();
+        } catch (Exception e) {
+            logger.error("Queue {} could not be declared.", queue);
+            return;
+        }
         channel.exchangeDeclare(exchange, "topic", true);
         channel.queueDeclare(queue, true, false, false, null);
     }
@@ -186,7 +234,32 @@ public class AmqpConnection {
         return exchange;
     }
 
-    public Channel getRabbitMqChannel() {
+    Channel getRabbitMqChannel() {
         return channel;
+    }
+
+    AmqpSettings getSettings() {
+        return settings;
+    }
+
+    public void setSslManager(SslManagerInterface instance) {
+        if (!settings.isSsl()) {
+            return;
+        }
+        sslManager = instance;
+        sslManager.listenForConfigChange(this::sslUpdate);
+        ConnectionFactory factory = getConnectionFactoryForSsl(settings);
+
+        if (sslManager.isLoaded()) {
+            try {
+                connect(settings, factory);
+            } catch (Exception e) {
+                logger.error("Connection with SSL couldn't be created");
+            }
+        }
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }

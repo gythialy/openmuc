@@ -7,14 +7,15 @@ def rabbitmqVersion = '5.9.0'
 
 dependencies {
     implementation group: 'com.rabbitmq', name: 'amqp-client', version: rabbitmqVersion
-    implementation project(':openmuc-lib-ssl')
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-lib-filePersistence')
     embed group: 'com.rabbitmq', name: 'amqp-client', version: rabbitmqVersion
 }
 
 jar {
     bnd('Bundle-Name': projectName,
             'Bundle-ClassPath': '.,lib/amqp-client-' + rabbitmqVersion + '.jar',
-            'Import-Package': '!com.rabbitmq.*,org.openmuc.framework.lib.ssl,org.slf4j,javax.net,javax.net.ssl,;resolution:=optional,*' + jarDefaultImportPackageVersion,
+            'Import-Package': '!com.rabbitmq.*,org.openmuc.framework.security,org.openmuc.framework.lib.filePersistence,org.slf4j,javax.net,javax.net.ssl,;resolution:=optional,*' + jarDefaultImportPackageVersion,
             'Export-Package': 'org.openmuc.framework.lib.amqp')
 
     into('lib') {

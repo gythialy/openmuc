@@ -1,0 +1,83 @@
+=== DLMS/COSEM
+
+DLMS/COSEM is a international standardized protocol used mostly to communicate
+with smart meter devices. The DLMS/COSEM driver uses the client library developed
+by the jDLMS project. Currently, the DLMS/COSEM driver supports communication via
+HDLC and TCP/IP using Logical Name Referencing to retrieve values from the device.
+
+*Dependencies:* rxtxcomm_api-2.1.7.jar (optional)
+
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | dlms
+|Device Address |  t=<serial/tcp> [;h=<inet_address>] [;p=<int>] [;hdlc=<boolean>] +
+                  [;sp=<sp>] [;bd=<int>] [;d=<d>] [;eh=<eh>] [;iec=<iec>] [;pd=<pd>] +
+|Settings |   [SendDisconnect=<disconnect>];[UseHandshake=<handshake>];[..]
+[ld=<int>] [;cid=<cid>] [;sn=<sn>] [;emech=<emech>] [;amech=<amech>] +
+ [;ekey=<ekey>] [;akey=<akey>] [;pass=<pass>] [;cl=<cl>] [;rt=<rt>] [;mid=<mid>] [;did=<did>]
+|Channel Address |   <class-id>/<reference-id>/<attribute-id>[;t=<data_object_type>]
+|=========================================================
+
+*Device Address*
+
+The interface address consists of all elements the driver needs to uniquely
+identify and address a physical smart meter and format depends on the used protocol.
+Refer to the following table for the format of the interface address.
+
+.Device Address connection type
+[{driver_table_op},cols="1,1,1,1,1,5"]
+|=========================================================
+| Option | Value        | Mandatory | _serial/tcp_ | default | Description
+| t      | _serial/tcp_ | _true_    | -            | -       | Connection type
+| sp     | _string_     | _false_   | _serial_     | -       | serial port e.g. sp=/dev/ttyS0 or sp=COM1
+| bd     | _integer_    | _false_   | _serial_     | 9600    | Baud rate
+| h      | _integer_    | _false_   | _tcp_        | -       | Host name e.g. h=127.0.0.1
+| p      | _integer_    | _false_   | _tcp_        | 4059    | Port
+| hdlc   | _boolean_    | _false_   | _both_       | false   | Uses HDLC if true
+| d      | _integer_    | _false_   | _both_       | 0       | Baud rate change delay in milliseconds
+| eh     | _flag_       | _false_   | _both_       | false   | Use initial handshake to negotiate baud rate
+| iec    | _string_     | _false_   | _both_       | -       | IEC 21 address
+| pd     | _integer_    | _false_   | _both_       | 0       | Physical Device Address
+|=========================================================
+
+.Example
+Serial with HDLC on serial port ttyUSB0 an 9600 baud: +
+_t=serial;sp=/dev/ttyUSB0;bd=9600;hdlc=true_
+
+TCP with HDLC to host 192.168.85.99 on port 5081: +
+_t=tcp;h=192.168.85.99;p=5081;hdlc=true_
+
+*Settings*
+
+Settings are separated by a semi-colon. The available settings are determined by
+the used protocol, defined as first parameter of the device address. All possible
+settings with a short description and default values are listed in the following
+table.
+
+.Settings
+[{driver_table_op},cols="1,1,1,1,5"]
+|=========================================================
+| Option | Value       | Mandatory | Default | Description
+| ld     | _integer_   | _false_   | 1       | Logical Device Address
+| cid    | _integer_   | _false_   | 16      | Client ID
+| sn     | _boolean_   | _false_   | false   | use SN referencing
+| emech  | _integer_   | _false_   | -1      | Encryption Mechanism
+| amech  | _integer_   | _false_   | 0       | Authentication Mechanism
+| ekey   | _hex_value_ | _false_   | -       | Encryption Key
+| akey   | _hex_value_ | _false_   | -       | Authentication Key
+| pass   | _string_    | _false_   | -       | Authorisation password to access the smart meter device
+| cl     | _integer_   | _false_   | 16      | Challenge Length
+| rt     | _integer_   | _false_   | 20000   | Response Timeout
+| mid    | _string_    | _false_   | MMM     | Manufacturer Id
+| did    | _long_      | _false_   | 1       | Device Id
+|=========================================================
+
+
+.Device Address additional options
+[{driver_table_op},cols="1,1,1,1,5"]
+|=========================================================
+| Option | Value    | Mandatory | default | Description
+| a      | _string_ | _true_    | -       | Address in logical name format <Interface_Class_ID>/<Instance_ID>/<Object_Attribute_ID>
+| t      | _string_ | _false_   | -       | Data Object Type
+|=========================================================
+

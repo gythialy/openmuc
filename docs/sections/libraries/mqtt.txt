@@ -1,0 +1,102 @@
+=== MQTT
+[#mqtt-lib]
+The MQTT library uses the HiveMQ MQTT Client to connect to the broker.
+
+The library consists of several classes with the most important listed below:
+
+* MqttSettings
+* MqttConnection
+* MqttReader
+* MqttWriter
+
+It implements automatic connection recovery with message buffering. Also LWT is supported with additional "first will" feature (see below).
+If only publishing (or subscribing) is needed only the MqttConnection and the MqttReader (or MqttWriter) needs to be instantiated.
+
+==== LWT (Last Will and Testament) and first will
+
+The Last Will and Testament feature in the MQTT protocol offers clients an opportunity to send a last will message on a last will topic after ungraceful disconnects.
+
+This is achieved by sending a regular MQTT message together with the CONNECT message to the broker.
+If the broker detects a broken connection (e.g. no PING message was received after the connection alive interval) it will send the last will payload to all clients subscribed 
+to the last will message topic.
+
+For convenience this library can also send the LWT on intentional disconnects, i.e. when `disconnect()` is called and LWT is properly configured (with `lastWillAlways=true`).
+
+Also a "first will" is implemented. This is a regular PUBLISH packet sent immediately after the connection is initiated.
+
+==== Connecting to a broker (MqttSettings/MqttConnection)
+
+An instance of an MqttConnection represents a connection to a broker. If multiple connections are needed one can simply create multiple instances.
+
+To create an MqttConnection instance one first needs to create an instance of MqttSettings and pass it to the constructor of the MqttConnection. In that way, it is up to the 
+developer to decide where to get the connection properties from.
+
+The connection is instantiated when `connect()` is called. It's important to create needed instances of MqttWriter and/or MqttReader *before* calling `connect()`.
+
+Before the application stops one should `disconnect()` first to clean up any resources.
+
+Example with local Mosquitto Broker (with default settings):
+
+```java
+String host = "localhost";
+int port = 1883;
+String user = null;
+String pw = null;
+boolean ssl = false;
+long maxBufferSize = 1;
+long maxFileSize = 2;
+int connRetryInterval = 5;
+int connAliveInterval = 10;
+String persistenceDirectory = "data/mqtt/app"
+
+MqttSettings settings = new MqttSettings(
+    host, port, user, pw, ssl, maxBufferSize, maxFileSize, maxFileCount, connRetryInterval,
+    connAliveInterval, persistenceDirectory
+);
+
+// Create MqttReader and/or MqttWriter objects here!
+
+MqttConnection connection = new MqttConnection(settings);
+
+// Before stopping the application:
+connection.disconnect();
+```
+
+==== Subscribing/listening to topics (MqttReader)
+
+One can listen to a collection of topics with a listener which gets notified when a message in any of those topics is received. When listening to a single topic just 
+pass a collection singleton.
+
+Example:
+
+```java
+MqttReader reader = new MqttReader(connection);
+// Note connect() is called after MqttReader instance creation
+connection.connect();
+Collection<String> topics = new ArrayList<>(2);
+topics.add("example/topic/1");
+topics.add("example/topic/2");
+
+reader.listen(queues, (String topic, byte[] message) -> {
+    if (topic == "example/topic/1") {
+        // handle message
+    } else {
+        // handle message
+    }
+});
+```
+
+==== Publishing messages (MqttWriter)
+
+To publish a message call `void write(String topic, byte[] message)`.
+
+Example:
+
+```java
+MqttWriter writer = new MqttWriter(connection);
+connection.connect();
+
+String topic = "test/logger";
+byte[] message = "Hello World!".getBytes();
+writer.write(topic, message);
+```

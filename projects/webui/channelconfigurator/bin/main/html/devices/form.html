@@ -1,0 +1,114 @@
+<form name="deviceForm" class="form-horizontal" ng-init="getDriverInfo()" ng-submit="saveDevice()" novalidate>
+  <fieldset>
+    <legend>{{'DEVICE_CONFIGURATION' | translate}}:</legend>
+    
+    <br />
+    
+    <div class="form-group">
+      <label for="id" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'DEVICE_ID_HINT' | translate}}"></span>
+        {{'DEVICE_ID' | translate}} *
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" name="id" id="id" ng-model="device.configs.id" required="required" ng-class="{true: 'form-submitted', false: ''}[deviceForm.submitted]" ng-pattern="/^[a-zA-Z0-9_\-]*$/">
+        <div class="form-error-container" ng-show="(deviceForm.id.$dirty && deviceForm.id.$invalid) || (deviceForm.submitted && deviceForm.id.$invalid)">
+          <div class="form-error-message" ng-show="deviceForm.id.$error.required">{{'DEVICE_NAME_REQUIRED' | translate}}.</div>
+          <div class="form-error-message" ng-show="deviceForm.id.$error.pattern">{{'DEVICE_ID_PATTERN_INCORRECT' | translate}}</div>
+        </div>
+        <p class="help-block">N.A. **</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'DEVICE_DESCRIPTION_HINT' | translate}}"></span>        
+        {{'DEVICE_DESCRIPTION' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="description" ng-model="device.configs.description">
+        <p class="help-block">N.A. **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="address" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="dummy/device/address/[0-9]"></span>
+        {{'DEVICE_ADDRESS' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="address" ng-model="device.configs.deviceAddress">
+        <p class="help-block">{{driverInfo.deviceAddressSyntax}} </p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="settings" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="N.A."></span>
+        {{'DEVICE_SETTINGS' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="settings" ng-model="device.configs.settings">
+        <p class="help-block">{{driverInfo.settingsSyntax}} </p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="samplingTimeout" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'DEVICE_SAMPLING_TIMEOUT_HINT' | translate}}"></span>
+        {{'DEVICE_SAMPLING_TIMEOUT' | translate}}
+      </label>
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" id="samplingTimeout" name="samplingTimeout" ng-model="device.configs.samplingTimeout" ng-pattern="/^[0-9]{1,10}$/">
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
+        </div>
+        <div class="form-error-container" ng-show="(deviceForm.samplingTimeout.$dirty && deviceForm.samplingTimeout.$invalid) || (deviceForm.submitted && deviceForm.samplingTimeout.$invalid)">
+          <div class="form-error-message" ng-show="deviceForm.samplingTimeout.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>        
+        <p class="help-block">{{'DEVICE_VALUE_SET_DRIVER_CONFIGURATION' | translate}} **</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="connectRetryInterval" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'DEVICE_CONNECT_RETRY_INTERVAL_HINT' | translate}}"></span>
+        {{'DEVICE_CONNECT_RETRY_INTERVAL' | translate}}
+      </label>
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" id="connectRetryInterval" name="connectRetryInterval" ng-model="device.configs.connectRetryInterval" ng-pattern="/^[0-9]{1,10}$/">
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
+        </div>
+        <div class="form-error-container" ng-show="(deviceForm.connectRetryInterval.$dirty && deviceForm.connectRetryInterval.$invalid) || (deviceForm.submitted && deviceForm.connectRetryInterval.$invalid)">
+          <div class="form-error-message" ng-show="deviceForm.connectRetryInterval.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                
+        <p class="help-block">{{'DEVICE_VALUE_SET_DRIVER_CONFIGURATION' | translate}} **</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="disabled" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'DEVICE_DISABLED_HINT' | translate}}"></span>
+        {{'DEVICE_DISABLED' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="checkbox" id="disabled" ng-model="device.configs.disabled">
+        <p class="help-block">{{'FALSE' | translate}} **</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-8">
+        <div class="alert alert-md alert-warning">
+          <b class="small">* {{'REQUIRED_FIELDS' | translate}}</b><br />
+          <b class="small">** {{'DEFAULT_LEFT_BLANK' | translate}}</b>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8 text-right">
+      <input type="submit" ng-click="setTabIndex(1)" class="btn btn-primary" value="{{'SUBMIT' | translate}}">
+    </div>
+
+  </fieldset>
+</form>

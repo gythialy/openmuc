@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -211,6 +211,16 @@ public enum Flag {
      */
     CUSTOM_ERROR_9(59);
 
+    private final int code;
+
+    private Flag(int code) {
+        this.code = code;
+    }
+
+    public byte getCode() {
+        return (byte) code;
+    }
+
     private static final Map<Byte, Flag> idMap = new HashMap<>();
 
     static {
@@ -221,22 +231,12 @@ public enum Flag {
         }
     }
 
-    private final int code;
-
-    private Flag(int code) {
-        this.code = code;
-    }
-
     public static Flag newFlag(int code) {
         Flag enumInstance = idMap.get((byte) code);
         if (enumInstance == null) {
             throw new IllegalArgumentException("Unknown Flag code: " + code);
         }
         return enumInstance;
-    }
-
-    public byte getCode() {
-        return (byte) code;
     }
 
 }

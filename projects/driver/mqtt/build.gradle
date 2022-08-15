@@ -1,9 +1,11 @@
 def projectName = "OpenMUC Driver - MQTT"
+def projectDescription = "MQTT driver for the OpenMUC framework."
 
 dependencies {
     implementation project(':openmuc-core-spi')
     //implementation project(':openmuc-core-datamanager')
     implementation project(':openmuc-lib-mqtt')
+    implementation project(':openmuc-lib-osgi')
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
 }
@@ -17,7 +19,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description "MQTT driver for the OpenMUC framework."
+                description = projectDescription
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,10 +21,14 @@
 
 package org.openmuc.framework.dataaccess;
 
-import org.openmuc.framework.data.*;
-
 import java.io.IOException;
 import java.util.List;
+
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FutureValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
 
 /**
  * The <code>Channel</code> class is used to access a single data field of a communication device. A desired channel can
@@ -194,14 +198,16 @@ public interface Channel {
     /**
      * Adds a listener that is notified of new records received by sampling or listening.
      *
-     * @param listener the record listener that is notified of new records.
+     * @param listener
+     *            the record listener that is notified of new records.
      */
     void addListener(RecordListener listener);
 
     /**
      * Removes a record listener.
      *
-     * @param listener the listener shall be removed.
+     * @param listener
+     *            the listener shall be removed.
      */
     void removeListener(RecordListener listener);
 
@@ -244,7 +250,8 @@ public interface Channel {
      * </li>
      * </ul>
      *
-     * @param record the record to be set.
+     * @param record
+     *            the record to be set.
      */
     void setLatestRecord(Record record);
 
@@ -252,9 +259,10 @@ public interface Channel {
      * Writes the given value to the channel's corresponding data field in the connected communication device. If an
      * error occurs, the returned <code>Flag</code> will indicate this.
      *
-     * @param value the value that is to be written
+     * @param value
+     *            the value that is to be written
      * @return the flag indicating whether the value was successfully written ( <code>Flag.VALID</code>) or not (any
-     * other flag).
+     *         other flag).
      */
     Flag write(Value value);
 
@@ -263,7 +271,8 @@ public interface Channel {
      * This function will schedule single write tasks to the provided timestamps.<br>
      * Once this function is called, previously scheduled write tasks will be erased.<br>
      *
-     * @param values a list of future write values.
+     * @param values
+     *            a list of future write values.
      */
     void writeFuture(List<FutureValue> values);
 
@@ -280,7 +289,7 @@ public interface Channel {
      * error occurs it will be indicated in the returned record's flag.
      *
      * @return the record containing the value read, the time the value was received and a flag indicating success (
-     * <code>Flag.VALID</code>) or a an error (any other flag).
+     *         <code>Flag.VALID</code>) or a an error (any other flag).
      */
     Record read();
 
@@ -299,21 +308,27 @@ public interface Channel {
      * it is impossible for an application to know the exact time at which a value was received. In this case use
      * <code>getLoggedRecords</code> instead.
      *
-     * @param time the time in milliseconds since midnight, January 1, 1970 UTC.
+     * @param time
+     *            the time in milliseconds since midnight, January 1, 1970 UTC.
      * @return the record that has been stored by the framework's data logger at the given <code>timestamp</code>.
-     * Returns <code>null</code> if no record exists for this point in time.
-     * @throws DataLoggerNotAvailableException if no data logger is installed and therefore no logged data can be accessed.
-     * @throws IOException                     if any kind of error occurs accessing the logged data.
+     *         Returns <code>null</code> if no record exists for this point in time.
+     * @throws DataLoggerNotAvailableException
+     *             if no data logger is installed and therefore no logged data can be accessed.
+     * @throws IOException
+     *             if any kind of error occurs accessing the logged data.
      */
     Record getLoggedRecord(long time) throws DataLoggerNotAvailableException, IOException;
 
     /**
      * Returns a list of all logged data records with timestamps from <code>startTime</code> up until now.
      *
-     * @param startTime the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param startTime
+     *            the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
      * @return a list of all logged data records with timestamps from <code>startTime</code> up until now.
-     * @throws DataLoggerNotAvailableException if no data logger is installed and therefore no logged data can be accessed.
-     * @throws IOException                     if any kind of error occurs accessing the logged data.
+     * @throws DataLoggerNotAvailableException
+     *             if no data logger is installed and therefore no logged data can be accessed.
+     * @throws IOException
+     *             if any kind of error occurs accessing the logged data.
      */
     List<Record> getLoggedRecords(long startTime) throws DataLoggerNotAvailableException, IOException;
 
@@ -321,12 +336,16 @@ public interface Channel {
      * Returns a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code>
      * inclusive.
      *
-     * @param startTime the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
-     * @param endTime   the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param startTime
+     *            the starting time in milliseconds since midnight, January 1, 1970 UTC. inclusive
+     * @param endTime
+     *            the ending time in milliseconds since midnight, January 1, 1970 UTC. inclusive
      * @return a list of all logged data records with timestamps from <code>startTime</code> to <code>endTime</code>
-     * inclusive.
-     * @throws DataLoggerNotAvailableException if no data logger is installed and therefore no logged data can be accessed.
-     * @throws IOException                     if any kind of error occurs accessing the logged data.
+     *         inclusive.
+     * @throws DataLoggerNotAvailableException
+     *             if no data logger is installed and therefore no logged data can be accessed.
+     * @throws IOException
+     *             if any kind of error occurs accessing the logged data.
      */
     List<Record> getLoggedRecords(long startTime, long endTime) throws DataLoggerNotAvailableException, IOException;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,14 +21,14 @@
 
 package org.openmuc.framework.lib.mqtt;
 
-import org.openmuc.framework.lib.filePersistence.FilePersistence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import org.openmuc.framework.lib.filePersistence.FilePersistence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Buffer handler with RAM buffer and managed {@link FilePersistence}
@@ -39,9 +39,9 @@ public class MqttBufferHandler {
 
     private final Queue<MessageTuple> buffer = new LinkedList<>();
     private final long maxBufferSizeBytes;
+    private long currentBufferSize = 0L;
     private final int maxFileCount;
     private final FilePersistence filePersistence;
-    private long currentBufferSize = 0L;
 
     /**
      * Initializes buffers with specified properties.
@@ -115,10 +115,14 @@ public class MqttBufferHandler {
      * </tr>
      * </table>
      *
-     * @param maxBufferSizeKb      maximum RAM buffer size in KiB
-     * @param maxFileCount         maximum file count used per buffer by {@link FilePersistence}
-     * @param maxFileSizeKb        maximum file size used per file by {@link FilePersistence}
-     * @param persistenceDirectory directory in which {@link FilePersistence} stores buffers
+     * @param maxBufferSizeKb
+     *            maximum RAM buffer size in KiB
+     * @param maxFileCount
+     *            maximum file count used per buffer by {@link FilePersistence}
+     * @param maxFileSizeKb
+     *            maximum file size used per file by {@link FilePersistence}
+     * @param persistenceDirectory
+     *            directory in which {@link FilePersistence} stores buffers
      */
     public MqttBufferHandler(long maxBufferSizeKb, int maxFileCount, long maxFileSizeKb, String persistenceDirectory) {
         maxBufferSizeBytes = maxBufferSizeKb * 1024;
@@ -126,7 +130,8 @@ public class MqttBufferHandler {
 
         if (isFileBufferEnabled()) {
             filePersistence = new FilePersistence(persistenceDirectory, maxFileCount, maxFileSizeKb);
-        } else {
+        }
+        else {
             filePersistence = null;
         }
     }
@@ -139,7 +144,8 @@ public class MqttBufferHandler {
 
         if (isBufferTooFull(message)) {
             handleFull(topic, message);
-        } else {
+        }
+        else {
             synchronized (buffer) {
                 buffer.add(new MessageTuple(topic, message));
                 currentBufferSize += message.length;
@@ -161,7 +167,8 @@ public class MqttBufferHandler {
         if (isFileBufferEnabled()) {
             addToFilePersistence();
             add(topic, message);
-        } else if (message.length <= maxBufferSizeBytes) {
+        }
+        else if (message.length <= maxBufferSizeBytes) {
             removeNextMessage();
             add(topic, message);
         }
@@ -203,8 +210,9 @@ public class MqttBufferHandler {
         String[] buffers;
         if (isFileBufferEnabled()) {
             buffers = filePersistence.getBuffers();
-        } else {
-            buffers = new String[]{};
+        }
+        else {
+            buffers = new String[] {};
         }
         return buffers;
     }
@@ -213,4 +221,15 @@ public class MqttBufferHandler {
         return new MqttBufferMessageIterator(buffer, filePersistence);
     }
 
+    public void persist() {
+        if (isFileBufferEnabled()) {
+            try {
+                filePersistence.restructure();
+                addToFilePersistence();
+            } catch (IOException e) {
+                logger.error("Buffer file restructuring error: {}", e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 }

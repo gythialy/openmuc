@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,14 +21,19 @@
 
 package org.openmuc.framework.lib.osgi.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages properties, performs consistency checks and provides methods to access properties as int, string or boolean
@@ -39,15 +44,17 @@ public class PropertyHandler {
     private static final String DEFAULT_FOLDER = "load/";
     private static final String DEFAULT_PROPERTY_KEY = "felix.fileinstall.dir";
     private final Map<String, ServiceProperty> currentProperties;
-    private final String pid;
     private boolean configChanged;
     private boolean defaultConfig;
+    private final String pid;
 
     /**
      * Constructor
      *
-     * @param settings settings
-     * @param pid      Name of class implementing ManagedService e.g. String pid = MyClass.class.getName()
+     * @param settings
+     *            settings
+     * @param pid
+     *            Name of class implementing ManagedService e.g. String pid = MyClass.class.getName()
      */
     public PropertyHandler(GenericSettings settings, String pid) {
         this.currentProperties = settings.getProperties();
@@ -106,7 +113,8 @@ public class PropertyHandler {
 
         if (property.isMandatory()) {
             processMandatoryProperty(newDictValue, key, property);
-        } else {
+        }
+        else {
             property.update(newDictValue);
         }
     }
@@ -120,7 +128,8 @@ public class PropertyHandler {
 
         if (newDictValue.equals("")) {
             throw new ServicePropertyException("mandatory property '" + key + "' is empty");
-        } else {
+        }
+        else {
             property.update(newDictValue);
         }
     }
@@ -169,28 +178,72 @@ public class PropertyHandler {
         return false;
     }
 
+    /**
+     * Test if a key is contained in properties
+     */
+    public boolean hasValueForKey(String key) {
+        return currentProperties.containsKey(key);
+    }
+
+    /**
+     * Returns a property as integer.
+     * <p>
+     * Possibly throws:
+     * <p>
+     * - {@link IllegalArgumentException} if the key does not exist in properties
+     * <p>
+     * - {@link NumberFormatException} if the key exists but cannot be cast to integer
+     */
     public int getInt(String key) {
-        ServiceProperty prop = currentProperties.get(key);
+        ServiceProperty prop = getOrThrow(key);
         return Integer.valueOf(prop.getValue());
     }
 
+    /**
+     * Returns a property as double.
+     * <p>
+     * Possibly throws:
+     * <p>
+     * - {@link IllegalArgumentException} if the key does not exist in properties
+     * <p>
+     * - {@link NumberFormatException} if the key exists but cannot be cast to integer
+     */
     public double getDouble(String key) {
-        ServiceProperty prop = currentProperties.get(key);
+        ServiceProperty prop = getOrThrow(key);
         return Double.valueOf(prop.getValue());
     }
 
+    /**
+     * Returns a property as String.
+     * <p>
+     * Possibly throws:
+     * <p>
+     * - {@link IllegalArgumentException} if the key does not exist in properties
+     */
     public String getString(String key) {
-        return currentProperties.get(key).getValue();
+        return getOrThrow(key).getValue();
     }
 
+    /**
+     * Returns a property as boolean.
+     * <p>
+     * Possibly throws:
+     * <p>
+     * - {@link IllegalArgumentException} if the key does not exist in properties
+     */
     public boolean getBoolean(String key) {
-        ServiceProperty prop = currentProperties.get(key);
+        ServiceProperty prop = getOrThrow(key);
         return Boolean.valueOf(prop.getValue());
+    }
+
+    private ServiceProperty getOrThrow(String key) {
+        return Optional.ofNullable(currentProperties.get(key))
+                .orElseThrow(() -> new IllegalArgumentException("No value for key=" + key));
     }
 
     /**
      * @return a HashMap with value from type String not ServiceProperty! Full ServiceProperty object not necessary
-     * here.
+     *         here.
      */
     private HashMap<String, String> getCopyOfProperties() {
         HashMap<String, String> oldProperties = new HashMap<>();
@@ -208,7 +261,7 @@ public class PropertyHandler {
 
     /**
      * @return <b>true</b> as long as the properties are identical to the one that were given to the constructor,
-     * otherwise <b>false</b>
+     *         otherwise <b>false</b>
      */
     public boolean isDefaultConfig() {
         return defaultConfig;
@@ -216,19 +269,31 @@ public class PropertyHandler {
 
     /**
      * @return <b>true</b> if config has changed after last {@link #processConfig(DictionaryPreprocessor)} call,
-     * otherwise <b>false</b>
+     *         otherwise <b>false</b>
      */
     public boolean configChanged() {
         return configChanged;
     }
 
+    /**
+     * Prints all keys and the corresponding values.
+     * <p>
+     * If the key contains "password", "*****" is shown instead of the corresponding value (which would be the
+     * password).
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, ServiceProperty> entry : currentProperties.entrySet()) {
             String key = entry.getKey();
-            ServiceProperty propValue = entry.getValue();
-            sb.append("\n" + key + "=" + propValue.getValue());
+            final String propValue;
+            if (key != null && key.contains("password")) {
+                propValue = "*****";
+            }
+            else {
+                propValue = entry.getValue().getValue();
+            }
+            sb.append("\n" + key + "=" + propValue);
         }
         return sb.toString();
     }

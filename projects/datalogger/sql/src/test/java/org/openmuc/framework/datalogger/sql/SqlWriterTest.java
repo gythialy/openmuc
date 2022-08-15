@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,16 +21,19 @@
 
 package org.openmuc.framework.datalogger.sql;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.openmuc.framework.data.DoubleValue;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.data.Record;
@@ -41,22 +44,35 @@ class SqlWriterTest {
 
     private SqlWriter sqlWriter;
     private DbAccess dbAccessMock;
+    private Connection connection;
 
     @BeforeEach
-    void setup() {
+    void setup() throws SQLException {
+        connection = TestConnectionHelper.getConnection();
+
         dbAccessMock = mock(DbAccess.class);
+
+        doAnswer(invocation -> { // pass any executed sql statements to the test connection
+            TestConnectionHelper.executeSQL(connection, invocation.getArgument(0).toString());
+            return null;
+        }).when(dbAccessMock).executeSQL(any());
+
         sqlWriter = new SqlWriter(dbAccessMock);
     }
 
     @Test
-    void writeEventBasedContainerToDb() {
-        ArgumentCaptor<StringBuilder> argument = ArgumentCaptor.forClass(StringBuilder.class);
-
+    void writeEventBasedContainerToDb() throws SQLException {
         List<LoggingRecord> recordList = buildLoggingRecordList(5);
-        sqlWriter.writeEventBasedContainerToDb(recordList);
-        verify(dbAccessMock, times(1)).executeSQL(argument.capture());
 
-        System.out.println(argument.getValue().toString());
+        TestConnectionHelper.executeSQL(connection, String.format( // create table for the tests to write to
+                "CREATE TABLE %s (time TIMESTAMP NOT NULL, " + "flag SMALLINT NOT NULL, \"VALUE\" DOUBLE)",
+                recordList.get(0).getChannelId()));
+
+        sqlWriter.writeEventBasedContainerToDb(recordList);
+
+        verify(dbAccessMock, times(5)).executeSQL(any());
+
+        connection.close();
     }
 
     private List<LoggingRecord> buildLoggingRecordList(int numOfElements) {

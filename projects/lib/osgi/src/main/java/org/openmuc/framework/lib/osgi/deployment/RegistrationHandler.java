@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,15 +21,27 @@
 
 package org.openmuc.framework.lib.osgi.deployment;
 
-import ch.qos.logback.classic.Logger;
-import org.osgi.framework.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import ch.qos.logback.classic.Logger;
 
 /**
  * This class provides some methods to ease the dynamic handling of OSGi services. It capsules routines of the OSGi
@@ -44,13 +56,15 @@ public class RegistrationHandler implements ServiceListener {
     private final Map<String, ServiceAccess> subscribedServices;
     private final Map<String, ServiceAccess> subscribedServiceEvents;
     private final List<String> filterEntries;
+    private final String FELIX_FILE_INSTALL_KEY = "felix.fileinstall.filename";
     private ConfigurationAdmin configurationAdmin;
 
     /**
      * Constructor
      *
-     * @param context BundleContext of your OSGi component which is typically provided in the activate method of your
-     *                component.
+     * @param context
+     *            BundleContext of your OSGi component which is typically provided in the activate method of your
+     *            component.
      */
     public RegistrationHandler(BundleContext context) {
         this.context = context;
@@ -66,29 +80,41 @@ public class RegistrationHandler implements ServiceListener {
     /**
      * Provides the given service within the OSGi environment.
      *
-     * @param serviceName     Name of the service to provide. Typically "MyService.class.getName()" This class must implement the
-     *                        interface org.osgi.service.cm.ManagedService.
-     * @param serviceInstance Instance of the service
-     * @param pid             Persistence Id. Typically package path + class name e.g. "my.package.path.myClass"
+     * @param serviceName
+     *            Name of the service to provide. Typically "MyService.class.getName()" This class must implement the
+     *            interface org.osgi.service.cm.ManagedService.
+     * @param serviceInstance
+     *            Instance of the service
+     * @param pid
+     *            Persistence Id. Typically package path + class name e.g. "my.package.path.myClass"
      */
     public void provideInFramework(String serviceName, Object serviceInstance, String pid) {
-        Dictionary<String, ?> properties = buildProperties(pid);
+        Dictionary<String, Object> properties = buildProperties(pid);
 
         ServiceRegistration<?> newRegistration = context.registerService(serviceName, serviceInstance, properties);
         ServiceRegistration<?> newManagedService = context.registerService(ManagedService.class.getName(),
                 serviceInstance, properties);
-        buildConfig(properties);
+        updateConfigDatabaseWithGivenDictionary(properties);
 
         registrations.add(newRegistration);
         registrations.add(newManagedService);
     }
 
     public void provideInFrameworkWithoutManagedService(String serviceName, Object serviceInstance, String pid) {
-        Dictionary<String, ?> properties = buildProperties(pid);
-        ServiceRegistration<?> newRegistration = context.registerService(serviceName, serviceInstance,
-                properties);
-        buildConfig(properties);
+        Dictionary<String, Object> properties = buildProperties(pid);
+        ServiceRegistration<?> newRegistration = context.registerService(serviceName, serviceInstance, properties);
+        updateConfigDatabaseWithGivenDictionary(properties);
         registrations.add(newRegistration);
+    }
+
+    public void provideInFrameworkAsManagedService(Object serviceInstance, String pid) {
+        Dictionary<String, Object> properties = buildProperties(pid);
+
+        ServiceRegistration<?> newManagedService = context.registerService(ManagedService.class.getName(),
+                serviceInstance, properties);
+        updateConfigDatabaseWithGivenDictionary(properties);
+
+        registrations.add(newManagedService);
     }
 
     public void provideInFrameworkWithoutConfiguration(String serviceName, Object serviceInstance) {
@@ -102,23 +128,42 @@ public class RegistrationHandler implements ServiceListener {
      * <b>NOTE:</b> This method can be used at early development stage when no deployment package exists. Later on the
      * service would get the properties via the ManagedService interface.
      *
-     * @param serviceName     Name of the service to provide. Typically "MyService.class.getName()"
-     * @param serviceInstance Instance of the service
-     * @param properties      The properties for this service.
+     * @param serviceName
+     *            Name of the service to provide. Typically "MyService.class.getName()"
+     * @param serviceInstance
+     *            Instance of the service
+     * @param properties
+     *            The properties for this service.
      */
     public void provideWithInitProperties(String serviceName, Object serviceInstance,
-                                          Dictionary<String, ?> properties) {
+            Dictionary<String, Object> properties) {
 
         ServiceRegistration<?> newRegistration = context.registerService(serviceName, serviceInstance, properties);
-        buildConfig(properties);
+        updateConfigDatabaseWithGivenDictionary(properties);
         registrations.add(newRegistration);
     }
 
-    private void buildConfig(Dictionary<String, ?> properties) {
+    /**
+     * Updates configuration entry in framework database for given dictionary. Dictionary must contain a property with
+     * "Constants.SERVICE_PID" as key and service pid as value.
+     *
+     * @param properties
+     *            dictionary with updated properties and service pid
+     */
+    public void updateConfigDatabaseWithGivenDictionary(Dictionary<String, Object> properties) {
         String pid = null;
         try {
             pid = (String) properties.get(Constants.SERVICE_PID);
             Configuration newConfig = configurationAdmin.getConfiguration(pid);
+
+            Dictionary<String, ?> existingProperties = newConfig.getProperties();
+            if (existingProperties != null) {
+                String fileName = (String) existingProperties.get(FELIX_FILE_INSTALL_KEY);
+                if (fileName != null) {
+                    properties.put(FELIX_FILE_INSTALL_KEY, fileName);
+                }
+            }
+
             newConfig.update(properties);
         } catch (IOException e) {
             logger.error("Config for {} can not been built\n{}", pid, e.getMessage());
@@ -138,9 +183,11 @@ public class RegistrationHandler implements ServiceListener {
     /**
      * Subscribe for a service.
      *
-     * @param serviceName Name of the service. Typically "MyService.class.getName(). This class must implement the interface
-     *                    org.osgi.service.cm.ManagedService.
-     * @param access      ServicAccess instance
+     * @param serviceName
+     *            Name of the service. Typically "MyService.class.getName(). This class must implement the interface
+     *            org.osgi.service.cm.ManagedService.
+     * @param access
+     *            ServicAccess instance
      */
     public void subscribeForService(String serviceName, ServiceAccess access) {
         subscribedServices.put(serviceName, access);
@@ -156,9 +203,11 @@ public class RegistrationHandler implements ServiceListener {
         updateNow();
     }
 
-    private Dictionary<String, ?> buildProperties(String pid) {
+    private Dictionary<String, Object> buildProperties(String pid) {
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put(Constants.SERVICE_PID, pid);
+        String felixFileDir = System.getProperty("felix.fileinstall.dir");
+        properties.put(FELIX_FILE_INSTALL_KEY, felixFileDir);
 
         return properties;
     }
@@ -192,7 +241,8 @@ public class RegistrationHandler implements ServiceListener {
 
             if (serviceRef == null) {
                 access.setService(null);
-            } else {
+            }
+            else {
                 access.setService(context.getService(serviceRef));
             }
         }

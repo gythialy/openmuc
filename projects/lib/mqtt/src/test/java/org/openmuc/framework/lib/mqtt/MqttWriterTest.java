@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,11 +21,17 @@
 
 package org.openmuc.framework.lib.mqtt;
 
-import com.hivemq.client.internal.mqtt.MqttClientConfig;
-import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedListener;
-import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext;
-import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedListener;
-import com.hivemq.client.mqtt.lifecycle.MqttClientReconnector;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,14 +39,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.hivemq.client.internal.mqtt.MqttClientConfig;
+import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedListener;
+import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext;
+import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedListener;
+import com.hivemq.client.mqtt.lifecycle.MqttClientReconnector;
+import com.hivemq.client.mqtt.lifecycle.MqttDisconnectSource;
 
 @ExtendWith(MockitoExtension.class)
 public class MqttWriterTest {
@@ -49,25 +53,6 @@ public class MqttWriterTest {
     private static MqttClientConnectedListener connectedListener;
     private static MqttClientDisconnectedListener disconnectedListener;
     private MqttWriter mqttWriter;
-
-    @AfterAll
-    static void cleanUp() {
-        deleteDirectory(FileSystems.getDefault().getPath(DIRECTORY).toFile());
-    }
-
-    private static void deleteDirectory(File directory) {
-        if (!directory.exists()) {
-            return;
-        }
-        for (File child : directory.listFiles()) {
-            if (child.isDirectory()) {
-                deleteDirectory(child);
-            } else {
-                child.delete();
-            }
-        }
-        directory.delete();
-    }
 
     @BeforeEach
     void setup() {
@@ -83,15 +68,35 @@ public class MqttWriterTest {
             return null;
         }).when(connection).addDisconnectedListener(any(MqttClientDisconnectedListener.class));
 
-        when(connection.getSettings()).thenReturn(
-                new MqttSettings("localhost", 1883, null, null, false, 1, 1, 2, 5000, 10, DIRECTORY));
+        when(connection.getSettings())
+                .thenReturn(new MqttSettings("localhost", 1883, null, null, false, 1, 1, 2, 5000, 10, DIRECTORY));
 
         mqttWriter = new MqttWriterStub(connection);
         connectedListener.onConnected(() -> null);
     }
 
+    @AfterAll
+    static void cleanUp() {
+        deleteDirectory(FileSystems.getDefault().getPath(DIRECTORY).toFile());
+    }
+
+    private static void deleteDirectory(File directory) {
+        if (!directory.exists()) {
+            return;
+        }
+        for (File child : directory.listFiles()) {
+            if (child.isDirectory()) {
+                deleteDirectory(child);
+            }
+            else {
+                child.delete();
+            }
+        }
+        directory.delete();
+    }
+
     @Test
-    void testWriteWithReconnectionAndSimulatedDisconnection() throws IOException {
+    void testWriteWithReconnectionAndSimulatedDisconnection() throws IOException, InterruptedException {
         MqttClientDisconnectedContext disconnectedContext = mock(MqttClientDisconnectedContext.class);
         MqttClientReconnector reconnector = mock(MqttClientReconnector.class);
         when(reconnector.isReconnect()).thenReturn(true);
@@ -99,9 +104,11 @@ public class MqttWriterTest {
         when(config.getServerHost()).thenReturn("test");
         Throwable cause = mock(Throwable.class);
         when(cause.getMessage()).thenReturn("test");
+        MqttDisconnectSource source = MqttDisconnectSource.USER;
         when(disconnectedContext.getReconnector()).thenReturn(reconnector);
         when(disconnectedContext.getClientConfig()).thenReturn(config);
         when(disconnectedContext.getCause()).thenReturn(cause);
+        when(disconnectedContext.getSource()).thenReturn(source);
         disconnectedListener.onDisconnected(disconnectedContext);
 
         String topic = "topic1";
@@ -131,6 +138,9 @@ public class MqttWriterTest {
 
         // simulate connection
         connectedListener.onConnected(() -> null);
+
+        // wait for recovery thread to terminate
+        Thread.sleep(1000);
 
         // files should be emptied and therefore removed
         assertFalse(file.exists() || file1.exists());

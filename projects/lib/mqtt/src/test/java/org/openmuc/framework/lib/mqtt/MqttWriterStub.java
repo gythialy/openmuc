@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,9 +21,9 @@
 
 package org.openmuc.framework.lib.mqtt;
 
-import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
-
 import java.util.concurrent.CompletableFuture;
+
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 
 /**
  * MqttWriter stub that simulates successful publishes when connection is simulated as connected

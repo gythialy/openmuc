@@ -1,9 +1,11 @@
 def projectName = "OpenMUC Data Logger - AMQP"
+def projectDescription = "AMQP data logger for the OpenMUC framework."
 
 def gsonversion = '2.8.5'
 
 dependencies {
     implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-api')
     implementation project(':openmuc-core-datamanager')
     implementation project(':openmuc-lib-amqp')
     implementation project(':openmuc-lib-osgi')
@@ -22,7 +24,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description = "AMQP data logger for the OpenMUC framework."
+                description = projectDescription
             }
         }
     }

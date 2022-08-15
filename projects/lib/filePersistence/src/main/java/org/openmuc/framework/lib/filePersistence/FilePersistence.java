@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,36 +21,47 @@
 
 package org.openmuc.framework.lib.filePersistence;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.nio.file.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Provides configurable RAM friendly file persistence functionality
  */
 public class FilePersistence {
-    public static final String DEFAULT_FILENAME = "buffer.0.log";
-    public static final String DEFAULT_FILE_PREFIX = "buffer";
-    public static final String DEFAULT_FILE_SUFFIX = "log";
     private static final Logger logger = LoggerFactory.getLogger(FilePersistence.class);
-    private static final List<String> BUFFERS = new ArrayList<>();
     private final Path DIRECTORY;
+    private int maxFileCount;
     private final long MAX_FILE_SIZE_BYTES;
     private final Map<String, Integer> nextFile = new HashMap<>();
     private final Map<String, Long> readBytes = new HashMap<>();
-    private final int MAX_FILE_COUNT_SUPPORTED_YET = 2; // FilePersistence still under Construction
-    private int maxFileCount;
+    private static final List<String> BUFFERS = new ArrayList<>();
+    public static final String DEFAULT_FILENAME = "buffer.0.log";
+    public static final String DEFAULT_FILE_PREFIX = "buffer";
+    public static final String DEFAULT_FILE_SUFFIX = "log";
 
     /**
-     * @param directory     the directory in which files are stored
-     * @param maxFileCount  the maximum number of files created. Must be greater than 0
-     * @param maxFileSizeKb the maximum file size in kB when fileSize is reached a new file is created or the oldest overwritten
+     * @param directory
+     *            the directory in which files are stored
+     * @param maxFileCount
+     *            the maximum number of files created. Must be greater than 0
+     * @param maxFileSizeKb
+     *            the maximum file size in kB when fileSize is reached a new file is created or the oldest overwritten
      */
     public FilePersistence(String directory, int maxFileCount, long maxFileSizeKb) {
         DIRECTORY = FileSystems.getDefault().getPath(directory);
@@ -76,9 +87,12 @@ public class FilePersistence {
     }
 
     /**
-     * @param buffer  directory without file name. Filename is automatically added by FilePersistence
-     * @param payload the data to be written. needs to be smaller than MAX_FILE_SIZE
-     * @throws IOException when writing fails
+     * @param buffer
+     *            directory without file name. Filename is automatically added by FilePersistence
+     * @param payload
+     *            the data to be written. needs to be smaller than MAX_FILE_SIZE
+     * @throws IOException
+     *             when writing fails
      */
     public void writeBufferToFile(String buffer, byte[] payload) throws IOException {
 
@@ -90,7 +104,8 @@ public class FilePersistence {
         File file = createFileIfNotExist(filePath);
         if (isFileFull(file.length(), payload.length)) {
             handleFullFile(buffer, payload, file);
-        } else {
+        }
+        else {
             appendToFile(file, payload);
         }
     }
@@ -156,14 +171,14 @@ public class FilePersistence {
         if (maxFileCount > 1) {
             handleMultipleFiles(filePath, payload, file);
 
-        } else {
+        }
+        else {
             handleSingleFile(filePath, payload, file);
         }
     }
 
     private void handleSingleFile(String filePath, byte[] payload, File file) {
-        throw new UnsupportedOperationException(
-                "right now only maxFileCount = " + MAX_FILE_COUNT_SUPPORTED_YET + " supported");
+        throw new UnsupportedOperationException("right now only maxFileCount >= 2 supported");
     }
 
     private void handleMultipleFiles(String buffer, byte[] payload, File file) throws IOException {
@@ -196,7 +211,8 @@ public class FilePersistence {
     }
 
     /**
-     * @param buffer the name of the buffer (e.g. the topic or queue name)
+     * @param buffer
+     *            the name of the buffer (e.g. the topic or queue name)
      * @return if a file buffer exists
      */
     public boolean fileExistsFor(String buffer) {
@@ -247,7 +263,8 @@ public class FilePersistence {
             boolean deleted = file.delete();
             if (!deleted) {
                 throw new IOException("Empty file could not be deleted!");
-            } else {
+            }
+            else {
                 setFilePosition(file.toString(), 0L);
             }
         }
@@ -289,5 +306,35 @@ public class FilePersistence {
             }
         }
         return oldestFile;
+    }
+
+    public void restructure() throws IOException {
+        for (String buffer : getBuffers()) {
+            Path bufferPath = getOldestFilePath(buffer);
+            Long position = getFilePosition(bufferPath.toString());
+            if (position.equals(0L)) {
+                continue;
+            }
+            Path temp = bufferPath.getParent();
+            temp = Paths.get(temp.toString(), "temp");
+            try {
+                Files.move(bufferPath, temp, StandardCopyOption.REPLACE_EXISTING);
+            } catch (DirectoryNotEmptyException e) {
+                logger.error(bufferPath.toString() + " -> " + temp.toString());
+            }
+            Files.createFile(bufferPath);
+            FileInputStream inputStream = new FileInputStream(temp.toFile());
+            inputStream.skip(position);
+            FileOutputStream outputStream = new FileOutputStream(bufferPath.toFile(), true);
+            int nextChar = inputStream.read();
+            while (nextChar != -1) {
+                outputStream.write(nextChar);
+                nextChar = inputStream.read();
+            }
+            inputStream.close();
+            outputStream.close();
+            temp.toFile().delete();
+            setFilePosition(bufferPath.toString(), 0L);
+        }
     }
 }

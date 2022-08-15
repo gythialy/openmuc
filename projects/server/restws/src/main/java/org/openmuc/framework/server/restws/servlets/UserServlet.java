@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -105,7 +105,10 @@ public class UserServlet extends GenericServlet {
 
         setServices();
         String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
-        FromJson json = new FromJson(ServletLib.getJsonText(request));
+        FromJson json = ServletLib.getFromJson(request, logger, response);
+        if (json == null) {
+            return;
+        }
 
         if (pathInfo.equals("/")) {
             RestUserConfig userConfig = json.getRestUserConfig();
@@ -138,7 +141,10 @@ public class UserServlet extends GenericServlet {
 
             setServices();
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
-            FromJson json = new FromJson(ServletLib.getJsonText(request));
+            FromJson json = ServletLib.getFromJson(request, logger, response);
+            if (json == null) {
+                return;
+            }
 
             if (pathInfo.equals("/")) {
                 RestUserConfig userConfig = json.getRestUserConfig();
@@ -184,7 +190,10 @@ public class UserServlet extends GenericServlet {
             setServices();
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
 
-            FromJson json = new FromJson(ServletLib.getJsonText(request));
+            FromJson json = ServletLib.getFromJson(request, logger, response);
+            if (json == null) {
+                return;
+            }
 
             if (pathInfo.equals("/")) {
 

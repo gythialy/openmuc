@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,20 +21,35 @@
 
 package org.openmuc.framework.core.authentication;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.openmuc.framework.authentication.AuthenticationService;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.useradmin.*;
+import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
 
 @Component(service = AuthenticationService.class, scope = ServiceScope.SINGLETON)
 public class Authentication implements AuthenticationService {
@@ -247,7 +262,8 @@ public class Authentication implements AuthenticationService {
         if (!file.exists()) {
             register("admin", "admin", "adminGrp");
             writeShadowToFile();
-        } else {
+        }
+        else {
             loadShadowFromFile();
         }
         userAdminInitiated = true;

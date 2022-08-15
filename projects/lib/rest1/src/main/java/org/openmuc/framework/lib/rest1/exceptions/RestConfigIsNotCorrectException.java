@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,7 +24,7 @@ package org.openmuc.framework.lib.rest1.exceptions;
 public class RestConfigIsNotCorrectException extends Exception {
 
     /**
-     *
+     * 
      */
     private static final long serialVersionUID = 8768653196104942337L;
 

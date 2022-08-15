@@ -1,0 +1,54 @@
+<h3 class="sub-category-heading" ng-hide="channels.length">{{'SCAN_DEVICE_IN_PROGRESS' | translate}} {{device.id}} ...</h3>
+
+<h3 class="sub-category-heading" ng-show="channels.length">{{'SCAN_DEVICE' | translate}} {{device.id}} </h3>
+
+<h5 class="sub-category-heading" ng-show="device.configs.description">{{'DEVICE' | translate}} {{'DEVICE_DESCRIPTION' | translate}}:<br>{{device.configs.description}}</h5>
+
+<table class="table table-hover" ng-show="channels.length">
+    <thead>
+
+    <tr>
+        <th>&nbsp;</th>
+        <th>{{'CHANNEL_ID' | translate}}</th>
+        <th>{{'CHANNEL_ADDRESS' | translate}}</th>
+        <th>{{'CHANNEL_UNIT' | translate}}</th>
+        <th>{{'CHANNEL_VALUE_TYPE' | translate}}</th>
+        <th>{{'CHANNEL_DESCRIPTION' | translate}}</th>
+    </tr>
+    </thead>
+
+    <tr ng-repeat="channel in channels">
+        <td><input type="checkbox" name="checkboxes" checklist-model="selectedChannels" checklist-value="channel"></td>
+        <td>
+            <input type="text" class="form-control" name="id" id="id" ng-model="channel.configs.id" required="required" ng-class="{true: 'form-submitted', false: ''}[channelForm.submitted]" ng-pattern="/^[a-zA-Z0-9_\-]*$/">
+            <div class="form-error-container" ng-show="(channelForm.id.$dirty && channelForm.id.$invalid) || (channelForm.submitted && channelForm.id.$invalid)"></div>
+            <div class="form-error-message" ng-show="channelForm.id.$error.required">{{'CHANNEL_ID_REQUIRED' | translate}}.</div>
+            <div class="form-error-message" ng-show="channelForm.id.$error.pattern">{{'CHANNEL_ID_PATTERN_INCORRECT' | translate}}</div>
+        </td>
+        <td>{{channel.configs.channelAddress}}</td>
+        <td><input type="text" class="form-control" name="unit" id="unit" ng-model="channel.configs.unit"></td>
+        <td>
+                <select class="form-control" id="value_type" name="valueType" ng-model="channel.configs.valueType" required="required" >
+                    <option></option>
+                    <option value="DOUBLE">DOUBLE</option>
+                    <option value="FLOAT">FLOAT</option>
+                    <option value="LONG">LONG</option>
+                    <option value="INTEGER">INTEGER</option>
+                    <option value="SHORT">SHORT</option>
+                    <option value="BYTE">BYTE</option>
+                    <option value="BOOLEAN">BOOLEAN</option>
+                    <option value="BYTE_ARRAY">BYTE_ARRAY</option>
+                    <option value="STRING">STRING</option>
+                </select>
+        </td>
+        <td>{{channel.configs.description}}</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" ng-model="master" ng-click="checkAll()"></td>
+        <td>{{'SELECT_ALL' | translate}}</td>
+    </tr>
+</table>
+
+<div ng-if="channels.length" ng-controller="TabsController">
+    <button class="btn btn-primary" ng-click="addChannels(); setTabIndex(2)" ng-disabled="selectedChannels.length == 0">{{'ADD_CHANNELS' | translate}}</button>
+</div>

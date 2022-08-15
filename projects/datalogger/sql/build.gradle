@@ -1,4 +1,9 @@
+plugins {
+    id 'de.undercouch.download' version '5.0.1'
+}
+
 def projectName = "OpenMUC Data Logger - SQL"
+def projectDescription = "SQL data logger for the OpenMUC framework."
 
 configurations.create('embed')
 
@@ -8,7 +13,7 @@ dependencies {
     implementation project(':openmuc-lib-osgi')
     implementation group: 'org.osgi', name: 'org.osgi.service.cm', version: '1.6.0'
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
-    implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
+    implementation group: 'com.h2database', name: 'h2', version: '2.0.206'
     embed group: 'org.osgi', name: 'org.osgi.service.jdbc', version: '1.0.0'
     api group: 'org.osgi', name: 'org.osgi.service.jdbc', version: '1.0.0'
 }
@@ -24,13 +29,53 @@ jar {
     }
 }
 
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description "SQL data logger for the OpenMUC framework."
+                description = projectDescription
+            }
+        }
+    }
+}
+
+// Only needed for migration of the h2 database to version 2
+// Will become deprecated if version 1 is no longer used
+
+def databasePrefix = 'h2'
+def databaseLocation = '/framework/data/h2/'
+
+def databasePath = project.rootDir.toString() + databaseLocation + databasePrefix
+
+task migrateh2 {
+    doLast {
+        copy {  // Make Backup
+            from databasePath + '.mv.db'
+            into databasePath + '_backup'
+        }
+        copy {
+            from databasePath + '.trace.db'
+            into databasePath + '_backup'
+        }
+        javaexec {  // Create script from database
+            classpath 'migrateh2/bin/h2-1.4.200.jar'
+            main 'org.h2.tools.Script'
+            args new String[]{'-url', 'jdbc:h2:' + databasePath,
+                '-user', 'openmuc',
+                '-password', 'openmuc',
+                '-script', 'migrateh2/script/script.sql'
+            }
+        }  // Delete database
+        delete databasePath + '.mv.db'
+        delete databasePath + '.trace.db'
+        javaexec {  // Execute script to create new database
+            classpath 'migrateh2/bin/h2-2.0.206.jar'
+            main 'org.h2.tools.RunScript'
+            args new String[]{'-url', 'jdbc:h2:' + databasePath,
+                    '-user', 'openmuc',
+                    '-password', 'openmuc',
+                    '-script', 'migrateh2/script/script.sql'
             }
         }
     }

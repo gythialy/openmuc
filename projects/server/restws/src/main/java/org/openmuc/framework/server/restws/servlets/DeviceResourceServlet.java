@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -144,8 +144,10 @@ public class DeviceResourceServlet extends GenericServlet {
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
             String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
             String deviceID = pathInfoArray[0].replace("/", "");
-            FromJson json = new FromJson(ServletLib.getJsonText(request));
-
+            FromJson json = ServletLib.getFromJson(request, logger, response);
+            if (json == null) {
+                return;
+            }
             if (pathInfoArray.length == 1) {
                 setAndWriteDeviceConfig(deviceID, response, json, false);
             }
@@ -169,7 +171,10 @@ public class DeviceResourceServlet extends GenericServlet {
             String pathInfo = pathAndQueryString[ServletLib.PATH_ARRAY_NR];
             String[] pathInfoArray = ServletLib.getPathInfoArray(pathInfo);
             String deviceID = pathInfoArray[0].replace("/", "");
-            FromJson json = new FromJson(ServletLib.getJsonText(request));
+            FromJson json = ServletLib.getFromJson(request, logger, response);
+            if (json == null) {
+                return;
+            }
 
             if (pathInfoArray.length < 1) {
                 ServletLib.sendHTTPErrorAndLogDebug(response, HttpServletResponse.SC_NOT_FOUND, logger,

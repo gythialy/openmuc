@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,12 +21,18 @@
 package org.openmuc.framework.datalogger.ascii.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -137,5 +143,43 @@ public class LoggerUtilsTest {
 
         LogChannelTestImpl ch1 = new LogChannelTestImpl(ch01, "", "dummy description", dummy, ValueType.DOUBLE, 0.0,
                 0.0, false, 1000, 0, "", loggingInterval, loggingTimeOffset, false, false);
+    }
+
+    @Test
+    public void tc_504_test_getDateOfFile() {
+        try {
+            String pattern = "yyyyMMdd";
+            Date expectedDate = new SimpleDateFormat(pattern).parse("20151005");
+            String fileName = "20151005_1000_500.dat";
+
+            Date actualDate = LoggerUtils.getDateOfFile(fileName);
+            long expected = expectedDate.getTime();
+            long actual = actualDate.getTime();
+            assertEquals(expected, actual);
+        } catch (ParseException ex) {
+            fail(ex.getMessage() + " \n" + ex.getStackTrace());
+        }
+    }
+
+    @Test
+    public void tc_505_test_findLatestValue() {
+        Map<String, List<Record>> recordsMap = new HashMap<>();
+        for (int j = 0; j < 5; j++) {
+            List<Record> records = new LinkedList<>();
+            for (int i = 0; i < 20; i++) {
+                long timestamp = i;
+                DoubleValue value = new DoubleValue(i + j);
+                Record record = new Record(value, timestamp);
+                records.add(record);
+            }
+            recordsMap.put("channel" + j, records);
+        }
+
+        Map<String, Record> latestValue = LoggerUtils.findLatestValue(recordsMap);
+        for (int j = 0; j < 5; j++) {
+            Double actual = latestValue.get("channel" + j).getValue().asDouble();
+            Double expected = 19.0 + j;
+            assertEquals(expected, actual);
+        }
     }
 }

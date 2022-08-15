@@ -10,7 +10,7 @@ dependencies {
     implementation project(':openmuc-core-spi')
     implementation project(':openmuc-core-api')
     implementation project(':openmuc-lib-rest1')
-    implementation 'commons-codec:commons-codec:1.13'
+    implementation 'commons-codec:commons-codec:1.15'
 }
 
 jar {
@@ -27,7 +27,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description projectDescription
+                description = projectDescription
             }
         }
     }

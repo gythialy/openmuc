@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,29 +21,34 @@
 
 package org.openmuc.framework.lib.mqtt;
 
-import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
-
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 
 public class MqttWriter {
     private static final Logger logger = LoggerFactory.getLogger(MqttWriter.class);
-    private static final Queue<MessageTuple> MESSAGE_BUFFER = new LinkedList<>();
 
     private final MqttConnection connection;
+    private boolean connected = false;
+    private final AtomicBoolean cancelReconnect = new AtomicBoolean(false);
+    private LocalDateTime timeOfConnectionLoss;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final MqttBufferHandler buffer;
     private final String pid;
-    private boolean connected = false;
-    private LocalDateTime timeOfConnectionLoss;
 
     public MqttWriter(MqttConnection connection, String pid) {
         this.connection = connection;
@@ -75,8 +80,8 @@ public class MqttWriter {
                 write(settings.getFirstWillTopic(), settings.getFirstWillPayload());
             }
 
-            emptyBuffer();
-            emptyFileBuffer();
+            Thread recovery = new Thread(this::emptyBuffer, "MqttRecovery");
+            recovery.start();
 
         });
     }
@@ -88,14 +93,30 @@ public class MqttWriter {
         if (buffers.length == 0) {
             log("File buffer already empty.");
         }
+        int messageCount = 0;
+        int chunkSize = connection.getSettings().getRecoveryChunkSize();
+        int delay = connection.getSettings().getRecoveryDelay();
         for (String buffer : buffers) {
             Iterator<MessageTuple> iterator = this.buffer.getMessageIterator(buffer);
             while (iterator.hasNext()) {
+                if (!connected) {
+                    warn("Recovery from file buffer interrupted by connection loss.");
+                    return;
+                }
                 MessageTuple messageTuple = iterator.next();
                 if (logger.isTraceEnabled()) {
                     trace("Resend from file: {}", new String(messageTuple.message));
                 }
                 write(messageTuple.topic, messageTuple.message);
+                messageCount++;
+                if (connection.getSettings().isRecoveryLimitSet() && messageCount == chunkSize) {
+                    messageCount = 0;
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
@@ -107,42 +128,65 @@ public class MqttWriter {
         if (buffer.isEmpty()) {
             log("Memory buffer already empty.");
         }
+        int messageCount = 0;
+        int chunkSize = connection.getSettings().getRecoveryChunkSize();
+        int delay = connection.getSettings().getRecoveryDelay();
         while (!buffer.isEmpty()) {
+            if (!connected) {
+                warn("Recovery from memory buffer interrupted by connection loss.");
+                return;
+            }
             MessageTuple messageTuple = buffer.removeNextMessage();
             if (logger.isTraceEnabled()) {
                 trace("Resend from memory: {}", new String(messageTuple.message));
             }
             write(messageTuple.topic, messageTuple.message);
+            messageCount++;
+            if (connection.getSettings().isRecoveryLimitSet() && messageCount == chunkSize) {
+                messageCount = 0;
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
         log("Empty memory buffer done.");
+        emptyFileBuffer();
     }
 
     private void addDisconnectedListener() {
         connection.addDisconnectedListener(context -> {
+            if (cancelReconnect.getAndSet(false)) {
+                context.getReconnector().reconnect(false);
+            }
             if (context.getReconnector().isReconnect()) {
                 String serverHost = context.getClientConfig().getServerHost();
                 String cause = context.getCause().getMessage();
+                String source = context.getSource().name();
 
                 if (connected) {
                     handleDisconnect(serverHost, cause);
-                } else {
-                    handleFailedReconnect(serverHost, cause);
+                }
+                else {
+                    handleFailedReconnect(serverHost, cause, source);
                 }
             }
         });
     }
 
-    private void handleFailedReconnect(String serverHost, String cause) {
+    private void handleFailedReconnect(String serverHost, String cause, String source) {
         if (isInitialConnect()) {
             timeOfConnectionLoss = LocalDateTime.now();
         }
         long d = Duration.between(timeOfConnectionLoss, LocalDateTime.now()).getSeconds() * 1000;
         String duration = sdf.format(new Date(d - TimeZone.getDefault().getRawOffset()));
-        warn("Reconnect failed: broker '{}'. Cause: '{}'. Connection lost at: {}, duration {}", serverHost, cause,
-                dateFormatter.format(timeOfConnectionLoss), duration);
+        warn("Reconnect failed: broker '{}'. Source: '{}'. Cause: '{}'. Connection lost at: {}, duration {}",
+                serverHost, source, cause, dateFormatter.format(timeOfConnectionLoss), duration);
     }
 
-    private boolean isInitialConnect() {
+    public boolean isInitialConnect() {
         return timeOfConnectionLoss == null;
     }
 
@@ -155,13 +199,16 @@ public class MqttWriter {
     /**
      * Publishes a message to the specified topic
      *
-     * @param topic   the topic on which to publish the message
-     * @param message the message to be published
+     * @param topic
+     *            the topic on which to publish the message
+     * @param message
+     *            the message to be published
      */
     public void write(String topic, byte[] message) {
         if (connected) {
             startPublishing(topic, message);
-        } else {
+        }
+        else {
             warn("No connection to broker - adding message to buffer");
             buffer.add(topic, message);
         }
@@ -173,6 +220,9 @@ public class MqttWriter {
                 warn("Connection issue: {} message could not be sent. Adding message to buffer",
                         exception.getMessage());
                 buffer.add(topic, message);
+            }
+            else if (logger.isTraceEnabled()) {
+                trace("Message successfully delivered on topic {}", topic);
             }
         });
     }
@@ -186,7 +236,7 @@ public class MqttWriter {
     }
 
     public boolean isConnected() {
-        return connection != null;
+        return connection != null && connected;
     }
 
     private void log(String message, Object... args) {
@@ -212,5 +262,12 @@ public class MqttWriter {
     private void trace(String message, Object... args) {
         message = MessageFormatter.arrayFormat(message, args).getMessage();
         logger.trace("[{}] {}", pid, message);
+    }
+
+    public void shutdown() {
+        connected = false;
+        cancelReconnect.set(true);
+        log("Saving buffers.");
+        buffer.persist();
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-
   <appender name="STDOUT_TRACE" class="ch.qos.logback.core.ConsoleAppender">
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
         <level>TRACE</level>
@@ -58,9 +57,29 @@
     </encoder>
   </appender>
 
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  <appender name="STDOUT_ERROR" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>ERROR</level>
+        <onMatch>ACCEPT</onMatch>
+        <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %red(%msg%n)</pattern>
+    </encoder>
+  </appender>
+  
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>log/openmuc.log</file>
-    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+       <fileNamePattern>log/openmuc-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+         <!-- do at least daily rollover (may create a new file when maxFileSize is exceeded), use compression -->
+       <maxFileSize>100MB</maxFileSize>
+         <!-- split log files when file size exceeds 100MB -->
+       <maxHistory>30</maxHistory>
+         <!-- keep 30 days worth of history -->
+       <totalSizeCap>3GB</totalSizeCap>
+         <!-- total size of all logs must not exceed 3gb-->
+    </rollingPolicy>
     <encoder>
       <pattern>%d{yy.MM.dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>

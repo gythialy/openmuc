@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,31 +21,38 @@
 
 package org.openmuc.framework.lib.ssl;
 
-import org.openmuc.framework.lib.osgi.config.DictionaryPreprocessor;
-import org.openmuc.framework.lib.osgi.config.PropertyHandler;
-import org.openmuc.framework.lib.osgi.config.ServicePropertyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
-public class SslManager {
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.openmuc.framework.lib.osgi.config.DictionaryPreprocessor;
+import org.openmuc.framework.lib.osgi.config.PropertyHandler;
+import org.openmuc.framework.lib.osgi.config.ServicePropertyException;
+import org.openmuc.framework.security.SslConfigChangeListener;
+import org.openmuc.framework.security.SslManagerInterface;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SslManager implements ManagedService, SslManagerInterface {
     private static final Logger logger = LoggerFactory.getLogger(SslManager.class);
     private final List<SslConfigChangeListener> listeners = new ArrayList<>();
+    private final PropertyHandler propertyHandler;
     private KeyManagerFactory keyManagerFactory;
     private TrustManagerFactory trustManagerFactory;
     private SSLContext sslContext;
-    private PropertyHandler propertyHandler;
+    private boolean loaded = false;
 
-    private SslManager() {
+    SslManager() {
         try {
             keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
             trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
@@ -54,17 +61,18 @@ public class SslManager {
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             logger.error("Factory could not be loaded: {}", e.getMessage());
         }
+        propertyHandler = new PropertyHandler(new Settings(), SslManager.class.getName());
     }
 
-    public static SslManager getInstance() {
-        return LazySslManager.INSTANCE;
-    }
-
+    @Override
     public void listenForConfigChange(SslConfigChangeListener listener) {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
     private void load() {
+        loaded = true;
         char[] keyStorePassword = propertyHandler.getString(Settings.KEYSTORE_PASSWORD).toCharArray();
         char[] trustStorePassword = propertyHandler.getString(Settings.TRUSTSTORE_PASSWORD).toCharArray();
 
@@ -89,27 +97,37 @@ public class SslManager {
     }
 
     private void notifyListeners() {
-        for (SslConfigChangeListener listener : listeners) {
-            listener.configChanged();
+        synchronized (listeners) {
+            for (SslConfigChangeListener listener : listeners) {
+                listener.configChanged();
+            }
         }
     }
 
+    @Override
     public KeyManagerFactory getKeyManagerFactory() {
         return keyManagerFactory;
     }
 
+    @Override
     public TrustManagerFactory getTrustManagerFactory() {
         return trustManagerFactory;
     }
 
+    @Override
     public SSLContext getSslContext() {
         return sslContext;
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return loaded;
     }
 
     void tryProcessConfig(DictionaryPreprocessor newConfig) {
         try {
             propertyHandler.processConfig(newConfig);
-            if (!propertyHandler.isDefaultConfig() && propertyHandler.configChanged()) {
+            if (!loaded || !propertyHandler.isDefaultConfig() && propertyHandler.configChanged()) {
                 load();
                 notifyListeners();
             }
@@ -118,13 +136,11 @@ public class SslManager {
         }
     }
 
-    void newSettings(Settings settings) {
-        propertyHandler = new PropertyHandler(settings, SslManager.class.getName());
-        load();
-        notifyListeners();
-    }
-
-    private static class LazySslManager {
-        static final SslManager INSTANCE = new SslManager();
+    @Override
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        DictionaryPreprocessor dict = new DictionaryPreprocessor(properties);
+        if (!dict.wasIntermediateOsgiInitCall()) {
+            tryProcessConfig(dict);
+        }
     }
 }

@@ -1,0 +1,90 @@
+=== Aggregator
+
+The Aggregator which performs aggregation of logged values from a channel. It
+uses the DriverService and the DataAccessService. It is therefore a kind of
+OpenMUC driver/application mix. The aggregator is fully configurable through the
+channels.xml config file.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | aggregator
+|Device Address | virtual device e.g "aggregatordevice"
+|Settings |
+|Channel Address | <sourceChannelId>:<aggregationType>[:<quality>]
+|=========================================================
+
+*Channel Address*
+
+<sourceChannelId> - id of channel to be aggregated
+
+<aggregationType> -
+
+* AVG: calculates the average of all values of interval (e.g. for average power)
+* LAST: takes the last value of interval (e.g. for energy)
+* DIFF: calculates difference of first and last value of interval
+* PULS_ENERGY,<pulses per Wh>,<max counter>: calculates energy from pulses of
+interval (e.g. for pulse counter/meter). Example: PULSE_ENERGY,10,65535
+
+<quality> - Range 0.0 - 1.0. Percentage of the expected valid/available logged
+records for aggregation. Default value is 1.0. Example: Aggregation of 5s values
+to 15min. The 15min interval consists of 180 5s values. If quality is 0.9 then at
+least 162 of 180 values must be valid/available for aggregation.
+NOTE: The missing/invalid values could appear as block at the beginning or end
+of the interval, which might be problematic for some aggregation types
+
+Example:
+
+Channel A (channelA) is sampled and logged every 10 seconds.
+
+[source,xml]
+----
+ <channelid="channelA">
+   <samplingInterval>10s</samplingInterval>
+   <loggingInterval>10s</loggingInterval>
+ </channel>
+----
+
+Now you want a channel B (channelB) which contains the same values as channel A
+but in a 1 minute resolution by using the 'average' as aggregation type. You can
+achieve this by simply adding the aggregator driver to your channel config file
+and define a the channel B as follows:
+
+[source,xml]
+----
+ <driver id="aggregator">
+   <device id="aggregatordevice">
+     <channelid="channelB">
+       <channelAddress>channelA:avg</channelAddress>
+       <samplingInterval>60s</samplingInterval>
+       <loggingInterval>60s</loggingInterval>
+     </channel>
+   </device>
+ </driver>
+----
+
+The new (aggregated) channel has the id channelB. The channel address consists of
+the channel id of the original channel and the aggregation type which is channelA:avg
+in this example. OpenMUC calls the read method of the aggregator every minute. The
+aggregator then gets all logged records from channelA of the last minute, calculates
+the average and sets this value for the record of channelB.
+NOTE: It's recommended to specify the samplingTimeOffset for channelB. It should
+be between samplingIntervalB - samplingIntervalA and samplingIntervalB. In this
+example: 50 < offset < 60. This constraint ensures that values are AGGREGATED
+CORRECTLY. At hh:mm:55 the aggregator gets the logged values of channelA and at
+hh:mm:60 respectively hh:mm:00 the aggregated value is logged.
+
+[source,xml]
+----
+ <driver id="aggregator">
+   <device id="aggregatordevice">
+     <channelid="channelB">
+       <channelAddress>channelA:avg</channelAddress>
+       <samplingInterval>60s</samplingInterval>
+       <samplingTimeOffset>55s</samplingTimeOffset>
+       <loggingInterval>60s</loggingInterval>
+     </channel>
+   </device>
+ </driver>
+----
+

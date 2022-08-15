@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.openmuc.framework.config.ArgumentSyntaxException;
 import org.openmuc.framework.config.ChannelScanInfo;
@@ -53,23 +54,45 @@ public class CsvDeviceConnection implements Connection {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvDeviceConnection.class);
 
-    /** Map holds all data of the csv file */
+    /**
+     * Map holds all data of the csv file
+     */
     private HashMap<String, CsvChannel> channelMap = new HashMap<>();
 
-    /** Map containing 'column name' as key and 'list of all column data' as value */
+    /**
+     * Map containing 'column name' as key and 'list of all column data' as value
+     */
     private final Map<String, List<String>> data;
 
     private final DeviceSettings settings;
 
+    private final Supplier<Long> currentMillisSupplier;
+
     public CsvDeviceConnection(String deviceAddress, String deviceSettings)
             throws ConnectionException, ArgumentSyntaxException {
+        this(deviceAddress, deviceSettings, () -> System.currentTimeMillis());
+    }
 
+    private CsvDeviceConnection(String deviceAddress, String deviceSettings, Supplier<Long> currentMillisSupplier)
+            throws ConnectionException, ArgumentSyntaxException {
         settings = new DeviceSettings(deviceSettings);
         data = CsvFileReader.readCsvFile(deviceAddress);
         channelMap = ChannelFactory.createChannelMap(data, settings);
+        this.currentMillisSupplier = currentMillisSupplier;
+    }
+
+    /**
+     * FOR TESTING ONLY (unless timeprovider is {@link System#currentTimeMillis()} )
+     */
+    @Deprecated
+    static CsvDeviceConnection forTesting(String deviceAddress, String deviceSettings,
+            Supplier<Long> currentMillisSupplier) throws ConnectionException, ArgumentSyntaxException {
+        logger.warn("USING {} IN TESTING MODE", CsvDeviceConnection.class.getName());
+        return new CsvDeviceConnection(deviceAddress, deviceSettings, currentMillisSupplier);
     }
 
     @Override
+
     public List<ChannelScanInfo> scanForChannels(String settings)
             throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
 
@@ -92,7 +115,7 @@ public class CsvDeviceConnection implements Connection {
     public Object read(List<ChannelRecordContainer> containers, Object containerListHandle, String samplingGroup)
             throws UnsupportedOperationException, ConnectionException {
 
-        long samplingTime = System.currentTimeMillis();
+        long samplingTime = currentMillisSupplier.get();
 
         for (ChannelRecordContainer container : containers) {
             try {

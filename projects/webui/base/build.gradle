@@ -9,7 +9,7 @@ dependencies {
     implementation project(':openmuc-core-api')
     implementation project(':openmuc-webui-spi')
     implementation group: 'com.google.code.gson', name: 'gson', version: gsonVersion
-    implementation group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
+    implementation group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.4'
     embed group: 'com.google.code.gson', name: 'gson', version: gsonVersion
 }
 

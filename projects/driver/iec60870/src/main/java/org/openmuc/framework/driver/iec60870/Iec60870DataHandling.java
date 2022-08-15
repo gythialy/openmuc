@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -22,7 +22,6 @@ package org.openmuc.framework.driver.iec60870;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.text.MessageFormat;
 import java.util.Set;
 
 import javax.naming.ConfigurationException;
@@ -418,8 +417,7 @@ public class Iec60870DataHandling {
     private static IeQualifierOfSetPointCommand getIeQualifierSetPointCommand(byte[] values, int maxLength) {
         int qualifier = values[maxLength - 2];
         boolean select = values[maxLength - 1] >= 0;
-        IeQualifierOfSetPointCommand ieQualifierOfSetPointCommand = new IeQualifierOfSetPointCommand(qualifier, select);
-        return ieQualifierOfSetPointCommand;
+        return new IeQualifierOfSetPointCommand(qualifier, select);
     }
 
     private static IeSingleCommand getIeSingeleCommand(ASduType typeId, Value value) throws TypeConversionException {
@@ -654,8 +652,14 @@ public class Iec60870DataHandling {
             InformationElement[] informationElements;
             try {
                 informationElements = handleSingleElementObject(aSdu, timestamp, channelAddress, informationObject);
-                IeBinaryStateInformation binaryStateInformation = (IeBinaryStateInformation) informationElements[0];
-                byteBuffer.putInt(binaryStateInformation.getValue());
+                if (informationElements != null && informationElements.length > 0) {
+                    IeBinaryStateInformation binaryStateInformation = (IeBinaryStateInformation) informationElements[0];
+                    byteBuffer.putInt(binaryStateInformation.getValue());
+                }
+                else {
+                    logger.warn("Information element of IAO {} {}", channelAddress.ioa(), "is null or empty.");
+                    return new Record(Flag.UNKNOWN_ERROR);
+                }
             } catch (ConfigurationException e) {
                 logger.warn(e.getMessage());
                 return new Record(Flag.DRIVER_ERROR_CHANNEL_ADDRESS_SYNTAX_INVALID);
@@ -704,8 +708,7 @@ public class Iec60870DataHandling {
             size = 4;
             break;
         default:
-            logger.debug(MessageFormat.format("Not able to set Data Type {0}  as multiple IOAs or Indices.",
-                    typeIdentification));
+            logger.debug("Not able to set Data Type {}  as multiple IOAs or Indices.", typeIdentification);
             break;
         }
         return size;
@@ -745,7 +748,7 @@ public class Iec60870DataHandling {
     }
 
     private Iec60870DataHandling() {
-        // Hide the contructor.
+        // Hide this constructor.
     }
 
 }

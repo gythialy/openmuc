@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,9 +21,6 @@
 
 package org.openmuc.framework.lib.osgi.config;
 
-import ch.qos.logback.classic.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,6 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
 
 /**
  * Validates the config file for the registered pid e.g. load/org.openmuc.framework.myproject.MyClass.cfg
@@ -58,7 +59,8 @@ public class PropertyFileValidator {
         File f = new File(filename);
         if (!f.exists()) {
             writePropertyFile();
-        } else {
+        }
+        else {
             readExistingProperties();
             checkForMissingPropertiesInFile();
             checkForUnsetPropertiesInFile();
@@ -104,12 +106,9 @@ public class PropertyFileValidator {
     }
 
     private void checkForDeprecatedProperties() {
-
         for (String existingProp : existingProperties) {
-            if (!existingProp.contains("#") && serviceProperties.keySet()
-                    .stream()
-                    .map(prop -> prop.toString())
-                    .noneMatch(key -> key.contains(existingProp.split("=")[0]))) {
+            if (!existingProp.contains("#") && !existingProp.isEmpty()
+                    && serviceProperties.keySet().stream().noneMatch(key -> existingProp.contains(key))) {
                 logger.warn("{} in {} is deprecated", existingProp, filename);
             }
         }

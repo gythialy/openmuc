@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,23 +29,25 @@ public interface ServerService {
 
     /**
      * returns the unique Identifier of a server
-     *
+     * 
      * @return the unique Identifier
      */
     public String getId();
 
     /**
      * This method is called when configuration is updated.
-     *
-     * @param mappings the channels configured be mapped to the server
+     * 
+     * @param mappings
+     *            the channels configured be mapped to the server
      */
     public void updatedConfiguration(List<ServerMappingContainer> mappings);
 
     /**
      * This method is called after registering as a server. It provides access to the channels that are configured to be
      * mapped to a server
-     *
-     * @param mappings the channels configured be mapped to the server
+     * 
+     * @param mappings
+     *            the channels configured be mapped to the server
      */
     public void serverMappings(List<ServerMappingContainer> mappings);
 }

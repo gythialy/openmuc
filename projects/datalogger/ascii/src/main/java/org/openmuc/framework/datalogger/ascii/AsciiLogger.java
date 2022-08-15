@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -57,6 +57,7 @@ public class AsciiLogger implements DataLoggerService {
     private final String loggerDirectory;
     private final HashMap<String, LogChannel> logChannelList = new HashMap<>();
     private boolean isFillUpFiles = true;
+    private static final long MS_PER_DAY = 86400000;
 
     public AsciiLogger() {
 
@@ -263,7 +264,8 @@ public class AsciiLogger implements DataLoggerService {
                     fillUpFileWithErrorCode(loggerDirectory, key, calendar);
                 }
                 else {
-                    // rename file in old file (if file is existing), because of configuration has changed
+                    // rename file in old file (if file is existing), because of configuration has
+                    // changed
                     LoggerUtils.renameFileToOld(loggerDirectory, key, calendar);
                 }
             }
@@ -337,17 +339,62 @@ public class AsciiLogger implements DataLoggerService {
         if (logChannel != null) {
             reader = new LogFileReader(loggerDirectory, logChannel);
             return reader.getValues(startTime, endTime).get(channelId);
-        } // TODO: hier einfuegen das nach Loggdateien gesucht werden sollen die vorhanden sind aber nicht geloggt
+        } // TODO: hier einfuegen, dass nach Logdateien gesucht werden soll, die vorhanden
+          // sind, aber nicht geloggt
           // werden,
-          // z.B fuer server only ohne Logging. Das suchen sollte nur beim ersten mal passieren (start).
+          // z.B fuer server only ohne Logging. Das suchen sollte nur beim ersten mal
+          // passieren (start).
         else {
             throw new IOException("ChannelID (" + channelId + ") not available. It's not a logging Channel.");
         }
     }
 
+    /**
+     * Get the latest logged Record for the given value. This is achieved by searching within a few times the
+     * loggingInterval from the current time for any record and then selecting the one with the highest timestamp
+     * 
+     * @param channelId
+     *            to be searched
+     * @return latest Record
+     */
+    @Override
+    public Record getLatestLogRecord(String channelId) throws IOException {
+        LogChannel logChannel = logChannelList.get(channelId);
+        LogFileReader reader = null;
+
+        if (logChannel == null) {
+            throw new IOException("ChannelID (" + channelId + ") not available. It's not a logging Channel.");
+        }
+        reader = new LogFileReader(loggerDirectory, logChannel);
+        // attempt to find a record within the last day
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime - MS_PER_DAY;
+        Map<String, List<Record>> recordsMap = reader.getValues(startTime, endTime);
+        Map<String, Record> latestRecordsMap = LoggerUtils.findLatestValue(recordsMap);
+        Record record = latestRecordsMap.get(channelId);
+        if (record != null) {
+            return record;
+        }
+
+        // Fallback: read all files and find the latest record within these
+        List<File> files = LoggerUtils.getAllDataFiles(loggerDirectory);
+        if (files == null) {
+            return null;
+        }
+        File file = LoggerUtils.getLatestFile(files);
+        if (file == null) {
+            return null;
+        }
+        recordsMap = reader.getValues(file.getPath());
+        latestRecordsMap = LoggerUtils.findLatestValue(recordsMap);
+        record = latestRecordsMap.get(channelId);
+        return record;
+    }
+
     private void setSystemProperties() {
 
-        // FIXME: better to use a constant here instead of dynamic name in case the package name changes in future than
+        // FIXME: better to use a constant here instead of dynamic name in case the
+        // package name changes in future then
         // the system.properties entry will be out dated.
         String fillUpPropertyStr = AsciiLogger.class.getPackage().getName().toLowerCase() + ".fillUpFiles";
         String fillUpProperty = System.getProperty(fillUpPropertyStr);

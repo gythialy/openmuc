@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,7 +27,8 @@ package org.openmuc.framework.lib.osgi.deployment;
 public interface ServiceAccess {
 
     /**
-     * @param serviceRef The service to set
+     * @param serviceRef
+     *            The service to set
      */
     public void setService(Object serviceRef);
 }

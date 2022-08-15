@@ -1633,6 +1633,11 @@ OpenMUC bundles but only a subset for demonstration purposes.</p>
 <dt class="hdlist1">logback.xml</dt>
 <dd>
 <p>Configuration file to configure log levels for console and log file.</p>
+<div class="literalblock">
+<div class="content">
+<pre>Currently, the logging is configured to create logfiles of at most 100MB, create a new log file every day and keep a maximum of 30 days or 3GB, which ever is reached first.</pre>
+</div>
+</div>
 </dd>
 <dt class="hdlist1">system.properties</dt>
 <dd>
@@ -1917,7 +1922,7 @@ For information only (info can be accessed by an app or driver)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">time*</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time difference until this channel is logged again. -1 or omitting loggingInterval disables logging.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time difference until this channel is logged again. Omitting loggingInterval disables logging in intervals. Setting loggingInterval disables loggingEvent.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">loggingTimeOffset</p></td>
@@ -1932,7 +1937,7 @@ For information only (info can be accessed by an app or driver)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>boolean</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, immediately logs latest record on value change.
-Only supported by some data loggers.
+Only supported by some data loggers. Disabled if loggingInterval is set.
 See <a href="#anchor-dataloggers">data logger description</a> for more information.</p></td>
 </tr>
 <tr>
@@ -1949,7 +1954,7 @@ See <a href="#anchor-dataloggers">data logger description</a> for more informati
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>string</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">In case multiple readers are registered in the framework you can use the attribute <em>reader</em> to specify a dedicated logger for reading values e.g. &lt;logSettings reader="asciilogger"&gt;mqttlogger:topic=my/topic&lt;/logSettings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In case multiple readers are registered in the framework you can use the attribute <em>reader</em> to specify a dedicated logger for reading values e.g. &lt;loggingSettings reader="asciilogger"&gt;mqttlogger:topic=my/topic&lt;/loggingSettings</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">listening</p></td>
@@ -4342,16 +4347,16 @@ data manager. This decreases the number of needed tasks e.g. for writing to a da
 <p><strong>[connectionAliveInterval]:</strong> Connection alive interval in s – periodically send PING message to broker to detect broken connections</p>
 </li>
 <li>
-<p><strong>[firstWillTopic]:</strong> Topic on which lastWillPayload will be published</p>
+<p><strong>[firstWillTopic]:</strong> Topic on which firstWillPayload will be published on successful connections</p>
 </li>
 <li>
-<p><strong>[firstWillPayload]:</strong> Payload of the last will message</p>
+<p><strong>[firstWillPayload]:</strong> Payload of the first will message</p>
 </li>
 <li>
-<p><strong>[lastWillTopic]:</strong> Topic on which firstWillPayload will be published on successful connections</p>
+<p><strong>[lastWillTopic]:</strong> Topic on which lastWillPayload will be published</p>
 </li>
 <li>
-<p><strong>[lastWillPayload]:</strong> Payload of the first will message</p>
+<p><strong>[lastWillPayload]:</strong> Payload of the last will message</p>
 </li>
 <li>
 <p><strong>[lastWillAlways]:</strong> <em>true</em>: publish last will payload on every disconnection, including intended disconnects by the
@@ -4408,7 +4413,7 @@ It also uses firstWill and lastWill for sending connection status messages.</p>
     <span class="tag">&lt;device</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">Smart Meter</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
        <span class="tag">&lt;deviceAddress&gt;</span>myMqttBroker.de<span class="tag">&lt;/deviceAddress&gt;</span>
         <span class="tag">&lt;settings&gt;</span>
-        port=1883;user=openmuc;password=Password123
+        port=1883;username=openmuc;password=Password123
         parser=openmuc;bufferSize=2;ssl=true
         lastWillTopic=my/topic;lastWillPayload=Offline;lastWillAlways=true
         firstWillTopic=my/topic;firstWillPayload=Online
@@ -4467,7 +4472,7 @@ outage that create holes in the data, new files will be created for this date wh
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logSettings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loggingSettings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">not supported</p></td>
 </tr>
 </tbody>
@@ -4588,7 +4593,7 @@ you can change it through adding this line:</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logSettings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loggingSettings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">amqplogger:queue=&lt;your.queue&gt;</p></td>
 </tr>
 </tbody>
@@ -4677,7 +4682,7 @@ The logger implements automatic connection recovery and message buffering.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logSettings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loggingSettings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">mqttlogger:topic=&lt;your/topic&gt;</p></td>
 </tr>
 </tbody>
@@ -4832,7 +4837,7 @@ When using 2-way SSL the broker verifies the authenticity of the logger and a va
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logSettings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loggingSettings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">not supported</p></td>
 </tr>
 </tbody>
@@ -4875,7 +4880,7 @@ When using 2-way SSL the broker verifies the authenticity of the logger and a va
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logSettings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loggingSettings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">sqllogger:&lt;empty&gt;</p></td>
 </tr>
 </tbody>
@@ -5011,6 +5016,34 @@ ssl=false
 #url=jdbc:h2:retry:file:./data/h2/h2;AUTO_SERVER=TRUE;MODE=MYSQL
 url=jdbc:postgresql://127.0.0.1:5432/&lt;database_user&gt;</code></pre>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_migrating_database_to_be_compatible_with_newer_h2_version">7.5.5. Migrating database to be compatible with newer H2 version</h4>
+<div class="paragraph">
+<p>Edit the path and the prefix of the database in the gradle.build file of the sqllogger. Making a Backup of the Database is recommended.
+Then run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>openmuc migrateh2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Migrating manually:</p>
+</div>
+<div class="paragraph">
+<p>Download versions 1.4.200 and 2.0.206 from here: <a href="http://www.h2database.com/html/download-archive.html" class="bare">http://www.h2database.com/html/download-archive.html</a> and unpack them.
+Copy the Database to another folder and execute the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>java -cp &lt;path to 1.4.200 jar&gt; org.h2.tools.Script -url jdbc:h2:&lt;path to database&gt; -user &lt;username&gt; -password &lt;password&gt; -script &lt;choose a script location path&gt; -options compression zip
+java -cp &lt;path to 2.0.206 jar&gt; org.h2.tools.RunScript -url jdbc:h2:&lt;choose path to new database&gt; -user &lt;username&gt; -password &lt;password&gt; -script &lt;script location path&gt; -options compression zip</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then replace the old Database (or keep it as Backup) with the upgraded one.</p>
 </div>
 </div>
 </div>
@@ -6177,7 +6210,7 @@ For additional functionality you can add further apache felix web console plugin
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-05 18:06:25 +0100
+Last updated 2022-03-31 13:01:59 +0200
 </div>
 </div>
 <style>

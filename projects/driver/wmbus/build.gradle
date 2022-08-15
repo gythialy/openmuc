@@ -12,7 +12,7 @@ dependencies {
     implementation group: 'org.openmuc', name: 'jmbus', version: jmbusversion
     embed group: 'org.openmuc', name: 'jmbus', version: jmbusversion
 
-    implementation 'commons-codec:commons-codec:1.13'
+    implementation 'commons-codec:commons-codec:1.15'
 }
 
 jar {
@@ -30,7 +30,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description projectDescription
+                description = projectDescription
             }
         }
     }

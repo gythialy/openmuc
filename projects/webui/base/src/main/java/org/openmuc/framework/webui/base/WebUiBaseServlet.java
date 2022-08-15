@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,21 +20,23 @@
  */
 package org.openmuc.framework.webui.base;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import org.openmuc.framework.authentication.AuthenticationService;
-import org.openmuc.framework.webui.spi.WebUiPluginService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import org.openmuc.framework.authentication.AuthenticationService;
+import org.openmuc.framework.webui.spi.WebUiPluginService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 @SuppressWarnings("serial")
 public class WebUiBaseServlet extends HttpServlet {
@@ -68,7 +70,8 @@ public class WebUiBaseServlet extends HttpServlet {
 
         if (servletPath == null) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Path is null.");
-        } else if ("/applications".equals(servletPath)) {
+        }
+        else if ("/applications".equals(servletPath)) {
 
             if (req.getSession().isNew()) {
                 req.getSession().invalidate();
@@ -125,7 +128,8 @@ public class WebUiBaseServlet extends HttpServlet {
             session.setMaxInactiveInterval(SESSION_TIMEOUT); // set session timeout
             session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_ACCEPTED);
-        } else {
+        }
+        else {
             if (logger.isInfoEnabled()) {
                 logger.info("login failed!");
             }
@@ -138,7 +142,8 @@ public class WebUiBaseServlet extends HttpServlet {
         if (!authService.isUserAdmin(user) && isSensitiveMode) {
             hideSensitiveContent();
             isSensitiveMode = false;
-        } else if (authService.isUserAdmin(user) && !isSensitiveMode) {
+        }
+        else if (authService.isUserAdmin(user) && !isSensitiveMode) {
             showSensitiveContent();
             isSensitiveMode = true;
         }

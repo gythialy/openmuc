@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,6 +21,17 @@
 
 package org.openmuc.framework.lib.mqtt;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.openmuc.framework.security.SslManagerInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hivemq.client.mqtt.MqttClientSslConfig;
 import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedListener;
 import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedListener;
@@ -29,14 +40,6 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3Client;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3ClientBuilder;
 import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3Connect;
 import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3ConnectBuilder;
-import org.openmuc.framework.lib.ssl.SslManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a connection to a MQTT broker
@@ -46,36 +49,39 @@ public class MqttConnection {
     private final MqttSettings settings;
     private final AtomicBoolean cancelReconnect = new AtomicBoolean(false);
 
-    private final Mqtt3ClientBuilder clientBuilder;
+    private final List<MqttClientConnectedListener> connectedListeners = new ArrayList<>();
+    private final List<MqttClientDisconnectedListener> disconnectedListeners = new ArrayList<>();
+
+    private boolean sslReady = false;
+
+    private Mqtt3ClientBuilder clientBuilder;
     private Mqtt3AsyncClient client;
+
+    private SslManagerInterface sslManager = null;
 
     /**
      * A connection to a MQTT broker
      *
-     * @param settings connection details {@link MqttSettings}
+     * @param settings
+     *            connection details {@link MqttSettings}
      */
     public MqttConnection(MqttSettings settings) {
         this.settings = settings;
         clientBuilder = getClientBuilder();
-        if (settings.isSsl()) {
-            SslManager.getInstance().listenForConfigChange(this::sslUpdate);
-            clientBuilder.addDisconnectedListener(context -> {
-                if (cancelReconnect.getAndSet(false)) {
-                    context.getReconnector().reconnect(false);
-                } else if (context.getReconnector().getAttempts() >= 3) {
-                    logger.debug("Renewing client");
-                    context.getReconnector().reconnect(false);
-                    clientBuilder.identifier(UUID.randomUUID().toString());
-                    connect();
-                }
-            });
-        }
         client = buildClient();
+    }
+
+    public boolean isReady() {
+        if (settings.isSsl()) {
+            return sslReady;
+        }
+        return true;
     }
 
     private void sslUpdate() {
         logger.warn("SSL configuration changed, reconnecting.");
         cancelReconnect.set(true);
+        sslReady = true;
         client.disconnect().whenComplete((ack, e) -> {
             clientBuilder.sslConfig(getSslConfig());
             clientBuilder.identifier(UUID.randomUUID().toString());
@@ -87,7 +93,10 @@ public class MqttConnection {
         Mqtt3ConnectBuilder connectBuilder = Mqtt3Connect.builder();
         connectBuilder.keepAlive(settings.getConnectionAliveInterval());
         if (settings.isLastWillSet()) {
-            connectBuilder.willPublish().topic(settings.getLastWillTopic()).payload(settings.getLastWillPayload()).applyWillPublish();
+            connectBuilder.willPublish()
+                    .topic(settings.getLastWillTopic())
+                    .payload(settings.getLastWillPayload())
+                    .applyWillPublish();
         }
         if (settings.getUsername() != null) {
             connectBuilder.simpleAuth()
@@ -117,21 +126,41 @@ public class MqttConnection {
      */
     public void disconnect() {
         if (settings.isLastWillAlways()) {
-            client.publishWith().topic(settings.getLastWillTopic()).payload(settings.getLastWillPayload()).send()
+            client.publishWith()
+                    .topic(settings.getLastWillTopic())
+                    .payload(settings.getLastWillPayload())
+                    .send()
                     .whenComplete((publish, e) -> {
                         client.disconnect();
                     });
-        } else {
+        }
+        else {
             client.disconnect();
         }
     }
 
     void addConnectedListener(MqttClientConnectedListener listener) {
-        clientBuilder.addConnectedListener(listener);
+        if (clientBuilder == null) {
+            connectedListeners.add(listener);
+        }
+        else {
+            clientBuilder.addConnectedListener(listener);
+            if (!connectedListeners.contains(listener)) {
+                connectedListeners.add(listener);
+            }
+        }
     }
 
     void addDisconnectedListener(MqttClientDisconnectedListener listener) {
-        clientBuilder.addDisconnectedListener(listener);
+        if (clientBuilder == null) {
+            disconnectedListeners.add(listener);
+        }
+        else {
+            clientBuilder.addDisconnectedListener(listener);
+            if (!disconnectedListeners.contains(listener)) {
+                disconnectedListeners.add(listener);
+            }
+        }
     }
 
     Mqtt3AsyncClient getClient() {
@@ -154,21 +183,56 @@ public class MqttConnection {
                 .applyAutomaticReconnect()
                 .serverHost(settings.getHost())
                 .serverPort(settings.getPort());
-        if (settings.isSsl()) {
+        if (settings.isSsl() && sslManager != null) {
             clientBuilder.sslConfig(getSslConfig());
+        }
+        if (settings.isWebSocket()) {
+            clientBuilder.webSocketWithDefaultConfig();
         }
         return clientBuilder;
     }
 
     private MqttClientSslConfig getSslConfig() {
         return MqttClientSslConfig.builder()
-                .keyManagerFactory(SslManager.getInstance().getKeyManagerFactory())
-                .trustManagerFactory(SslManager.getInstance().getTrustManagerFactory())
+                .keyManagerFactory(sslManager.getKeyManagerFactory())
+                .trustManagerFactory(sslManager.getTrustManagerFactory())
                 .handshakeTimeout(10, TimeUnit.SECONDS)
                 .build();
     }
 
     private Mqtt3AsyncClient buildClient() {
         return clientBuilder.buildAsync();
+    }
+
+    public void setSslManager(SslManagerInterface instance) {
+        if (!settings.isSsl()) {
+            return;
+        }
+        sslManager = instance;
+        clientBuilder = getClientBuilder();
+        for (MqttClientConnectedListener listener : connectedListeners) {
+            addConnectedListener(listener);
+        }
+        connectedListeners.clear();
+        for (MqttClientDisconnectedListener listener : disconnectedListeners) {
+            addDisconnectedListener(listener);
+        }
+        disconnectedListeners.clear();
+        sslManager.listenForConfigChange(this::sslUpdate);
+        addDisconnectedListener(context -> {
+            if (cancelReconnect.getAndSet(false)) {
+                context.getReconnector().reconnect(false);
+            }
+            else if (context.getReconnector().getAttempts() >= 3) {
+                logger.debug("Renewing client");
+                context.getReconnector().reconnect(false);
+                clientBuilder.identifier(UUID.randomUUID().toString());
+                connect();
+            }
+        });
+        client = buildClient();
+        if (sslManager.isLoaded()) {
+            sslReady = true;
+        }
     }
 }

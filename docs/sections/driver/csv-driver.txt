@@ -1,0 +1,40 @@
+=== CSV ===
+
+The csv driver supports sampling from a csv file. This feature can be very helpful during application development or show cases, when no real hardware is available. For example, our SimpleDemoApp uses data provided by the csv driver.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | csv
+|Device Address | path to csv file (e.g. /path/to/my.csv)
+|Settings | samplingmode=<samplingmode>[;rewind=<rewind>]
+|Channel Address | column name
+|=========================================================
+
+*Settings*
+
+* *Samplingmode* configures how the csv file is sampled. Currently, three different modes are supported:
+** line - starts sampling from the first line of the csv file. Timestamps are ignored and each sampling reads the next line.
+** unixtimestamp - csv file must contain a column with the name __unixtimestamp__, values must be in milliseconds. During sampling the driver searches the closest unixtimestamp which is &gt;= the sampling timestamp. Therefore, the driver keeps returning the same value for sampling timestamps which are before the next unixtimestamp of the csv file.
+** hhmmss - csv file must contain a column with the name __hhmmss__ and the time values must be in the format: hhmmss.
+
+* *rewind* - If __true__ and the last line of the csv file is reached, then the driver will start sampling again from first line. This option can only be used in combination with sampling mode __hhmmss__ or __line__.
+
+The columns _unixtimestamp_ and _hhmmss_ are part of the log files created by the AsciiLogger, therefore the csv driver supports these files.
+
+.Example configuration for csv driver
+[source,xml]
+----
+<device id="smarthome">
+  <description/>
+  <deviceAddress>./csv-driver/smarthome.csv</deviceAddress>
+  <settings>samplingmode=hhmmss;rewind=true</settings>
+  <channel id="power_pv">
+    <channelAddress>power_photovoltaics</channelAddress>
+    <unit>W</unit>
+    <samplingInterval>5s</samplingInterval>
+    <loggingInterval>5s</loggingInterval>
+</channel>
+----
+
+

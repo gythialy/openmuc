@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,15 +20,10 @@
  */
 package org.openmuc.framework.lib.ssl;
 
-import org.openmuc.framework.lib.osgi.config.DictionaryPreprocessor;
 import org.openmuc.framework.lib.osgi.config.GenericSettings;
 import org.openmuc.framework.lib.osgi.config.ServiceProperty;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 
-import java.util.Dictionary;
-
-public class Settings extends GenericSettings implements ManagedService {
+class Settings extends GenericSettings {
     final static String KEYSTORE = "keystore";
     final static String KEYSTORE_PASSWORD = "keystorepassword";
     final static String TRUSTSTORE = "truststore";
@@ -43,13 +38,5 @@ public class Settings extends GenericSettings implements ManagedService {
                 new ServiceProperty(TRUSTSTORE, "path to the truststore", "conf/truststore.jks", true));
         properties.put(TRUSTSTORE_PASSWORD,
                 new ServiceProperty(TRUSTSTORE_PASSWORD, "truststore password", "changeme", true));
-    }
-
-    @Override
-    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
-        DictionaryPreprocessor dict = new DictionaryPreprocessor(properties);
-        if (!dict.wasIntermediateOsgiInitCall()) {
-            SslManager.getInstance().tryProcessConfig(dict);
-        }
     }
 }

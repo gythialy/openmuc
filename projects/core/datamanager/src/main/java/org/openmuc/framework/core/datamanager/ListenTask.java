@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,10 +21,10 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import org.openmuc.framework.driver.spi.ChannelRecordContainer;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
 
 public final class ListenTask {
 

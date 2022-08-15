@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -40,6 +40,7 @@ import org.openmuc.framework.lib.osgi.config.PropertyHandler;
 import org.openmuc.framework.lib.osgi.config.ServicePropertyException;
 import org.openmuc.framework.parser.spi.ParserService;
 import org.openmuc.framework.parser.spi.SerializationException;
+import org.openmuc.framework.security.SslManagerInterface;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
@@ -56,6 +57,10 @@ public class AmqpLogger implements DataLoggerService, ManagedService {
     private final Settings settings;
     private AmqpWriter writer;
     private AmqpConnection connection;
+    private SslManagerInterface sslManager;
+    private boolean configLoaded = false;
+    private final boolean sslLoaded = false;
+    private final boolean listening = false;
 
     public AmqpLogger() {
         String pid = AmqpLogger.class.getName();
@@ -80,11 +85,30 @@ public class AmqpLogger implements DataLoggerService, ManagedService {
 
     @Override
     public synchronized void log(List<LoggingRecord> containers, long timestamp) {
+        if (!isLoggerReady()) {
+            logger.warn("Skipped logging values, still loading");
+            return;
+        }
         if (writer == null) {
             logger.warn("AMQP connection is not established");
             return;
         }
 
+        iterateContainersToLog(containers);
+
+        // ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+        // Future future = executor.submit(() -> {
+        //
+        // });
+        //
+        // int currentLoggingInterval = channelsToLog.get(containers.get(0).getChannelId()).getLoggingInterval();
+        // executor.schedule(() -> {
+        // future.cancel(true);
+        // logger.warn("Logging execution needs too much time, skipping...");
+        // }, currentLoggingInterval, TimeUnit.SECONDS);
+    }
+
+    private void iterateContainersToLog(List<LoggingRecord> containers) {
         for (LoggingRecord loggingRecord : containers) {
             String channelId = loggingRecord.getChannelId();
             if (channelsToLog.containsKey(channelId)) {
@@ -163,6 +187,11 @@ public class AmqpLogger implements DataLoggerService, ManagedService {
     }
 
     @Override
+    public Record getLatestLogRecord(String channelId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void updated(Dictionary<String, ?> propertyDict) throws ConfigurationException {
         DictionaryPreprocessor dict = new DictionaryPreprocessor(propertyDict);
         if (!dict.wasIntermediateOsgiInitCall()) {
@@ -183,27 +212,46 @@ public class AmqpLogger implements DataLoggerService, ManagedService {
     }
 
     private void applyConfigChanges() {
+        configLoaded = true;
         logger.info("Configuration changed - new configuration {}", propertyHandler.toString());
         if (writer != null) {
-            // FIXME could be improved by checking if MqttSettings have changed.
-            // If not then there is no need for reconnect.
             shutdown();
         }
         connect();
     }
 
     private void connect() {
-        logger.info("Start connection to amqp backend...");
-        AmqpSettings amqpSettings = createAmqpSettings();
-        try {
-            connection = new AmqpConnection(amqpSettings);
-            writer = new AmqpWriter(connection);
-            logger.info("Connection established successfully!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e.getMessage());
-            logger.error("Check your configuration!");
+        if (configLoaded) {
+            logger.info("Start connection to amqp backend...");
+            AmqpSettings amqpSettings = createAmqpSettings();
+            try {
+                connection = new AmqpConnection(amqpSettings);
+                writer = new AmqpWriter(connection, getId());
+                connection.setSslManager(sslManager);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error(e.getMessage());
+                logger.error("Check your configuration!");
+            }
         }
+    }
+
+    private boolean isLoggerReady() {
+        boolean sslNeeded = propertyHandler.getBoolean(Settings.SSL);
+
+        if (sslNeeded) {
+            return isLoggerReadyForSsl();
+        }
+
+        return configLoaded;
+    }
+
+    private boolean isLoggerReadyForSsl() {
+        if (sslManager == null) {
+            return false;
+        }
+
+        return configLoaded && sslManager.isLoaded();
     }
 
     private AmqpSettings createAmqpSettings() {
@@ -215,7 +263,12 @@ public class AmqpLogger implements DataLoggerService, ManagedService {
                 propertyHandler.getString(Settings.USERNAME),
                 propertyHandler.getString(Settings.PASSWORD),
                 propertyHandler.getBoolean(Settings.SSL),
-                propertyHandler.getString(Settings.EXCHANGE));
+                propertyHandler.getString(Settings.EXCHANGE),
+                propertyHandler.getString(Settings.PERSISTENCE_DIR),
+                propertyHandler.getInt(Settings.MAX_FILE_COUNT),
+                propertyHandler.getInt(Settings.MAX_FILE_SIZE),
+                propertyHandler.getInt(Settings.MAX_BUFFER_SIZE),
+                propertyHandler.getInt(Settings.CONNECTION_ALIVE_INTERVAL));
         // @formatter:on
         return amqpSettings;
     }
@@ -231,8 +284,13 @@ public class AmqpLogger implements DataLoggerService, ManagedService {
     public void shutdown() {
         logger.info("closing AMQP connection");
         if (connection != null) {
+            writer.shutdown();
             connection.disconnect();
         }
     }
 
+    public void setSslManager(SslManagerInterface instance) {
+        sslManager = instance;
+        connect();
+    }
 }

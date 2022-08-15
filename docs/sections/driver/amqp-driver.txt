@@ -1,0 +1,59 @@
+=== AMQP
+
+Connects OpenMUC with an AMQP-Broker and writes the records from the queues to channels.
+Therefore this driver makes usage of our AMQP-Library, which is described in section <<amqp-lib>>. For configuration
+of the AMQP-Connection, the values from the following table have to be set in the channels.xml.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | amqp
+|Device Address | URL of the amqp infrastructure
+|Settings | port=<port>;vhost=<vHost>;user=<user>;password=<pw>;framework=<frameworkID>;
+parser=<needed <<parser-lib>>>;buffersize=<1-n>;ssl=<true/false>;separator=<e.g. "_">;exchange=<amqp-exchange>
+|Channel Address | <name of amqp-queue>
+|=========================================================
+
+Parameter description:
+
+* framework and separator: +
+To add the information about the source of an amqp queue, the concept of subsection
+<<amqp-mapping>> is used. Framework defines the prefix of the amqp queue and seperator the char between
+framework and channelID.
+
+* buffersize: +
+This parameter makes it possible to optimize the performance at listening and logging huge amounts of records.
+The driver waits till it collected the configured number of records, before it returns the whole list to the
+data manager. This decreases the number of needed tasks e.g. for writing to a database.
+
+Supported features:
+
+* read channel
+* write channel
+* listening
+
+Not supported features:
+
+* scan for devices
+* scan for all channels
+* reading whole devices instead of single channel
+
+After starting this bundle, it connects to the configured amqp host.
+The example below is listening for the queue "SmartMeter_power_grid".
+
+[source,xml]
+----
+<driver id="amqp">
+    <device id="Smart Meter">
+       <deviceAddress>myAmqpBroker.de</deviceAddress>
+        <settings>
+        port=5671;vhost=myVHost;user=openmuc;password=Password123;framework=SmartMeter;
+        parser=openmuc;buffersize=1;ssl=true;separator=_;exchange=field1
+        </settings>
+	    <channel id="power_grid">
+                <channelAddress>power_grid</channelAddress>
+		<listening>true</listening>
+        </channel>
+   </device>
+</driver>
+----

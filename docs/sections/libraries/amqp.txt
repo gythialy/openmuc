@@ -1,0 +1,105 @@
+=== AMQP
+[#amqp-lib]
+The AMQP library uses the RabbitMQ Java Client to connect to the broker.
+
+The library consists of four classes:
+
+* AmqpSettings
+* AmqpConnection
+* AmqpReader
+* AmqpWriter
+
+It implements automatic connection recovery with message buffering.
+If only publishing (or consuming) is needed only the AmqpConnection and the AmqpReader (or AmqpWriter) needs to be instantiated.
+
+==== Connecting to a broker (AmqpSettings/AmqpConnection)
+
+An instance of an AmqpConnection represents a connection to a broker. If multiple connections are needed one can simply create multiple instances.
+
+To create an AmqpConnection instance one first needs to create an instance of AmqpSettings and pass it to the constructor of the AmqpConnection. In 
+that way, it is up to the developer to decide where to get the connection properties from.
+
+The connection to the broker is going to be created as soon as the constructor of AmqpConnection is executed.
+
+Declaring any queues is not needed as AmqpReader and AmqpWriter do this already.
+
+Before the application stops one should `disconnect()` first to clean up any resources.
+
+Example with local RabbitMQ Broker:
+
+```java
+String host = "localhost";
+int port = 5672;
+String virtualHost = "/";
+String username = "guest";
+String password = "guest";
+boolean ssl = false;
+String exchange = "example";
+
+AmqpSettings settings = new AmqpSettings(
+    host, port, virtualHost, username, password, ssl, exchange
+);
+
+AmqpConnection connection = new AmqpConnection(settings);
+
+// Before stopping the application:
+connection.disconnect();
+```
+
+==== Consuming messages (AmqpReader)
+
+To consume messages from the broker one has two options:
+
+===== Manually retrieving messages
+
+This is the simplest way to get a message. The method `byte[] read(String queue)` returns a single message retrieved from the given queue or `null` if the queue was empty.
+
+Example:
+
+```java
+AmqpReader reader = new AmqpReader(connection);
+byte[] receivedMessage = reader.read("exampleQueue");
+
+if (receivedMessage == null) {
+    // No message received
+} else {
+    // Handle received message
+}
+```
+
+===== Listening for messages
+
+This is the recommended way to receive messages, as the messages are received in the moment the broker receives them. One can listen to a collection of queues with a 
+listener which gets notified when a message in any of those queues is received. When listening to a single queue just pass a collection singleton.
+
+Example:
+
+```java
+AmqpReader reader = new AmqpReader(connection);
+Collection<String> queues = new ArrayList<>(2);
+queues.add("exampleQueue1");
+queues.add("exampleQueue2");
+
+reader.listen(queues, (String queue, byte[] message) -> {
+    if (queue == "exampleQueue1") {
+        // handle message
+    } else {
+        // handle message
+    }
+});
+```
+
+==== Publishing messages (AmqpWriter)
+
+To publish a message call `void write(String routingKey, byte[] message)` with the routing key and the message. The message will be published to the exchange specified 
+in the AmqpConnection.
+
+Example:
+
+```java
+AmqpWriter writer = new AmqpWriter(connection);
+
+String routingKey = "test.logger";
+byte[] message = "Hello World!".getBytes();
+writer.write(routingKey, message);
+```

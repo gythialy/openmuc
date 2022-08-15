@@ -1,0 +1,28 @@
+=== KNX
+
+KNX is a standardised protocol for intelligent buildings. The KNX
+driver uses KNXnet/IP to connect to the wired KNX BUS. The driver
+supports group read and writes and is also able to listen to the
+BUS. The driver uses the calimero library.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | knx
+|Device Address | knxip://<host_ip>[:<port>] knxip://<device_ip>[:<port>]
+|Settings | [Address=<Individual KNX address (e. g. 2.6.52)>];[SerialNumber=<Serial number>]
+|Channel Address |   <Group Adress>:<DPT_ID>
+|=========================================================
+
+*Device Address*
+
+The device address consists of the host IP and the IP of the KNX tunnel or router.
+
+*Channel Address*
+
+The channel address consist of the group address you want to monitor and the
+corresponding data point ID. A data point consists of a main number and a subtype.
+For example a boolean would be represented by the main number 1 and a switch by
+the subtype 001, the DPT_ID of a switch is 1.001.
+
+

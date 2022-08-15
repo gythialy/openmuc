@@ -12,10 +12,11 @@ dependencies {
 
     implementation group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
     embed group: 'com.github.calimero', name: 'calimero-core', version: calimerovers
+    embed group: 'org.microemu', name: 'midpapi20', version: '2.0.4'
 }
 
 jar {
-    bnd('Bundle-Name': projectName, 'Bundle-ClassPath': '.,lib/calimero-core-' + calimerovers + '.jar',
+    bnd('Bundle-Name': projectName, 'Bundle-ClassPath': '.,lib/calimero-core-' + calimerovers + '.jar,lib/midpapi20-2.0.4.jar,lib/cldcapi11-2.0.4.jar',
             'Import-Package': '!tuwien.auto.calimero*,*' + jarDefaultImportPackageVersion)
 
     into('lib') {
@@ -28,7 +29,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description projectDescription
+                description = projectDescription
             }
         }
     }

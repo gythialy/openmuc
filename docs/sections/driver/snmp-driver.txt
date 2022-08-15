@@ -1,0 +1,60 @@
+=== SNMP
+
+
+Simple Network Management Protocol (SNMP) is an Internet-standard protocol for
+monitoring and management of devices on IP networks.
+
+*Dependencies:* snmp4j-2.2.5.jar
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | snmp
+|Device Address | IP/snmpPort
+|Settings | settings string
+|Channel Address | SNMP OID address
+|=========================================================
+
+*Device Address*
+
+IP address and available SNMP port of the target device should be provided as Device Address.
+
+*Example for Device Address:*
+----
+192.168.1.1/161
+----
+
+*Settings*
+
+All settings are stored in "SnmpDriverSettingVariableNames" enum.
+
+.Setting Parameters
+[{driver_table_op}, cols="1,2"]
+|=========================================================
+|SNMPVersion | "SNMPVersion" enum contains all available values
+|USERNAME| string
+|SECURITYNAME|  string
+|AUTHENTICATIONPASSPHRASE | is the same COMMUNITY word in SNMP V2c
+|PRIVACYPASSPHRASE|   string
+|=========================================================
+
+*SNMPVersion*
+
+SNMPVersion is an enum variable containing valid SNMP versions. (V1, V2c, V3)
+
+*Example for valid settings string:*
+----
+SNMPVersion=V2c:USERNAME=public:SECURITYNAME=public:AUTHENTICATIONPASSPHRASE=password
+----
+
+In order to read specific channel, corresponding SNMP OID shall be passed.
+
+*Example for SNMP OID:*
+----
+1.3.6.1.2.1.1.1.0
+----
+
+
+For scanning SNMP enabled devices in the network, range of IP addresses shall be
+provided. This functionality is implemented only for SNMP V2c.
+

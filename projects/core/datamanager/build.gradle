@@ -4,7 +4,7 @@ dependencies {
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 
     implementation project(':openmuc-core-spi')
-    implementation group: 'org.apache.felix', name: 'org.apache.felix.gogo.runtime', version: '1.1.2'
+    implementation group: 'org.apache.felix', name: 'org.apache.felix.gogo.runtime', version: '1.1.4'
     api group: 'org.osgi', name: 'org.osgi.service.useradmin', version: '1.1.0'
 }
 

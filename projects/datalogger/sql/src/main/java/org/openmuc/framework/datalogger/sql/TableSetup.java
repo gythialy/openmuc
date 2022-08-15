@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,21 +24,11 @@ package org.openmuc.framework.datalogger.sql;
 import static org.openmuc.framework.datalogger.sql.utils.SqlValues.MYSQL;
 import static org.openmuc.framework.datalogger.sql.utils.SqlValues.POSTGRES;
 import static org.openmuc.framework.datalogger.sql.utils.SqlValues.POSTGRESQL;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.BOOLEAN_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.BYTE_ARRAY_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.BYTE_VALUE;
 import static org.openmuc.framework.datalogger.sql.utils.TabelNames.DOUBLE_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.FLOAT_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.INT_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.LONG_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.SHORT_VALUE;
-import static org.openmuc.framework.datalogger.sql.utils.TabelNames.STRING_VALUE;
 
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,37 +86,74 @@ public class TableSetup {
      */
     public void createOpenmucTables() {
 
-        List<String> tableNameList = new ArrayList<>();
-        Collections.addAll(tableNameList, BOOLEAN_VALUE, BYTE_ARRAY_VALUE, FLOAT_VALUE, DOUBLE_VALUE, INT_VALUE,
-                LONG_VALUE, BYTE_VALUE, SHORT_VALUE, STRING_VALUE);
+        boolean execute = true;
 
-        List<JDBCType> typeList = new ArrayList<>();
-        Collections.addAll(typeList, JDBCType.BOOLEAN, JDBCType.LONGVARBINARY, JDBCType.FLOAT, JDBCType.DOUBLE,
-                JDBCType.INTEGER, JDBCType.BIGINT, JDBCType.SMALLINT, JDBCType.SMALLINT, JDBCType.VARCHAR);
-
-        for (int i = 0; i < tableNameList.size(); i++) {
+        for (LogChannel temp : this.channels) {
             StringBuilder sb = new StringBuilder();
-            sb.append("CREATE TABLE IF NOT EXISTS ").append(tableNameList.get(i));
+            String channelId = temp.getId();
+            sb.append("CREATE TABLE IF NOT EXISTS ").append(channelId);
 
             appendTimestamp(sb);
 
-            sb.append("channelID VARCHAR(40) NOT NULL,")
-                    .append("flag ")
-                    .append(JDBCType.SMALLINT)
-                    .append(" NOT NULL,")
-                    .append("value ");
+            sb.append("flag ").append(JDBCType.SMALLINT).append(" NOT NULL,").append("\"VALUE\" ");
+            switch (temp.getValueType()) {
+            case BOOLEAN:
+                sb.append(JDBCType.BOOLEAN);
+                break;
+            case BYTE:
+                sb.append(JDBCType.SMALLINT);
+                break;
+            case BYTE_ARRAY:
+                if (url.contains(POSTGRESQL)) {
+                    sb.append("BYTEA");
+                }
+                else if (url.contains(MYSQL)) {
+                    sb.append(JDBCType.BLOB);
+                }
+                else {
+                    sb.append(JDBCType.LONGVARBINARY);
+                }
+                break;
+            case DOUBLE:
 
-            appendTypeList(typeList, i, sb);
-
-            if (i == 8) {
-                sb.append(" (100)");
+                if (url.contains(POSTGRESQL)) {
+                    sb.append("DOUBLE PRECISION");
+                }
+                else {
+                    sb.append(JDBCType.DOUBLE);
+                }
+                break;
+            case FLOAT:
+                sb.append(JDBCType.FLOAT);
+                break;
+            case INTEGER:
+                sb.append(JDBCType.INTEGER);
+                break;
+            case LONG:
+                sb.append(JDBCType.BIGINT);
+                break;
+            case SHORT:
+                sb.append(JDBCType.SMALLINT);
+                break;
+            case STRING:
+                sb.append(JDBCType.VARCHAR);
+                sb.append(" (");
+                sb.append(temp.getValueTypeLength());
+                sb.append(')');
+                break;
+            default:
+                execute = false;
+                logger.error("Unable to create table for channel {}, reason: unknown ValueType {}", temp.getId(),
+                        temp.getValueType());
+                break;
             }
-
-            appendMySqlIndex(tableNameList, i, sb);
-            sb.append(",PRIMARY KEY (channelid, time));");
-            dbAccess.executeSQL(sb);
-            activatePostgreSqlIndex(tableNameList, i);
-            activateTimescaleDbHypertable(tableNameList, i);
+            if (execute) {
+                appendMySqlIndex(channelId, sb);
+                sb.append(",PRIMARY KEY (time));");
+                dbAccess.executeSQL(sb);
+                activatePostgreSqlIndex(channelId);
+                activateTimescaleDbHypertable(channelId);
+            }
         }
         // reduceSizeOfChannelIdCol(tableNameList);
     }
@@ -135,7 +162,7 @@ public class TableSetup {
         // FIXME
         for (LogChannel logChannel : channels) {
             String channelId = logChannel.getId();
-            List<String> columns = Arrays.asList("channelid");
+            List<String> columns = Collections.singletonList("channelid");
             List<Integer> varcharLength = dbAccess.getColumnLength(columns, DOUBLE_VALUE);
 
             if (varcharLength.get(0) < channelId.length()) {
@@ -156,9 +183,9 @@ public class TableSetup {
      * @param sb
      *            StringBuilder for the query
      */
-    private void appendMySqlIndex(List<String> tableNameList, int i, StringBuilder sb) {
+    private void appendMySqlIndex(String name, StringBuilder sb) {
         if (!url.contains(POSTGRESQL)) {
-            sb.append(",INDEX ").append(tableNameList.get(i)).append("Index(time)");
+            sb.append(",INDEX ").append(name).append("Index(time)");
         }
     }
 
@@ -170,11 +197,11 @@ public class TableSetup {
      * @param i
      *            Index for the tableNameList
      */
-    private void activateTimescaleDbHypertable(List<String> tableNameList, int i) {
+    private void activateTimescaleDbHypertable(String name) {
         if (url.contains(POSTGRESQL) && dbAccess.timeScaleIsActive()) {
             try {
-                dbAccess.executeQuery(new StringBuilder(
-                        "SELECT create_hypertable('" + tableNameList.get(i) + "', 'time', if_not_exists => TRUE);"));
+                dbAccess.executeQuery(
+                        new StringBuilder("SELECT create_hypertable('" + name + "', 'time', if_not_exists => TRUE);"));
             } catch (SQLException e) {
                 logger.error(MessageFormat.format("{0}test", e.getMessage()));
             }
@@ -189,10 +216,10 @@ public class TableSetup {
      * @param i
      *            Index for the tableNameList
      */
-    private void activatePostgreSqlIndex(List<String> tableNameList, int i) {
+    private void activatePostgreSqlIndex(String name) {
         if (url.contains(POSTGRESQL) && !dbAccess.timeScaleIsActive()) {
             StringBuilder sbIndex = new StringBuilder("CREATE INDEX IF NOT EXISTS ");
-            sbIndex.append(tableNameList.get(i)).append("Index ON ").append(tableNameList.get(i)).append(" (time);");
+            sbIndex.append(name).append("Index ON ").append(name).append(" (time);");
 
             dbAccess.executeSQL(sbIndex);
         }

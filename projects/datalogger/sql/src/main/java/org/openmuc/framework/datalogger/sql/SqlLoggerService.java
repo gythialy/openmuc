@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -85,7 +85,9 @@ public class SqlLoggerService implements DataLoggerService, ManagedService {
      */
     public void shutdown() {
         logger.info("Deactivating SQL Logger");
-        dbAccess.closeConnection();
+        if (dbAccess != null) {
+            dbAccess.closeConnection();
+        }
     }
 
     @Override
@@ -100,6 +102,10 @@ public class SqlLoggerService implements DataLoggerService, ManagedService {
     @Override
     public void setChannelsToLog(List<LogChannel> channels) {
         this.channels = channels;
+        if (dbAccess != null) {
+            TableSetup tableSetup = new TableSetup(channels, dbAccess);
+            tableSetup.createOpenmucTables();
+        }
     }
 
     @Override
@@ -133,9 +139,36 @@ public class SqlLoggerService implements DataLoggerService, ManagedService {
      */
     @Override
     public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
-        List<Record> records = reader.readRecordListFromDb(channelId, startTime, endTime);
-
+        List<Record> records = new ArrayList<>();
+        for (LogChannel temp : this.channels) {
+            if (temp.getId().equals(channelId)) {
+                records = reader.readRecordListFromDb(channelId, temp.getValueType(), startTime, endTime);
+                break;
+            }
+        }
         return records;
+    }
+
+    /**
+     * Returns the Record with the highest timestamp available in all logged data for the channel with the given
+     * <code>channelId</code>. If there are multiple Records with the same timestamp, results will not be consistent.
+     * 
+     * @param channelId
+     *            the channel ID.
+     * @return the Record with the highest timestamp available in all logged data for the channel with the given
+     *         <code>channelId</code>. Null if no Record was found.
+     * @throws IOException
+     */
+    @Override
+    public Record getLatestLogRecord(String channelId) throws IOException {
+        Record record = null;
+        for (LogChannel temp : this.channels) {
+            if (temp.getId().equals(channelId)) {
+                record = reader.readLatestRecordFromDb(channelId, temp.getValueType());
+                break;
+            }
+        }
+        return record;
     }
 
     @Override

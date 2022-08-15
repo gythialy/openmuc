@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -261,7 +261,7 @@ public final class FileObjectProxy {
                 if (f.isDirectory()) {
                     deleteRecursiveFolder(f);
                     if (f.delete()) {
-                        ;
+
                     }
                 }
                 else {
@@ -544,6 +544,74 @@ public final class FileObjectProxy {
         return toReturn;
     }
 
+    public synchronized Record readLatest(String label) throws IOException {
+        if (logger.isTraceEnabled()) {
+            logger.trace("Called: readLatest(" + label + ")");
+        }
+        label = encodeLabel(label);
+
+        /*
+         * Checks for the folder with the latest day
+         */
+        long latestDay = 0;
+        File latestFolder = null;
+        for (File folder : rootNode.listFiles()) {
+            if (folder.isDirectory()) {
+                if (getFolderTimestamp(folder.getName()) > latestDay) {
+                    latestFolder = folder;
+                    latestDay = getFolderTimestamp(folder.getName());
+                }
+            }
+        }
+        if (latestFolder == null) {
+            return null;
+        }
+
+        /*
+         * Get list of all fileObjects
+         */
+        String strSubfolder;
+        FileObjectList fileObjects = null;
+        if (Arrays.asList(latestFolder.list()).contains(label)) {
+            strSubfolder = rootNode.getPath() + "/" + latestFolder.getName() + "/" + label;
+            fileObjects = new FileObjectList(strSubfolder);
+            logger.trace(strSubfolder + " contains " + SlotsDb.FILE_EXTENSION + " files to read from.");
+        }
+
+        /*
+         * For each file get the latest Record and compare those
+         */
+        List<FileObject> toRead = new Vector<>();
+        toRead = fileObjects.getAllFileObjects();
+        long latestTimestamp = 0;
+        Record latestRecord = null;
+        for (FileObject file : toRead) {
+            long timestamp = file.getTimestampForLatestValue();
+            if (timestamp > latestTimestamp) {
+                latestTimestamp = timestamp;
+                latestRecord = file.read(timestamp); // function calculates closest available timestamp to given
+                                                     // timestamp. This should always be equal though
+            }
+        }
+        return latestRecord;
+    }
+
+    /**
+     * Return timestamp of the folder with given name
+     * 
+     * @param name
+     *            of the folder
+     * @return timestamp in ms
+     */
+    private long getFolderTimestamp(String name) {
+        try {
+            sdf.parse(name);
+        } catch (ParseException e) {
+            logger.error("Unable to parse Timestamp from: " + name + " folder. " + e.getMessage());
+        }
+        return sdf.getCalendar().getTimeInMillis();
+    }
+
     /**
      * Parses a Timestamp in Milliseconds from a String in yyyyMMdd Format <br>
      * e.g.: 25.Sept.2011: 20110925 <br>
@@ -554,7 +622,7 @@ public final class FileObjectProxy {
      * @param start
      *            start time stamp
      * @param end
-     *            ens time stamp
+     *            end time stamp
      * @return boolean true if yes else false
      */
     private boolean isFolderBetweenStartAndEnd(String name, long start, long end) {

@@ -1,0 +1,87 @@
+=== Build a Simple M-Bus Data Logger
+
+*Objective:* You will learn how to create a simple data logger which reads out a M-Bus meter via serial communication. It uses OpenMUC on-board tools so no programming is required.
+
+*Preparation:* If not already done, your system needs to be prepared once for serial communication.
+
+----
+sudo apt-get install librxtx-java
+sudo adduser $USER dialout
+----
+
+Now logout from your system and login again to apply system changes.
+
+*Step-by-step*
+
+. Download OpenMUC and unpack it
+
+. Open openmuc/framework/conf/bundles.conf.gradle and comment the following lines by //
+
++
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo", version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+----
+
+. Add following lines to make the M-Bus driver and serial communication available
+
++
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc", name: "jrxtx", version: "1.0.1"
+----
+
+. To apply changes navigate to openmuc/framework/bin and run
+
++
+----
+./openmuc update-bundles
+----
+
+. Start OpenMUC
+
++
+----
+./openmuc start -fg
+----
+
+. Open a browser and point it to localhost:8888 to view the WebUI of OpenMUC. Login with user _admin_ and password _admin_.
+
+. Click on _Channel Configurator_ > _Tab Drivers_ > _Add new driver to configuration_
+
+. Enter _mbus_ as ID and click Submit
+
+. Now the M-Bus driver appears under _Channel Configurator_ > _Tab Drivers_. Click on the search icon
++
+:img-file: tutorial_mbus_logger_channel_configurator.png 
+image::{img-file}[title="WebUI data plotter",width=400,link="{imagesdir}/{img-file}"]
+
+. Enter the serial port the meter is connected to and provide the baud rate if needed (e.g. /dev/ttyS0 or /dev/ttyS0:2400). See M-Bus driver section 
+for more information. If you are using an USB device you can use the _dmesg_ tool on linux to figure out on what port it is connected (e.g. /dev/ttyUSB0).
+
+. Click on _Scan for devices_. Now OpenMUC scans all M-Bus addresses, which may take a while
+
+. Select the desired device from the list and click _Add devices_
++
+:img-file: tutorial_mbus_logger_driver_scan.png
+image::{img-file}[title="WebUI M-Bus device scan",width=400,link="{imagesdir}/{img-file}"]
+
+. Now the device is added. If you do not see the search icon next to the device, press F5 to reload the page and navigate to _Channel Configurator_ > _Tab Devices_
+
+. Click on the search icon and OpenMUC automatically scans all available channels. Select the desired channels and click _Add channels_
++
+:img-file: tutorial_mbus_logger_channel_scan.png
+image::{img-file}[title="WebUI M-Bus channel scan",width=400,link="{imagesdir}/{img-file}"]
+
+. Now we need to define a sampling and logging interval for the channels. Click on _Channel Configurator_ > _Tab Channels_ and click on _Edit Icon_ of 
+the desired channel. Write _2000_ in the _Sampling Interval_ and _Logging Interval_ field and click Submit
+
+. To show actual values of the channel, navigate to _Applications_ > _Channel Access Tool_, select your device and click _Access selected_
++
+:img-file: tutorial_mbus_logger_channel_access_tool.png
+image::{img-file}[title="WebUI channel access tool",width=400,link="{imagesdir}/{img-file}"]
+
+*Tips*
+
+* All logged data are stored in /openmuc/framework/data/ascii/
+* You can also change the configuration by editing /openmuc/framework/conf/channels.xml

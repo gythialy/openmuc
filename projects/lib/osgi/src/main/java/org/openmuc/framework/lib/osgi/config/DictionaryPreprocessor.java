@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,12 +21,12 @@
 
 package org.openmuc.framework.lib.osgi.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Intention of this class is to provide a "Special Case Object" for invalid dictionaries. See
@@ -46,7 +46,8 @@ public class DictionaryPreprocessor {
         osgiInit = false;
         if (newDictionary == null || newDictionary.isEmpty()) {
             this.dictionary = new Hashtable<>();
-        } else if (!newDictionary.isEmpty()) {
+        }
+        else if (!newDictionary.isEmpty()) {
             // create deep copy to not manipulate the original dictionary
             Dictionary<String, String> tempDict = getDeepCopy(newDictionary);
 
@@ -66,8 +67,8 @@ public class DictionaryPreprocessor {
 
     /**
      * @return <b>true</b> when it was a intermediate updated() call (MangedService) during starting the OSGi framework.
-     * During start the updated() is called with an dictionary = null or with dictionary which has only one
-     * entry with service.pid. With this flag you can ignore such calls.
+     *         During start the updated() is called with an dictionary = null or with dictionary which has only one
+     *         entry with service.pid. With this flag you can ignore such calls.
      */
     public boolean wasIntermediateOsgiInitCall() {
         return osgiInit;
@@ -75,7 +76,7 @@ public class DictionaryPreprocessor {
 
     /**
      * @return a cleaned up, deep copy of dictionary which is not null. It is at least an empty dictionary. NOTE values
-     * to a key might be null)
+     *         to a key might be null)
      */
     public Dictionary<String, String> getCleanedUpDeepCopyOfDictionary() {
         return dictionary;
@@ -93,6 +94,9 @@ public class DictionaryPreprocessor {
 
     /**
      * Method for debugging purposes to print whole dictionary
+     * <p>
+     * If the key contains "password", "*****" is shown instead of the corresponding value (which would be the
+     * password).
      *
      * @param propertyDict
      */
@@ -105,13 +109,20 @@ public class DictionaryPreprocessor {
                     String key = keys.nextElement();
                     String dictValue = (String) propertyDict.get(key);
                     if (dictValue != null) {
-                        sb.append(key + "=" + dictValue + "\n");
-                    } else {
+                        if (key != null && key.contains("password")) {
+                            sb.append(key + "=*****\n");
+                        }
+                        else {
+                            sb.append(key + "=" + dictValue + "\n");
+                        }
+                    }
+                    else {
                         sb.append(key + "=null" + "\n");
                     }
                 }
                 logger.debug("Dictionary given by ManagedService updated(): \n{}", sb.toString());
-            } else {
+            }
+            else {
                 logger.debug("Dictionary given by ManagedService updated(): is null");
             }
         }

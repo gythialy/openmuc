@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,6 +41,7 @@ import org.openmuc.framework.lib.osgi.config.DictionaryPreprocessor;
 import org.openmuc.framework.lib.osgi.config.PropertyHandler;
 import org.openmuc.framework.lib.osgi.config.ServicePropertyException;
 import org.openmuc.framework.parser.spi.ParserService;
+import org.openmuc.framework.security.SslManagerInterface;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,19 +49,23 @@ import org.slf4j.LoggerFactory;
 public class MqttLogger implements DataLoggerService, ManagedService {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttLogger.class);
+    private static final String LOGGER_ID = "mqttlogger";
     private final HashMap<String, MqttLogChannel> channelsToLog = new HashMap<>();
     private final HashMap<String, ParserService> availableParsers = new HashMap<>();
     private final PropertyHandler propertyHandler;
     private String parser;
     private boolean isLogMultiple;
     private MqttWriter mqttWriter;
-
-    private static final String LOGGER_ID = "mqttlogger";
+    private SslManagerInterface sslManager;
+    private boolean configLoaded = false;
 
     public MqttLogger() {
         String pid = MqttLogger.class.getName();
         MqttLoggerSettings settings = new MqttLoggerSettings();
         propertyHandler = new PropertyHandler(settings, pid);
+        MqttSettings mqttSettings = createMqttSettings();
+        MqttConnection connection = new MqttConnection(mqttSettings);
+        mqttWriter = new MqttWriter(connection, getId());
     }
 
     @Override
@@ -116,9 +121,8 @@ public class MqttLogger implements DataLoggerService, ManagedService {
     @Override
     public void log(List<LoggingRecord> loggingRecordList, long timestamp) {
 
-        if (!isMqttWriterAvailable() || !isParserAvailable()) {
-            logger.error("skipped logging values. isMqttWriterAvailable = {}, isParserAvailable = {}",
-                    isMqttWriterAvailable(), isParserAvailable());
+        if (!isLoggerReady()) {
+            logger.warn("Skipped logging values, still loading");
             return;
         }
 
@@ -145,12 +149,6 @@ public class MqttLogger implements DataLoggerService, ManagedService {
             logTraceMqttMessage(msg);
             mqttWriter.write(msg.topic, msg.message);
         }
-
-        // FIXME joern: is a retrying a useful solution here?
-        // catch (IOException e) {
-        // logger.error("Couldn't write message to file buffer, retrying");
-        // parse(records);
-        // }
     }
 
     private void logTraceMqttMessage(MqttLogMsg msg) {
@@ -167,14 +165,8 @@ public class MqttLogger implements DataLoggerService, ManagedService {
         return false;
     }
 
-    private boolean isMqttWriterAvailable() {
-        // FIXME "writer" could be null if datamanager calls log() before mqttlogger has read its configuration.
-        // write can be also null if configurations changes during runtime causing a disconnect)
-        if (mqttWriter == null) {
-            logger.warn("MqttLogger not connected to a broker yet. (MqttWriter is null)");
-            return false;
-        }
-        return true;
+    private boolean isLoggerReady() {
+        return mqttWriter.getConnection().isReady() && configLoaded && isParserAvailable();
     }
 
     @Override
@@ -182,15 +174,32 @@ public class MqttLogger implements DataLoggerService, ManagedService {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Record getLatestLogRecord(String channelId) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Connect to MQTT broker
      */
     private void connect() {
-        logger.info("Connecting to MQTT Broker");
         MqttSettings settings = createMqttSettings();
         MqttConnection connection = new MqttConnection(settings);
-        mqttWriter = new MqttWriter(connection, LOGGER_ID);
-        mqttWriter.getConnection().connect();
+        connection.setSslManager(sslManager);
+        mqttWriter = new MqttWriter(connection, getId());
+        if (settings.isSsl()) {
+            if (isLoggerReady()) {
+                logger.info("Connecting to MQTT Broker");
+                mqttWriter.getConnection().connect();
+            }
+            else {
+                logger.info("Writer is not ready yet");
+            }
+        }
+        else {
+            logger.info("Connecting to MQTT Broker");
+            mqttWriter.getConnection().connect();
+        }
     }
 
     private MqttSettings createMqttSettings() {
@@ -211,12 +220,14 @@ public class MqttLogger implements DataLoggerService, ManagedService {
                 propertyHandler.getString(MqttLoggerSettings.LAST_WILL_PAYLOAD).getBytes(),
                 propertyHandler.getBoolean(MqttLoggerSettings.LAST_WILL_ALWAYS),
                 propertyHandler.getString(MqttLoggerSettings.FIRST_WILL_TOPIC),
-                propertyHandler.getString(MqttLoggerSettings.FIRST_WILL_PAYLOAD).getBytes());
+                propertyHandler.getString(MqttLoggerSettings.FIRST_WILL_PAYLOAD).getBytes(),
+                propertyHandler.getInt(MqttLoggerSettings.RECOVERY_CHUNK_SIZE),
+                propertyHandler.getInt(MqttLoggerSettings.RECOVERY_DELAY),
+                propertyHandler.getBoolean(MqttLoggerSettings.WEB_SOCKET));
         // @formatter:on
 
-        if (logger.isTraceEnabled()) {
-            logger.trace("MqttSettings for MqttConnection \n" + settings.toString());
-        }
+        logger.info("MqttSettings for MqttConnection \n", settings.toString());
+
         return settings;
     }
 
@@ -229,35 +240,20 @@ public class MqttLogger implements DataLoggerService, ManagedService {
     }
 
     private void tryProcessConfig(DictionaryPreprocessor newConfig) {
-        // FIXME clean code
         try {
             propertyHandler.processConfig(newConfig);
 
-            // FIXME consider all cases (running connection, default properties, new properties, closed connection)
             if (!propertyHandler.configChanged() && propertyHandler.isDefaultConfig()) {
                 // tells us:
                 // 1. if we get till here then updated(dict) was processed without errors and
                 // 2. the values from cfg file are identical to the default values
-                logger.info("new properties: changed={}, isDefault={}", propertyHandler.configChanged(),
-                        propertyHandler.isDefaultConfig());
+                // logger.info("new properties: changed={}, isDefault={}", propertyHandler.configChanged(),
+                // propertyHandler.isDefaultConfig());
                 applyConfigChanges();
             }
 
             if (propertyHandler.configChanged()) {
-                logger.info("properties changed: {}", propertyHandler.toString());
                 applyConfigChanges();
-            }
-            else {
-                // FIXME there should be a more elegant way rather den null check.
-                // Also the initial object MqttWriter object should be initialised somewhere
-                if (mqttWriter == null) {
-                    // if mqttWriter is null and propertyHandler.configChanged returns false then:
-                    // we got a valid config since
-                    // - it passed wasIntermediateOsgiInitCall() check and
-                    // - propertyHandler.processConfig() check
-                    // so we can connect... seems not be very intuitive... refactor
-                    connect();
-                }
             }
         } catch (ServicePropertyException e) {
             logger.error("update properties failed", e);
@@ -266,25 +262,27 @@ public class MqttLogger implements DataLoggerService, ManagedService {
     }
 
     private void applyConfigChanges() {
+        configLoaded = true;
         logger.info("Configuration changed - new configuration {}", propertyHandler.toString());
         parser = propertyHandler.getString(MqttLoggerSettings.PARSER);
         isLogMultiple = propertyHandler.getBoolean(MqttLoggerSettings.MULTIPLE);
-        if (mqttWriter != null) {
-            // FIXME could be improved by checking if MqttSettings have changed.
-            // If not then there is no need for reconnect.
-            shutdown();
-        }
+        shutdown();
         connect();
     }
 
     public void shutdown() {
-        logger.info("closing MQTT connection");
-        if (mqttWriter != null) {
-            if (mqttWriter.isConnected()) {
-                mqttWriter.getConnection().disconnect();
-            }
-            mqttWriter = null;
+        // Saves RAM buffer to file and terminates running reconnects
+        mqttWriter.shutdown();
+
+        if (!mqttWriter.isConnected() && mqttWriter.isInitialConnect()) {
+            return;
         }
+
+        logger.info("closing MQTT connection");
+        if (mqttWriter.isConnected()) {
+            mqttWriter.getConnection().disconnect();
+        }
+
     }
 
     public void addParser(String parserId, ParserService parserService) {
@@ -296,4 +294,14 @@ public class MqttLogger implements DataLoggerService, ManagedService {
         availableParsers.remove(parserId);
     }
 
+    public void setSslManager(SslManagerInterface instance) {
+        sslManager = instance;
+        mqttWriter.getConnection().setSslManager(sslManager);
+        // if sslManager is already loaded, then connect
+        if (sslManager.isLoaded()) {
+            shutdown();
+            connect();
+        }
+        // else mqttConnection connects automatically
+    }
 }

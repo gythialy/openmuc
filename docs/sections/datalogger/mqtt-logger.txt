@@ -1,0 +1,123 @@
+=== MQTT Logger
+
+==== General Information
+
+Logs OpenMUC records to a MQTT broker. Records are translated to byte messages with the configured ParserService.
+The logger implements automatic connection recovery and message buffering.
+
+[options="header", width="99%", cols="1,3,6"]
+|===
+2+|Parameter  | Description
+2+|loggerId | mqttlogger
+3+a|<<anchor-channel-options, channel options>>
+| | loggingEvent | not supported
+| | loggingSettings | mqttlogger:topic=<your/topic>
+|===
+
+
+==== Installation
+
+To be able to use the logger in the OpenMUC framework you need to modify the `conf/bundles.conf.gradle` and `conf/config.properties`
+file
+
+*bundles.conf.gradle*
+
+Add following dependencies to the `bundles.conf.gradle` file.
+
+[source]
+----
+  osgibundles group: "org.openmuc.framework", name: "openmuc-datalogger-mqtt",                version: openmucVersion
+  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-ssl",                        version: openmucVersion
+  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-mqtt",                       version: openmucVersion
+  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-osgi",                       version: openmucVersion
+
+  //add your project specific bundle here, which provides the ParserService implementation, example with OpenMUC parser:
+  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-parser-openmuc",            version: openmucVersion
+----
+
+*config.properties*
+
+Add following line to `config.properties` to provide `sun.misc` package.
+
+[source]
+----
+org.osgi.framework.system.packages.extra=sun.misc
+----
+
+==== Configuration
+[#mqtt-logger-configuration]
+
+The logger is configured via <<anchor-osgi-dynamic-configuration,dynamic configuration>>
+
+
+.org.openmuc.framework.datalogger.mqtt.MqttLogger.cfg
+[source]
+----
+# URL of MQTT broker
+host=localhost
+
+# port for MQTT communication
+port=1883
+
+# (Optional) password of your MQTT account
+password=
+
+# (Optional) name of your MQTT account
+username=
+
+# identifier of needed parser implementation
+parser=openmuc
+
+# directory to store data for file buffering
+persistenceDirectory=/data/mqtt/
+
+# file buffering: buffer size in kB
+maxBufferSize=1
+
+# file buffering: number of files to be created
+maxFileCount=2
+
+#file buffering: file size in kB
+maxFileSize=2
+
+# usage of ssl true/false
+ssl=false
+# if true compose log records of different channels to one mqtt message
+multiple=false
+
+# connection retry interval in s – reconnect after given seconds when connection fails
+connectionRetryInterval=10
+
+# connection alive interval in s – periodically send PING message to broker to detect broken connections
+connectionAliveInterval=10
+
+# (Optional) LWT configuration
+# topic on which lastWillPayload will be published
+lastWillTopic=
+# last will payload
+lastWillPayload=
+# (Optional) also publish last will payload on client initiated disconnects (true/false)
+lastWillAlways=false
+
+# (Optional) "first will" configuration
+# topic on which firstWillPayload will be published on successful connections
+firstWillTopic=
+# first will payload
+firstWillPayload=
+----
+
+It relies on a configured _key_ and _trust store_ when using SSL/TLS (see below). Brokers without authentication are
+supported, just omit username/password.
+
+When the parser supports serializing multiple records at once then `multiple` can be set true.
+Otherwise, every record is sent in a single MQTT message.
+
+*Enable SSL communication*
+
+To be able to verify the authenticity of the broker a valid SSL certificate of the broker needs to be added to the TrustStore.
+When using 2-way SSL the broker verifies the authenticity of the logger and a valid SSL certificate needs to be added to the KeyStore.
+
+OpenMUC ships a _key_ and _trust store_ by default so no creation is necessary. See <<anchor-lib-ssl,SSL Library>> for more information.
+
+
+

@@ -1,0 +1,34 @@
+=== IEC 61850
+
+IEC 61850 is an international communication standard used mostly for
+substation automation and controlling distributed energy resources
+(DER). The IEC 61850 driver uses the client library from the
+OpenIEC61850 project.
+
+[{config_table}]
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | iec61850
+|Device Address | <host>[:<port>]
+|Settings | [-a <authentication parameter>] [-lt <local t-selector>] [-rt <remote t-selector>]
+|Channel Address | <bda reference>:<fc>
+|=========================================================
+
+
+*Channel Address*
+
+The channel address should be the IEC 61850 Object Reference and the
+Functional Constraint of the Basic Data Attribute that is to be
+addressed separated by a colon.  Note that an IEC 61850 timestamp received will be
+converted to a LongValue that represents the milliseconds since
+1970. Some information is lost during this conversion because the IEC
+61850 timestamp is more exact.
+
+*Settings*
+
+The defaults for TSelLocal and TSelRemote are "00" and "01"
+respectively. You can also set either TSelector to the empty string
+(e.g. "-lt -rt"). This way they will be omitted in the connection
+request.
+
+

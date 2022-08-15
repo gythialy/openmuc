@@ -1,8 +1,8 @@
 repositories {
-  mavenCentral()
-  flatDir {
-    dirs '../../build/libs-all/'
-  }
+    mavenCentral()
+    flatDir {
+        dirs '../../build/libs-all/'
+    }
 }
 
 configurations.create("osgibundles")
@@ -11,127 +11,135 @@ configurations.osgibundles.transitive = false;
 configurations.osgimain.transitive = false;
 
 dependencies {
-  def openmucVersion = "0.19.0"
+    def openmucVersion = "0.19.2"
 
-  osgimain group:    "org.apache.felix",      name: "org.apache.felix.main",                 version: "6.0.3"
+    osgimain group: "org.apache.felix", name: "org.apache.felix.main", version: "7.0.1"
 
-  //------------------------------------------------------------------------------------------------------
-  // Bundles which have to be added since JDK 11
-  //------------------------------------------------------------------------------------------------------                                                                             
-    osgibundles group: "com.sun.activation",  name: "javax.activation",                      version: "1.2.0"
+    //------------------------------------------------------------------------------------------------------
+    // Bundles which have to be added since JDK 11
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "com.sun.activation", name: "javax.activation", version: "1.2.0"
 
-  //------------------------------------------------------------------------------------------------------
-  // OpenMUC bundles
-  //------------------------------------------------------------------------------------------------------                                                                             
-  osgibundles group: "org.openmuc.framework", name: "openmuc-core-api",                      version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-core-spi",                      version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-core-datamanager",              version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-datalogger-ascii",              version: openmucVersion
+    //------------------------------------------------------------------------------------------------------
+    // OpenMUC bundles
+    //------------------------------------------------------------------------------------------------------
+//**************************************
+    osgibundles group: "org.openmuc.framework", name: "openmuc-datalogger-sql", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-lib-osgi", version: openmucVersion
 
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",                     version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base",                    version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-channelconfigurator",     version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-channelaccesstool",       version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-userconfigurator",        version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-dataexporter",            version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-dataplotter",             version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-mediaviewer",             version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-webui-simpledemovisualisation", version: openmucVersion
+    //add your database engine specific bundle for h2 or postgresql here:
+    osgibundles group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
+    osgibundles group: 'com.h2database', name: 'h2', version: '2.0.206'
 
-  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-osgi",                      version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-ssl",                       version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-rest1",                     version: openmucVersion
+//**************************************
+    osgibundles group: "org.openmuc.framework", name: "openmuc-core-api", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-core-spi", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-core-datamanager", version: openmucVersion
+    //osgibundles group: "org.openmuc.framework", name: "openmuc-datalogger-ascii",              version: openmucVersion
 
-  osgibundles group: "org.openmuc.framework", name: "openmuc-server-restws",                 version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-channelconfigurator", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-channelaccesstool", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-userconfigurator", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-dataexporter", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-dataplotter", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-mediaviewer", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-webui-simpledemovisualisation", version: openmucVersion
 
-  osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo",                version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv",                    version: openmucVersion
-  osgibundles group: "org.openmuc.framework", name: "openmuc-driver-aggregator",             version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-lib-osgi", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-lib-ssl", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-lib-rest1", version: openmucVersion
 
-  //------------------------------------------------------------------------------------------------------
-  // The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)
-  //------------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.runtime",          version: "1.1.2"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.command",          version: "1.0.2"
-  //osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.shell",          version: "1.1.4"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.gogo.jline",            version: "1.1.2"
-  osgibundles group: "org.jline",            name: "jline",                                  version: "3.14.1"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.useradmin",             version: "1.0.4"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.useradmin.filestore",   version: "1.0.2"
+    osgibundles group: "org.openmuc.framework", name: "openmuc-server-restws", version: openmucVersion
 
-  //------------------------------------------------------------------------------------------------------
-  // Adds a telnet server so that the Felix Gogo Shell can be accessed using telnet clients. By default 
-  // this server only listens on localhost port 6666. Therefor you can on only access it from the same host 
-  // on which felix is running.
-  // NOTE: org.apache.felix.shell.remote does not work with org.apache.felix.gogo.jline use 
-  // org.apache.felix.gogo.shell instead
-  //------------------------------------------------------------------------------------------------------
-  //osgibundles group: "org.apache.felix",     name: "org.apache.felix.shell.remote",          version: "1.2.0"
+    osgibundles group: "org.openmuc.framework", name: "openmuc-app-simpledemo", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+    osgibundles group: "org.openmuc.framework", name: "openmuc-driver-aggregator", version: openmucVersion
 
-  //------------------------------------------------------------------------------------------------------
-  // message logging libraries, SLF4J is a light-weight logging API,
-  // Logback is a message logger implementation that implements SLF4J
-  // natively
-  //------------------------------------------------------------------------------------------------------
-  osgibundles group: "org.slf4j",            name: "slf4j-api",                              version: "1.7.30"
-  osgibundles group: "ch.qos.logback",       name: "logback-classic",                        version: "1.2.3"
-  osgibundles group: "ch.qos.logback",       name: "logback-core",                           version: "1.2.3"
+    //------------------------------------------------------------------------------------------------------
+    // The Apache Felix Gogo standard shell for OSGi (http://felix.apache.org/site/apache-felix-gogo.html)
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.gogo.runtime", version: "1.1.4"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.gogo.command", version: "1.1.2"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.gogo.jline", version: "1.1.8"
+    osgibundles group: "org.jline",        name: "jline", version: "3.20.0"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.useradmin", version: "1.0.4"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.useradmin.filestore", version: "1.0.2"
 
-  //------------------------------------------------------------------------------------------------------
-  // Apache Felix Service Component Runtime that implements the OSGi Declarative Services Specification
-  // the OpenMUC core bundles use declarative services and thus depend on them
-  //------------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.scr",                   version: "2.1.20"
-  osgibundles group: "org.osgi",             name: "org.osgi.util.promise",                  version: "1.1.1"
-  osgibundles group: "org.osgi",             name: "org.osgi.util.function",                 version: "1.1.0"
+    //------------------------------------------------------------------------------------------------------
+    // Adds a telnet server so that the Felix Gogo Shell can be accessed
+    // using telnet clients. By default this server only listens on
+    // localhost port 6666. Therefor you can on only access it from the
+    // same host on which felix is running.
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.shell.remote", version: "1.2.0"
 
-  //------------------------------------------------------------------------------------------------------
-  // An implementation of the OSGi HTTP Service Specification, needed by the WebUI bundles
-  //------------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.http.servlet-api",      version: "1.1.2"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.http.api",              version: "3.0.0"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.http.jetty",            version: "4.0.18"
-  osgibundles group: "javax.annotation",     name: "javax.annotation-api",                   version: "1.3.2"
-  osgibundles group: "javax.xml.bind",       name: "jaxb-api",                               version: "2.3.1"
+    //------------------------------------------------------------------------------------------------------
+    // message logging libraries, SLF4J is a light-weight logging API,
+    // Logback is a message logger implementation that implements SLF4J
+    // natively
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.slf4j",       name: "slf4j-api", version: "1.7.36"
+    osgibundles group: "ch.qos.logback",  name: "logback-classic", version: "1.2.11"
+    osgibundles group: "ch.qos.logback",  name: "logback-core", version: "1.2.11"
 
-  //------------------------------------------------------------------------------------------------------
-  // Implementations of the OSGi Event Admin, Configuration Admin and MetaType services, needed by jetty
-  //------------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.eventadmin",            version: "1.5.0"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.configadmin",           version: "1.9.16"
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.metatype",              version: "1.2.2"
-  osgibundles group: 'org.apache.felix',     name: 'org.apache.felix.fileinstall',           version: '3.6.8'
+    //------------------------------------------------------------------------------------------------------
+    // Apache Felix Service Component Runtime that implements the OSGi Declarative Services Specification
+    // the OpenMUC core bundles use declarative services and thus depend on them
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.scr", version: "2.1.30"
+    osgibundles group: "org.osgi",         name: "org.osgi.util.promise", version: "1.1.1"
+    osgibundles group: "org.osgi",         name: "org.osgi.util.function", version: "1.1.0"
 
-  //------------------------------------------------------------------------------------------------------
-  // Adds a web console for felix bundle management
-  // http://localhost:8888/system/console/httpservice
-  // https://localhost:8889/system/console/httpservice
-  //------------------------------------------------------------------------------------------------------
-  osgibundles group: "org.apache.felix",     name: "org.apache.felix.webconsole",           version: "4.5.4"
-  osgibundles group: "commons-io",           name: "commons-io",                            version: "2.6"
-  osgibundles group: "commons-fileupload",   name: "commons-fileupload",                    version: "1.4"
-  osgibundles group: "commons-codec",        name: "commons-codec",                         version: "1.14"
+    //------------------------------------------------------------------------------------------------------
+    // An implementation of the OSGi HTTP Service Specification, needed by the WebUI bundles
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.http.servlet-api", version: "1.1.4"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.http.api", version: "3.0.0"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.http.jetty", version: "4.1.12"
+    osgibundles group: "javax.annotation", name: "javax.annotation-api", version: "1.3.2"
+    osgibundles group: "javax.xml.bind",   name: "jaxb-api", version: "2.3.1"
 
-  //------------------------------------------------------------------------------------------------------
-  // Plugins for the apache felix web console 
-  //------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------
+    // Implementations of the OSGi Event Admin, Configuration Admin and MetaType services, needed by jetty
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.eventadmin", version: "1.6.2"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.configadmin", version: "1.9.22"
+    osgibundles group: "org.apache.felix", name: "org.apache.felix.metatype", version: "1.2.4"
+    osgibundles group: 'org.osgi',         name: 'org.osgi.service.log', version: '1.5.0'
+    osgibundles group: 'org.apache.felix', name: 'org.apache.felix.fileinstall', version: '3.6.8'
+
+    //------------------------------------------------------------------------------------------------------
+    // Adds a web console for felix bundle management
+    // http://localhost:8888/system/console/httpservice
+    // https://localhost:8889/system/console/httpservice
+    //------------------------------------------------------------------------------------------------------
+    osgibundles group: "org.apache.felix",   name: "org.apache.felix.webconsole", version: "4.7.0"
+    osgibundles group: "commons-io",         name: "commons-io", version: "2.11.0"
+    osgibundles group: "commons-fileupload", name: "commons-fileupload", version: "1.4"
+    osgibundles group: "commons-codec",      name: "commons-codec", version: "1.15"
+
+    //------------------------------------------------------------------------------------------------------
+    // Plugins for the apache felix web console
+    //------------------------------------------------------------------------------------------------------
 //  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.webconsole.plugins.memoryusage',   version: '1.0.10'
 //  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.webconsole.plugins.obr',           version: '1.0.4'
 //  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.webconsole.plugins.packageadmin',  version: '1.0.4'
 //  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.webconsole.plugins.event',         version: '1.1.8'
 //  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.webconsole.plugins.ds',            version: '2.1.0'
-//  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.inventory',                        version: '1.0.6'
+//  osgibundles group: 'org.apache.felix',   name: 'org.apache.felix.inventory',                        version: '1.1.0'
 }
 
 task syncBundles(type: Sync) {
-  from configurations.osgibundles;
-  into rootDir.getPath() + "/../bundle"
+    from configurations.osgibundles;
+    into rootDir.getPath() + "/../bundle"
 }
 
 task copyFelixMain(type: Copy) {
-  from configurations.osgimain;
-  into rootDir.getPath() + "/../felix"
-  rename (/org.apache.felix.main-.*jar/, "felix.jar")
+    from configurations.osgimain;
+    into rootDir.getPath() + "/../felix"
+    rename(/org.apache.felix.main-.*jar/, "felix.jar")
 }
 
 task updateBundles {

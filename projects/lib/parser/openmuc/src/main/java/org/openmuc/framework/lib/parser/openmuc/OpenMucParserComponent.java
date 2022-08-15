@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,15 +21,15 @@
 
 package org.openmuc.framework.lib.parser.openmuc;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import org.openmuc.framework.parser.spi.ParserService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 @Component
 public class OpenMucParserComponent {

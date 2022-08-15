@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -24,7 +24,7 @@ import org.openmuc.framework.dataaccess.Channel;
 
 /**
  * Class used to write values in the future.
- *
+ * 
  * @see Channel#writeFuture(java.util.List)
  */
 public class FutureValue {
@@ -34,9 +34,11 @@ public class FutureValue {
 
     /**
      * Construct a new future value.
-     *
-     * @param value     a value.
-     * @param writeTime the write time in the future.
+     * 
+     * @param value
+     *            a value.
+     * @param writeTime
+     *            the write time in the future.
      */
     public FutureValue(Value value, long writeTime) {
         if (writeTime <= System.currentTimeMillis()) {
@@ -48,7 +50,7 @@ public class FutureValue {
 
     /**
      * The future value.
-     *
+     * 
      * @return the value.
      */
     public Value getValue() {
@@ -57,7 +59,7 @@ public class FutureValue {
 
     /**
      * The write time.
-     *
+     * 
      * @return the write time.
      */
     public Long getWriteTime() {

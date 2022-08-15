@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -25,8 +25,9 @@ import java.nio.charset.Charset;
 
 public class StringValue implements Value {
 
-    private static final Charset charset = Charset.forName("US-ASCII");
     private final String value;
+
+    private static final Charset charset = Charset.forName("US-ASCII");
 
     public StringValue(String value) {
         this.value = value;

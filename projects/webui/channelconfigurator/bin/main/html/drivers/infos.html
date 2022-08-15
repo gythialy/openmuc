@@ -1,0 +1,18 @@
+<h3 class="sub-category-heading" ng-show="infosDriverForm.submitted">{{'INFOS_DRIVER' | translate}} {{driver.id}}</h3>
+<h3 class="sub-category-heading" ng-hide="infosDriverForm.submitted"><!--{{'INFOS_WAITING' | translate}}-->Waiting for infos of driver {{driver.id}} </h3>
+
+<form name="infosDriverForm" id="infosDriverForm" class="form-horizontal" novalidate>
+
+    <div ng-init="showInfos()"></div>
+
+    <table class="table table-hover" ng-show="infosDriverForm.submitted">
+        <tr> <td> <b>{{'DRIVER_ID' | translate}}</b> </td>                     <td>{{driver.infos.id}}</td> </tr>
+        <tr> <td> <b>{{'DRIVER_DESCRIPTION' | translate}}</b> </td>            <td>{{driver.infos.description}}</td> </tr>
+        <tr> <td> <b>{{'DEVICE_DEVICE_ADDRESS_SYNTAX' | translate}}</b> </td>  <td>{{driver.infos.deviceAddressSyntax}}</td> </tr>
+        <tr> <td> <b>{{'DEVICE_SETTINGS_SYNTAX' | translate}}</b> </td>        <td>{{driver.infos.settingsSyntax}}</td> </tr>
+        <tr> <td> <b>{{'CHANNEL_ADDRESS_SYNTAX' | translate}}</b> </td>        <td>{{driver.infos.channelAddressSyntax}}</td> </tr>
+        <tr> <td> <b>{{'SCAN_SETTINGS_SYNTAX' | translate}}</b> </td>          <td>{{driver.infos.deviceScanSettingsSyntax}}</td> </tr>
+    </table>
+
+</form>
+

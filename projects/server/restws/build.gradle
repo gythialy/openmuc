@@ -6,8 +6,8 @@ configurations.create('embed')
 dependencies {
     implementation project(':openmuc-core-api')
     implementation project(':openmuc-lib-rest1')
-    implementation 'commons-codec:commons-codec:1.13'
-    implementation group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.2'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation group: 'org.apache.felix', name: 'org.apache.felix.http.servlet-api', version: '1.1.4'
 }
 
 jar {

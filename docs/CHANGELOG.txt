@@ -1,5 +1,60 @@
+v0.19.2 31-03-2022
+-----------------
+- core:
+   * stop OpenMUC framework on parsing errors of channels.xml
+   * Bugfix: Channel RecordListeners are called again upon incomming values
+- logging:
+   * add file size based rollover, log files are now <= 100MB each
+- logback:
+   * update to 1.2.11 to fix log4j vulnerability
+- datalogger sql:
+   * migrate to h2 v2.0.206, added script for automatic migration
+   * Add backup/restore
+- gradle:
+   * updated to gradle 7.3.3
+   
+v0.19.1 16-12-2021
+------------------
+- logback:
+   * update to 1.2.8
+- gradle:
+   * updated to gradle 7.3
+- core:
+   * added getLatestLogRecord(..) to DataLoggerService
+   * added LoggingEvent for virtual driver
+- lib amqp:
+   * implemented buffer handling
+   * extended log messages for better feedback
+- lib osgi:
+   * some improvements
+- driver KNX:
+   * fix dependency
+- driver IEC 60870:
+   * fixed null pointer
+- driver mqtt
+   * fixed several bugs
+- driver amqp
+   * fixed several bugs
+- server restws:
+   * fixed exception if JSON is malformed
+- lib rest:
+   * added server mapping
+- lib ssl
+   * fixed several bugs
+- datalogger amqp:
+   * fixed several bugs
+- datalogger mqtt:
+   * fixed several bugs
+- datalogger sql:
+   * fixed wrong size of string values in data base
+   * changed database schema to table for every channel
+- Logback:
+   * changed to DailyRollbackAppender with compression
+- demo framework:
+   * osgi bundle updates
+
 v0.19.0 08-02-2021
--------------------
+------------------
 - gradle:
    * updated to gradle 6.7.1
    * refactored gradle scripts

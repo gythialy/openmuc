@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -97,7 +97,7 @@ public final class SlotsDb implements DataLoggerService {
     public static final int DATA_EXPIRATION_CHECK_INTERVAL = 5000;
     private static final Logger logger = LoggerFactory.getLogger(SlotsDb.class);
     private final HashMap<String, Integer> loggingIntervalsById = new HashMap<>();
-    private FileObjectProxy fileObjectProxy;;
+    private FileObjectProxy fileObjectProxy;
 
     @Activate
     protected void activate(ComponentContext context) {
@@ -122,6 +122,11 @@ public final class SlotsDb implements DataLoggerService {
     @Override
     public List<Record> getRecords(String channelId, long startTime, long endTime) throws IOException {
         return fileObjectProxy.read(channelId, startTime, endTime);
+    }
+
+    @Override
+    public Record getLatestLogRecord(String channelId) throws IOException {
+        return fileObjectProxy.readLatest(channelId);
     }
 
     @Override

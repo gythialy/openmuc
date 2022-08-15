@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -41,7 +41,8 @@ public class RestDriverConfigMapper {
 
         if (dc == null) {
             throw new RestConfigIsNotCorrectException("DriverConfig is null!");
-        } else {
+        }
+        else {
             if (rdc != null) {
                 if (rdc.getId() != null && !rdc.getId().equals("") && !idFromUrl.equals(rdc.getId())) {
                     dc.setId(rdc.getId());
@@ -49,7 +50,8 @@ public class RestDriverConfigMapper {
                 dc.setConnectRetryInterval(rdc.getConnectRetryInterval());
                 dc.setDisabled(rdc.isDisabled());
                 dc.setSamplingTimeout(rdc.getSamplingTimeout());
-            } else {
+            }
+            else {
                 throw new RestConfigIsNotCorrectException();
             }
         }

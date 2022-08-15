@@ -1,0 +1,69 @@
+:driver_table_op: width="100%", options="header"
+
+== Drivers
+
+=== Install a Driver
+
+For installing a new driver you have two possible ways.
+
+==== Copy driver
+Copy the corresponding driver jar file from the folder "build/libs-all/" to the
+"bundle" folder of the framework. Many drivers are "fat jars" which include their
+dependencies. An exception is the RXTX library which cannot be packed
+with the jars.
+
+==== Editing bundles configuration
+In /openmuc/framework/conf/bundles.conf.gradle you can find the list of all used
+bundles e.g.:
+
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv", version: openmucVersion
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base", version: openmucVersion
+----
+
+If you want to add a new driver to the list, e.g. M-Bus, you can do this:
+
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-csv",  version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-driver-mbus", version: openmucVersion
+osgibundles group: "org.openmuc",           name: "jrxtx",               version: "1.0.1"
+
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-spi",   version: openmucVersion
+osgibundles group: "org.openmuc.framework", name: "openmuc-webui-base",  version: openmucVersion
+----
+
+Afterwards you have to execute in /openmuc/framework/bin/
+----
+./openmuc update-bundles
+----
+If this is the first time using ./openmuc update-bundles you have to add the parameter -i
+----
+./openmuc update-bundles -i
+----
+
+==== Use a Driver with Serial Communication
+
+When you need to use a driver that uses serial communication you have
+to copy the RXTX bundle to the frameworks "bundle" folder.
+
+----
+cp ../dependencies/rxtx/jrxtx-1.0.1.jar ./bundle/
+----
+
+Additionally you need to install librxtx-java:
+
+----
+sudo apt-get install librxtx-java
+----
+
+The serial ports /dev/tty* are only accessible to members belonging to
+the group dialout. We therefore have to add our user to that
+group. E.g. using:
+
+----
+sudo adduser <yourUserName> dialout
+----
+
+

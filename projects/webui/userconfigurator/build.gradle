@@ -1,7 +1,6 @@
 def projectName = "OpenMUC WebUI - User Configurator"
 def projectDescription = "User Configurator plug-in for the WebUI of the OpenMUC framework."
 
-
 dependencies {
     implementation project(':openmuc-core-api')
     implementation project(':openmuc-webui-spi')

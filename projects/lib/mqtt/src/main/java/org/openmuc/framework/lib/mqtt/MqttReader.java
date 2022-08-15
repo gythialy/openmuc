@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,28 +21,31 @@
 
 package org.openmuc.framework.lib.mqtt;
 
-import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscribe;
-import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3SubscribeBuilder;
-import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscription;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.util.LinkedList;
-import java.util.List;
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscribe;
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3SubscribeBuilder;
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscription;
 
 public class MqttReader {
     private static final Logger logger = LoggerFactory.getLogger(MqttReader.class);
     private final MqttConnection connection;
+    private boolean connected = false;
     private final List<SubscribeListenerTuple> subscribes = new LinkedList<>();
     private final String pid;
-    private boolean connected = false;
 
     /**
      * Note that the connect method of the connection should be called after the Writer got instantiated.
      *
-     * @param connection the {@link MqttConnection} this Writer should use
-     * @param pid        an id which is preceding every log call
+     * @param connection
+     *            the {@link MqttConnection} this Writer should use
+     * @param pid
+     *            an id which is preceding every log call
      */
     public MqttReader(MqttConnection connection, String pid) {
         this.connection = connection;
@@ -56,7 +59,8 @@ public class MqttReader {
             if (context.getReconnector().isReconnect()) {
                 if (connected) {
                     warn("Disconnected! {}", context.getCause().getMessage());
-                } else {
+                }
+                else {
                     warn("Reconnect failed! Reason: {}", context.getCause().getMessage());
                 }
                 connected = false;
@@ -78,8 +82,10 @@ public class MqttReader {
     /**
      * Listens on all topics and notifies the listener when a new message on one of the topics comes in
      *
-     * @param topics   List with topic string to listen on
-     * @param listener listener which gets notified of new messages coming in
+     * @param topics
+     *            List with topic string to listen on
+     * @param listener
+     *            listener which gets notified of new messages coming in
      */
     public void listen(List<String> topics, MqttMessageListener listener) {
         Mqtt3Subscribe subscribe = buildSubscribe(topics);
@@ -120,6 +126,16 @@ public class MqttReader {
         return subscribe;
     }
 
+    private static class SubscribeListenerTuple {
+        private final Mqtt3Subscribe subscribe;
+        private final MqttMessageListener listener;
+
+        private SubscribeListenerTuple(Mqtt3Subscribe subscribe, MqttMessageListener listener) {
+            this.subscribe = subscribe;
+            this.listener = listener;
+        }
+    }
+
     private void log(String message, Object... args) {
         message = MessageFormatter.arrayFormat(message, args).getMessage();
         logger.info("[{}] {}", pid, message);
@@ -143,15 +159,5 @@ public class MqttReader {
     private void trace(String message, Object... args) {
         message = MessageFormatter.arrayFormat(message, args).getMessage();
         logger.trace("[{}] {}", pid, message);
-    }
-
-    private static class SubscribeListenerTuple {
-        private final Mqtt3Subscribe subscribe;
-        private final MqttMessageListener listener;
-
-        private SubscribeListenerTuple(Mqtt3Subscribe subscribe, MqttMessageListener listener) {
-            this.subscribe = subscribe;
-            this.listener = listener;
-        }
     }
 }

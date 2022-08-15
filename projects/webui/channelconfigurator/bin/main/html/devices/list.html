@@ -1,0 +1,51 @@
+<div class="alert alert-md alert-warning" ng-show="!drivers.length">
+  <b class="small">{{'NO_DEVICES' | translate}}</b>
+</div>
+
+<div>
+  <div ng-repeat="driver in drivers">
+    
+    <a name="{{driver.id}}"></a>
+    <div id="devices" class="card card-md card-header"><b>{{'DRIVER' | translate}} "{{driver.id}}"</b></div>
+    
+    <div class="alert alert-md alert-warning" ng-show="!driver.devices.length">
+      <b class="small">{{'NO_DEVICES' | translate}}</b>
+    </div>      
+    
+    <table id="configuratorTable" class="table table-hover" ng-show="driver.devices.length" ng-controller="TabsController">
+      <thead>
+        <tr>
+          <th class="col-md-3">{{'DEVICE_ID' | translate}}</th>
+          <th class="col-md-3">{{'DESCRIPTION' | translate}}</th>
+          <th class="col-md-3">{{'ACTION' | translate}}</th>
+          <th class="text-center col-md-3">{{'STATE' | translate}}</th> 
+        </tr>
+      </thead>
+      
+      <tr ng-repeat="device in driver.devices">
+        <td>{{device.id}}</td>
+        <td>{{device.configs.description}}</td>
+        <td id="icons">
+          <a ng-click="setTabIndex(2)" ui-sref="channelconfigurator.channels.index" class="btn btn-secondary btn-md" uib-tooltip="{{'OPEN' | translate}}">
+            <span class="item-icon fa fa-folder-open" aria-hidden="true"></span>
+          </a>
+          <a ng-click="setTabIndex(7)" ui-sref="channelconfigurator.devices.edit({deviceId: device.id, driverId: driver.id})" class="btn btn-secondary btn-md" uib-tooltip="{{'EDIT' | translate}}">
+            <span class="item-icon fa fa-pencil" aria-hidden="true"></span>
+          </a>
+          <a ng-click="deleteDevice(device.id)" class="btn btn-secondary btn-md" uib-tooltip="{{'DELETE' | translate}}">
+            <span class="item-icon fa fa-trash-o" aria-hidden="true"></span>
+          </a>
+          <a ng-click="setTabIndex(12)" ui-sref="channelconfigurator.devices.scan({deviceId: device.id})" class="btn btn-secondary btn-md" ng-if="device.data.state == 'CONNECTED'" uib-tooltip="{{'SCAN_FOR_CHANNELS' | translate}}">
+            <span class="item-icon fa fa-search" aria-hidden="true"></span>
+          </a>
+        </td>
+        <td class="text-center">{{device.data.state}}</td>
+      </tr>
+    </table>
+	  
+    <div class="text-right">
+      <a ng-click="setTabIndex(6)" ui-sref="channelconfigurator.devices.new({driverId: driver.id})" class="btn btn-primary">{{'ADD_DEVICE' | translate}}...</a>
+    </div>
+    <br /><br />
+  </div>
+</div>

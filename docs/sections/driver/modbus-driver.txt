@@ -1,0 +1,251 @@
+=== Modbus
+
+
+Modbus Homepage: http://www.modbus.org +
+Modbus Protocol Specifications: http://www.modbus.org/specs.php +
+Modbus Master Simulator modpoll: http://www.modbusdriver.com/modpoll.html
+
+The Modbus driver supports RTU, TCP and RTU over TCP.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,1,2,1"]
+|=========================================================
+|| *TCP* (ethernet) | *RTU* (serial) | *RTUTCP* (serial over ethernet)
+|ID 3+| modbus
+|Device Address | <ip>[:<port>] | <serial port> | <ip>[:<port>]
+|Settings | <type> | <type>:<encoding>:<baudrate>:<databits>:<parity>:<stopbits>:
+<echo>:<flowControlIn>:<flowControlOut> | <type>
+|Channel Address 3+| <UnitId>:<PrimaryTable>:<Address>:<Datatyp>
+|=========================================================
+
+*DeviceAddress*
+
+*For TCP and RTUTCP* +
+The DeviceAddress is specified by an IP address and an optional port. If no port
+ is specified, the driver uses the modbus default port 502.
+
+*For RTU:* +
+The DeviceAddress is specified by a serial port like /dev/ttyS0.
+
+NOTE: The driver uses the j2mod library which itself uses the rxtx library for
+serial communication. Therefore the librxtx-java package needs to be installed on
+the system. Furthermore the user needs to be in the groups dialout and plugdev
+
+*Settings*
+
+.Settings
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|Config | Description/ Values
+|<type> | RTU\|TCP\|RTUTCP
+|<encoding> | SERIAL_ENCODING_RTU
+|<baudrate>| Integer value: e.g.: 2400, 9600, 115200
+|<databits>| DATABITS_5, DATABITS_6, DATABITS_7, DATABITS_8
+|<parity>| PARITY_EVEN, PARITY_MARK, PARITY_NONE, PARITY_ODD, PARITY_SPACE
+|<stopbits>| STOPBITS_1, STOPBITS_1_5, STOPBITS_2
+|<echo>|ECHO_TRUE, ECHO_FALSE
+|<flowControlIn>|FLOWCONTROL_NONE, FLOWCONTROL_RTSCTS_IN, FLOWCONTROL_XONXOFF_IN
+|<flowControlOut>| FLOWCONTROL_NONE, FLOWCONTROL_RTSCTS_OUT, FLOWCONTROL_XONXOFF_OUT
+|=========================================================
+
+.Example Settings
+
+[source, xml]
+----
+<settings>
+RTU:SERIAL_ENCODING_RTU:38400:DATABITS_8:PARITY_NONE:STOPBITS_1 :ECHO_FALSE:FLOWCONTROL_NONE:FLOWCONTROL_NONE
+</settings>
+----
+
+*ChannelAddress*
+
+The ChannelAddress consists of four parts: UnitId, PrimaryTable, Address and
+Datatyp which are explained in detail in the following table.
+
+.Parameter Description
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+| Parameter | Description
+| UnitId | In homogenious architecture (when just MODBUS TCP/IP is used) +
+On TCP/IP, the MODBUS server is addressed by its IP address; therefore, the MODBUS
+Unit Identifier is useless. The value 255 (0xFF) has to be used.
+
+In heterogeneous architecture (when using MODBUS TCP/IP and MODBUS serial or MODBUS+) +
+This field is used for routing purpose when addressing a device on a MODBUS+ or
+MODBUS serial line sub-network. In that case, the “Unit Identifier” carries the MODBUS 
+slave address of the remote device. The MODBUS slave device addresses on serial line are 
+assigned from 1 to 247 (decimal). Address 0 is used as broadcast address.
+
+Note: Some MODBUS devices act like a bridge or a gateway and require the UnitId
+even if they are accessed through TCP/IP. One of those devices is the Janitza
+UMG. To access data from the Janitza the UnitId has to be 1.
+
+| PrimaryTable | PrimaryTable defines the which part of the device memory should
+be accessed.
+Valid values: COILS, DISCRETE_INPUTS, INPUT_REGISTERS, HOLDING_REGISTERS
+
+| Address | Address of the channel/register. Decimal integer value - not hex!
+
+| Datatyp | Valid values: +
+BOOLEAN  (1 bit) +
+INT16    (1 register/word, 2 bytes) +
+UINT16   (1 register/word, 2 bytes) +
+INT32    (2 registers/words, 4 bytes) +
+UINT32   (2 registers/words, 4 bytes) +
+LONG     (4 registers/words, 8 bytes) +
+FLOAT    (2 registers/words, 4 bytes) +
+DOUBLE   (4 registers/words, 8 bytes) +
+BYTEARRAY[n] (n = number of REGISTERS not BYTES, 1 register = 2 bytes!)
+|=========================================================
+
+NOTE: To store a UINT32 value it requires `<valueType>LONG</valueType>` for the channel.
+
+.Primary Tables and Channel Address
+image:driver_modbustcp_address.png[width={width80}, alt="Driver Modbus Address",
+link="../images/driver_modbustcp_address.png"]
+
+*Valid Address Parameter Combinations*
+
+Since COILS and DISCRETE_INPUTS are used for bit access, only the data type BOOLEAN
+makes sense in combinations with of one of these. INPUT_REGISTERS and HOLDING_REGISTERS
+are used for register access. There is also a difference between reading and writing.
+Only COILS and HOLDING_REGISTERS are readable and writable.
+DISCRETE_INPUTS and INPUT_REGISTERS are read only. The following table gives an
+overview of valid parameter combinations of PrimaryTable and Datatyp.
+
+//:vcols: "^v,^v,^v,^v,^v,^v,^v,^v"
+
+//:tableoptions: {driver_table_op}, cols={vcols}
+
+.Valid Address Parameters for reading a channel
+[{driver_table_op}, cols="^v,^v,^v,^v,^v,^v,^v,^v"]
+|=========================================================
+| Primary Table     | BOOLEAN | SHORT | INT | FLOAT | DOUBLE | LONG | BYTEARRAY[n]
+| COILS 	    | x | - | - | - | - | - | -
+| DISCRETE_INPUTS   | x | - | - | - | - | - | -
+| INPUT_REGISTERS   | - | x | x | x | x | x | x
+| HOLDING_REGISTERS | - | x | x | x | x | x | x
+|=========================================================
+
+.Valid Address Parameters for writing a channel
+[{driver_table_op}, cols="^v,^v,^v,^v,^v,^v,^v,^v"]
+|=========================================================
+| Primary Table | BOOLEAN | SHORT | INT | FLOAT | DOUBLE | LONG | BYTEARRAY[n]
+| COILS | x | - | - | - | - | - | -
+| DISCRETE_INPUTS | - | - | - | - | - | - | -
+| INPUT_REGISTERS | - | - | - | - | - | - | -
+| HOLDING_REGISTERS | - | x | x | x | x | x | x
+|=========================================================
+
+.Examples for valid addresses
+[source, xml]
+----
+<channelAddress>255:INPUT_REGISTERS:100:SHORT</channelAddress>
+<channelAddress>255:COILS:412:BOOLEAN</channelAddress>
+----
+
+.Examples for invalid addresses
+[source, xml]
+----
+<channelAddress>255:INPUT_REGISTERS:100:BOOLEAN</channelAddress> (BOOLEAN doesn't
+go with INPUT_REGISTERS)
+<channelAddress>255:COILS:412:LONG</channelAddress> (LONG does not go with COILS)
+----
+
+*Function Codes* (more detailed information about how the driver works)
+
+The driver is based on the Java Modbus Library (https://github.com/steveohara/j2mod[j2mod])
+which provides read and write access via modbus.
+Following table shows which modbus function code is used to access the data of
+the channel.
+
+.Relation between function code and channel address
+[{driver_table_op}, cols="1,1,1,1,1"]
+|=========================================================
+| j2mod Method | Modbus Function Code | Primary Table | Access | Java Data Type
+| ReadCoilsRequest | FC 1  Read Coils | Coils | RW | boolean
+| ReadInputDiscretesRequest | FC 2  Read Discrete Inputs | Discrete Inputs | R | boolean
+| ReadMultipleRegistersRequest | FC 3  Read Holding Registers | Holding Registers | RW | short, int, double, long, float, bytearray[]
+| ReadInputRegistersRequest | FC 4  Read Input Registers | Input Registers | R | short, int, double, long, float, bytearray[]
+| WriteCoilRequest | FC 5  Write Single Coil | Coils | RW | boolean
+| WriteMultipleCoilsRequest | FC 15 Write Multiple Coils | Coils | RW | boolean
+| WriteMultipleRegistersRequest | FC  6  Write Single Registers | Holding Registers | RW | short, int, double, long, float, bytearray[]
+| WriteMultipleRegistersRequest | FC 16  Write Multiple Registers | Holding Registers | RW | short, int, double, long, float, bytearray[]
+|=========================================================
+
+*Example*
+
+[source,xml]
+----
+<channelAddress>255:INPUT_REGISTERS:100:SHORT</channelAddress> will be accessed
+via function code 4.
+----
+
+
+
+==== Modbus TCP and Wago
+
+NOTE: Till now the driver has been tested with some modules of the Wago 750 Series
+with the Fieldbus-Coupler 750-342
+
+If you want to use the Modbus TCP driver for accessing a Wago device you first
+need to know how the process image is build. From the process image you can
+derive the register addresses of your Wago modules (AO, AI, DO, DI). You find
+detailed information about the process image in
+http://www.wago.com/wagoweb/documentation/750/eng_manu/coupler_controller/m07500342_00000000_0en.pdf[WAGO 750-342 Manual]
+on page 46 and 47.
+
+The following Examples are based on figure <<wago>> +
+
+*Example 1: Read AI 2 from first (left) 472-module (Register Address 0x0001)
+
+[source,xml]
+----
+<channelAddress>255:INPUT_REGISTERS:1:SHORT</channelAddress>
+----
+
+*Example 2: Read DI 3 from first (left) 472-module (Register Address 0x0003)*
+
+[source,xml]
+----
+<channelAddress>255:DISCRETE_INPUTS:3:BOOLEAN</channelAddress>
+----
+
+*Example 3: Write AO 1 from first (left) 550-module (Register Address 0x0000/0x0200)* +
+
+For writing only the +0x0200 addresses should be used! Since the driver accepts
+only a decimal channelAddress 0x0200 must be converted to decimal. The resulting
+address would be:
+
+[source,xml]
+----
+<channelAddress>255:HOLDING_REGISTERS:512:SHORT</channelAddress>
+----
+
+*Example 4: Write DO 2 from 501-module (Register Address 0x0000/0x0201)* +
+For writing only the +0x0200 addresses should be used! Since the driver accepts
+only a decimal channelAddress 0x0201 must be converted to decimal. The resulting
+address would be:
+
+[source,xml]
+----
+<channelAddress>255:COILS:513:BOOLEAN</channelAddress>
+----
+
+*Example 5: Read back DO 2 from 501-module (Register Address 0x0201)*
+
+[source,xml]
+----
+<channelAddress>255:COILS:513:BOOLEAN</channelAddress> or
+<channelAddress>255:DISCRETE_INPUTS:513:BOOLEAN</channelAddress>
+----
+
+[[wago]]
+.Wago 750-342 Process Image
+image:modbus_wago_process_image.png[width={width80}, alt="Driver Modbus Wago process",
+link="images/modbus_wago_process_image.png"]
+
+
+:config_table: {driver_table_op}, cols="1,20"
+
+[[anchor-driver-mbus]]

@@ -1,0 +1,110 @@
+=== SQL Logger
+
+==== General Information
+
+Writes OpenMUC records to a sql database.
+
+[options="header", width="99%", cols="1,3,6"]
+|===
+2+|Parameter  | Description
+2+|loggerId | sqllogger
+3+a|<<anchor-channel-options, channel options>>
+| | loggingEvent | supported
+| | loggingSettings | sqllogger:<empty>
+|===
+
+==== Database Schema
+
+This logger creates a meta table at the first start, which is named 'openmuc_meta' and contains the
+configuration of the logged channels.
+
+[options="header", width="99%", cols="1,3,6"]
+|===
+1+|COLOUMN_NAME | COLOUMN_TYPE | CHARACTER_MAXIMUM_LENGTH
+|channelid | VARCHAR(30) | 30
+|logginginterval | VARCHAR(10) | 10
+|listening | VARCHAR(5) | 5
+|...|...|...
+|===
+
+A new data table is created for every supported datatype of OpenMUC. All channels of type double are written in a table
+with the name 'doublevalue' for example. The schema of this data tables is like the following.
+
+[options="header", width="99%", cols="1,3,6"]
+|===
+1+|COLOUMN_NAME | DATA_TYPE | CHARACTER_MAXIMUM_LENGTH
+|time | timestamp with time zone |
+|channelid | character varying | 30
+|flag | smallint | 10
+|value | numeric |
+|===
+
+
+==== Installation
+
+To be able to use the logger in the OpenMUC framework you need to modify the `conf/bundles.conf.gradle`.
+Different database engines like h2 or postgresql are supported. The needed library bundle depends of the used engine.
+Add following dependencies to the `bundles.conf.gradle` file.
+
+[source]
+----
+  osgibundles group: "org.openmuc.framework", name: "openmuc-datalogger-sql",                version: openmucVersion
+  osgibundles group: "org.openmuc.framework", name: "openmuc-lib-osgi",                       version: openmucVersion
+
+  //add your database engine specific bundle for h2 or postgresql here:
+  osgibundles group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
+  osgibundles group: 'com.h2database', name: 'h2', version: '1.4.200'
+
+----
+
+==== Configuration
+
+The logger is configured via <<anchor-osgi-dynamic-configuration,dynamic configuration>>
+
+The following properties can be defined at
+`conf/properties/org.openmuc.framework.datalogger.sql.SqlLoggerService.cfg`
+
+[source]
+----
+# (Optional) seconds after a timeout is thrown
+socket_timeout=5
+# Password for postgresql
+psql_pass=<pw_postgres>
+# Password for the database user
+password=<pw_user>
+# (Optional) local time zone
+timezone=Europe/Berlin
+# (Optional) keep tcp connection alive
+tcp_keep_alive=true
+# User of the used database
+user=<database_user>
+# (Optional) SSL needed for the database connection
+ssl=false
+# URL of the used database
+#url=jdbc:h2:retry:file:./data/h2/h2;AUTO_SERVER=TRUE;MODE=MYSQL
+url=jdbc:postgresql://127.0.0.1:5432/<database_user>
+----
+
+==== Migrating database to be compatible with newer H2 version
+
+Edit the path and the prefix of the database in the gradle.build file of the sqllogger. Making a Backup of the Database is recommended.
+Then run:
+
+[source]
+----
+openmuc migrateh2
+----
+
+
+Migrating manually:
+
+Download versions 1.4.200 and 2.0.206 from here: http://www.h2database.com/html/download-archive.html and unpack them.
+Copy the Database to another folder and execute the following commands:
+
+[source]
+----
+java -cp <path to 1.4.200 jar> org.h2.tools.Script -url jdbc:h2:<path to database> -user <username> -password <password> -script <choose a script location path> -options compression zip
+java -cp <path to 2.0.206 jar> org.h2.tools.RunScript -url jdbc:h2:<choose path to new database> -user <username> -password <password> -script <script location path> -options compression zip
+----
+
+Then replace the old Database (or keep it as Backup) with the upgraded one.

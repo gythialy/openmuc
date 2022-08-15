@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -115,6 +115,24 @@ public class LogFileReader {
     }
 
     /**
+     * Get all records of the given file
+     * 
+     * @param filePath
+     *            to be read from
+     * @return All records in the given file as a Map of String channelId and List of records for this channel
+     */
+    public Map<String, List<Record>> getValues(String filePath) {
+        this.startTimestamp = 0;
+        this.endTimestamp = 9223372036854775807l; // max long
+        Map<String, List<Record>> recordsMap = new HashMap<>();
+        for (String id : ids) {
+            recordsMap.put(id, new ArrayList<Record>());
+        }
+        recordsMap = processFile(recordsMap, filePath, true);
+        return recordsMap;
+    }
+
+    /**
      * get a single record from single channel of time stamp
      *
      * @param timestamp
@@ -123,11 +141,15 @@ public class LogFileReader {
      */
     public Map<String, Record> getValue(long timestamp) {
 
-        // Returns a record which lays within the interval [timestamp, timestamp + loggingInterval]
-        // The interval is necessary for a requested time stamp which lays between the time stamps of two logged values
+        // Returns a record which lays within the interval [timestamp, timestamp +
+        // loggingInterval]
+        // The interval is necessary for a requested time stamp which lays between the
+        // time stamps of two logged values
         // e.g.: t_request = 7, t1_logged = 5, t2_logged = 10, loggingInterval = 5
-        // method will return the record of t2_logged because this lays within the interval [7,12]
-        // If the t_request matches exactly a logged time stamp, then the according record is returned.
+        // method will return the record of t2_logged because this lays within the
+        // interval [7,12]
+        // If the t_request matches exactly a logged time stamp, then the according
+        // record is returned.
 
         Map<String, List<Record>> recordsMap = getValues(timestamp, timestamp);
         Map<String, Record> recordMap = new HashMap<>();
@@ -182,7 +204,6 @@ public class LogFileReader {
                 line = raf.readLine();
                 channelsColumnsMap = LoggerUtils.getColumnNumbersByNames(line, ids);
             }
-
             unixTimestampColumn = channelsColumnsMap.get(Const.TIMESTAMP_STRING);
             firstValueLine = raf.readLine();
 

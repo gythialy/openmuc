@@ -1,5 +1,5 @@
 def projectName = "OpenMUC Data Logger - SlotsDB"
-
+def projectDescription = "SlotsDB is a binary data logger for the OpenMUC framework."
 
 dependencies {
     implementation project(':openmuc-core-spi')
@@ -14,7 +14,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description "SlotsDB is a binary data logger for the OpenMUC framework."
+                description = projectDescription
             }
         }
     }

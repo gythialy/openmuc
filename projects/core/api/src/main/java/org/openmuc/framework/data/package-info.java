@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,7 +20,7 @@
  */
 /**
  * This package contains data/value containers.
- *
+ * 
  * @see org.openmuc.framework.data.Value
  * @see org.openmuc.framework.data.ValueType
  */

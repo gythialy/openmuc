@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -27,6 +27,7 @@ import java.util.concurrent.TimeoutException;
 import org.openmuc.framework.datalogger.spi.DataLoggerService;
 import org.openmuc.framework.lib.osgi.deployment.RegistrationHandler;
 import org.openmuc.framework.parser.spi.ParserService;
+import org.openmuc.framework.security.SslManagerInterface;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
@@ -53,6 +54,14 @@ public class AmqpComponent {
         String serviceName = ParserService.class.getName();
         registrationHandler.subscribeForServiceServiceEvent(serviceName, (event) -> {
             handleServiceRegistrationEvent(event, context);
+        });
+
+        // subscribe for SSLManager
+        serviceName = SslManagerInterface.class.getName();
+        registrationHandler.subscribeForService(serviceName, instance -> {
+            if (instance != null) {
+                amqpLogger.setSslManager((SslManagerInterface) instance);
+            }
         });
 
         String pid = AmqpLogger.class.getName();

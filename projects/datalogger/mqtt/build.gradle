@@ -1,5 +1,6 @@
 def projectName = "OpenMUC Data Logger - MQTT"
-
+def projectDescription = "MQTT data logger for the OpenMUC framework."
+ 
 configurations.create('embed')
 
 
@@ -26,7 +27,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = projectName
-                description "MQTT data logger for the OpenMUC framework."
+                description = projectDescription
             }
         }
     }

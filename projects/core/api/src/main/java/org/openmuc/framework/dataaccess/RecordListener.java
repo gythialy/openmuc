@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,9 +21,9 @@
 
 package org.openmuc.framework.dataaccess;
 
-import org.openmuc.framework.data.Record;
-
 import java.util.EventListener;
+
+import org.openmuc.framework.data.Record;
 
 public interface RecordListener extends EventListener {
     void newRecord(Record record);

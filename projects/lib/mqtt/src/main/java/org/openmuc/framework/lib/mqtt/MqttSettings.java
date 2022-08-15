@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -38,23 +38,44 @@ public class MqttSettings {
     private final boolean lastWillAlways;
     private final String firstWillTopic;
     private final byte[] firstWillPayload;
+    private final int recoveryChunkSize;
+    private final int recoveryDelay;
+    private final boolean webSocket;
 
     public MqttSettings(String host, int port, String username, String password, boolean ssl, long maxBufferSize,
-                        long maxFileSize, int maxFileCount, int connectionRetryInterval, int connectionAliveInterval,
-                        String persistenceDirectory) {
+            long maxFileSize, int maxFileCount, int connectionRetryInterval, int connectionAliveInterval,
+            String persistenceDirectory) {
         this(host, port, username, password, ssl, maxBufferSize, maxFileSize, maxFileCount, connectionRetryInterval,
-                connectionAliveInterval, persistenceDirectory, "", "".getBytes(), false, "", "".getBytes());
+                connectionAliveInterval, persistenceDirectory, "", "".getBytes(), false, "", "".getBytes(), false);
     }
 
     public MqttSettings(String host, int port, String username, String password, boolean ssl, long maxBufferSize,
-                        long maxFileSize, int maxFileCount, int connectionRetryInterval, int connectionAliveInterval,
-                        String persistenceDirectory, String lastWillTopic, byte[] lastWillPayload,
-                        boolean lastWillAlways, String firstWillTopic, byte[] firstWillPayload) {
+            long maxFileSize, int maxFileCount, int connectionRetryInterval, int connectionAliveInterval,
+            String persistenceDirectory, boolean webSocket) {
+        this(host, port, username, password, ssl, maxBufferSize, maxFileSize, maxFileCount, connectionRetryInterval,
+                connectionAliveInterval, persistenceDirectory, "", "".getBytes(), false, "", "".getBytes(), webSocket);
+    }
+
+    public MqttSettings(String host, int port, String username, String password, boolean ssl, long maxBufferSize,
+            long maxFileSize, int maxFileCount, int connectionRetryInterval, int connectionAliveInterval,
+            String persistenceDirectory, String lastWillTopic, byte[] lastWillPayload, boolean lastWillAlways,
+            String firstWillTopic, byte[] firstWillPayload, boolean webSocket) {
+        this(host, port, username, password, ssl, maxBufferSize, maxFileSize, maxFileCount, connectionRetryInterval,
+                connectionAliveInterval, persistenceDirectory, lastWillTopic, lastWillPayload, lastWillAlways,
+                firstWillTopic, firstWillPayload, 0, 0, webSocket);
+    }
+
+    public MqttSettings(String host, int port, String username, String password, boolean ssl, long maxBufferSize,
+            long maxFileSize, int maxFileCount, int connectionRetryInterval, int connectionAliveInterval,
+            String persistenceDirectory, String lastWillTopic, byte[] lastWillPayload, boolean lastWillAlways,
+            String firstWillTopic, byte[] firstWillPayload, int recoveryChunkSize, int recoveryDelay,
+            boolean webSocket) {
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
         this.ssl = ssl;
+        this.webSocket = webSocket;
         this.maxBufferSize = maxBufferSize;
         this.maxFileSize = maxFileSize;
         this.maxFileCount = maxFileCount;
@@ -66,6 +87,8 @@ public class MqttSettings {
         this.lastWillAlways = lastWillAlways;
         this.firstWillTopic = firstWillTopic;
         this.firstWillPayload = firstWillPayload;
+        this.recoveryChunkSize = recoveryChunkSize;
+        this.recoveryDelay = recoveryDelay;
     }
 
     public String getHost() {
@@ -114,26 +137,6 @@ public class MqttSettings {
         return connectionAliveInterval;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("host=").append(getHost()).append("\n");
-        sb.append("port=").append(getPort()).append("\n");
-        sb.append("username=").append(getUsername()).append("\n");
-        sb.append("password=").append(getPassword()).append("\n");
-        sb.append("ssl=").append(isSsl()).append("\n");
-        sb.append("maxBufferSize=").append(getMaxBufferSize()).append("\n");
-        sb.append("maxFileCount=").append(getMaxFileCount()).append("\n");
-        sb.append("maxFileSize=").append(getMaxFileSize()).append("\n");
-        sb.append("connectionRetryInterval=").append(getConnectionRetryInterval()).append("\n");
-        sb.append("lastWillTopic=").append(getLastWillTopic()).append("\n");
-        sb.append("lastWillPayload=").append(new String(getLastWillPayload())).append("\n");
-        sb.append("lastWillAlways=").append(isLastWillAlways()).append("\n");
-        sb.append("firstWillTopic=").append(getLastWillTopic()).append("\n");
-        sb.append("firstWillPayload=").append(new String(getLastWillPayload()));
-        return sb.toString();
-    }
-
     public String getPersistenceDirectory() {
         return persistenceDirectory;
     }
@@ -164,5 +167,49 @@ public class MqttSettings {
 
     public boolean isFirstWillSet() {
         return !firstWillTopic.equals("") && lastWillPayload.length != 0;
+    }
+
+    public boolean isRecoveryLimitSet() {
+        return recoveryChunkSize > 0 && recoveryDelay > 0;
+    }
+
+    public int getRecoveryChunkSize() {
+        return recoveryChunkSize;
+    }
+
+    public int getRecoveryDelay() {
+        return recoveryDelay;
+    }
+
+    public boolean isWebSocket() {
+        return webSocket;
+    }
+
+    /**
+     * Returns a string of all settings, always uses '*****' as password string.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("host=").append(getHost()).append("\n");
+        sb.append("port=").append(getPort()).append("\n");
+        sb.append("username=").append(getUsername()).append("\n");
+        sb.append("password=").append("*****").append("\n");
+        sb.append("ssl=").append(isSsl()).append("\n");
+        sb.append("webSocket=").append(isWebSocket());
+        sb.append("persistenceDirectory=").append(getPersistenceDirectory()).append("\n");
+        sb.append("maxBufferSize=").append(getMaxBufferSize()).append("\n");
+        sb.append("maxFileCount=").append(getMaxFileCount()).append("\n");
+        sb.append("maxFileSize=").append(getMaxFileSize()).append("\n");
+        sb.append("connectionRetryInterval=").append(getConnectionRetryInterval()).append("\n");
+        sb.append("connectionAliveInterval=").append(getConnectionAliveInterval()).append("\n");
+        sb.append("lastWillTopic=").append(getLastWillTopic()).append("\n");
+        sb.append("lastWillPayload=").append(new String(getLastWillPayload())).append("\n");
+        sb.append("lastWillAlways=").append(isLastWillAlways()).append("\n");
+        sb.append("firstWillTopic=").append(getFirstWillTopic()).append("\n");
+        sb.append("firstWillPayload=").append(new String(getFirstWillPayload()));
+        sb.append("recoveryChunkSize=").append(getRecoveryChunkSize()).append("\n");
+        sb.append("recoveryDelay=").append(getRecoveryDelay()).append("\n");
+        return sb.toString();
     }
 }

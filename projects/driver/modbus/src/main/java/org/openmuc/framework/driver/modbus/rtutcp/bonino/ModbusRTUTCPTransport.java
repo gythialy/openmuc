@@ -297,7 +297,7 @@ public class ModbusRTUTCPTransport implements ModbusTransport {
             // clean the input stream
             try {
                 while (this.inputStream.read() != -1) {
-                    ;
+
                 }
             } catch (IOException e1) {
                 // debug

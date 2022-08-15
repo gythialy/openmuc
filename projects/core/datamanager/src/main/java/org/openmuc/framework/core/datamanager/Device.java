@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,6 +21,11 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+
 import org.openmuc.framework.config.ChannelConfig;
 import org.openmuc.framework.data.Flag;
 import org.openmuc.framework.dataaccess.ChannelState;
@@ -29,11 +34,6 @@ import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.driver.spi.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
 
 public final class Device {
 
@@ -46,7 +46,7 @@ public final class Device {
     private DeviceState state = null;
 
     public Device(DataManager dataManager, DeviceConfigImpl deviceConfig, long currentTime,
-                  List<LogChannel> logChannels) {
+            List<LogChannel> logChannels) {
         this.eventList = new LinkedList<>();
         this.taskList = new LinkedList<>();
 
@@ -59,7 +59,8 @@ public final class Device {
                 channelConfig.channel = new ChannelImpl(dataManager, channelConfig, ChannelState.DISABLED,
                         Flag.DISABLED, currentTime, logChannels);
             }
-        } else if (deviceConfig.driverParent.activeDriver == null) {
+        }
+        else if (deviceConfig.driverParent.activeDriver == null) {
             state = DeviceState.DRIVER_UNAVAILABLE;
             logger.warn("No driver bundle available for configured driver: '{}'.", deviceConfig.getDriver().getId());
             for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
@@ -67,7 +68,8 @@ public final class Device {
                         Flag.DRIVER_UNAVAILABLE, currentTime, logChannels);
             }
 
-        } else {
+        }
+        else {
             state = DeviceState.CONNECTING;
             for (ChannelConfigImpl channelConfig : deviceConfig.channelConfigsById.values()) {
                 channelConfig.channel = new ChannelImpl(dataManager, channelConfig, ChannelState.CONNECTING,
@@ -89,48 +91,59 @@ public final class Device {
             if (newDeviceConfig.isDisabled()) {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.DISABLED, ChannelState.DISABLED, Flag.DISABLED,
                         currentTime, logChannels);
-            } else if (deviceConfig.driverParent.activeDriver == null) {
+            }
+            else if (deviceConfig.driverParent.activeDriver == null) {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.DRIVER_UNAVAILABLE, ChannelState.DRIVER_UNAVAILABLE,
                         Flag.DRIVER_UNAVAILABLE, currentTime, logChannels);
-            } else {
+            }
+            else {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.CONNECTING, ChannelState.CONNECTING, Flag.CONNECTING,
                         currentTime, logChannels);
                 connect();
             }
-        } else if (state == DeviceState.DRIVER_UNAVAILABLE) {
+        }
+        else if (state == DeviceState.DRIVER_UNAVAILABLE) {
             if (newDeviceConfig.isDisabled()) {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.DISABLED, ChannelState.DISABLED, Flag.DISABLED,
                         currentTime, logChannels);
-            } else {
+            }
+            else {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.DRIVER_UNAVAILABLE, ChannelState.DRIVER_UNAVAILABLE,
                         Flag.DRIVER_UNAVAILABLE, currentTime, logChannels);
             }
-        } else if (state == DeviceState.CONNECTING) {
+        }
+        else if (state == DeviceState.CONNECTING) {
             setStatesForNewDevice(oldDeviceConfig, DeviceState.CONNECTING, ChannelState.CONNECTING, Flag.CONNECTING,
                     currentTime, logChannels);
             if (newDeviceConfig.isDisabled()) {
                 addEvent(DeviceEvent.DISABLED);
-            } else if (oldDeviceConfig.isDisabled()) {
+            }
+            else if (oldDeviceConfig.isDisabled()) {
                 eventList.remove(DeviceEvent.DISABLED);
             }
-        } else if (state == DeviceState.DISCONNECTING) {
+        }
+        else if (state == DeviceState.DISCONNECTING) {
             setStatesForNewDevice(oldDeviceConfig, DeviceState.DISCONNECTING, ChannelState.DISCONNECTING,
                     Flag.DISCONNECTING, currentTime, logChannels);
             if (newDeviceConfig.isDisabled()) {
                 addEvent(DeviceEvent.DISABLED);
-            } else if (oldDeviceConfig.isDisabled()) {
+            }
+            else if (oldDeviceConfig.isDisabled()) {
                 eventList.remove(DeviceEvent.DISABLED);
             }
-        } else if (state == DeviceState.WAITING_FOR_CONNECTION_RETRY) {
+        }
+        else if (state == DeviceState.WAITING_FOR_CONNECTION_RETRY) {
             if (newDeviceConfig.isDisabled()) {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.DISABLED, ChannelState.DISABLED, Flag.DISABLED,
                         currentTime, logChannels);
-            } else {
+            }
+            else {
                 setStatesForNewDevice(oldDeviceConfig, DeviceState.WAITING_FOR_CONNECTION_RETRY,
                         ChannelState.WAITING_FOR_CONNECTION_RETRY, Flag.WAITING_FOR_CONNECTION_RETRY, currentTime,
                         logChannels);
             }
-        } else {
+        }
+        else {
             if (newDeviceConfig.isDisabled()) {
                 if (state == DeviceState.CONNECTED) {
                     eventList.add(DeviceEvent.DISABLED);
@@ -138,7 +151,8 @@ public final class Device {
                     setStatesForNewConnectedDevice(oldDeviceConfig, DeviceState.DISCONNECTING,
                             ChannelState.DISCONNECTING, Flag.DISCONNECTING, currentTime, logChannels);
                     disconnect();
-                } else {
+                }
+                else {
                     // Adding the disabled event will automatically disconnect the device as soon as the active task is
                     // finished
                     eventList.add(DeviceEvent.DISABLED);
@@ -146,7 +160,8 @@ public final class Device {
                     updateChannels(oldDeviceConfig, ChannelState.DISCONNECTING, Flag.DISCONNECTING, currentTime,
                             logChannels);
                 }
-            } else {
+            }
+            else {
                 updateChannels(oldDeviceConfig, ChannelState.CONNECTED, Flag.NO_VALUE_RECEIVED_YET, currentTime,
                         logChannels);
             }
@@ -155,7 +170,7 @@ public final class Device {
     }
 
     private void updateChannels(DeviceConfigImpl oldDeviceConfig, ChannelState channelState, Flag flag,
-                                long currentTime, List<LogChannel> logChannels) {
+            long currentTime, List<LogChannel> logChannels) {
         List<ChannelRecordContainerImpl> listeningChannels = null;
         for (Entry<String, ChannelConfigImpl> newChannelConfigEntry : deviceConfig.channelConfigsById.entrySet()) {
             ChannelConfigImpl oldChannelConfig = oldDeviceConfig.channelConfigsById.get(newChannelConfigEntry.getKey());
@@ -164,7 +179,8 @@ public final class Device {
             if (oldChannelConfig == null) {
                 listeningChannels = initalizeListenChannels(channelState, flag, currentTime, logChannels,
                         listeningChannels, newChannelConfig);
-            } else {
+            }
+            else {
                 updateConfig(currentTime, logChannels, oldChannelConfig, newChannelConfig);
             }
         }
@@ -175,7 +191,7 @@ public final class Device {
     }
 
     private void updateConfig(long currentTime, List<LogChannel> logChannels, ChannelConfigImpl oldChannelConfig,
-                              ChannelConfigImpl newChannelConfig) {
+            ChannelConfigImpl newChannelConfig) {
         newChannelConfig.channel = oldChannelConfig.channel;
         newChannelConfig.channel.config = newChannelConfig;
         newChannelConfig.channel.setNewDeviceState(oldChannelConfig.state,
@@ -183,16 +199,19 @@ public final class Device {
         if (!newChannelConfig.isDisabled() && (newChannelConfig.getLoggingInterval() > 0)) {
             dataManager.addToLoggingCollections(newChannelConfig.channel, currentTime);
             logChannels.add(newChannelConfig);
-        } else if (!oldChannelConfig.isDisabled() && oldChannelConfig.getLoggingInterval() > 0) {
+        }
+        else if (!oldChannelConfig.isDisabled() && oldChannelConfig.getLoggingInterval() > 0) {
             dataManager.removeFromLoggingCollections(newChannelConfig.channel);
-        } else if (!oldChannelConfig.isDisabled()
+        }
+        else if (!oldChannelConfig.isDisabled()
                 && oldChannelConfig.getLoggingInterval() == ChannelConfig.LOGGING_INTERVAL_DEFAULT
                 && oldChannelConfig.isLoggingEvent() && oldChannelConfig.isListening()) {
             logChannels.add(newChannelConfig);
         }
         if (newChannelConfig.isSampling()) {
             dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
-        } else if (oldChannelConfig.isSampling()) {
+        }
+        else if (oldChannelConfig.isSampling()) {
             dataManager.removeFromSamplingCollections(newChannelConfig.channel);
         }
         if (!newChannelConfig.getChannelAddress().equals(oldChannelConfig.getChannelAddress())) {
@@ -201,8 +220,8 @@ public final class Device {
     }
 
     private List<ChannelRecordContainerImpl> initalizeListenChannels(ChannelState channelState, Flag flag,
-                                                                     long currentTime, List<LogChannel> logChannels, List<ChannelRecordContainerImpl> listeningChannels,
-                                                                     ChannelConfigImpl newChannelConfig) {
+            long currentTime, List<LogChannel> logChannels, List<ChannelRecordContainerImpl> listeningChannels,
+            ChannelConfigImpl newChannelConfig) {
         if (newChannelConfig.state != ChannelState.DISABLED) {
 
             if (newChannelConfig.isListening()) {
@@ -212,15 +231,18 @@ public final class Device {
                 newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.LISTENING,
                         Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                 listeningChannels.add(newChannelConfig.channel.createChannelRecordContainer());
-            } else if (newChannelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
+            }
+            else if (newChannelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
                 newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.SAMPLING,
                         Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                 dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
-            } else {
+            }
+            else {
                 newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, channelState, flag,
                         currentTime, logChannels);
             }
-        } else {
+        }
+        else {
             newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, channelState, flag, currentTime,
                     logChannels);
         }
@@ -238,7 +260,7 @@ public final class Device {
     }
 
     private void setStatesForNewDevice(DeviceConfigImpl oldDeviceConfig, DeviceState deviceState,
-                                       ChannelState channelState, Flag flag, long currentTime, List<LogChannel> logChannels) {
+            ChannelState channelState, Flag flag, long currentTime, List<LogChannel> logChannels) {
         state = deviceState;
         for (Entry<String, ChannelConfigImpl> newChannelConfigEntry : deviceConfig.channelConfigsById.entrySet()) {
             ChannelConfigImpl oldChannelConfig = oldDeviceConfig.channelConfigsById.get(newChannelConfigEntry.getKey());
@@ -247,7 +269,8 @@ public final class Device {
             if (oldChannelConfig == null) {
                 channelConfigImpl.channel = new ChannelImpl(dataManager, channelConfigImpl, channelState, flag,
                         currentTime, logChannels);
-            } else {
+            }
+            else {
                 channelConfigImpl.channel = oldChannelConfig.channel;
                 channelConfigImpl.channel.config = channelConfigImpl;
                 channelConfigImpl.channel.setNewDeviceState(channelState, flag);
@@ -255,7 +278,8 @@ public final class Device {
                     if (channelConfigImpl.getLoggingInterval() > 0 && !channelConfigImpl.isLoggingEvent()) {
                         dataManager.addToLoggingCollections(channelConfigImpl.channel, currentTime);
                         logChannels.add(channelConfigImpl);
-                    } else if (channelConfigImpl.getLoggingInterval() == ChannelConfig.LOGGING_INTERVAL_DEFAULT
+                    }
+                    else if (channelConfigImpl.getLoggingInterval() == ChannelConfig.LOGGING_INTERVAL_DEFAULT
                             && channelConfigImpl.isLoggingEvent() && channelConfigImpl.isListening()) {
                         logChannels.add(channelConfigImpl);
                     }
@@ -265,7 +289,7 @@ public final class Device {
     }
 
     private void setStatesForNewConnectedDevice(DeviceConfigImpl oldDeviceConfig, DeviceState DeviceState,
-                                                ChannelState channelState, Flag flag, long currentTime, List<LogChannel> logChannels) {
+            ChannelState channelState, Flag flag, long currentTime, List<LogChannel> logChannels) {
         state = DeviceState;
         List<ChannelRecordContainerImpl> listeningChannels = null;
         for (Entry<String, ChannelConfigImpl> newChannelConfigEntry : deviceConfig.channelConfigsById.entrySet()) {
@@ -280,19 +304,23 @@ public final class Device {
                         listeningChannels.add(newChannelConfig.channel.createChannelRecordContainer());
                         newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig,
                                 ChannelState.LISTENING, Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
-                    } else if (newChannelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
+                    }
+                    else if (newChannelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
                         newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, ChannelState.SAMPLING,
                                 Flag.NO_VALUE_RECEIVED_YET, currentTime, logChannels);
                         dataManager.addToSamplingCollections(newChannelConfig.channel, currentTime);
-                    } else {
+                    }
+                    else {
                         newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, channelState, flag,
                                 currentTime, logChannels);
                     }
-                } else {
+                }
+                else {
                     newChannelConfig.channel = new ChannelImpl(dataManager, newChannelConfig, channelState, flag,
                             currentTime, logChannels);
                 }
-            } else {
+            }
+            else {
                 newChannelConfig.channel = oldChannelConfig.channel;
                 newChannelConfig.channel.config = newChannelConfig;
                 newChannelConfig.channel.setNewDeviceState(channelState, flag);
@@ -301,7 +329,8 @@ public final class Device {
                             && !newChannelConfigEntry.getValue().isLoggingEvent())) {
                         dataManager.addToLoggingCollections(newChannelConfig.channel, currentTime);
                         logChannels.add(newChannelConfigEntry.getValue());
-                    } else if (newChannelConfigEntry.getValue()
+                    }
+                    else if (newChannelConfigEntry.getValue()
                             .getLoggingInterval() == ChannelConfig.LOGGING_INTERVAL_DEFAULT
                             && newChannelConfigEntry.getValue().isLoggingEvent()
                             && newChannelConfigEntry.getValue().isListening()) {
@@ -330,7 +359,8 @@ public final class Device {
         if (state == DeviceState.DRIVER_UNAVAILABLE) {
             setStates(DeviceState.CONNECTING, ChannelState.CONNECTING, Flag.CONNECTING);
             connect();
-        } else if (state == DeviceState.DISCONNECTING) {
+        }
+        else if (state == DeviceState.DISCONNECTING) {
             eventList.add(DeviceEvent.DRIVER_REGISTERED);
         }
     }
@@ -341,7 +371,8 @@ public final class Device {
             if (dataManager.activeDeviceCountDown-- == 0) {
                 dataManager.driverRemovedSignal.countDown();
             }
-        } else if (state == DeviceState.CONNECTED) {
+        }
+        else if (state == DeviceState.CONNECTED) {
 
             eventList.addFirst(DeviceEvent.DRIVER_DEREGISTERED);
 
@@ -349,14 +380,16 @@ public final class Device {
             removeAllTasksOfThisDevice();
             setStates(DeviceState.DISCONNECTING, ChannelState.DISCONNECTING, Flag.DISCONNECTING);
             disconnect();
-        } else if (state == DeviceState.WAITING_FOR_CONNECTION_RETRY) {
+        }
+        else if (state == DeviceState.WAITING_FOR_CONNECTION_RETRY) {
             disableConnectionRetry();
             setStates(DeviceState.DRIVER_UNAVAILABLE, ChannelState.DRIVER_UNAVAILABLE, Flag.DRIVER_UNAVAILABLE);
             dataManager.activeDeviceCountDown--;
             if (dataManager.activeDeviceCountDown == 0) {
                 dataManager.driverRemovedSignal.countDown();
             }
-        } else {
+        }
+        else {
             // add driver deregistered event always to the front of the queue
             eventList.addFirst(DeviceEvent.DRIVER_DEREGISTERED);
         }
@@ -365,14 +398,17 @@ public final class Device {
     public void deleteSignal() {
         if (state == DeviceState.DRIVER_UNAVAILABLE || state == DeviceState.DISABLED) {
             setDeleted();
-        } else if (state == DeviceState.WAITING_FOR_CONNECTION_RETRY) {
+        }
+        else if (state == DeviceState.WAITING_FOR_CONNECTION_RETRY) {
             disableConnectionRetry();
             setDeleted();
-        } else if (state == DeviceState.CONNECTED) {
+        }
+        else if (state == DeviceState.CONNECTED) {
             eventList.add(DeviceEvent.DELETED);
             setStates(DeviceState.DISCONNECTING, ChannelState.DISCONNECTING, Flag.DISCONNECTING);
             disconnect();
-        } else {
+        }
+        else {
             eventList.add(DeviceEvent.DELETED);
         }
     }
@@ -384,7 +420,8 @@ public final class Device {
         if (eventList.isEmpty()) {
             setConnected(currentTime);
             executeNextTask();
-        } else {
+        }
+        else {
             handleEventQueueWhenConnected();
         }
     }
@@ -396,7 +433,8 @@ public final class Device {
                     Flag.WAITING_FOR_CONNECTION_RETRY);
             dataManager.addReconnectDeviceToActions(this, currentTime + deviceConfig.getConnectRetryInterval());
             removeAllTasksOfThisDevice();
-        } else {
+        }
+        else {
             handleEventQueueWhenDisconnected();
         }
     }
@@ -409,7 +447,8 @@ public final class Device {
         if (eventList.isEmpty()) {
             setStates(DeviceState.CONNECTING, ChannelState.CONNECTING, Flag.CONNECTING);
             connect();
-        } else {
+        }
+        else {
             handleEventQueueWhenDisconnected();
         }
     }
@@ -485,9 +524,11 @@ public final class Device {
 
         if (lastEvent == DeviceEvent.DRIVER_DEREGISTERED) {
             setStates(DeviceState.DRIVER_UNAVAILABLE, ChannelState.DRIVER_UNAVAILABLE, Flag.DRIVER_UNAVAILABLE);
-        } else if (lastEvent == DeviceEvent.DISABLED) {
+        }
+        else if (lastEvent == DeviceEvent.DISABLED) {
             setStates(DeviceState.DISABLED, ChannelState.DISABLED, Flag.DISABLED);
-        } else if (lastEvent == DeviceEvent.DELETED) {
+        }
+        else if (lastEvent == DeviceEvent.DELETED) {
             setDeleted();
         }
         // TODO handle DeviceEvent.DRIVER_REGISTERED?
@@ -540,7 +581,8 @@ public final class Device {
                 dataManager.executor.execute(samplingTask);
             }
             return true;
-        } else {
+        }
+        else {
             samplingTask.deviceNotConnected();
             // TODO in the future change this to true
             return true;
@@ -554,7 +596,8 @@ public final class Device {
                 state = deviceTask.getType().getResultingState();
                 dataManager.executor.execute(deviceTask);
             }
-        } else {
+        }
+        else {
             deviceTask.deviceNotConnected();
         }
     }
@@ -563,7 +606,8 @@ public final class Device {
         taskList.removeFirst();
         if (eventList.isEmpty()) {
             executeNextTask();
-        } else {
+        }
+        else {
             handleEventQueueWhenConnected();
         }
 
@@ -577,7 +621,8 @@ public final class Device {
             }
             state = firstTask.getType().getResultingState();
             dataManager.executor.execute(firstTask);
-        } else {
+        }
+        else {
             state = DeviceState.CONNECTED;
         }
     }
@@ -614,11 +659,13 @@ public final class Device {
                     listeningChannels.add(channelConfig.channel.createChannelRecordContainer());
                     channelConfig.state = ChannelState.LISTENING;
                     channelConfig.channel.setFlag(Flag.NO_VALUE_RECEIVED_YET);
-                } else if (channelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
+                }
+                else if (channelConfig.getSamplingInterval() != ChannelConfig.SAMPLING_INTERVAL_DEFAULT) {
                     dataManager.addToSamplingCollections(channelConfig.channel, currentTime);
                     channelConfig.state = ChannelState.SAMPLING;
                     channelConfig.channel.setFlag(Flag.NO_VALUE_RECEIVED_YET);
-                } else {
+                }
+                else {
                     channelConfig.state = ChannelState.CONNECTED;
                 }
             }
@@ -627,7 +674,8 @@ public final class Device {
         if (listeningChannels != null) {
             taskList.add(new StartListeningTask(dataManager, this, listeningChannels));
             state = DeviceState.STARTING_TO_LISTEN;
-        } else {
+        }
+        else {
             state = DeviceState.CONNECTED;
         }
 

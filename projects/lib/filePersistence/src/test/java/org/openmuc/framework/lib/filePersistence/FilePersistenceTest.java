@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,13 +21,13 @@
 
 package org.openmuc.framework.lib.filePersistence;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class FilePersistenceTest {
     private static final String DIRECTORY = "/tmp/openmuc/filepersistence";
@@ -45,7 +45,8 @@ class FilePersistenceTest {
         for (File child : directory.listFiles()) {
             if (child.isDirectory()) {
                 deleteDirectory(child);
-            } else {
+            }
+            else {
                 child.delete();
             }
         }
@@ -102,15 +103,15 @@ class FilePersistenceTest {
         File file1 = FileSystems.getDefault().getPath(DIRECTORY, buffer, "buffer.0.log").toFile();
         File file2 = FileSystems.getDefault().getPath(DIRECTORY, buffer, "buffer.1.log").toFile();
         File file3 = FileSystems.getDefault().getPath(DIRECTORY, buffer, "buffer.2.log").toFile();
-        write512Byte(filePersistence, buffer);  // 512 B
+        write512Byte(filePersistence, buffer); // 512 B
         Assertions.assertTrue(file1.exists() && !file2.exists() && !file3.exists());
-        write512Byte(filePersistence, buffer);  // 512 B + 512 B = 1024 B
+        write512Byte(filePersistence, buffer); // 512 B + 512 B = 1024 B
         // File not full
         Assertions.assertTrue(file1.exists() && !file2.exists() && !file3.exists());
-        write512Byte(filePersistence, buffer);  // 1024 B + 512 B > 1024 B -> new file 512 B
+        write512Byte(filePersistence, buffer); // 1024 B + 512 B > 1024 B -> new file 512 B
         Assertions.assertTrue(file1.exists() && file2.exists() && !file3.exists());
         // maxFileCount = 2 recognized -> no new file (rotation)
-        write1KB(filePersistence, buffer);  // 512 B + 1024 B > 1024 B -> override file
+        write1KB(filePersistence, buffer); // 512 B + 1024 B > 1024 B -> override file
         Assertions.assertTrue(file1.exists() && file2.exists() && !file3.exists());
     }
 
@@ -127,12 +128,12 @@ class FilePersistenceTest {
         // buffer empty
         Assertions.assertFalse(filePersistence.fileExistsFor(buffer));
 
-        write1KB(filePersistence, buffer);  // new file 1024 B
-        write512ByteUnique(filePersistence, buffer, 1);  // new file 512 B
-        write512ByteUnique(filePersistence, buffer, 2);  // 512 B + 512 B = 1024 B
-        write512ByteUnique(filePersistence, buffer, 3);  // > 1024 B message is overriden
-        write512ByteUnique(filePersistence, buffer, 4);  // 1024 B
-        write512ByteUnique(filePersistence, buffer, 5);  // > 1024 B message is overriden
+        write1KB(filePersistence, buffer); // new file 1024 B
+        write512ByteUnique(filePersistence, buffer, 1); // new file 512 B
+        write512ByteUnique(filePersistence, buffer, 2); // 512 B + 512 B = 1024 B
+        write512ByteUnique(filePersistence, buffer, 3); // > 1024 B message is overriden
+        write512ByteUnique(filePersistence, buffer, 4); // 1024 B
+        write512ByteUnique(filePersistence, buffer, 5); // > 1024 B message is overriden
 
         Assertions.assertEquals('3', filePersistence.getMessage(buffer)[510]);
         Assertions.assertEquals('4', filePersistence.getMessage(buffer)[510]);
@@ -153,14 +154,14 @@ class FilePersistenceTest {
         // buffer empty
         Assertions.assertFalse(filePersistence.fileExistsFor(buffer));
 
-        write1KB(filePersistence, buffer);  // new file 1024 B
-        write512ByteUnique(filePersistence, buffer, 1);  // new file 512 B
-        write512ByteUnique(filePersistence, buffer, 2);  // 512 B + 512 B = 1024 B
-        write512ByteUnique(filePersistence, buffer, 3);  // > 1024 B message is new file
-        write512ByteUnique(filePersistence, buffer, 4);  // 1024 B
-        write512ByteUnique(filePersistence, buffer, 5);  // > 1024 B message is overriden
-        write512ByteUnique(filePersistence, buffer, 6);  // 1024 B
-        write512ByteUnique(filePersistence, buffer, 7);  // > 1024 B message is overriden
+        write1KB(filePersistence, buffer); // new file 1024 B
+        write512ByteUnique(filePersistence, buffer, 1); // new file 512 B
+        write512ByteUnique(filePersistence, buffer, 2); // 512 B + 512 B = 1024 B
+        write512ByteUnique(filePersistence, buffer, 3); // > 1024 B message is new file
+        write512ByteUnique(filePersistence, buffer, 4); // 1024 B
+        write512ByteUnique(filePersistence, buffer, 5); // > 1024 B message is overriden
+        write512ByteUnique(filePersistence, buffer, 6); // 1024 B
+        write512ByteUnique(filePersistence, buffer, 7); // > 1024 B message is overriden
 
         Assertions.assertEquals('3', filePersistence.getMessage(buffer)[510]);
         Assertions.assertEquals('4', filePersistence.getMessage(buffer)[510]);

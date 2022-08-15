@@ -1,0 +1,267 @@
+<form name="channelForm" class="form-horizontal" ng-init="getDriverInfo()" ng-submit="saveChannel()" novalidate>
+  <fieldset>
+    <legend>{{'CHANNEL_CONFIGURATION' | translate}}:</legend>
+    
+    <br />
+
+    <div class="form-group">
+      <label for="id" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_ID_HINT' | translate}}"></span>
+        {{'CHANNEL_ID' | translate}} * 
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" ng-disabled="selectedChannels.length > 1" ng-class="{true: 'form-submitted', false: ''}[channelForm.submitted]"  id="id" name="id" ng-model="channel.configs.id" required="required" ng-pattern="/^[a-zA-Z0-9_\-]*$/">
+        <div class="form-error-container" ng-show="(channelForm.id.$dirty && channelForm.id.$invalid) || (channelForm.submitted && channelForm.id.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.id.$error.required">{{'CHANNEL_ID_REQUIRED' | translate}}</div>
+          <div class="form-error-message" ng-show="channelForm.id.$error.pattern">{{'CHANNEL_ID_PATTERN_INCORRECT' | translate}}</div>
+        </div>
+        <p class="help-block">N.A. **</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_DESCRIPTION_HINT' | translate}}"></span>
+        {{'CHANNEL_DESCRIPTION' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" ng-disabled="selectedChannels.length > 1" id="description" name="description" ng-model="channel.configs.description" >
+        <p class="help-block">N.A. **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="settings" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_SETTINGS_HINT' | translate}}"></span>
+        {{'CHANNEL_SETTINGS' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" ng-disabled="selectedChannels.length > 1" id="settings" name="settings" ng-model="channel.configs.settings" >
+        <p class="help-block">N.A. **</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="address" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="dummy/channel/address/[a-z A-Z]"></span>
+        {{'CHANNEL_ADDRESS' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" ng-disabled="selectedChannels.length > 1" id="address" name="address" ng-model="channel.configs.channelAddress" >
+        <p class="help-block">{{driverInfo.channelAddressSyntax}} </p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="valueType" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_VALUE_TYPE_HINT' | translate}}"></span>
+        {{'CHANNEL_VALUE_TYPE' | translate}}
+      </label>
+      <div class="col-md-6">
+        <select class="form-control" id="valueType" name="valueType" ng-class="{discrepancy: !compareChannels('valueType')}" ng-model="channel.configs.valueType" >
+          <option></option>
+          <option value="DOUBLE">DOUBLE</option>
+          <option value="FLOAT">FLOAT</option>
+          <option value="LONG">LONG</option>
+          <option value="INTEGER">INTEGER</option>
+          <option value="SHORT">SHORT</option>
+          <option value="BYTE">BYTE</option>
+          <option value="BOOLEAN">BOOLEAN</option>
+          <option value="BYTE_ARRAY">BYTE_ARRAY</option>
+          <option value="STRING">STRING</option>
+        </select>      
+        <p class="help-block">DOUBLE **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="valueLength" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_VALUE_LENGTH_HINT' | translate}}"></span>
+        {{'CHANNEL_VALUE_LENGTH' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="valueLength" name="valueLength" ng-disabled="valueTypeCheck()" ng-class="{channelError: checkTypeLength(), discrepancy: !compareChannels('valueTypeLength')}" ng-model="channel.configs.valueTypeLength" ng-pattern="/^[0-9]{1,10}$/">
+        <div class="form-error-container" ng-show="(channelForm.valueLength.$dirty && channelForm.valueLength.$invalid) || (channelForm.submitted && channelForm.valueLength.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.valueLength.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                        
+        <p class="help-block">N.A. **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="scalingFactor" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_SCALING_FACTOR_HINT' | translate}}"></span>
+        {{'CHANNEL_SCALING_FACTOR' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="scalingFactor" name="scalingFactor" ng-class="{discrepancy: !compareChannels('scalingFactor')}" ng-model="channel.configs.scalingFactor" ng-pattern="/^[0-9]{1,10}(\.[0-9]+)?$/">
+        <div class="form-error-container" ng-show="(channelForm.scalingFactor.$dirty && channelForm.scalingFactor.$invalid) || (channelForm.submitted && channelForm.scalingFactor.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.scalingFactor.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                                
+        <p class="help-block">1.0 **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="valueOffset" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_VALUE_OFFSET_HINT' | translate}}"></span>
+        {{'CHANNEL_VALUE_OFFSET' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="valueOffset" name="valueOffset" ng-class="{discrepancy: !compareChannels('valueOffset')}" ng-model="channel.configs.valueOffset" ng-pattern="/^[0-9]{1,10}(\.[0-9]+)?$/">
+        <div class="form-error-container" ng-show="(channelForm.valueOffset.$dirty && channelForm.valueOffset.$invalid) || (channelForm.submitted && channelForm.valueOffset.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.valueOffset.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                        
+        <p class="help-block">0.0 **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="unit" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_UNIT_HINT' | translate}}"></span>
+        {{'CHANNEL_UNIT' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="unit" name="unit" ng-class="{discrepancy: !compareChannels('unit')}" ng-model="channel.configs.unit">
+        <p class="help-block">N.A. **</p>
+      </div>    
+    </div>
+    
+    <div class="form-group">
+      <label for="loggingInterval" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_LOGGING_INTERVAL_HINT' | translate}}"></span>
+        {{'CHANNEL_LOGGING_INTERVAL' | translate}}
+      </label>
+      <div class="col-md-6">
+        <div class="input-group">
+	        <input type="text" class="form-control" id="loggingInterval" name="loggingInterval" ng-class="{discrepancy: !compareChannels('loggingInterval')}" ng-model="channel.configs.loggingInterval" ng-pattern="/^-1$|^[0-9]{1,10}$/">
+	        <div class="input-group-append"><span class="input-group-text">ms</span></div>
+	      </div>
+        <div class="form-error-container" ng-show="(channelForm.loggingInterval.$dirty && channelForm.loggingInterval.$invalid) || (channelForm.submitted && channelForm.loggingInterval.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.loggingInterval.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                        	      
+        <p class="help-block">-1 ({{'DISABLED' | translate}}) **</p>        
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="loggingTimeOffset" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_LOGGING_TIME_OFFSET_HINT' | translate}}"></span>
+        {{'CHANNEL_LOGGING_TIME_OFFSET' | translate}}
+      </label>
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" id="loggingTimeOffset" name="loggingTimeOffset" ng-class="{discrepancy: !compareChannels('loggingTimeOffset')}" ng-model="channel.configs.loggingTimeOffset" ng-pattern="/^[0-9]{1,10}$/">
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
+        </div>          
+        <div class="form-error-container" ng-show="(channelForm.loggingTimeOffset.$dirty && channelForm.loggingTimeOffset.$invalid) || (channelForm.submitted && channelForm.loggingTimeOffset.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.loggingTimeOffset.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                                
+        <p class="help-block">0 **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="loggingSettings" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_LOGGING_SETTINGS_HINT' | translate}}"></span>
+        {{'CHANNEL_LOGGING_SETTINGS' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" ng-disabled="selectedChannels.length > 1" id="loggingSettings" name="loggingSettings" ng-model="channel.configs.loggingSettings" >
+        <p class="help-block"><loggerId_A>[:<param_A>=<value_A>][,…​][;<loggerId_B>[:<param_B>=<value_B>]]</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="listening" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_LISTENING_FOR_DATA_HINT' | translate}}"></span>
+        {{'CHANNEL_LISTENING_FOR_DATA' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="checkbox" id="listening" ng-class="{discrepancy: !compareChannels('listening')}" ng-model="channel.configs.listening">
+        <p class="help-block">{{'FALSE' | translate}} **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="loggingEvent" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_LOGGING_EVENT_HINT' | translate}}"></span>
+        {{'CHANNEL_LOGGING_EVENT' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="checkbox" id="loggingEvent" ng-class="{discrepancy: !compareChannels('loggingEvent')}" ng-model="channel.configs.loggingEvent">
+        <p class="help-block">{{'FALSE' | translate}} **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="samplingInterval" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_SAMPLING_INTERVAL_HINT' | translate}}"></span>
+        {{'CHANNEL_SAMPLING_INTERVAL' | translate}}
+      </label>
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" id="samplingInterval" name="samplingInterval" ng-class="{discrepancy: !compareChannels('samplingInterval')}" ng-model="channel.configs.samplingInterval" ng-pattern="/^-1$|^[0-9]{1,10}$/">
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
+        </div>
+        <div class="form-error-container" ng-show="(channelForm.samplingInterval.$dirty && channelForm.samplingInterval.$invalid) || (channelForm.submitted && channelForm.samplingInterval.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.samplingInterval.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>                                        
+        <p class="help-block">-1 ({{'DISABLED' | translate}}) **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="samplingTimeOffset" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_SAMPLING_TIME_OFFSET_HINT' | translate}}"></span>
+        {{'CHANNEL_SAMPLING_TIME_OFFSET' | translate}}
+      </label>
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" id="samplingTimeOffset" name="samplingTimeOffset" ng-class="{discrepancy: !compareChannels('samplingTimeOffset')}" ng-model="channel.configs.samplingTimeOffset" ng-pattern="/^[0-9]{1,10}$/">
+          <div class="input-group-append"><span class="input-group-text">ms</span></div>
+        </div>
+        <div class="form-error-container" ng-show="(channelForm.samplingTimeOffset.$dirty && channelForm.samplingTimeOffset.$invalid) || (channelForm.submitted && channelForm.samplingTimeOffset.$invalid)">
+          <div class="form-error-message" ng-show="channelForm.samplingTimeOffset.$error.pattern">{{'SHOULD_BE_INTEGER' | translate}}</div>
+        </div>        
+        <p class="help-block">0 **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="sampling_group" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_SAMPLING_GROUP_HINT' | translate}}"></span>
+        {{'CHANNEL_SAMPLING_GROUP' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="sampling_group" name="sampling_group" ng-class="{discrepancy: !compareChannels('sampling_group')}" ng-model="channel.configs.samplingGroup">
+        <p class="help-block">N.A. **</p>
+      </div>    
+    </div>
+
+    <div class="form-group">
+      <label for="disabled" class="col-md-2 control-label">
+        <span class="item-icon fa fa-info-circle" aria-hidden="true" data-placement="right" data-container="body" uib-tooltip="{{'CHANNEL_DISABLED_HINT' | translate}}"></span>
+        {{'CHANNEL_DISABLED' | translate}}
+      </label>
+      <div class="col-md-6">
+        <input type="checkbox" id="disabled" ng-class="{discrepancy: !compareChannels('disabled')}" ng-model="channel.configs.disabled">
+        <p class="help-block">{{'FALSE' | translate}} **</p>
+      </div>    
+    </div>
+    
+    <div class="row">
+      <div class="col-md-8">
+        <div class="alert alert-md alert-warning">
+          <b class="small">* {{'REQUIRED_FIELDS' | translate}}</b><br />
+          <b class="small">** {{'DEFAULT_LEFT_BLANK' | translate}}</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8 text-right">
+      <input type="submit" ng-click="setTabIndex(2)" ng-disabled="checkTypeLength()" class="btn btn-primary" value="{{'SUBMIT' | translate}}">
+    </div>
+
+  </fieldset>
+</form>

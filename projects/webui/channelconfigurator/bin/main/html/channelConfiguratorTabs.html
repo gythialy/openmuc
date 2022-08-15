@@ -1,0 +1,17 @@
+<div ng-controller="TabsController">
+	<uib-tabset class="nav-tabs" active="activeTabIndex">
+                <uib-tab index=0 select="setTabIndex(0)" heading="{{'DRIVERS' | translate}}" class="nav-item" ui-sref="channelconfigurator.drivers.index"></uib-tab>
+                <uib-tab index=1 select="setTabIndex(1)" heading="{{'DEVICES' | translate}}" class="nav-item" ui-sref="channelconfigurator.devices.index"></uib-tab>
+                <uib-tab index=2 select="setTabIndex(2)" heading="{{'CHANNELS' | translate}}" class="nav-item" ui-sref="channelconfigurator.channels.index"></uib-tab>
+                <uib-tab index=3 select="setTabIndex(3)" heading="{{'OPTIONS' | translate}}" class="nav-item" ui-sref="channelconfigurator.options"></uib-tab>
+                <uib-tab index=4 select="setTabIndex(4)" heading="{{'NEW_DRIVER' | translate}}" ng-show="isDriversNewPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=5 select="setTabIndex(5)" heading="{{'EDIT_DRIVER' | translate}}" ng-show="isDriversEditPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=6 select="setTabIndex(6)" heading="{{'NEW_DEVICE' | translate}}" ng-show="isDevicesNewPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=7 select="setTabIndex(7)" heading="{{'EDIT_DEVICE' | translate}}" ng-show="isDevicesEditPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=8 select="setTabIndex(8)" heading="{{'NEW_CHANNEL' | translate}}" ng-show="isChannelsNewPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=9 select="setTabIndex(9)" heading="{{'EDIT_CHANNEL' | translate}}" ng-show="isChannelsEditPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=10 select="setTabIndex(10)" heading="{{'INFOS_DRIVER' | translate}}" ng-show="isDriversInfosPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=11 select="setTabIndex(11)" heading="{{'SCAN_DRIVER' | translate}}" ng-show="isDriversScanPage()" class="nav-item" href=""></uib-tab>
+                <uib-tab index=12 select="setTabIndex(12)" heading="{{'SCAN_DEVICE_TAB' | translate}}" ng-show="isDevicesScanPage()" class="nav-item" href=""></uib-tab>
+        </uib-tabset>
+</div>

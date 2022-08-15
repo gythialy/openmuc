@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,12 +20,16 @@
  */
 package org.openmuc.framework.datalogger.ascii.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +41,7 @@ import org.openmuc.framework.datalogger.ascii.AsciiLogger;
 import org.openmuc.framework.datalogger.ascii.LogFileReader;
 import org.openmuc.framework.datalogger.ascii.LogFileWriter;
 import org.openmuc.framework.datalogger.ascii.LogIntervalContainerGroup;
+import org.openmuc.framework.datalogger.ascii.utils.LoggerUtils;
 import org.openmuc.framework.datalogger.spi.LogChannel;
 import org.openmuc.framework.datalogger.spi.LoggingRecord;
 
@@ -152,5 +157,48 @@ public class LogFileReaderTestMultipleFiles {
         }
         System.out.println(" records = " + records.size() + " (" + expectedRecords + " expected); ");
         assertTrue(result);
+    }
+
+    @Test
+    public void tc010_test_getValues() {
+        LogFileReader fr = new LogFileReader(TestUtils.TESTFOLDERPATH, channelTestImpl);
+        String filename1 = TestUtils.TESTFOLDERPATH + fileDate1 + "_" + loggingInterval + EXT;
+        File file1 = new File(filename1);
+        if (!file1.exists()) {
+            fail("File does not exist at path " + file1.getAbsolutePath());
+        }
+        int expected = 1440;
+        Map<String, List<Record>> values = fr.getValues(file1.getPath());
+        for (Map.Entry<String, List<Record>> entry : values.entrySet()) {
+            List<Record> records = entry.getValue();
+            int actual = records.size();
+            assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void tc_011_test_getAllDataFiles() {
+        String dir = TestUtils.TESTFOLDERPATH;
+        List<File> files = LoggerUtils.getAllDataFiles(dir);
+        List<String> expected = new LinkedList<>();
+        expected.add("20770709_60000.dat");
+        expected.add("20770708_60000.dat");
+        expected.add("20770707_60000.dat");
+        List<String> actual = new LinkedList<>();
+        for (File file : files) {
+            actual.add(file.getName());
+        }
+        assertTrue(expected.containsAll(actual));
+        assertTrue(actual.containsAll(expected));
+    }
+
+    @Test
+    public void tc_012_test_getLatestFile() {
+        String dir = TestUtils.TESTFOLDERPATH;
+        List<File> files = LoggerUtils.getAllDataFiles(dir);
+        String expected = "20770709_60000.dat";
+        File file = LoggerUtils.getLatestFile(files);
+        String actual = file.getName();
+        assertEquals(expected, actual);
     }
 }

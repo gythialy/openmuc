@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,9 +21,9 @@
 
 package org.openmuc.framework.lib.mqtt;
 
-import org.openmuc.framework.lib.filePersistence.FilePersistence;
-
 import java.util.Iterator;
+
+import org.openmuc.framework.lib.filePersistence.FilePersistence;
 
 public class MqttBufferMessageIterator implements Iterator<MessageTuple> {
 

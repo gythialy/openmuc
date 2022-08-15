@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,10 +29,10 @@ import org.openmuc.framework.driver.spi.ChannelValueContainer;
 public final class WriteValueContainerImpl implements WriteValueContainer, ChannelValueContainer {
 
     private final ChannelImpl channel;
-    private final String channelAddress;
     private Value value = null;
     private Flag flag = Flag.DRIVER_ERROR_UNSPECIFIED;
     private Object channelHandle;
+    private final String channelAddress;
 
     public WriteValueContainerImpl(ChannelImpl channel) {
         this.channel = channel;
@@ -41,23 +41,18 @@ public final class WriteValueContainerImpl implements WriteValueContainer, Chann
     }
 
     @Override
-    public Value getValue() {
-        return value;
-    }
-
-    @Override
     public void setValue(Value value) {
         this.value = value;
     }
 
     @Override
-    public Flag getFlag() {
-        return flag;
+    public Value getValue() {
+        return value;
     }
 
     @Override
-    public void setFlag(Flag flag) {
-        this.flag = flag;
+    public Flag getFlag() {
+        return flag;
     }
 
     @Override
@@ -78,6 +73,11 @@ public final class WriteValueContainerImpl implements WriteValueContainer, Chann
     @Override
     public void setChannelHandle(Object handle) {
         channelHandle = handle;
+    }
+
+    @Override
+    public void setFlag(Flag flag) {
+        this.flag = flag;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,12 +20,16 @@
  */
 package org.openmuc.framework.core.datamanager;
 
-import org.openmuc.framework.config.*;
-import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
-import org.openmuc.framework.driver.spi.DriverService;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DeviceScanListener;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
 
 public class ScanForDevicesTask implements Runnable {
     private final DriverService driver;

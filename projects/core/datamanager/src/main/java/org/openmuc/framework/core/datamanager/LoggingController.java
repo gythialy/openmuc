@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,6 +21,16 @@
 
 package org.openmuc.framework.core.datamanager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.openmuc.framework.data.Record;
 import org.openmuc.framework.dataaccess.Channel;
 import org.openmuc.framework.dataaccess.ChannelState;
@@ -28,9 +38,6 @@ import org.openmuc.framework.datalogger.spi.DataLoggerService;
 import org.openmuc.framework.datalogger.spi.LoggingRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class LoggingController {
 
@@ -56,7 +63,8 @@ public class LoggingController {
             for (ChannelImpl channel : loggingCollection.channels) {
                 if (channel.getChannelState() == ChannelState.DELETED) {
                     toRemove.add(channel);
-                } else if (!channel.config.isDisabled()) {
+                }
+                else if (!channel.config.isDisabled()) {
                     fillLoggingRecordMapWithChannel(channel);
                 }
             }
@@ -76,10 +84,8 @@ public class LoggingController {
 
     public void deliverLogsToEventBasedLogServices(List<ChannelRecordContainerImpl> channelRecordContainerList) {
         initLoggingRecordMap();
-        channelRecordContainerList.stream().forEach(channelRecord -> {
-            channelRecord.getChannel().setNewRecord(channelRecord.getRecord());
-            fillLoggingRecordMapWithChannel(channelRecord.getChannel());
-        });
+        channelRecordContainerList.stream()
+                .forEach(channelRecord -> fillLoggingRecordMapWithChannel(channelRecord.getChannel()));
 
         for (DataLoggerService dataLogger : activeDataLoggers) {
             List<LoggingRecord> logContainers = logContainerMap.get(dataLogger.getId());
@@ -102,7 +108,8 @@ public class LoggingController {
 
         if (logSettings != null && !logSettings.isEmpty()) {
             extendMapForDefinedLoggerFromSettings(channel, logSettings);
-        } else {
+        }
+        else {
             addRecordToAllLoggerWhichNotRequiresSettings(channel);
         }
     }
@@ -130,7 +137,8 @@ public class LoggingController {
             if (logContainerMap.get(definedLogger) != null) {
                 Record latestRecord = channel.getLatestRecord();
                 logContainerMap.get(definedLogger).add(new LoggingRecord(channel.getId(), latestRecord));
-            } else {
+            }
+            else {
                 logger.warn("DataLoggerService with Id {} not found for channel {}", definedLogger,
                         channel.config.getId());
                 logger.warn("Correct configuration in channel.xml?");

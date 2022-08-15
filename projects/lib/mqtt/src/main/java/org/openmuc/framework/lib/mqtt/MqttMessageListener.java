@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -29,9 +29,11 @@ import java.util.EventListener;
 public interface MqttMessageListener extends EventListener {
     /**
      * Call this when a new message was received
-     *
-     * @param topic   the topic from which the message comes from
-     * @param message the received message
+     * 
+     * @param topic
+     *            the topic from which the message comes from
+     * @param message
+     *            the received message
      */
     void newMessage(String topic, byte[] message);
 }

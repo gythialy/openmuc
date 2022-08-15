@@ -1,0 +1,93 @@
+<plotting-tabs class="clearfix display-block"></plotting-tabs>
+
+<div class="card bg-light" id="graph">
+    <div class="card-body" ng-show="!plotter">{{'NO_GRAPH_CREATED_YET' | translate}}</div>
+</div>
+
+<div class="card bg-light" id="graph">
+    <svg viewBox="0 0 450 300" class="plotter-place-holder" ng-show="plotter"></svg>
+</div>
+
+<form name="plot_form" class="form-horizontal" ng-submit="plotData()" novalidate>
+    <fieldset>
+        <legend>{{'PLOT_OPTIONS' | translate}}:</legend>
+
+        <div class="form-group row">
+            <label for="start_date" class="col-md-2 control-label">
+                {{'START_DATE' | translate}}
+            </label>
+            <div class="col-md-2">
+                <div class="input-group">
+                    <input id="start_date" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="startDate" is-open="openStart" datepicker-options="dateOptions" data-autoclose="1" placeholder="{{'DATE' | translate}}">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-secondary" ng-click="openStart = true">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </button>
+                      </span>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group"
+                    type="text" id="time" uib-timepicker class="form-control" uib-tooltip="{{'USE_SCROLLWHEEL_OR_CLICK_AND_USE_ARROW_KEYS' | translate}}" ng-model="startDate"  hour-step="1" minute-step="mstep" show-spinners="false" show-meridian="ismeridian" placeholder="{{'TIME' | translate}}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-primary" ng-click="ismeridian = !ismeridian">12H / 24H</button>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="end_date" class="col-md-2 control-label">
+                {{'END_DATE' | translate}}
+            </label>
+            <div class="col-md-2">
+                <div class="input-group">
+                    <input id="end_date" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="endDate" is-open="openEnd" datepicker-options="dateOptions" data-autoclose="1" placeholder="{{'DATE' | translate}}">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-secondary" ng-click="openEnd = true">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </button>
+                      </span>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group"
+                    type="text" id="time" uib-timepicker class="form-control" uib-tooltip="{{'USE_SCROLLWHEEL_OR_CLICK_AND_USE_ARROW_KEYS' | translate}}" ng-model="endDate" hour-step="1" minute-step="mstep" show-spinners="false" show-meridian="ismeridian" placeholder="{{'TIME' | translate}}">
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="row">
+                    <div class="input-group col-md-6">
+                        <select class="form-control" ng-model="mstep" ng-options="opt for opt in options.mstep"></select>
+                        <div class="input-group-append">
+                            <span class="input-group-text">{{'MINUTE_STEPS' | translate}}</span>
+                        </div>
+                    </div>    
+                </div>    
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-2 control-label">
+                {{'SELECT_CHANNEL' | translate}}
+            </label>
+            <div class="col-md-6 row">
+                <div class="col-lg-6" ng-repeat="channel in channels">
+                    <label class="sr-only"> {{channel.label}}</label>
+                    <label uib-tooltip="{{!channel.historic  ? ('CHANNEL_NOT_HISTORIC' | translate) : '' }}" ng-class="{deactivated: !channelPlottable(channel)}">
+                    <input type="checkbox"
+                                checklist-model="selectedChannels"
+                                checklist-value="channel"
+                                ng-disabled="!channelPlottable(channel)">
+                        {{channel.label}}
+                    </label>
+                </div>
+            </div>    
+        </div>
+
+        <div class="col-md-8 text-right">
+            <input type="submit" class="btn btn-primary" value="{{'PLOT_DATA' | translate}}" ng-disabled="disabledPlot()" ng-click="plotter = true">
+        </div>
+
+    </fieldset>
+</form>

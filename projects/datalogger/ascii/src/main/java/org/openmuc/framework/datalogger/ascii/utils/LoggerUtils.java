@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -31,10 +31,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -43,6 +47,7 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
 import org.openmuc.framework.data.ValueType;
 import org.openmuc.framework.datalogger.ascii.LogFileHeader;
 import org.openmuc.framework.datalogger.spi.LogChannel;
@@ -166,7 +171,7 @@ public class LoggerUtils {
      * @param containers
      *            a list with LogRecordContainer
      * @param i
-     *            the current possition of the list
+     *            the current position of the list
      * @return true if it has a next container entry, if not else.
      */
     public static boolean hasNext(List<LoggingRecord> containers, int i) {
@@ -613,13 +618,13 @@ public class LoggerUtils {
      *
      * @param file
      *            file get the RandomAccessFile
-     * @param accesMode
+     * @param accessMode
      *            access mode
      * @return the RandomAccessFile of the specified file, {@code null} if an error occured.
      */
-    public static RandomAccessFile getRandomAccessFile(File file, String accesMode) {
+    public static RandomAccessFile getRandomAccessFile(File file, String accessMode) {
         try {
-            return new RandomAccessFile(file, accesMode);
+            return new RandomAccessFile(file, accessMode);
         } catch (FileNotFoundException e) {
             logger.warn("Requested logfile: '{}' not found.", file.getAbsolutePath());
         }
@@ -780,4 +785,98 @@ public class LoggerUtils {
         return Const.VALUE_SIZE_MINIMAL;
     }
 
+    /**
+     * Attempt to find the latest record within the given map of records
+     * 
+     * @param recordsMap
+     *            map as given by {@link org.openmuc.framework.datalogger.ascii.LogFileReader#getValues(long, long)}
+     * @return Map of channelId and latest Record for that channel, empty map if non-existent
+     */
+    public static Map<String, Record> findLatestValue(Map<String, List<Record>> recordsMap) {
+        Map<String, Record> recordMap = new HashMap<>();
+
+        for (Entry<String, List<Record>> entries : recordsMap.entrySet()) {
+            List<Record> records = entries.getValue();
+            // find the latest record
+            long latestTimestamp = 0;
+            Record latestRecord = null;
+            for (Record record : records) {
+                if (record.getTimestamp() > latestTimestamp) {
+                    latestRecord = record;
+                    latestTimestamp = record.getTimestamp();
+                }
+            }
+            // only add the latest Record to the map
+            if (latestRecord != null) {
+                recordMap.put(entries.getKey(), latestRecord);
+            }
+        }
+        return recordMap;
+    }
+
+    /**
+     * Gets all files with the .dat extension from this folder
+     * 
+     * @return list of all data files in the folder
+     */
+    public static List<File> getAllDataFiles(String directoryPath) {
+        File dir = new File(directoryPath);
+        File[] allFiles = dir.listFiles();
+        List<File> files = new LinkedList<>();
+        if (allFiles == null || allFiles.length == 0) {
+            logger.error("No file found in " + directoryPath);
+            return null;
+        }
+        for (File file : allFiles) {
+            String fileName = file.getName();
+            if (fileName.endsWith(Const.EXTENSION)) {
+                files.add(file);
+            }
+        }
+        return files;
+    }
+
+    /**
+     * Get the date of the file with given fileName by parsing. The file name must start with the date in YYYYMMDD
+     * format.
+     * 
+     * @param fileName
+     *            of the file to be parsed. Must start with the date in "YYYYMMDD" format
+     * @return parsed Date
+     * @throws ParseException
+     *             when parsing of the file fails.
+     */
+    public static Date getDateOfFile(String fileName) throws ParseException {
+        String dateString = fileName.substring(0, 8);
+        String pattern = "yyyyMMdd";
+        Date date = new SimpleDateFormat(pattern).parse(dateString);
+        return date;
+    }
+
+    /**
+     * Get the latest file of a list of files by comparing file names The file name must start with the date in YYYYMMDD
+     * format.
+     * 
+     * @param files
+     * @return file with the latest date
+     */
+    public static File getLatestFile(List<File> files) {
+        long latestTimestamp = 0;
+        File latestFile = null;
+        for (File file : files) {
+            long timestamp = 0;
+            try {
+                String fileName = file.getName();
+                timestamp = getDateOfFile(fileName).getTime();
+            } catch (ParseException ex) {
+                logger.error("Data file could not be parsed... continuing with next");
+                continue;
+            }
+            if (timestamp > latestTimestamp) {
+                latestTimestamp = timestamp;
+                latestFile = file;
+            }
+        }
+        return latestFile;
+    }
 }

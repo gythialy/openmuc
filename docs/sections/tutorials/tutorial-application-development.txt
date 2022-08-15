@@ -1,0 +1,151 @@
+=== Develop a Customised Application
+
+*Objective:* You will learn how to develop your own OpenMUC application. This tutorial focuses on the Eclipse integration, build process and how to start 
+your application in the felix OSGi framework.
+
+*Preparation:* This tutorial is based on Eclipse IDE and Gradle build tool, therefore you need Eclipse IDE and Gradle installed on your pc.
+
+*Step-by-step*
+
+. Download and unpack the OpenMUC framework. Open a terminal and navigate to the openmuc folder
+
+. Create a new project based on the simple demo application. Navigate to openmuc/projects/app and copy the simpledemo folder and rename the copy to __ems__ (Energy Management System).
+
+. Edit the build.gradle file inside your __ems__ folder. Rename the project name and description and save the file.
+
++
+----
+def projectName = "EMS"
+...
+description "OpenMUC Energy Management System."
+----
+
+. Navigate to app/ems/src/main/java/org/openmuc/framework/app/ and rename the folder simpledemo to ems
+
+. Replace the SimpleDemoApp.java inside this ems folder with EmsApp.java. 
+
++
+----
+package org.openmuc.framework.app.ems;
+
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DataAccessService;
+import org.openmuc.framework.dataaccess.RecordListener;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component(service = {})
+public final class EmsApp{
+	
+	private static final Logger logger = LoggerFactory.getLogger(EmsApp.class);
+	private static final String APP_NAME = "OpenMUC EMS App";
+
+	private Channel chPowerGrid;
+	private RecordListener powerListener;
+
+	@Reference
+	private DataAccessService dataAccessService;
+
+	@Activate
+	private void activate() {
+		logger.info("Activating {}", APP_NAME);				
+		powerListener = new PowerListener();
+		chPowerGrid = dataAccessService.getChannel("power_grid");
+		chPowerGrid.addListener(powerListener);
+	}
+
+	@Deactivate
+	private void deactivate() {
+		logger.info("Deactivating {}", APP_NAME);
+		chPowerGrid.removeListener(powerListener);
+	}
+}
+	
+class PowerListener implements RecordListener{
+
+	private static final Logger logger = LoggerFactory.getLogger(PowerListener.class);
+	
+	@Override
+	public void newRecord(Record record) {
+		if (record.getValue() != null) {
+			logger.info(">>> grid power: {}", record.getValue().asDouble());
+		} 
+	}
+}
+----
++
+
+This is a light version of the simple demo application and basically adds a listener to the power_grid channel and logs the current value. This class 
+can be used for further development of your application. 
+
+. Now we add our project to the gradle build process. For this purpose open the openmuc/settings.gradle in an editor and append following statement 
+to the include statement 
+
++
+----
+, "openmuc-app-ems"
+----
+
+. Furthermore you need to add following line at the end of settings.gradle 
+
++
+----
+project(":openmuc-app-ems").projectDir = file("projects/app/ems")
+----
+
+. Now we create the Eclipse project files by running the following command in the openmuc main directory
+
++
+----
+gradle eclipse
+----
+
+. Start your Eclipse IDE and set the GRADLE_USER_HOME classpath variable: Go to Window>Preferences>Java>Build Path>Classpath Variable. Set the 
+variable GRADLE_USER_HOME to the path of the ~/.gradle folder in your home directory (e.g. /home/<user_name>/.gradle/
+
+. Import the Openmuc projects into Eclipse: Go to File>Import>General>Existing Projects into Workspace, select your OpenMUC directory and click on 
+Finish. All projects should be imported without any errors.
+
+. Now add the EMS application to the OpenMUC Framework. Navigate openmuc/framework/conf and and following line to bundles.conf.gradle below the openmuc-app-simpledemo entry:
+
++
+----
+osgibundles group: "org.openmuc.framework", name: "openmuc-app-ems",                   version: openmucVersion
+----
+
+. Finally we build the framework and start our application. Navigate to openmuc/framework/bin and run:
+
++
+----
+./openmuc update-bundles -b
+----
++ 
+This will build all bundles and copies them to /openmuc/framework/bundles. Our EMS app should be now inside this folder e.g. openmuc-app-ems-<version>.jar
+
+. Start the framework with:
+
++
+----
+./openmuc start -fg
+----
+
+. The log messages of our EMS application are now visible in the terminal e.g:
+
++
+----
+2018-12-17 19:10:20.015 [...] INFO  o.o.framework.app.simpledemo.EmsApp - >>> grid power: -1.779
+2018-12-17 19:10:25.006 [...] INFO  o.o.framework.app.simpledemo.EmsApp - >>> grid power: -1.761
+----
+
+. Now you know all the steps to build a new application and get it running in OpenMUC. For further development you should have a look at the source code of the SimpleDemoApp.java.  
+
+
+
+
+
+

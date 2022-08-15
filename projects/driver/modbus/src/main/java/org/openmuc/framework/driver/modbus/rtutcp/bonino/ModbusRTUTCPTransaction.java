@@ -37,8 +37,8 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     }
 
     /**
-     * Constructs a new <code>ModbusTCPTransaction</code> instance with a given <code>ModbusRequest</code> to be send when the
-     * transaction is executed.
+     * Constructs a new <code>ModbusTCPTransaction</code> instance with a given <code>ModbusRequest</code> to be send
+     * when the transaction is executed.
      * 
      * @param request
      *            a <code>ModbusRequest</code> instance.
@@ -48,8 +48,8 @@ public class ModbusRTUTCPTransaction implements ModbusTransaction {
     }// constructor
 
     /**
-     * Constructs a new <code>ModbusTCPTransaction</code> instance with a given <code>TCPMasterConnection</code> to be used for
-     * transactions.
+     * Constructs a new <code>ModbusTCPTransaction</code> instance with a given <code>TCPMasterConnection</code> to be
+     * used for transactions.
      * 
      * @param con
      *            a <code>TCPMasterConnection</code> instance.

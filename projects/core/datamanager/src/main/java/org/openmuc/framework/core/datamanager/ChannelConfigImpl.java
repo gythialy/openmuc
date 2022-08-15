@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,18 +21,26 @@
 
 package org.openmuc.framework.core.datamanager;
 
-import org.openmuc.framework.config.*;
-import org.openmuc.framework.data.ValueType;
-import org.openmuc.framework.dataaccess.ChannelState;
-import org.openmuc.framework.datalogger.spi.LogChannel;
-import org.w3c.dom.*;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.openmuc.framework.config.ChannelConfig;
+import org.openmuc.framework.config.DeviceConfig;
+import org.openmuc.framework.config.IdCollisionException;
+import org.openmuc.framework.config.ParseException;
+import org.openmuc.framework.config.ServerMapping;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.dataaccess.ChannelState;
+import org.openmuc.framework.datalogger.spi.LogChannel;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
     private static final Pattern timePattern = Pattern.compile("^([0-9]+)(ms|s|m|h)?$");
@@ -89,26 +97,33 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
                 if (childName.equals("#text")) {
                     continue;
-                } else if (childName.equals("description")) {
+                }
+                else if (childName.equals("description")) {
                     config.setDescription(childNode.getTextContent());
-                } else if (childName.equals("channelAddress")) {
+                }
+                else if (childName.equals("channelAddress")) {
                     config.setChannelAddress(childNode.getTextContent());
-                } else if (childName.equals("loggingSettings")) {
+                }
+                else if (childName.equals("loggingSettings")) {
                     config.setLoggingSettings(childNode.getTextContent());
                     config.setReader(getAttributeValue(childNode, "reader"));
-                } else if (childName.equals("serverMapping")) {
+                }
+                else if (childName.equals("serverMapping")) {
                     NamedNodeMap attributes = childNode.getAttributes();
                     Node nameAttribute = attributes.getNamedItem("id");
 
                     if (nameAttribute != null) {
                         config.addServerMapping(
                                 new ServerMapping(nameAttribute.getTextContent(), childNode.getTextContent()));
-                    } else {
+                    }
+                    else {
                         throw new ParseException("No id attribute specified for serverMapping.");
                     }
-                } else if (childName.equals("unit")) {
+                }
+                else if (childName.equals("unit")) {
                     config.setUnit(childNode.getTextContent());
-                } else if (childName.equals("valueType")) {
+                }
+                else if (childName.equals("valueType")) {
                     String valueTypeString = childNode.getTextContent().toUpperCase();
 
                     try {
@@ -126,30 +141,42 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
                         config.valueTypeLength = timeStringToMillis(valueTypeLengthString);
                     }
 
-                } else if (childName.equals("scalingFactor")) {
+                }
+                else if (childName.equals("scalingFactor")) {
                     config.setScalingFactor(Double.parseDouble(childNode.getTextContent()));
-                } else if (childName.equals("valueOffset")) {
+                }
+                else if (childName.equals("valueOffset")) {
                     config.setValueOffset(Double.parseDouble(childNode.getTextContent()));
-                } else if (childName.equals("listening")) {
+                }
+                else if (childName.equals("listening")) {
                     config.setListening(Boolean.parseBoolean(childNode.getTextContent()));
-                } else if (childName.equals("samplingInterval")) {
+                }
+                else if (childName.equals("samplingInterval")) {
                     config.setSamplingInterval(timeStringToMillis(childNode.getTextContent()));
-                } else if (childName.equals("samplingTimeOffset")) {
+                }
+                else if (childName.equals("samplingTimeOffset")) {
                     config.setSamplingTimeOffset(timeStringToMillis(childNode.getTextContent()));
-                } else if (childName.equals("samplingGroup")) {
+                }
+                else if (childName.equals("samplingGroup")) {
                     config.setSamplingGroup(childNode.getTextContent());
-                } else if (childName.equals("settings")) {
+                }
+                else if (childName.equals("settings")) {
                     config.setSettings(childNode.getTextContent());
-                } else if (childName.equals("loggingInterval")) {
+                }
+                else if (childName.equals("loggingInterval")) {
                     config.setLoggingInterval(timeStringToMillis(childNode.getTextContent()));
-                } else if (childName.equals("loggingTimeOffset")) {
+                }
+                else if (childName.equals("loggingTimeOffset")) {
                     config.setLoggingTimeOffset(timeStringToMillis(childNode.getTextContent()));
-                } else if (childName.equals("loggingEvent")) {
+                }
+                else if (childName.equals("loggingEvent")) {
                     config.setLoggingEvent(Boolean.parseBoolean(childNode.getTextContent()));
 
-                } else if (childName.equals("disabled")) {
+                }
+                else if (childName.equals("disabled")) {
                     config.setDisabled(Boolean.parseBoolean(childNode.getTextContent()));
-                } else {
+                }
+                else {
                     throw new ParseException("found unknown tag:" + childName);
                 }
             }
@@ -216,20 +243,20 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
         }
 
         switch (timeUnit) {
-            case "s":
-                return (int) milliseconds.convert(timeNum, TimeUnit.SECONDS);
+        case "s":
+            return (int) milliseconds.convert(timeNum, TimeUnit.SECONDS);
 
-            case "m":
-                return (int) milliseconds.convert(timeNum, TimeUnit.MINUTES);
+        case "m":
+            return (int) milliseconds.convert(timeNum, TimeUnit.MINUTES);
 
-            case "h":
-                return (int) milliseconds.convert(timeNum, TimeUnit.HOURS);
+        case "h":
+            return (int) milliseconds.convert(timeNum, TimeUnit.HOURS);
 
-            case "ms":
-                return timeNum.intValue();
-            default:
-                // can not reach this case: string pattern does not allow this.
-                throw new ParseException("Unknown time unit: " + timeUnit);
+        case "ms":
+            return timeNum.intValue();
+        default:
+            // can not reach this case: string pattern does not allow this.
+            throw new ParseException("Unknown time unit: " + timeUnit);
         }
 
     }
@@ -478,7 +505,8 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
     public List<ServerMapping> getServerMappings() {
         if (serverMappings != null) {
             return this.serverMappings;
-        } else {
+        }
+        else {
             return new ArrayList<>();
         }
     }
@@ -598,6 +626,12 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
             parentElement.appendChild(childElement);
         }
 
+        if (loggingSettings != null) {
+            childElement = document.createElement("loggingSettings");
+            childElement.setTextContent(loggingSettings);
+            parentElement.appendChild(childElement);
+        }
+
         if (disabled != null) {
             childElement = document.createElement("disabled");
             childElement.setTextContent(disabled.toString());
@@ -638,55 +672,69 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
         if (description == null) {
             configClone.description = ChannelConfig.DESCRIPTION_DEFAULT;
-        } else {
+        }
+        else {
             configClone.description = description;
         }
 
         if (channelAddress == null) {
             configClone.channelAddress = CHANNEL_ADDRESS_DEFAULT;
-        } else {
+        }
+        else {
             configClone.channelAddress = channelAddress;
         }
 
         if (serverMappings == null) {
             configClone.serverMappings = new ArrayList<>();
-        } else {
+        }
+        else {
             configClone.serverMappings = serverMappings;
         }
 
         if (unit == null) {
             configClone.unit = ChannelConfig.UNIT_DEFAULT;
-        } else {
+        }
+        else {
             configClone.unit = unit;
         }
 
         if (valueType == null) {
             configClone.valueType = ChannelConfig.VALUE_TYPE_DEFAULT;
-        } else {
+        }
+        else {
             configClone.valueType = valueType;
         }
 
         if (valueTypeLength == null) {
             if (valueType == ValueType.DOUBLE) {
                 configClone.valueTypeLength = 8;
-            } else if (valueType == ValueType.BYTE_ARRAY) {
+            }
+            else if (valueType == ValueType.BYTE_ARRAY) {
                 configClone.valueTypeLength = ChannelConfig.BYTE_ARRAY_SIZE_DEFAULT;
-            } else if (valueType == ValueType.STRING) {
+            }
+            else if (valueType == ValueType.STRING) {
                 configClone.valueTypeLength = ChannelConfig.STRING_SIZE_DEFAULT;
-            } else if (valueType == ValueType.BYTE) {
-                configClone.valueTypeLength = 1;
-            } else if (valueType == ValueType.FLOAT) {
-                configClone.valueTypeLength = 4;
-            } else if (valueType == ValueType.SHORT) {
-                configClone.valueTypeLength = 2;
-            } else if (valueType == ValueType.INTEGER) {
-                configClone.valueTypeLength = 4;
-            } else if (valueType == ValueType.LONG) {
-                configClone.valueTypeLength = 8;
-            } else if (valueType == ValueType.BOOLEAN) {
+            }
+            else if (valueType == ValueType.BYTE) {
                 configClone.valueTypeLength = 1;
             }
-        } else {
+            else if (valueType == ValueType.FLOAT) {
+                configClone.valueTypeLength = 4;
+            }
+            else if (valueType == ValueType.SHORT) {
+                configClone.valueTypeLength = 2;
+            }
+            else if (valueType == ValueType.INTEGER) {
+                configClone.valueTypeLength = 4;
+            }
+            else if (valueType == ValueType.LONG) {
+                configClone.valueTypeLength = 8;
+            }
+            else if (valueType == ValueType.BOOLEAN) {
+                configClone.valueTypeLength = 1;
+            }
+        }
+        else {
             configClone.valueTypeLength = valueTypeLength;
         }
 
@@ -695,70 +743,82 @@ public final class ChannelConfigImpl implements ChannelConfig, LogChannel {
 
         if (listening == null) {
             configClone.listening = ChannelConfig.LISTENING_DEFAULT;
-        } else {
+        }
+        else {
             configClone.listening = listening;
         }
 
         if (samplingInterval == null) {
             configClone.samplingInterval = ChannelConfig.SAMPLING_INTERVAL_DEFAULT;
-        } else {
+        }
+        else {
             configClone.samplingInterval = samplingInterval;
         }
 
         if (samplingTimeOffset == null) {
             configClone.samplingTimeOffset = ChannelConfig.SAMPLING_TIME_OFFSET_DEFAULT;
-        } else {
+        }
+        else {
             configClone.samplingTimeOffset = samplingTimeOffset;
         }
 
         if (samplingGroup == null) {
             configClone.samplingGroup = ChannelConfig.SAMPLING_GROUP_DEFAULT;
-        } else {
+        }
+        else {
             configClone.samplingGroup = samplingGroup;
         }
 
         if (settings == null) {
             configClone.settings = ChannelConfig.SETTINGS_DEFAULT;
-        } else {
+        }
+        else {
             configClone.settings = settings;
         }
 
         if (loggingInterval == null) {
             configClone.loggingInterval = ChannelConfig.LOGGING_INTERVAL_DEFAULT;
-        } else {
+        }
+        else {
             configClone.loggingInterval = loggingInterval;
         }
 
         if (loggingEvent == null) {
             configClone.loggingEvent = ChannelConfig.LOGGING_EVENT_DEFAULT;
-        } else {
+        }
+        else {
             configClone.loggingEvent = loggingEvent;
         }
 
         if (loggingSettings == null) {
             configClone.loggingSettings = ChannelConfig.LOGGING_SETTINGS_DEFAULT;
-        } else {
+        }
+        else {
             configClone.loggingSettings = loggingSettings;
         }
 
         if (reader == null) {
             configClone.reader = ChannelConfig.LOGGING_READER_DEFAULT;
-        } else {
+        }
+        else {
             configClone.reader = reader;
         }
 
         if (loggingTimeOffset == null) {
             configClone.loggingTimeOffset = ChannelConfig.LOGGING_TIME_OFFSET_DEFAULT;
-        } else {
+        }
+        else {
             configClone.loggingTimeOffset = loggingTimeOffset;
         }
 
         if (disabled == null) {
             configClone.disabled = clonedParentConfig.isDisabled();
-        } else {
+        }
+        else {
             if (clonedParentConfig.isDisabled()) {
                 configClone.disabled = false;
-            } else {
+            }
+            else {
                 configClone.disabled = disabled;
             }
         }

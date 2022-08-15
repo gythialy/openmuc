@@ -1,0 +1,51 @@
+=== REST/JSON
+
+Driver to connect an OpenMUC instance with an remote OpenMUC instance with REST.
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | rest
+|Device Address | http(s)://&lt;address&gt;:&lt;port&gt;
+|Settings | [ct;]<username>:<password>
+|Channel Address | <channelID>
+|=========================================================
+
+* host_address: the address of the remote OpenMUC eg. 127.0.0.1
+* port: the port of the remote OpenMUC eg. 8888
+* ct: this optional flag defines if the driver should check the remote timestamp, before reading the complete record
+* username: the username of the remote OpenMUC
+* password: the pasword of the remote OpenMUC
+* channelID: the ID of the remote OpenMUC
+
+Supported features:
+
+* read channel
+* write channel
+* scan for all channels
+
+Not supported features:
+
+* scan for devices
+* reading whole devices instead of single channel
+* listening
+
+Example:
+
+Connecting to an remote OpenMUC instance (192.168.8.18:8888) and reading the channel "power_grid"
+every 5s if the timestamp has changed.
+
+[source,xml]
+----
+<driver id="rest">
+    <device id="example_rest_device">
+      <deviceAddress>http://192.168.8.18:8888</deviceAddress>
+      <settings>ct;admin:admin</settings>
+      <channel id="power_grid_rest">
+        <channelAddress>power_grid</channelAddress>
+        <samplingInterval>5s</samplingInterval>
+      </channel>
+   </device>
+</driver>
+----
+

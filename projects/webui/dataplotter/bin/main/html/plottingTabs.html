@@ -1,0 +1,14 @@
+<div ng-controller="TabsController">
+  <div ng-if="!confFile">
+		<uib-tabset class="nav nav-tabs">
+		  <uib-tab class="nav-item active" heading="{{'DATA_PLOTTER' | translate}}" data-toggle="tab" ui-sref="dataplotter.data"></uib-tab>
+		  <uib-tab class="nav-item active" heading="{{'LIVE_PLOTTER' | translate}}" data-toggle="tab" ui-sref="dataplotter.live"></uib-tab>
+		</uib-tabset>
+  </div>
+  <div ng-if="confFile">
+    <uib-tabset class="nav nav-tabs" active="activeTabIndex">
+	    <uib-tab ng-repeat="plotter in confFile" class="nav-item" index="plotter.name" ng-click="setTabIndex(plotter.name)" heading="{{plotter.name}}" ui-sref="dataplotter.{{plotter.type}}({name: plotter.name})">
+	    </uib-tab>
+    </uib-tabset>
+  </div>
+</div>

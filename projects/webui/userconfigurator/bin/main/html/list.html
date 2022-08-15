@@ -1,0 +1,26 @@
+<div class="alert alert-md alert-warning" ng-show="!users.length">
+  <b class="small">{{'NO_USERS' | translate}}</b>
+</div>
+
+<table class="table table-hover" ng-show="users.length">
+  <thead>
+    <tr>
+			<th>{{'USERNAME' | translate}}</th>
+			<th>{{'ACTION' | translate}}</th>
+    </tr>
+  </thead>
+  <tr ng-repeat="user in users">
+    <td>{{user}}</td>
+    <td id="icons">
+      <a ng-click="deleteUser(user)" class="btn btn-secondary btn-md" uib-tooltip="{{'DELETE' | translate}}">
+        <span class="item-icon fa fa-trash-o" aria-hidden="true"></span>
+      </a>
+    </td>            
+  </tr>  
+</table>
+
+<br />
+
+<div class="text-right">
+  <a ui-sref="userconfigurator.new" class="btn btn-primary">{{'ADD_USER' | translate}}...</a>
+</div>

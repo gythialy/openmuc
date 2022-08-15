@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,13 +21,13 @@
 
 package org.openmuc.framework.lib.amqp;
 
-import com.rabbitmq.client.Recoverable;
-import com.rabbitmq.client.RecoveryListener;
+import java.util.Iterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import com.rabbitmq.client.Recoverable;
+import com.rabbitmq.client.RecoveryListener;
 
 /**
  * Sends (writes) messages to an AmqpConnection
@@ -35,43 +35,87 @@ import java.util.Queue;
 public class AmqpWriter {
     private static final Logger logger = LoggerFactory.getLogger(AmqpWriter.class);
 
-    private final Queue<MessageTuple> messageBuffer = new LinkedList<>();
+    private final AmqpBufferHandler bufferHandler;
     private final AmqpConnection connection;
+    private final String pid;
 
     /**
-     * @param connection an instance of {@link AmqpConnection}
+     * @param connection
+     *            an instance of {@link AmqpConnection}
+     * @param pid
+     *            pid for log messages
      */
-    public AmqpWriter(AmqpConnection connection) {
+    public AmqpWriter(AmqpConnection connection, String pid) {
         this.connection = connection;
+        this.pid = pid;
+
+        AmqpSettings s = connection.getSettings();
+        bufferHandler = new AmqpBufferHandler(s.getMaxBufferSize(), s.getMaxFileCount(), s.getMaxFileSize(),
+                s.getPersistenceDirectory());
 
         connection.addRecoveryListener(new RecoveryListener() {
             @Override
             public void handleRecovery(Recoverable recoverable) {
-                while (!messageBuffer.isEmpty()) {
-                    MessageTuple messageTuple = messageBuffer.remove();
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("resending buffered message");
-                    }
-                    write(messageTuple.routingKey, messageTuple.message);
-                }
+                emptyFileBuffer();
+                emptyRAMBuffer();
             }
 
             @Override
             public void handleRecoveryStarted(Recoverable recoverable) {
             }
         });
+
+        if (connection.isConnected()) {
+            emptyFileBuffer();
+            emptyRAMBuffer();
+        }
+    }
+
+    private void emptyFileBuffer() {
+        String[] buffers = bufferHandler.getBuffers();
+        logger.debug("[{}] Clearing file buffer.", pid);
+        if (buffers.length == 0) {
+            logger.debug("[{}] File buffer already empty.", pid);
+        }
+        for (String buffer : buffers) {
+            Iterator<AmqpMessageTuple> iterator = bufferHandler.getMessageIterator(buffer);
+            while (iterator.hasNext()) {
+                AmqpMessageTuple messageTuple = iterator.next();
+                if (logger.isTraceEnabled()) {
+                    logger.trace("[{}] Resend from file: {}", pid, new String(messageTuple.getMessage()));
+                }
+                write(messageTuple.getRoutingKey(), messageTuple.getMessage());
+            }
+        }
+        logger.debug("[{}] File buffer cleared.", pid);
+    }
+
+    private void emptyRAMBuffer() {
+        logger.debug("[{}] Clearing RAM buffer.", pid);
+        if (bufferHandler.isEmpty()) {
+            logger.debug("[{}] RAM buffer already empty.", pid);
+        }
+        while (!bufferHandler.isEmpty()) {
+            AmqpMessageTuple messageTuple = bufferHandler.removeNextMessage();
+            if (logger.isTraceEnabled()) {
+                logger.trace("[{}] Resend from memory: {}", pid, new String(messageTuple.getMessage()));
+            }
+            write(messageTuple.getRoutingKey(), messageTuple.getMessage());
+        }
+        logger.debug("[{}] RAM buffer cleared.", pid);
     }
 
     /**
      * Publish a message with routing key, when failing the message is buffered and republished on recovery
      *
-     * @param routingKey the routingKey with which to publish the message
-     * @param message    byte array containing the message to be published
+     * @param routingKey
+     *            the routingKey with which to publish the message
+     * @param message
+     *            byte array containing the message to be published
      */
     public void write(String routingKey, byte[] message) {
         if (!publish(routingKey, message)) {
-            messageBuffer.add(new MessageTuple(routingKey, message));
-            logger.debug("Added not published message to message buffer. Size: {}", messageBuffer.size());
+            bufferHandler.add(routingKey, message);
         }
     }
 
@@ -80,23 +124,18 @@ public class AmqpWriter {
             connection.declareQueue(routingKey);
             connection.getRabbitMqChannel().basicPublish(connection.getExchange(), routingKey, false, null, message);
         } catch (Exception e) {
-            logger.error("Could not publish message: {}", e.getMessage());
+            logger.error("[{}] Could not publish message: {}", pid, e.getMessage());
             return false;
         }
 
         if (logger.isTraceEnabled()) {
-            logger.trace("published with routingKey {}, payload: {}", routingKey, new String(message));
+            logger.trace("[{}] published with routingKey {}, payload: {}", pid, routingKey, new String(message));
         }
         return true;
     }
 
-    private static class MessageTuple {
-        private final String routingKey;
-        private final byte[] message;
-
-        MessageTuple(String routingKey, byte[] message) {
-            this.routingKey = routingKey;
-            this.message = message;
-        }
+    public void shutdown() {
+        logger.debug("[{}] Saving buffers.", pid);
+        bufferHandler.persist();
     }
 }

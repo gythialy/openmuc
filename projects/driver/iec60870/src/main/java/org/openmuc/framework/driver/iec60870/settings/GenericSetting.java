@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -103,7 +103,7 @@ public abstract class GenericSetting {
      * Example Option Enum
      */
     @SuppressWarnings("unused")
-    private static enum Option implements OptionI {
+    private enum Option implements OptionI {
         EXAMPLE0("ex0", Integer.class, false),
         EXAMPLE1("ex1", String.class, true);
 

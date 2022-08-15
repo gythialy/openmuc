@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -21,15 +21,16 @@
 
 package org.openmuc.framework.lib.amqp;
 
-import com.rabbitmq.client.DeliverCallback;
-import com.rabbitmq.client.GetResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.GetResponse;
 
 /**
  * Gets (reads) messages from an AmqpConnection
@@ -40,7 +41,8 @@ public class AmqpReader {
     private final List<Listener> listeners = new ArrayList<>();
 
     /**
-     * @param connection an instance of {@link AmqpConnection}
+     * @param connection
+     *            an instance of {@link AmqpConnection}
      */
     public AmqpReader(AmqpConnection connection) {
         connection.addReader(this);
@@ -50,7 +52,8 @@ public class AmqpReader {
     /**
      * get a message from the specified queue
      *
-     * @param queue the queue from which to pull a message
+     * @param queue
+     *            the queue from which to pull a message
      * @return byte array containing the received message, null if no message was received
      */
     public byte[] read(String queue) {
@@ -84,8 +87,10 @@ public class AmqpReader {
     /**
      * get messages from specified queues and send them to the specified {@link AmqpMessageListener}
      *
-     * @param queues   String collection with queues to receive messages via push
-     * @param listener received messages are sent to this listener
+     * @param queues
+     *            String collection with queues to receive messages via push
+     * @param listener
+     *            received messages are sent to this listener
      */
     public void listen(Collection<String> queues, AmqpMessageListener listener) {
         listeners.add(new Listener(queues, listener));
@@ -97,20 +102,20 @@ public class AmqpReader {
                 }
             };
 
-            try {
-                connection.declareQueue(queue);
-            } catch (IOException e) {
-                e.printStackTrace();
-                logger.error("Declaring queue failed: {}", e.getMessage());
-                e.printStackTrace();
-                continue;
-            }
+            if (connection.isConnected()) {
+                try {
+                    connection.declareQueue(queue);
+                } catch (IOException e) {
+                    logger.error("Declaring queue failed: {}", e.getMessage());
+                    continue;
+                }
 
-            try {
-                connection.getRabbitMqChannel().basicConsume(queue, true, deliverCallback, consumerTag -> {
-                });
-            } catch (IOException e) {
-                logger.error("Could not subscribe for messages: {}", e.getMessage());
+                try {
+                    connection.getRabbitMqChannel().basicConsume(queue, true, deliverCallback, consumerTag -> {
+                    });
+                } catch (IOException e) {
+                    logger.error("Could not subscribe for messages: {}", e.getMessage());
+                }
             }
         }
     }

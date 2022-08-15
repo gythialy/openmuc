@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -154,7 +154,7 @@ public abstract class ModbusConnection implements Connection {
             disconnect();
             throw new ConnectionException(e);
         } catch (ModbusException e) {
-            logger.error("Unable to read ChannelGroup", e);
+            logger.error("Unable to read ChannelGroup " + samplingGroup, e);
 
             // set channel values and flag, otherwise the datamanager will throw a null pointer exception
             // and the framework collapses.

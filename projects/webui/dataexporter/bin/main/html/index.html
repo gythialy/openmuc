@@ -1,0 +1,100 @@
+<div class="page-header">
+  <h1>{{'EXPORT_DATA_AS_CSV' | translate}}</h1>
+</div>
+
+<fieldset>
+  <legend>{{'EXPORT_OPTIONS' | translate}}</legend>
+  <form class="form-horizontal data-form" ng-submit="exportData()" novalidate>
+
+      <div class="form-group row">
+          <label for="date_since" class="col-md-2 control-label">{{'EXPORT_DATA_SINCE' | translate}}:</label>
+          <div class="col-md-2">
+              <div class="input-group">
+                <input id="start_date" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="startDate" is-open="openStart" datepicker-options="dateOptions" data-autoclose="1" placeholder="{{'DATE' | translate}}">
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-secondary" ng-click="openStart = true">
+                      <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </button>
+                </span>
+              </div>
+          </div>
+          <div class="col-md-2">
+            <div class="input-group"
+                type="text" id="time" uib-timepicker class="form-control" uib-tooltip="{{'USE_SCROLLWHEEL_OR_CLICK_AND_USE_ARROW_KEYS' | translate}}" ng-model="startDate"  hour-step="1" minute-step="mstep" show-spinners="false" show-meridian="ismeridian" placeholder="{{'TIME' | translate}}">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-primary" ng-click="ismeridian = !ismeridian">12H / 24H</button>
+          </div>
+      </div>
+
+      <div class="form-group row">
+          <label for="date_until" class="col-md-2 control-label">{{'EXPORT_DATA_UNTIL' | translate}}:</label>
+          <div class="col-md-2">
+              <div class="input-group">
+                <input id="end_date" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="endDate" is-open="openEnd" datepicker-options="dateOptions" data-autoclose="1" placeholder="{{'DATE' | translate}}">
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-secondary" ng-click="openEnd = true">
+                      <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </button>
+                  </span>
+              </div>
+          </div>
+          <div class="col-md-2">
+            <div class="input-group"
+                type="text" id="time" uib-timepicker class="form-control" uib-tooltip="{{'USE_SCROLLWHEEL_OR_CLICK_AND_USE_ARROW_KEYS' | translate}}" ng-model="endDate" hour-step="1" minute-step="mstep" show-spinners="false" show-meridian="ismeridian" placeholder="{{'TIME' | translate}}">
+            </div>
+          </div>
+        <div class="col-md-5">
+            <div class="row">
+                <div class="input-group col-md-6">
+                    <select class="form-control" ng-model="mstep" ng-options="opt for opt in options.mstep"></select>
+                    <div class="input-group-append">
+                        <span class="input-group-text">{{'MINUTE_STEPS' | translate}}</span>
+                    </div>
+                </div>    
+            </div>    
+        </div>
+      </div>
+
+    <div class="form-group row">
+	    <label for="time_format" class="col-md-2 control-label">{{'TIME_FORMAT' | translate}}:</label>
+      <div class="col-md-6">
+				<select ng-model="timeFormat" name="timeFormat" id="timeFormat" class="form-control">
+                  <option ng-value="1" ng-selected="selected">Java timestamp</option>
+                  <option ng-value="2">Unix timestamp</option>
+                  <option ng-value="3">ISO 8601</option>
+                  <option ng-value="4">ISO 8601 + Unix timestamp</option>
+                </select>
+		  </div>
+	  </div>
+
+    <div class="form-group row">
+      <label class="col-md-2 control-label">
+        {{'SELECT_CHANNELS_TO_EXPORT' | translate}}
+      </label>
+
+      <div class="col-md-6 row">
+        <div class="col-lg-6" ng-repeat="channel in channels">
+          <label class="sr-only">{{channel.label}}</label>
+          <label uib-tooltip="{{!channel.historic  ? ('CHANNEL_NOT_HISTORIC' | translate) : ''}}" ng-class="{deactivated: !channel.historic}">
+          <input type="checkbox"
+            checklist-model="selectedChannels"
+            checklist-value="channel"
+            ng-disabled="!channel.historic" />
+          {{channel.label}}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <div class="form-group text-right row">
+      <div class="col-md-8">
+	      <input type="submit" class="btn btn-primary" ng-disabled="disabledPlot()" value="{{'GENERATE_DATA' | translate}} ..."/>
+	      <button type="button" ng-csv="data" filename="{{firstTimestamp}}-{{lastTimestamp}}.csv" csv-header="getHeader()" class="btn btn-primary" ng-disabled="disableExport">{{'EXPORT'| translate}}</button>
+      </div>
+    </div>
+  </form>
+</fieldset>

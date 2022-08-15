@@ -1,0 +1,20 @@
+#mediaviewer-grid {
+	margin-bottom: 30px;
+}
+
+#mediaviewer-grid .item {
+	margin-bottom: 20px;
+}
+
+#mediaviewer-grid .item .item-label {
+	display: block;
+	padding: 10px 15px 20px 15px;
+	font-weight: bold;
+}
+
+#mediaviewer-grid .item .item-icon {
+	display: block;
+	font-size: 36px;
+	padding-bottom: 15px;
+	color: #00947a;
+}

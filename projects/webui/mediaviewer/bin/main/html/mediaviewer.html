@@ -1,0 +1,16 @@
+<div id="mediaviewer-grid" class="row">
+
+  <div class="alert alert-md alert-warning" ng-show="!media.length">
+    <b class="small">{{'NO_MEDIA' | translate}}</b>
+  </div>
+  
+  <div ng-repeat="document in media" class="col-md-3">
+    <div class="item text-center">
+      <a ng-href="{{document.file}}" class="btn btn-grid btn-block" target="_blank">
+        <span class="item-icon fa fa-file-text-o" aria-hidden="true"></span>
+        {{document.name}} 
+      </a>
+    </div>
+  </div>
+  
+</div>

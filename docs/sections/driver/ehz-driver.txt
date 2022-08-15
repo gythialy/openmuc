@@ -1,0 +1,20 @@
+=== eHZ
+
+OpenMUC driver for SML and IEC 62056-21
+
+*Dependencies:* rxtxcomm_api-2.1.7.jar
+
+.Configuration Synopsis
+[{driver_table_op}, cols="1,4"]
+|=========================================================
+|ID | ehz
+|Device Address | sml://<serialPort> or iec://<serialPort>  e.g. sml:///dev/ttyUSB0
+|Settings |
+|Channel Address | <OBIScode> e.g. 10181ff (not 1-0:1.8.1*255)
+|=========================================================
+
+
+scanForDevices() and scanForChannels will return the specific configuration.
+
+
+

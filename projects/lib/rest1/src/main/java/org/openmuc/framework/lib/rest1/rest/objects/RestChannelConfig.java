@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 Fraunhofer ISE
+ * Copyright 2011-2022 Fraunhofer ISE
  *
  * This file is part of OpenMUC.
  * For more information visit http://www.openmuc.org
@@ -20,10 +20,10 @@
  */
 package org.openmuc.framework.lib.rest1.rest.objects;
 
+import java.util.List;
+
 import org.openmuc.framework.config.ServerMapping;
 import org.openmuc.framework.data.ValueType;
-
-import java.util.List;
 
 public class RestChannelConfig {
 
